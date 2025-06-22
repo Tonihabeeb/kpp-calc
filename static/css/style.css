@@ -1,0 +1,64 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+#controls {
+    background: #fff;
+    padding: 1em;
+    margin: 1em auto;
+    max-width: 800px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+#controls label {
+    margin-right: 1em;
+}
+#controls button {
+    margin-left: 1em;
+    margin-bottom: 0.5em;
+}
+#charts {
+    max-width: 800px;
+    margin: 2em auto;
+    background: #fff;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+#summary {
+    max-width: 800px;
+    margin: 2em auto;
+    background: #fff;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+#summary ul {
+    list-style: none;
+    padding: 0;
+}
+#summary li {
+    margin-bottom: 0.5em;
+}
+#floaters {
+    max-width: 800px;
+    margin: 2em auto;
+    background: #fff;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+#floaters table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#floaters th, #floaters td {
+    border: 1px solid #ddd;
+    padding: 0.5em;
+    text-align: center;
+}
+#floaters th {
+    background: #f0f0f0;
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KPP Force Simulation</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>KPP Force Simulation</h1>
+    <div id="controls">
+        <button id="startBtn">Start</button>
+        <button id="pauseBtn">Pause</button>
+        <button id="stopBtn">Stop</button>
+        <button id="resetBtn">Reset</button>
+        <button id="stepBtn">Step</button>
+        <form id="paramsForm">
+            <label>Number of Floaters: <input type="number" name="num_floaters" value="66" min="1"></label>
+            <label>Floater Volume: <input type="number" name="floater_volume" value="0.7" step="0.01"></label>
+            <label>Floater Mass (empty): <input type="number" name="floater_mass_empty" value="7.0" step="0.1"></label>
+            <label>Floater Area: <input type="number" name="floater_area" value="0.035" step="0.01"></label>
+            <label>Air Pressure: <input type="number" name="airPressure" value="3.0" step="0.01"></label>
+            <button type="submit">Update Params</button>
+        </form>
+    </div>
+    <div id="charts">
+        <h2>Torque (Nm)</h2>
+        <canvas id="torqueChart"></canvas>
+        <h2>Power (kW)</h2>
+        <canvas id="powerChart"></canvas>
+    </div>
+    <div id="summary">
+        <h2>Summary</h2>
+        <ul>
+            <li>Time: <span id="summaryTime">0</span> s</li>
+            <li>Torque: <span id="summaryTorque">0</span> Nm</li>
+            <li>Power: <span id="summaryPower">0</span> kW</li>
+            <li>Velocity: <span id="summaryVelocity">0</span> m/s</li>
+        </ul>
+    </div>
+    <div id="floaters">
+        <h2>Floaters Status</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Position</th>
+                    <th>Velocity</th>
+                    <th>State</th>
+                    <th>Force</th>
+                    <th>Buoyancy</th>
+                    <th>Gravity</th>
+                    <th>Drag</th>
+                    <th>Net Force</th>
+                </tr>
+            </thead>
+            <tbody id="floatersTableBody">
+                <!-- Floater rows will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
