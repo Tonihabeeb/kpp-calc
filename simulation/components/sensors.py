@@ -1,9 +1,6 @@
 """
-Sensors module (stub).
-Simulates sensor readings and noise for the KPP simulator (future expansion).
-
-Sensor simulation logic (stub for future extension)
-Intended for simulating sensor readings and noise
+Sensors module for KPP simulator.
+Allows registration and polling of custom sensor objects (e.g., PositionSensor).
 """
 
 import logging
@@ -14,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class Sensors:
     """
-    Simulates sensor readings and noise (stub for future expansion).
+    Manages a collection of sensor objects and polls them each time-step.
     """
     def __init__(self, simulation=None):
         """
@@ -24,12 +21,31 @@ class Sensors:
             simulation: Reference to the Simulation object (optional).
         """
         self.simulation = simulation
-        logger.info("Sensors module initialized (stub).")
+        self.sensors = []
+        logger.info("Sensors module initialized.")
 
-    def get_readings(self) -> dict:
+    def register(self, sensor):
         """
-        Return simulated sensor readings (stub).
+        Register a new sensor.
+
+        Args:
+            sensor: The sensor object to register.
+        """
+        self.sensors.append(sensor)
+        logger.info(f"Registered sensor: {sensor}")
+
+    def poll(self, floater):
+        """
+        Poll all sensors for a given floater and return triggers.
+
+        Args:
+            floater: Floater object to check.
+
         Returns:
-            dict: Simulated readings (empty in Pre-Stage).
+            list: List of triggered sensors.
         """
-        return {}
+        triggered = []
+        for sensor in self.sensors:
+            if hasattr(sensor, 'check') and sensor.check(floater):
+                triggered.append(sensor)
+        return triggered

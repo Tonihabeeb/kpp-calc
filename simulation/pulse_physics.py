@@ -8,6 +8,7 @@ Date: 2025-06-22
 
 import math
 from typing import Dict, Any, Tuple
+import logging
 
 class PulsePhysics:
     def __init__(self, 
@@ -296,6 +297,49 @@ class PulsePhysics:
             'power_available': self.omega_flywheel * 1000,  # Example load torque
             'efficiency': self.eta_chain
         }
+    
+    def update_dynamics(self, net_torque, T_drag_chain, T_drag_flywheel, dt):
+        """
+        Update the dynamics of the chain and flywheel, considering clutch engagement.
+        """
+        logging.debug(f"Net torque: {net_torque}, Drag chain: {T_drag_chain}, Drag flywheel: {T_drag_flywheel}, dt: {dt}")
+
+        if self.should_engage_clutch():
+            self.clutch_engaged = True
+            logging.debug("Clutch engaged.")
+            # Combined inertia when coupled
+            total_inertia = self.I_chain + (self.I_flywheel / (self.gear_ratio ** 2))
+            
+            # Calculate acceleration of coupled system
+            net_force = net_torque - T_drag_chain - (T_drag_flywheel / self.gear_ratio)
+            alpha_chain = net_force / total_inertia
+            
+            # Update speeds (realistic mechanical coupling)
+            self.omega_chain += alpha_chain * dt
+            self.omega_flywheel = self.omega_chain * self.gear_ratio
+            
+        else:
+            self.clutch_engaged = False
+            logging.debug("Clutch disengaged.")
+            # Chain dynamics (realistic physics)
+            alpha_chain = (net_torque - T_drag_chain) / self.I_chain
+            self.omega_chain += alpha_chain * dt
+            
+            # Flywheel dynamics (realistic physics with generator load)
+            alpha_flywheel = -T_drag_flywheel / self.I_flywheel
+            self.omega_flywheel += alpha_flywheel * dt
+        
+        # Log the updated speeds
+        logging.debug(f"Updated omega_chain: {self.omega_chain}, omega_flywheel: {self.omega_flywheel}")
+
+    def should_engage_clutch(self):
+        """
+        Determine whether the clutch should be engaged based on current conditions.
+        """
+        # Placeholder logic for clutch engagement condition
+        engage = self.omega_chain > 10 and self.omega_flywheel < 300
+        logging.debug(f"Clutch engagement condition: {engage}")
+        return engage
 
 # Example usage and testing
 if __name__ == "__main__":

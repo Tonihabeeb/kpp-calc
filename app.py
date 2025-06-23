@@ -16,6 +16,8 @@ import queue
 import threading
 import time
 import logging
+import csv
+from collections import deque
 
 app = Flask(__name__)
 
@@ -47,6 +49,69 @@ sim_params = {
 }
 engine = SimulationEngine(sim_params, sim_data_queue)
 
+# Add a global list to store simulation data for analysis
+collected_data = []
+
+# Thread-safe deque for real-time input/output data collection
+# Store input and output data for analysis
+input_data = deque(maxlen=1000)  # Store the last 1000 inputs
+output_data = deque(maxlen=1000)  # Store the last 1000 outputs
+
+# Background thread for real-time analysis
+def analyze_data():
+    while True:
+        try:
+            # Analyze input data
+            if input_data:
+                latest_input = input_data[-1]
+                app.logger.debug(f"Analyzing input: {latest_input}")
+
+            # Analyze output data
+            if output_data:
+                latest_output = output_data[-1]
+                app.logger.debug(f"Analyzing output: {latest_output}")
+
+            time.sleep(0.5)  # Adjust analysis frequency as needed
+        except Exception as e:
+            app.logger.error(f"Error in data analysis thread: {e}")
+
+# Start the analysis thread
+analysis_thread = threading.Thread(target=analyze_data, daemon=True)
+analysis_thread.start()
+
+@app.before_request
+def log_request_info():
+    app.logger.info("Request Headers: %s", request.headers)
+    app.logger.info("Request Body: %s", request.get_data())
+
+@app.after_request
+def log_response_info(response):
+    app.logger.info("Response Status: %s", response.status)
+    app.logger.info("Response Headers: %s", response.headers)
+
+    # Collect data from the /data/summary endpoint for analysis
+    if request.endpoint == 'summary_data' and response.status_code == 200:
+        try:
+            data = response.get_json()
+            collected_data.append(data)
+        except Exception as e:
+            app.logger.error(f"Failed to collect data: {e}")
+
+    # Collect output data from responses
+    try:
+        if response.status_code == 200 and request.endpoint:
+            output_record = {
+                'endpoint': request.endpoint,
+                'status_code': response.status_code,
+                'data': response.get_json() if response.is_json else {},
+                'timestamp': time.time()
+            }
+            output_data.append(output_record)
+    except Exception as e:
+        app.logger.error(f"Failed to collect output data: {e}")
+    
+    return response
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -60,6 +125,7 @@ def stream():
                 # Get latest data from engine
                 if not engine.data_queue.empty():
                     data = engine.data_queue.get()
+                    output_data.append(data)  # Collect data for analysis
                     yield f"data: {json.dumps(data)}\n\n"
                 else:
                     # Send heartbeat
@@ -278,6 +344,74 @@ def download_csv():
     response = Response(generate_csv(), mimetype='text/csv')
     response.headers['Content-Disposition'] = 'attachment; filename="sim_data.csv"'
     return response
+
+@app.route('/export_collected_data', methods=['GET'])
+def export_collected_data():
+    """Export collected simulation data to a CSV file."""
+    output_file = 'collected_simulation_data.csv'
+    try:
+        with open(output_file, 'w', newline='') as csvfile:
+            fieldnames = ['time', 'torque', 'power', 'velocity', 'pulse_torque', 'base_torque', 'pulse_count', 'flywheel_speed', 'chain_speed', 'clutch_engaged']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            writer.writeheader()
+            writer.writerows(collected_data)
+
+        return send_file(output_file, as_attachment=True)
+    except Exception as e:
+        app.logger.error(f"Failed to export collected data: {e}")
+        return ("Failed to export data", 500)
+
+@app.route('/inspect/input_data', methods=['GET'])
+def inspect_input_data():
+    """Endpoint to inspect collected input data."""
+    try:
+        return {'input_data': list(input_data)}, 200
+    except Exception as e:
+        app.logger.error(f"Failed to retrieve input data: {e}")
+        return {'error': 'Failed to retrieve input data'}, 500
+
+@app.route('/inspect/output_data', methods=['GET'])
+def inspect_output_data():
+    """Endpoint to inspect collected output data."""
+    try:
+        return {'output_data': list(output_data)}, 200
+    except Exception as e:
+        app.logger.error(f"Failed to retrieve output data: {e}")
+        return {'error': 'Failed to retrieve output data'}, 500
+
+# Thread for real-time analysis
+def analyze_real_time_data():
+    while True:
+        if output_data:
+            try:
+                # Analyze the latest data
+                latest_data = output_data[-1]
+                app.logger.debug(f"Analyzing data: {latest_data}")
+
+                # Monitor key metrics
+                torque = latest_data.get('torque', 0)
+                power = latest_data.get('power', 0)
+                efficiency = latest_data.get('efficiency', 0)
+                clutch_engaged = latest_data.get('clutch_engaged', False)
+
+                # Log behavioral insights
+                if clutch_engaged:
+                    app.logger.info(f"Clutch engaged at time {latest_data.get('time', 0):.2f}s.")
+                if efficiency < 50:
+                    app.logger.warning(f"Low efficiency detected: {efficiency:.2f}% at time {latest_data.get('time', 0):.2f}s.")
+                if torque > 1000:
+                    app.logger.warning(f"High torque spike detected: {torque:.2f} Nm at time {latest_data.get('time', 0):.2f}s.")
+
+                # Add more behavioral analysis as needed
+
+                time.sleep(0.1)  # Adjust analysis frequency as needed
+            except Exception as e:
+                app.logger.error(f"Error during real-time analysis: {e}")
+
+# Start the analysis thread
+analysis_thread = threading.Thread(target=analyze_real_time_data, daemon=True)
+analysis_thread.start()
 
 if __name__ == "__main__":
     app.run(debug=True, threaded=True)
