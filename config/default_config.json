@@ -1,0 +1,20 @@
+{
+  "time_step": 0.1,
+  "total_time": 10.0,
+  "num_floaters": 8,
+  "floater_volume": 0.3,
+  "floater_mass_empty": 18.0,
+  "floater_area": 0.035,
+  "airPressure": 3.0,
+  "air_fill_time": 0.5,
+  "air_pressure": 300000,
+  "air_flow_rate": 0.6,
+  "jet_efficiency": 0.85,
+  "sprocket_radius": 0.5,
+  "flywheel_inertia": 50.0,
+  "pulse_interval": 2.0,
+  "nanobubble_frac": 0.0,
+  "thermal_coeff": 0.0001,
+  "water_temp": 20.0,
+  "ref_temp": 20.0
+}
