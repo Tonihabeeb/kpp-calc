@@ -62,17 +62,42 @@ class Floater:
         else:
             return drag_mag   # Downward motion, drag is upward
 
-    def update(self, dt: float) -> None:
+    @property
+    def force(self) -> float:
+        """
+        Calculate the net force acting on the floater.
+        :return: Net force (N)
+        """
+        F_buoy = self.compute_buoyant_force()
+        F_gravity = -self.mass * G
+        F_drag = self.compute_drag_force()
+        return F_buoy + F_gravity + F_drag
+
+    def to_dict(self) -> dict:
+        """
+        Serialize the floater's state to a dictionary.
+        :return: Dictionary representation of the floater's state.
+        """
+        return {
+            'volume': self.volume,
+            'mass': self.mass,
+            'area': self.area,
+            'Cd': self.Cd,
+            'position': self.position,
+            'velocity': self.velocity,
+            'is_filled': self.is_filled
+        }
+
+    def update(self, dt: float, params: dict, time: float) -> None:
         """
         Update floater's velocity and position over a time step dt using simple physics integration.
         Considers buoyancy, gravity, and drag forces.
         :param dt: Time step (s)
+        :param params: Simulation parameters
+        :param time: Current simulation time (s)
         """
 
-        F_buoy = self.compute_buoyant_force()
-        F_gravity = -self.mass * G
-        F_drag = self.compute_drag_force()
-        F_net = F_buoy + F_gravity + F_drag
+        F_net = self.force
         a = F_net / self.mass if self.mass > 0 else 0.0
         self.velocity += a * dt
         self.position += self.velocity * dt

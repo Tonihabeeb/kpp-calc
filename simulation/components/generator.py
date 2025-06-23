@@ -18,7 +18,7 @@ class Generator:
         """
         self.efficiency = efficiency
 
-    def compute_power(self, torque: float, angular_speed: float) -> float:
+    def calculate_power(self, torque: float, angular_speed: float) -> float:
         """
         Compute instantaneous power output.
         :param torque: Input torque (Nm)
@@ -26,6 +26,13 @@ class Generator:
         :return: Power output (W)
         """
         return torque * angular_speed * self.efficiency
+
+    def update_params(self, params: dict) -> None:
+        """
+        Update generator parameters dynamically.
+        :param params: Dictionary of parameters to update.
+        """
+        self.efficiency = params.get('efficiency', self.efficiency)
 
     def update(self, dt: float, input_torque: float) -> None:
         """

@@ -30,6 +30,14 @@ class Drivetrain:
         output_torque = chain_torque * self.gear_ratio * self.efficiency
         return output_torque
 
+    def calculate_torque(self, chain_force: float) -> float:
+        """
+        Calculate the torque delivered to the generator shaft given net force on the chain.
+        :param chain_force: Net force from floaters on the chain (N)
+        :return: Output torque at generator shaft (Nm)
+        """
+        return self.compute_torque(chain_force)
+
     def apply_load(self, generator_torque: float) -> float:
         """
         Determine how the generator's resistance feeds back to the chain (stub for future expansion).
@@ -38,3 +46,12 @@ class Drivetrain:
         """
         # For now, just a placeholder; in future, could reduce chain acceleration based on load
         return generator_torque / (self.sprocket_radius * self.gear_ratio) if self.sprocket_radius > 0 else 0.0
+
+    def update_params(self, params: dict) -> None:
+        """
+        Update drivetrain parameters dynamically.
+        :param params: Dictionary of parameters to update.
+        """
+        self.gear_ratio = params.get('gear_ratio', self.gear_ratio)
+        self.efficiency = params.get('efficiency', self.efficiency)
+        self.sprocket_radius = params.get('sprocket_radius', self.sprocket_radius)
