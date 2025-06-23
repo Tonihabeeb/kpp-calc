@@ -1,7 +1,11 @@
+# Flask web app entry point
+# All endpoints interact with the SimulationEngine only
+# Handles real-time simulation, streaming, and control requests
+
 # app.py
 from flask import Flask, render_template, request, send_file, Response
-from simulation.engine_realtime import RealTimeSimulationEngine as SimulationEngine
-from simulation.floater import Floater
+from simulation.engine import SimulationEngine
+from simulation.components.floater import Floater
 import os
 import json
 import io
@@ -11,8 +15,12 @@ import matplotlib.pyplot as plt
 import queue
 import threading
 import time
+import logging
 
 app = Flask(__name__)
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Set up the data queue and initial params for the real-time engine
 sim_data_queue = queue.Queue()
@@ -66,7 +74,9 @@ def stream():
 
 @app.route("/start", methods=["POST"])
 def start_simulation():
+    logging.debug("/start endpoint triggered.")
     params = request.get_json() or {}
+    logging.debug(f"Received params: {params}")
     engine.update_params(params)
     # If the data queue is empty, put an initial state
     if engine.data_queue.empty():
@@ -76,11 +86,13 @@ def start_simulation():
         state['velocity'] = 0
         state['floaters'] = [f.to_dict() for f in engine.floaters]
         engine.data_queue.put(state)
+        logging.debug("Initial state added to data queue.")
     # Always start a new simulation thread if not alive
-    if not getattr(engine, 'thread', None) or not engine.thread.is_alive():
+    if not engine.thread or not engine.thread.is_alive():
         engine.running = True
         engine.thread = threading.Thread(target=engine.run, daemon=True)
         engine.thread.start()
+        logging.debug("Simulation thread started.")
     return ("Simulation started", 200)
 
 @app.route("/stop", methods=["POST"])
@@ -129,7 +141,11 @@ def set_params():
     if 'num_floaters' in data:
         new_num = int(data['num_floaters'])
         if new_num != len(engine.floaters):
-            engine.floaters = [Floater(i, engine.params) for i in range(new_num)]
+            engine.floaters = [Floater(volume=engine.params.get('floater_volume', 0.3),
+                                       mass=engine.params.get('floater_mass_empty', 18.0),
+                                       area=engine.params.get('floater_area', 0.035),
+                                       Cd=engine.params.get('floater_Cd', 0.8))
+                               for _ in range(new_num)]
         engine.params['num_floaters'] = new_num
     if 'air_pressure' in data:
         engine.params['air_pressure'] = float(data['air_pressure'])
@@ -229,7 +245,11 @@ def reset_simulation():
     engine.pulse_physics.clutch_engaged = False
     # Reset floaters
     num_floaters = engine.params.get('num_floaters', 1)
-    engine.floaters = [Floater(i, engine.params) for i in range(num_floaters)]
+    engine.floaters = [Floater(volume=engine.params.get('floater_volume', 0.3),
+                             mass=engine.params.get('floater_mass_empty', 18.0),
+                             area=engine.params.get('floater_area', 0.035),
+                             Cd=engine.params.get('floater_Cd', 0.8))
+                   for _ in range(num_floaters)]
     return ("Simulation reset", 200)
 
 @app.route('/download_csv')
