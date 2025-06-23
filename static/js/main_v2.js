@@ -1,10 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Chart.js setup
-    let torqueChart, powerChart, pulseChart, effChart;
+    let torqueChart, powerChart, pulseChart;
     const torqueCtx = document.getElementById('torqueChart').getContext('2d');
     const powerCtx = document.getElementById('powerChart').getContext('2d');
     const pulseCtx = document.getElementById('pulseChart').getContext('2d');
-    const effCtx = document.getElementById('effChart').getContext('2d');
 
     // SSE connection
     let eventSource = null;
@@ -116,42 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Efficiency Chart (GuideV3.md requirement)
-    effChart = new Chart(effCtx, {
-        type: 'line',
-        data: { 
-            labels: [], 
-            datasets: [{ 
-                label: 'Efficiency', 
-                data: [], 
-                borderColor: 'purple', 
-                fill: false,
-                tension: 0.1
-            }] 
-        },
-        options: { 
-            responsive: true, 
-            scales: { 
-                x: { 
-                    title: { display: true, text: 'Time (s)' },
-                    ticks: {
-                        callback: function(value, index, values) {
-                            return Number(this.getLabelForValue(value)).toFixed(2);
-                        }
-                    }
-                }, 
-                y: { 
-                    title: { display: true, text: 'Efficiency (%)' },
-                    min: 0,
-                    max: 100
-                } 
-            },
-            animation: false,
-            plugins: {
-                legend: { display: true }
-            }
-        }
-    });    // SSE Connection Management (GuideV3.md pattern)
+    // SSE Connection Management
     function connectSSE() {
         if (eventSource) {
             eventSource.close();
@@ -186,61 +150,50 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Helper to add data to a Chart.js chart (from GuideV3.md)
-    function addData(chart, label, value) {
-        chart.data.labels.push(label);
-        chart.data.datasets.forEach((ds) => ds.data.push(value));
-        
-        // Keep only last 100 points for performance
-        if (chart.data.labels.length > 100) {
-            chart.data.labels.shift();
-            chart.data.datasets.forEach((ds) => ds.data.shift());
-        }
-        
-        chart.update('none'); // 'none' for better performance
-    }
-
     function updateConnectionStatus(status, className) {
         const statusElement = document.getElementById('sseStatus');
         statusElement.textContent = status;
         statusElement.className = className;
-    }    // Data history for charts
+    }
+
+    // Data history for charts
     const chartData = {
         time: [],
         torque: [],
         power: [],
-        efficiency: [],
         baseTorque: [],
         pulseTorque: []
     };
 
     function updateFromSSEData(data) {
-        // Use GuideV3.md pattern for real-time chart updates
+        // Update charts data
         if (data.time !== undefined) {
             const timeFormatted = Number(data.time).toFixed(2);
             
-            // Add new data points to charts using GuideV3.md addData helper
-            addData(torqueChart, timeFormatted, data.torque || 0);
-            addData(powerChart, timeFormatted, (data.power || 0) / 1000); // Convert to kW
-            addData(effChart, timeFormatted, data.efficiency || 0);
-            
-            // Update pulse chart (multiple datasets)
-            if (pulseChart.data.labels.length > 100) {
-                pulseChart.data.labels.shift();
-                pulseChart.data.datasets.forEach((ds) => ds.data.shift());
+            // Keep only last 100 points for performance
+            if (chartData.time.length >= 100) {
+                chartData.time.shift();
+                chartData.torque.shift();
+                chartData.power.shift();
+                chartData.baseTorque.shift();
+                chartData.pulseTorque.shift();
             }
-            pulseChart.data.labels.push(timeFormatted);
-            pulseChart.data.datasets[0].data.push(data.base_torque || 0);
-            pulseChart.data.datasets[1].data.push(data.pulse_torque || 0);
-            pulseChart.update('none');
+            
+            chartData.time.push(timeFormatted);
+            chartData.torque.push(data.torque || 0);
+            chartData.power.push((data.power || 0) / 1000); // Convert to kW
+            chartData.baseTorque.push(data.base_torque || 0);
+            chartData.pulseTorque.push(data.pulse_torque || 0);
+
+            updateCharts();
         }
 
         // Update summary
         updateSummary(data);
 
-        // Update per-floater state table (GuideV3.md requirement)
+        // Update floaters table
         if (data.floaters) {
-            updateFloaterTable(data.floaters);
+            updateFloatersTable(data.floaters);
         }
     }
 
@@ -260,16 +213,6 @@ document.addEventListener('DOMContentLoaded', function() {
         pulseChart.data.datasets[0].data = chartData.baseTorque;
         pulseChart.data.datasets[1].data = chartData.pulseTorque;
         pulseChart.update('none');
-
-        // Update efficiency chart
-        const efficiencyData = chartData.time.map((_, index) => {
-            const power = chartData.power[index];
-            const torque = chartData.torque[index];
-            return power && torque ? (power / (torque * 10)) * 100 : 0;
-        });
-        effChart.data.labels = chartData.time;
-        effChart.data.datasets[0].data = efficiencyData;
-        effChart.update('none');
     }
 
     function updateSummary(data) {
@@ -326,31 +269,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td class="fill-progress">${f.fill_progress ? (Number(f.fill_progress) * 100).toFixed(1) + '%' : '0.0%'}</td>
             `;
             tbody.appendChild(row);
-        });
-    }
-
-    // Per-floater state table update (GuideV3.md requirement)
-    function updateFloaterTable(floaters) {
-        const table = document.getElementById('floaterTable');
-        
-        // Clear existing rows except header
-        table.querySelectorAll('tr.floaterRow').forEach(row => row.remove());
-        
-        floaters.forEach((f, i) => {
-            const row = table.insertRow();
-            row.classList.add('floaterRow');
-            row.insertCell().innerText = i + 1;
-            row.insertCell().innerText = f.pos ? f.pos.toFixed(2) : '0.00';
-            row.insertCell().innerText = f.vel ? f.vel.toFixed(2) : '0.00';
-            row.insertCell().innerText = f.buoy ? f.buoy.toFixed(2) : '0.00';
-            row.insertCell().innerText = f.drag ? f.drag.toFixed(2) : '0.00';
-            row.insertCell().innerText = f.state || 'idle';
-            row.insertCell().innerText = f.fluid_density ? f.fluid_density.toFixed(1) : '1000.0';
-            
-            // Highlight pulsing floaters
-            if (f.is_pulsing) {
-                row.style.backgroundColor = '#ffeb3b';
-            }
         });
     }
 
@@ -416,63 +334,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     };
 
-    // Parameter controls (GuideV3.md requirement)
-    document.getElementById('nanobubbleSlider').oninput = function(e) {
-        const value = e.target.value / 100.0;
-        document.getElementById('nanobubbleValue').textContent = e.target.value + '%';
-        
-        fetch('/set_params', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ nanobubble_frac: value })
-        });
-    };
-
-    document.getElementById('heatCoeff').onchange = function(e) {
-        fetch('/set_params', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ thermal_coeff: parseFloat(e.target.value) })
-        });
-    };
-
-    document.getElementById('waterTemp').onchange = function(e) {
-        fetch('/set_params', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ water_temp: parseFloat(e.target.value) })
-        });
-    };
-
-    document.getElementById('airPressure').onchange = function(e) {
-        fetch('/set_params', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ air_pressure: parseFloat(e.target.value) })
-        });
-    };
-
-    // Parameter form submission
     document.getElementById('paramsForm').onsubmit = function(e) {
         e.preventDefault();
-        
-        const formData = new FormData(e.target);
+        const formData = new FormData(this);
         const params = {};
-        
-        // Convert form data to proper types
-        for (let [key, value] of formData.entries()) {
-            if (['num_floaters'].includes(key)) {
-                params[key] = parseInt(value);
-            } else if (key === 'nanobubble_frac') {
-                params[key] = parseFloat(value) / 100.0; // Convert percentage to fraction
-            } else {
-                params[key] = parseFloat(value);
-            }
+        for (const [key, value] of formData.entries()) {
+            params[key] = isNaN(value) ? value : Number(value);
         }
-        
-        fetch('/set_params', {
+        fetch('/update_params', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(params)
         });
     };

@@ -2,42 +2,123 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>KPP Force Simulation</title>
+    <title>KPP Force Simulation - Pulse Physics v2.0</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>KPP Force Simulation</h1>
+    <h1>KPP Force Simulation - Pulse Physics v2.0</h1>
+    <div id="connection-status" class="status-indicator">
+        <span id="sseStatus">Disconnected</span>
+    </div>
+    
     <div id="controls">
         <button id="startBtn">Start</button>
         <button id="pauseBtn">Pause</button>
         <button id="stopBtn">Stop</button>
         <button id="resetBtn">Reset</button>
         <button id="stepBtn">Step</button>
-        <form id="paramsForm">
-            <label>Number of Floaters: <input type="number" name="num_floaters" value="66" min="1"></label>
-            <label>Floater Volume: <input type="number" name="floater_volume" value="0.7" step="0.01"></label>
-            <label>Floater Mass (empty): <input type="number" name="floater_mass_empty" value="7.0" step="0.1"></label>
-            <label>Floater Area: <input type="number" name="floater_area" value="0.035" step="0.01"></label>
+        <button id="pulseBtn">Trigger Pulse</button>
+          <form id="paramsForm">
+            <h3>Basic Parameters</h3>
+            <label>Number of Floaters: <input type="number" name="num_floaters" value="8" min="1"></label>
+            <label>Floater Volume: <input type="number" name="floater_volume" value="0.3" step="0.01"></label>
+            <label>Floater Mass (empty): <input type="number" name="floater_mass_empty" value="18.0" step="0.1"></label>
+            <label>Floater Area: <input type="number" name="floater_area" value="0.035" step="0.001"></label>
             <label>Air Pressure: <input type="number" name="airPressure" value="3.0" step="0.01"></label>
+            
+            <h3>Pulse Physics Parameters</h3>
+            <label>Air Fill Time (s): <input type="number" name="air_fill_time" value="0.5" step="0.1"></label>
+            <label>Air Injection Pressure (Pa): <input type="number" name="air_pressure" value="300000" step="1000"></label>
+            <label>Air Flow Rate (m³/s): <input type="number" name="air_flow_rate" value="0.6" step="0.1"></label>
+            <label>Water Jet Efficiency: <input type="number" name="jet_efficiency" value="0.85" step="0.01" min="0" max="1"></label>            <h3>Mechanical Parameters</h3>
+            <label>Sprocket Radius (m): <input type="number" name="sprocket_radius" value="0.5" step="0.1"></label>
+            <label>Flywheel Inertia (kg⋅m²): <input type="number" name="flywheel_inertia" value="50.0" step="1.0"></label>
+            <label>Pulse Interval (s): <input type="number" name="pulse_interval" value="2.0" step="0.1"></label>
+            
+            <h3>H1/H2 Effects (GuideV3)</h3>
+            <label>Nanobubble %: <input type="range" id="nanobubbleSlider" name="nanobubble_frac" min="0" max="100" value="0"> <span id="nanobubbleValue">0%</span></label>
+            <label>Thermal Expansion Coeff: <input type="number" id="heatCoeff" name="thermal_coeff" step="0.0001" value="0.0001"></label>
+            <label>Water Temperature (°C): <input type="number" id="waterTemp" name="water_temp" step="0.1" value="20.0"></label>
+            <label>Air Pressure (Pa): <input type="number" id="airPressure" name="air_pressure" step="1000" value="300000"></label>
+            
+            <h3>Generator Specifications</h3>
+            <p><strong>Power:</strong> 530 kW @ 375 RPM (Load calculated automatically)</p>
+            <p><strong>Load Torque:</strong> 13,496 Nm @ rated speed</p>
+            
             <button type="submit">Update Params</button>
         </form>
     </div>
+    
     <div id="charts">
-        <h2>Torque (Nm)</h2>
-        <canvas id="torqueChart"></canvas>
-        <h2>Power (kW)</h2>
-        <canvas id="powerChart"></canvas>
+        <h2>Real-Time Charts</h2>
+        <div class="chart-grid">
+            <div class="chart-container">
+                <h3>Torque (Nm)</h3>
+                <canvas id="torqueChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Power (kW)</h3>
+                <canvas id="powerChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Efficiency (%)</h3>
+                <canvas id="effChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Pulse Torque (Nm)</h3>
+                <canvas id="pulseChart" width="400" height="200"></canvas>
+            </div>
+        </div>
     </div>
+    
+    <!-- Per-Floater State Table -->
+    <div id="floaterStates">
+        <h2>Per-Floater State (GuideV3)</h2>
+        <table id="floaterTable" border="1">
+            <tr><th>Floater</th><th>Position</th><th>Velocity</th><th>Buoyancy</th><th>Drag</th><th>State</th><th>Fluid Density</th></tr>
+        </table>
+    </div>
+    
+    <!-- Export Data -->
+    <div id="export">
+        <h2>Data Export</h2>
+        <a href="/download_csv" target="_blank" class="btn">Download CSV</a>
+    </div>
+    
     <div id="summary">
-        <h2>Summary</h2>
-        <ul>
-            <li>Time: <span id="summaryTime">0</span> s</li>
-            <li>Torque: <span id="summaryTorque">0</span> Nm</li>
-            <li>Power: <span id="summaryPower">0</span> kW</li>
-            <li>Velocity: <span id="summaryVelocity">0</span> m/s</li>
-        </ul>
+        <h2>System Summary</h2>
+        <div class="summary-grid">
+            <div class="summary-section">
+                <h3>Basic Metrics</h3>
+                <ul>
+                    <li>Time: <span id="summaryTime">0.00</span> s</li>
+                    <li>Total Torque: <span id="summaryTorque">0.00</span> Nm</li>
+                    <li>Power Output: <span id="summaryPower">0.00</span> kW</li>
+                    <li>Average Velocity: <span id="summaryVelocity">0.00</span> m/s</li>
+                </ul>
+            </div>
+            <div class="summary-section">
+                <h3>Pulse Metrics</h3>
+                <ul>
+                    <li>Base Torque: <span id="baseTorque">0.00</span> Nm</li>
+                    <li>Pulse Torque: <span id="pulseTorque">0.00</span> Nm</li>
+                    <li>Pulse Count: <span id="pulseCount">0</span></li>
+                    <li>Clutch: <span id="clutchStatus">Disengaged</span></li>
+                </ul>
+            </div>
+            <div class="summary-section">
+                <h3>Mechanical Status</h3>
+                <ul>
+                    <li>Chain Speed: <span id="chainSpeed">0.00</span> rad/s</li>
+                    <li>Flywheel Speed: <span id="flywheelSpeed">0.00</span> rad/s</li>
+                    <li>Active Pulses: <span id="activePulses">0</span></li>
+                    <li>System Efficiency: <span id="efficiency">0.00</span>%</li>
+                </ul>
+            </div>
+        </div>
     </div>
+    
     <div id="floaters">
         <h2>Floaters Status</h2>
         <table>
@@ -52,6 +133,8 @@
                     <th>Gravity</th>
                     <th>Drag</th>
                     <th>Net Force</th>
+                    <th>Pulse Force</th>
+                    <th>Fill Progress</th>
                 </tr>
             </thead>
             <tbody id="floatersTableBody">

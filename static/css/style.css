@@ -4,61 +4,367 @@ body {
     margin: 0;
     padding: 0;
 }
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin: 1em 0;
+}
+
+/* Connection Status Indicator */
+.status-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    font-weight: bold;
+    z-index: 1000;
+}
+
+.connected {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.disconnected {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
 #controls {
     background: #fff;
-    padding: 1em;
+    padding: 1.5em;
     margin: 1em auto;
-    max-width: 800px;
+    max-width: 1000px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
-#controls label {
-    margin-right: 1em;
-}
-#controls button {
-    margin-left: 1em;
+
+#controls h3 {
+    color: #495057;
+    margin-top: 1.5em;
     margin-bottom: 0.5em;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5em;
 }
+
+#controls h3:first-of-type {
+    margin-top: 0;
+}
+
+#controls label {
+    display: inline-block;
+    margin: 0.5em 1em 0.5em 0;
+    min-width: 200px;
+}
+
+#controls input {
+    padding: 0.3em;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    width: 80px;
+}
+
+#controls button {
+    margin: 0.5em 0.5em 0.5em 0;
+    padding: 0.5em 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#startBtn {
+    background-color: #28a745;
+    color: white;
+}
+
+#pauseBtn {
+    background-color: #ffc107;
+    color: black;
+}
+
+#stopBtn {
+    background-color: #dc3545;
+    color: white;
+}
+
+#resetBtn {
+    background-color: #6c757d;
+    color: white;
+}
+
+#stepBtn {
+    background-color: #17a2b8;
+    color: white;
+}
+
+#pulseBtn {
+    background-color: #fd7e14;
+    color: white;
+    font-weight: bold;
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 5px rgba(253, 126, 20, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(253, 126, 20, 0.8); }
+}
+
+#controls button:hover {
+    opacity: 0.8;
+}
+
 #charts {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 2em auto;
     background: #fff;
-    padding: 1em;
+    padding: 1.5em;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
+
+#charts h2 {
+    color: #495057;
+    margin-bottom: 1em;
+    border-left: 4px solid #007bff;
+    padding-left: 1em;
+}
+
 #summary {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 2em auto;
     background: #fff;
-    padding: 1em;
+    padding: 1.5em;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5em;
+}
+
+.summary-section {
+    background: #f8f9fa;
+    padding: 1em;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.summary-section h3 {
+    margin-top: 0;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 0.5em;
+}
+
 #summary ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
+
 #summary li {
-    margin-bottom: 0.5em;
+    margin-bottom: 0.7em;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3em 0;
+    border-bottom: 1px solid #e9ecef;
 }
+
+#summary li:last-child {
+    border-bottom: none;
+}
+
+#summary span {
+    font-weight: bold;
+    color: #007bff;
+}
+
 #floaters {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 2em auto;
+    background: #fff;
+    padding: 1.5em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+#floaters h2 {
+    color: #495057;
+    margin-bottom: 1em;
+    border-left: 4px solid #28a745;
+    padding-left: 1em;
+}
+
+#floaters table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+#floaters th, #floaters td {
+    border: 1px solid #dee2e6;
+    padding: 0.5em;
+    text-align: center;
+}
+
+#floaters th {
+    background: #f8f9fa;
+    font-weight: bold;
+    color: #495057;
+    position: sticky;
+    top: 0;
+}
+
+#floaters tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+#floaters tbody tr:hover {
+    background-color: #e3f2fd;
+}
+
+/* Pulse indicators */
+.pulsing {
+    background-color: #fff3cd !important;
+    animation: pulse-highlight 1s infinite;
+}
+
+@keyframes pulse-highlight {
+    0%, 100% { background-color: #fff3cd; }
+    50% { background-color: #ffeaa7; }
+}
+
+.pulse-force {
+    font-weight: bold;
+    color: #fd7e14;
+}
+
+.fill-progress {
+    font-weight: bold;
+    color: #17a2b8;
+}
+
+/* Chart Grid Layout (GuideV3.md) */
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1em;
+    margin: 1em auto;
+    max-width: 1200px;
+}
+
+.chart-container {
     background: #fff;
     padding: 1em;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
-#floaters table {
-    width: 100%;
-    border-collapse: collapse;
-}
-#floaters th, #floaters td {
-    border: 1px solid #ddd;
-    padding: 0.5em;
+
+.chart-container h3 {
+    margin-top: 0;
+    color: #495057;
     text-align: center;
 }
-#floaters th {
-    background: #f0f0f0;
+
+/* Per-floater state table (GuideV3.md) */
+#floaterStates {
+    background: #fff;
+    padding: 1.5em;
+    margin: 1em auto;
+    max-width: 1000px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+#floaterTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1em;
+}
+
+#floaterTable th,
+#floaterTable td {
+    padding: 0.5em;
+    text-align: center;
+    border: 1px solid #dee2e6;
+}
+
+#floaterTable th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #495057;
+}
+
+.floaterRow:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* H1/H2 Controls (GuideV3.md) */
+#nanobubbleSlider {
+    width: 200px;
+}
+
+#nanobubbleValue {
+    font-weight: bold;
+    color: #007bff;
+    margin-left: 0.5em;
+}
+
+/* Export section */
+#export {
+    background: #fff;
+    padding: 1.5em;
+    margin: 1em auto;
+    max-width: 1000px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75em 1.5em;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #controls, #charts, #summary, #floaters {
+        margin: 1em;
+        padding: 1em;
+    }
+    
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    #controls label {
+        display: block;
+        margin: 0.5em 0;
+        min-width: auto;
+    }
+    
+    #floaters table {
+        font-size: 0.8em;
+    }
+    
+    #floaters th, #floaters td {
+        padding: 0.3em;
+    }
 }
