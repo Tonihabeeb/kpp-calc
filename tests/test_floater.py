@@ -81,5 +81,19 @@ class TestFloater(unittest.TestCase):
         self.assertNotEqual(self.floater.velocity, initial_vel)
         self.assertGreater(self.floater.velocity, 0) # Should be moving up
 
+    def test_pivot_and_drain(self):
+        """Test pivoting toggles orientation and drain_water resets water mass."""
+        # Initial pivot state
+        self.assertFalse(self.floater.pivoted)
+        # Toggle pivot
+        self.floater.pivot()
+        self.assertTrue(self.floater.pivoted)
+        self.floater.pivot()
+        self.assertFalse(self.floater.pivoted)
+        # Test water drainage
+        self.floater.water_mass = 5.0
+        self.floater.drain_water()
+        self.assertEqual(self.floater.water_mass, 0.0)
+
 if __name__ == '__main__':
     unittest.main()

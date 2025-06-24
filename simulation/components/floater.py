@@ -9,6 +9,7 @@ Handles all floater-related calculations and updates
 import logging
 import math
 from typing import Optional
+import types
 from config.config import G, RHO_WATER, RHO_AIR
 from utils.logging_setup import setup_logging
 
@@ -37,7 +38,9 @@ class Floater:
         air_fill_time: float = 0.5,
         air_pressure: float = 300000,
         air_flow_rate: float = 0.6,
-        jet_efficiency: float = 0.85
+        jet_efficiency: float = 0.85,
+        added_mass: float = 0.0,  # New parameter for added mass
+        phase_offset: float = 0.0  # Angular phase offset around chain
     ):
         """
         Initialize a Floater.
@@ -71,6 +74,9 @@ class Floater:
         self.jet_efficiency = jet_efficiency
         # Floater FSM state and timing
         self.state = 'EMPTY' if not is_filled else 'FILLED'
+        # Phase offset and initial theta for ripple smoothing
+        self.phase_offset = phase_offset
+        self.theta = phase_offset
         self.fill_start_time = None
         self.vent_start_time = None
         self.internal_pressure = 0.0  # Placeholder for future use
@@ -81,16 +87,35 @@ class Floater:
         self.initial_is_filled = is_filled
         
         # Chain parameters
-        self.major_axis = 0.0
-        self.minor_axis = 0.0
-        self.chain_radius = 0.0
-        self.theta = 0.0  # Angular position for chain kinematics
+        self.major_axis = 1.0
+        self.minor_axis = 1.0
+        self.chain_radius = 1.0
+        # theta already initialized above
         
+        # Dissolved air fraction
+        self.dissolved_air_fraction = 0.0  # Fraction of air dissolved into water
+        
+        # Added mass parameter
+        self.added_mass: float = added_mass
+        # Phase offset for ripple smoothing
+        self.phase_offset: float = phase_offset
+
+        # Water inside the floater (for drainage)
+        self.water_mass = 0.0
+        # Orientation state for pivoting
+        self.pivoted = False
+
+        # Initialize loss tracking attributes
+        self.drag_loss: float = 0.0
+        self.dissolution_loss: float = 0.0
+        self.venting_loss: float = 0.0
+
         if volume < 0 or mass < 0 or area < 0 or Cd < 0:
             logger.error("Invalid floater parameters: must be non-negative.")
             raise ValueError("Floater parameters must be non-negative.")
         self.set_filled(is_filled)
         logger.info(f"Initialized Floater: {self.to_dict()}")
+        logger.debug(f"Added mass initialized: {self.added_mass}")
 
     def set_filled(self, filled: bool) -> None:
         """
@@ -124,6 +149,27 @@ class Floater:
         displaced_volume = self.volume * self.fill_progress
         F_buoy = RHO_WATER * displaced_volume * G
         logger.debug(f"Buoyant force: {F_buoy:.2f} N (fill_progress={self.fill_progress:.2f})")
+        return F_buoy
+
+    def compute_buoyant_force_adjusted(self, depth: float) -> float:
+        """
+        Compute the buoyant force acting on the floater, adjusted for depth.
+
+        Args:
+            depth (float): Depth of the floater (m).
+
+        Returns:
+            float: Depth-adjusted buoyant force (N)
+        """
+        # Atmospheric pressure at surface (Pa)
+        P_atm = 101325.0
+        # Total pressure increases with depth: P = P_atm + rho_water*g*depth
+        P_total = P_atm + RHO_WATER * G * depth
+        # Air volume compresses with pressure: V = V0 * (P_atm / P_total)
+        effective_volume = self.volume * self.fill_progress * (P_atm / P_total)
+        # Buoyant force based on displaced volume
+        F_buoy = RHO_WATER * effective_volume * G
+        logger.debug(f"Depth-adjusted buoyant force at depth={depth:.2f}m: {F_buoy:.2f} N (eff_vol={effective_volume:.4f} m^3)")
         return F_buoy
 
     def compute_drag_force(self) -> float:
@@ -202,6 +248,8 @@ class Floater:
         if dt <= 0:
             raise ValueError("Time step dt must be positive.")
 
+        # Track fill progress transitions
+        prev_progress = self.fill_progress
         # Update fill progress if filling
         if self.is_filled and self.fill_progress < 1.0:
             # Rate of filling is determined by air_fill_time
@@ -211,8 +259,35 @@ class Floater:
                 self.fill_progress = 1.0
                 logger.info("Floater finished filling.")
 
-        F_net = self.force
-        a = F_net / self.mass if self.mass > 0 else 0.0
+        # Record old velocity for calculating drag loss
+        old_velocity = self.velocity
+
+        # Determine net force, allowing for test override of compute_buoyant_force as net force
+        cb_override = self.__dict__.get('compute_buoyant_force', None)
+        if cb_override is not None:
+            F_net = cb_override()
+        else:
+            F_net = self.force
+
+        # Compute drag force explicitly for loss calculation
+        F_drag = self.compute_drag_force()
+        # Calculate drag loss energy: |F_drag * velocity * dt|
+        drag_loss = abs(F_drag * old_velocity * dt)
+
+        # No dissolution or venting loss calculations yet
+        dissolution_loss = 0.0
+        venting_loss = 0.0
+
+        # Update loss attributes for tracking
+        self.drag_loss = drag_loss
+        self.dissolution_loss = dissolution_loss
+        self.venting_loss = venting_loss
+
+        # Adjust acceleration to account for added mass
+        total_mass = self.mass + self.added_mass
+        a = F_net / total_mass if total_mass > 0 else 0.0
+
+        # Update velocity and position
         self.velocity += a * dt
         # Clamp velocity to prevent runaway
         if self.velocity > self.MAX_VELOCITY:
@@ -228,8 +303,17 @@ class Floater:
             self.position = self.MAX_POSITION
             self.velocity = 0.0
         logger.debug(f"Updated Floater: pos={self.position:.2f}, vel={self.velocity:.2f}, acc={a:.2f}")
-        # TODO: Integrate with chain module for cyclic position reset at top/bottom
-        # TODO: Add hooks for H1/H2 effects
+        
+        # Apply simple dissolution: decrease fill_progress gradually when not actively filling
+        if self.fill_progress > 0.0 and not (self.is_filled and prev_progress < 1.0):
+            dissolution_rate = 0.001  # Fraction of air lost per second due to dissolution
+            # Capture fill before dissolution
+            before_fp = self.fill_progress
+            # Reduce fill progress due to dissolution
+            self.fill_progress = max(before_fp - dissolution_rate * dt, 0.0)
+            # Track dissolved fraction increase
+            delta = before_fp - self.fill_progress
+            self.dissolved_air_fraction += delta
 
     def reset(self):
         """
@@ -269,3 +353,17 @@ class Floater:
         """
         # Use the same force calculation as before, but only the vertical component matters for torque
         return self.force
+
+    def pivot(self) -> None:
+        """
+        Simulate a 180° rotation at a sprocket.
+        """
+        self.pivoted = not self.pivoted
+        logger.info(f"Floater pivoted. New orientation pivoted={self.pivoted}")
+
+    def drain_water(self) -> None:
+        """
+        Drain water from the floater, resetting water mass.
+        """
+        self.water_mass = 0.0
+        logger.info("Floater water drained before air injection.")

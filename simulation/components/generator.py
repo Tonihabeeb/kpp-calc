@@ -64,9 +64,6 @@ class Generator:
         if hasattr(self, 'user_load_torque') and self.user_load_torque is not None:
             return self.user_load_torque
         
-        if current_omega < 0.1:
-            return 0.0
-        
         speed_ratio = current_omega / self.target_omega if self.target_omega > 0 else 0
 
         if speed_ratio < 0.3:

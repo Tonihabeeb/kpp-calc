@@ -35,6 +35,9 @@ class Floater:
         self.air_flow_rate = params.get('air_flow_rate', 0.6)   # m³/s
         self.water_jet_efficiency = params.get('jet_efficiency', 0.85)
 
+        # Dissolution attributes
+        self.dissolved_air_fraction = 0.0  # Fraction of air dissolved into water
+
     def start_pulse(self, current_time):
         """Start air injection pulse"""
         self.is_pulsing = True
@@ -85,6 +88,25 @@ class Floater:
         
         return self.fluid_density
 
+    def calculate_dissolution_loss(self, dt):
+        """
+        Calculate the air loss due to dissolution based on Henry's law.
+        Henry's law: C = kH * P
+        where C is the concentration of gas, kH is Henry's constant, and P is the partial pressure.
+        """
+        henry_constant = 0.001  # Example value, adjust based on gas and water properties
+        partial_pressure = self.air_pressure  # Assuming air pressure is the partial pressure
+
+        # Maximum dissolved air fraction based on Henry's law
+        max_dissolved_fraction = henry_constant * partial_pressure
+
+        # Increment dissolved air fraction over time
+        dissolution_rate = 0.01  # Rate constant for dissolution (example value)
+        self.dissolved_air_fraction += dissolution_rate * (max_dissolved_fraction - self.dissolved_air_fraction) * dt
+
+        # Clamp dissolved air fraction to [0, max_dissolved_fraction]
+        self.dissolved_air_fraction = min(max(self.dissolved_air_fraction, 0.0), max_dissolved_fraction)
+
     def update(self, dt, params, current_time=0.0):
         # Update H1/H2 effects first
         self.calculate_h1_h2_effects(params)
@@ -120,6 +142,13 @@ class Floater:
         # Add pulse force if pulsing
         self.pulse_force = self.calculate_pulse_forces() if self.is_pulsing else 0.0
         
+        # Update dissolution loss
+        self.calculate_dissolution_loss(dt)
+
+        # Adjust buoyancy to account for dissolved air
+        effective_volume = self.volume * (1.0 - self.dissolved_air_fraction)
+        self.buoyancy = self.fluid_density * self.g * effective_volume
+
         # Net force: upward positive
         self.net_force = self.buoyancy - self.gravity - self.drag + self.pulse_force
         self.force = self.net_force

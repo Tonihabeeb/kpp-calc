@@ -1,1 +1,1 @@
-time,torque,power,efficiency,pulse_torque,chain_speed,flywheel_speed
+time,torque,power,base_buoy_torque,pulse_torque,total_chain_torque,tau_net,tau_to_generator,clutch_c,clutch_state,flywheel_speed,chain_speed,clutch_engaged,pulse_count

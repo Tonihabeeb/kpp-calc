@@ -222,7 +222,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add new data points to charts using GuideV3.md addData helper
             addData(torqueChart, timeFormatted, data.torque || 0);
             addData(powerChart, timeFormatted, (data.power || 0) / 1000); // Convert to kW
-            addData(effChart, timeFormatted, data.efficiency || 0);
+            // Use overall_efficiency (fraction) *100 for percent
+            addData(effChart, timeFormatted, (data.overall_efficiency || 0) * 100);
             
             // Update pulse chart (multiple datasets)
             if (pulseChart.data.labels.length > 100) {
@@ -230,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 pulseChart.data.datasets.forEach((ds) => ds.data.shift());
             }
             pulseChart.data.labels.push(timeFormatted);
-            pulseChart.data.datasets[0].data.push(data.base_torque || 0);
+            pulseChart.data.datasets[0].data.push(data.base_buoy_torque || 0);
             pulseChart.data.datasets[1].data.push(data.pulse_torque || 0);
             pulseChart.update('none');
         }
@@ -276,17 +277,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('summaryTime').textContent = data.time ? Number(data.time).toFixed(2) : '0.00';
         document.getElementById('summaryTorque').textContent = data.torque ? Number(data.torque).toFixed(2) : '0.00';
         document.getElementById('summaryPower').textContent = data.power ? (data.power / 1000).toFixed(2) : '0.00';
-        document.getElementById('summaryVelocity').textContent = data.velocity ? Number(data.velocity).toFixed(2) : '0.00';
+        document.getElementById('summaryVelocity').textContent = data.avg_floater_velocity ? Number(data.avg_floater_velocity).toFixed(2) : '0.00';
         
         // Pulse metrics
-        document.getElementById('baseTorque').textContent = data.base_torque ? Number(data.base_torque).toFixed(2) : '0.00';
+        document.getElementById('baseTorque').textContent = data.base_buoy_torque ? Number(data.base_buoy_torque).toFixed(2) : '0.00';
         document.getElementById('pulseTorque').textContent = data.pulse_torque ? Number(data.pulse_torque).toFixed(2) : '0.00';
         document.getElementById('pulseCount').textContent = data.pulse_count || '0';
-        document.getElementById('clutchStatus').textContent = data.clutch_engaged ? 'Engaged' : 'Disengaged';
+        document.getElementById('clutchStatus').textContent = data.clutch_state || (data.clutch_engaged ? 'Engaged' : 'Disengaged');
         
         // Mechanical status
-        document.getElementById('chainSpeed').textContent = data.chain_speed ? Number(data.chain_speed).toFixed(2) : '0.00';
-        document.getElementById('flywheelSpeed').textContent = data.flywheel_speed ? Number(data.flywheel_speed).toFixed(2) : '0.00';
+        document.getElementById('chainSpeed').textContent = data.chain_speed_rpm ? Number(data.chain_speed_rpm).toFixed(2) : '0.00';
+        document.getElementById('flywheelSpeed').textContent = data.flywheel_speed_rpm ? Number(data.flywheel_speed_rpm).toFixed(2) : '0.00';
         
         // Count active pulses
         let activePulses = 0;
@@ -295,9 +296,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         document.getElementById('activePulses').textContent = activePulses;
         
-        // Calculate efficiency (simplified)
-        const efficiency = data.power && data.torque ? (data.power / (data.torque * 10)) * 100 : 0;
-        document.getElementById('efficiency').textContent = efficiency.toFixed(2);
+        // Display overall mechanical efficiency
+        document.getElementById('efficiency').textContent = data.overall_efficiency ? (data.overall_efficiency * 100).toFixed(2) : '0.00';
     }
 
     function updateFloatersTable(floaters) {
@@ -493,6 +493,23 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('setLoadStatus').textContent = 'Error setting load';
         });
     };
+
+    // Handle parameter form submission for dynamic tuning
+    const paramsForm = document.getElementById('paramsForm');
+    paramsForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(paramsForm);
+        const params = {};
+        formData.forEach((value, key) => {
+            params[key] = parseFloat(value);
+        });
+        fetch('/set_params', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(params)
+        }).then(response => response.json())
+          .then(data => console.log('Params updated:', data));
+    });
 
     // Initialize SSE connection
     connectSSE();

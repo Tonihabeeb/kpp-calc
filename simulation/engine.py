@@ -17,6 +17,7 @@ from simulation.components.environment import Environment
 from simulation.components.pneumatics import PneumaticSystem
 from simulation.components.control import Control
 from simulation.components.sensors import Sensors
+from simulation.components.clutch import OverrunningClutch
 from utils.logging_setup import setup_logging
 
 setup_logging()
@@ -63,19 +64,29 @@ class SimulationEngine:
                 mass=params.get('floater_mass_empty', 18.0),
                 area=params.get('floater_area', 0.035),
                 Cd=params.get('floater_Cd', 0.8),
-                air_fill_time=params.get('air_fill_time', 0.5)
+                air_fill_time=params.get('air_fill_time', 0.5),
+                added_mass=params.get('floater_added_mass', 5.0),
+                phase_offset=2*math.pi*i/params.get('num_floaters',1)
             )
-            for _ in range(params.get('num_floaters', 1))
+            for i in range(params.get('num_floaters', 1))
         ]
         
         self.control = Control(self)
         self.sensors = Sensors(self)
+        self.clutch = OverrunningClutch(
+            tau_eng=params.get('clutch_tau_eng', 200),
+            slip_time=params.get('clutch_slip_time', 0.2),
+            w_min=params.get('clutch_w_min', 5),
+            w_max=params.get('clutch_w_max', 40)
+        )
         
         self.data_log = []
         self.total_energy = 0.0
         self.pulse_count = 0
         self.thread = None
         logger.info("SimulationEngine initialized with modular components.")
+        # Initialize default chain geometry for torque calculations
+        self.set_chain_geometry()
 
     def update_params(self, params):
         """
@@ -162,21 +173,47 @@ class SimulationEngine:
             prev_theta = getattr(floater, 'theta', 0.0)
             floater.set_theta(prev_theta + omega_chain * dt)
             # If floater completes a revolution, vent and reset
+            # Detect top sprocket crossing (180° pivot)
+            if prev_theta % (2*math.pi) < math.pi and floater.theta % (2*math.pi) >= math.pi:
+                floater.pivot()
+
+            # Detect bottom sprocket crossing (360° pivot + water drainage)
             if prev_theta < 2 * math.pi and floater.theta >= 2 * math.pi:
+                floater.pivot()
+                floater.drain_water()
                 floater.is_filled = False
                 floater.fill_progress = 0.0
-                # Optionally, trigger a new pulse at the bottom
+                # Trigger air injection after drainage
                 self.pneumatics.trigger_injection(floater)
             floater.update(dt)
 
+        # After kinematics update, track energy losses
+        drag_loss_sum = sum(f.drag_loss for f in self.floaters)
+        dissolution_loss_sum = sum(f.dissolution_loss for f in self.floaters)
+        venting_loss_sum = sum(f.venting_loss for f in self.floaters)
+
         # 3. Calculate net torque from all floaters (vertical force × chain radius at each theta)
         total_chain_torque = 0.0
-        for floater in self.floaters:
-            _, y = floater.get_cartesian_position()
-            # Only consider floaters on the upward side (y > 0)
-            if y > 0:
-                total_chain_torque += floater.get_vertical_force() * self.chain_radius
-        input_torque = self.drivetrain.compute_input_torque(total_chain_torque)
+        base_buoy_torque = 0.0
+        pulse_torque = 0.0
+        for i, floater in enumerate(self.floaters):
+            x, y = floater.get_cartesian_position()
+            vertical_force = floater.get_vertical_force()
+            # Log per-floater forces
+            logger.debug(f"Floater {i}: x={x:.2f}, y={y:.2f}, vertical_force={vertical_force:.2f}, is_filled={floater.is_filled}, fill_progress={floater.fill_progress:.2f}, state={getattr(floater, 'state', 'N/A')}")
+            # Torque contributions use horizontal lever arm x for ripple smoothing
+            buoy_force = floater.compute_buoyant_force()
+            base_buoy_torque += buoy_force * x
+            # Pulse torque using lever arm x
+            jet_force = floater.compute_pulse_jet_force()
+            if abs(jet_force) > 1e-3:
+                pulse_torque += jet_force * x
+            # Total chain torque from vertical force and lever arm x
+            total_chain_torque += vertical_force * x
+        # Combine all torque components and apply drivetrain efficiency
+        raw_torque = total_chain_torque + pulse_torque
+        input_torque = raw_torque * self.drivetrain.efficiency
+        logger.info(f"Torque breakdown: base_buoy_torque={base_buoy_torque:.2f}, pulse_torque={pulse_torque:.2f}, total_chain_torque={total_chain_torque:.2f}")
 
         # 4. Get generator load based on drivetrain speed
         flywheel_speed_rad_s = self.drivetrain.omega_flywheel
@@ -185,34 +222,94 @@ class SimulationEngine:
         # 5. Update drivetrain dynamics with input and load torques
         self.drivetrain.update_dynamics(input_torque, load_torque, dt)
 
+        # --- Clutch logic integration ---
+        # Calculate net torque available to the shaft
+        tau_net = input_torque - load_torque  # - friction if modeled
+        omega = self.drivetrain.omega_flywheel
+        c = self.clutch.update(tau_net, omega, dt)
+        tau_to_generator = c * tau_net
+        # Update shaft speed with clutch effect (simplified, add friction if needed)
+        # For now, update drivetrain with tau_to_generator as the load
+        self.drivetrain.update_dynamics(tau_to_generator, load_torque, dt)
+        # Log clutch state
+        logger.info(f"Clutch: state={self.clutch.state.state}, c={self.clutch.state.c:.2f}, tau_net={tau_net:.2f}, tau_to_generator={tau_to_generator:.2f}, omega={omega:.2f}")
+
         # 6. Calculate power output
         power_output = self.generator.calculate_power_output(flywheel_speed_rad_s)
         self.total_energy += power_output * dt
+        # 7. Track energy losses
+        # Capture clutch state for logging
+        clutch_state_val = self.clutch.state.state
+        drag_loss_sum = sum(f.drag_loss for f in self.floaters)
+        dissolution_loss_sum = sum(f.dissolution_loss for f in self.floaters)
+        venting_loss_sum = sum(f.venting_loss for f in self.floaters)
 
+        # Compute net energy balance
+        net_energy_balance = power_output - (drag_loss_sum + dissolution_loss_sum + venting_loss_sum)
+        self.log_state(
+            power_output,
+            input_torque,
+            base_buoy_torque=base_buoy_torque,
+            pulse_torque=pulse_torque,
+            total_chain_torque=total_chain_torque,
+            tau_net=tau_net,
+            tau_to_generator=tau_to_generator,
+            clutch_c=c,
+            clutch_state=clutch_state_val,
+            drag_loss=drag_loss_sum,
+            dissolution_loss=dissolution_loss_sum,
+            venting_loss=venting_loss_sum,
+            net_energy=net_energy_balance
+        )
         # 7. Collect and log data
-        self.log_state(power_output, input_torque)
         self.time += dt
 
-    def log_state(self, power_output, torque):
+    def log_state(self, power_output, torque, base_buoy_torque=None, pulse_torque=None, total_chain_torque=None, tau_net=None, tau_to_generator=None, clutch_c=None, clutch_state=None, drag_loss=None, dissolution_loss=None, venting_loss=None, net_energy=None):
         """
-        Collect and log the current state of the simulation.
+        Collect and log the current state of the simulation, including torque breakdowns and clutch state.
         """
+        print(f"LOG_STATE: t={self.time:.2f}, power={power_output:.2f}, torque={torque:.2f}, base_buoy_torque={base_buoy_torque}, pulse_torque={pulse_torque}, clutch_c={clutch_c}, clutch_state={clutch_state}, drag_loss={drag_loss}, dissolution_loss={dissolution_loss}, venting_loss={venting_loss}, net_energy={net_energy}")
         drivetrain_state = self.drivetrain.get_state()
+        # Compute overall mechanical efficiency (output electrical power / mechanical input power)
+        omega_fly = drivetrain_state['omega_flywheel_rpm'] * (2 * math.pi / 60)
+        if torque and omega_fly:
+            overall_eff = power_output / (torque * omega_fly)
+        else:
+            overall_eff = 0.0
+        # Compute average floater velocity
+        if self.floaters:
+            avg_velocity = sum(abs(f.velocity) for f in self.floaters) / len(self.floaters)
+        else:
+            avg_velocity = 0.0
         state = {
             'time': self.time,
             'power': power_output,
             'torque': torque,
+            'base_buoy_torque': base_buoy_torque,
+            'pulse_torque': pulse_torque,
+            'total_chain_torque': total_chain_torque,
+            'tau_net': tau_net,
+            'tau_to_generator': tau_to_generator,
+            'clutch_c': clutch_c,
+            'clutch_state': clutch_state,
             'total_energy': self.total_energy,
             'pulse_count': self.pulse_count,
             'flywheel_speed_rpm': drivetrain_state['omega_flywheel_rpm'],
             'chain_speed_rpm': drivetrain_state['omega_chain_rpm'],
             'clutch_engaged': drivetrain_state['clutch_engaged'],
             'tank_pressure': self.pneumatics.tank_pressure,
+            'overall_efficiency': overall_eff,
+            'avg_floater_velocity': avg_velocity,
             'floaters': [f.to_dict() for f in self.floaters]
         }
+        # Include energy loss and net energy data
+        state['drag_loss'] = drag_loss
+        state['dissolution_loss'] = dissolution_loss
+        state['venting_loss'] = venting_loss
+        state['net_energy'] = net_energy
         self.data_log.append(state)
         self.data_queue.put(state)
-        logger.debug(f"Step: t={self.time:.2f}, power={power_output:.2f}, torque={torque:.2f}")
+        logger.debug(f"Step: t={self.time:.2f}, power={power_output:.2f}, torque={torque:.2f}, base_buoy_torque={base_buoy_torque}, pulse_torque={pulse_torque}, clutch_c={clutch_c}, clutch_state={clutch_state}")
 
     def collect_state(self):
         """

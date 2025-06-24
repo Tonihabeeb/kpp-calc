@@ -127,9 +127,12 @@ def stream():
     import csv
     import os
     log_file = 'realtime_log.csv'
+    # Align CSV fields with SimulationEngine.log_state() output
     log_fields = [
-        'time', 'torque', 'power', 'velocity', 'pulse_torque', 'base_torque', 'pulse_count',
-        'flywheel_speed', 'chain_speed', 'clutch_engaged', 'tank_pressure', 'efficiency'
+        'time', 'power', 'torque', 'base_buoy_torque', 'pulse_torque', 'total_chain_torque',
+        'tau_net', 'tau_to_generator', 'clutch_c', 'clutch_state', 'total_energy', 'pulse_count',
+        'flywheel_speed_rpm', 'chain_speed_rpm', 'clutch_engaged', 'tank_pressure',
+        'overall_efficiency', 'avg_floater_velocity'
     ]
     # Write header if file does not exist
     if not os.path.exists(log_file):
@@ -147,10 +150,10 @@ def stream():
                     # Write to CSV in real time
                     with open(log_file, 'a', newline='') as f:
                         writer = csv.DictWriter(f, fieldnames=log_fields)
-                        # Only write fields that exist in data
+                        # Map engine state keys directly to CSV columns
                         row = {k: data.get(k, '') for k in log_fields}
                         writer.writerow(row)
-                    yield f"data: {json.dumps(data)}\n\n"
+                        yield f"data: {json.dumps(data)}\n\n"
                 else:
                     # Send heartbeat
                     yield f"data: {json.dumps({'heartbeat': True})}\n\n"
@@ -166,18 +169,22 @@ def stream():
 def start_simulation():
     logging.debug("/start endpoint triggered.")
     params = request.get_json() or {}
-    logging.debug(f"Received params: {params}")
+    # Reset engine for clean start
+    engine.reset()
     engine.update_params(params)
-    # If the data queue is empty, put an initial state
-    if engine.data_queue.empty():
-        state = engine.collect_state()
-        state['torque'] = 0
-        state['power'] = 0
-        state['velocity'] = 0
-        state['floaters'] = [f.to_dict() for f in engine.floaters]
-        engine.data_queue.put(state)
-        logging.debug("Initial state added to data queue.")
-    # Always start a new simulation thread if not alive
+    # Push initial state for live data
+    engine.log_state(
+        power_output=0.0,
+        torque=0.0,
+        base_buoy_torque=0.0,
+        pulse_torque=0.0,
+        total_chain_torque=0.0,
+        tau_net=0.0,
+        tau_to_generator=0.0,
+        clutch_c=(engine.clutch.state.c if engine.clutch.state else 0.0),
+        clutch_state=(engine.clutch.state.state if engine.clutch.state else None)
+    )
+    # Start simulation thread
     if not engine.thread or not engine.thread.is_alive():
         engine.running = True
         engine.thread = threading.Thread(target=engine.run, daemon=True)
@@ -217,34 +224,11 @@ def update_params():
     return ("OK", 200)
 
 @app.route("/set_params", methods=["POST"])
-def set_params():
-    """Set parameters endpoint as specified in GuideV3.md"""
-    data = request.get_json() or {}
-    
-    # Update simulation parameters immediately
-    if 'nanobubble_frac' in data:
-        engine.params['nanobubble_frac'] = float(data['nanobubble_frac'])
-    if 'thermal_coeff' in data:
-        engine.params['thermal_coeff'] = float(data['thermal_coeff'])
-    if 'water_temp' in data:
-        engine.params['water_temp'] = float(data['water_temp'])
-    if 'num_floaters' in data:
-        new_num = int(data['num_floaters'])
-        if new_num != len(engine.floaters):
-            engine.floaters = [Floater(volume=engine.params.get('floater_volume', 0.3),
-                                       mass=engine.params.get('floater_mass_empty', 18.0),
-                                       area=engine.params.get('floater_area', 0.035),
-                                       Cd=engine.params.get('floater_Cd', 0.8))
-                               for _ in range(new_num)]
-        engine.params['num_floaters'] = new_num
-    if 'air_pressure' in data:
-        engine.params['air_pressure'] = float(data['air_pressure'])
-    if 'pulse_interval' in data:
-        engine.params['pulse_interval'] = float(data['pulse_interval'])
-    
-    # Update engine with new params
-    engine.update_params(engine.params)
-    return ('', 204)
+def set_simulation_params():
+    """Endpoint to dynamically update simulation parameters."""
+    params = request.get_json() or {}
+    engine.update_params(params)
+    return (json.dumps({'status': 'ok', 'updated_params': params}), 200, {'ContentType':'application/json'})
 
 @app.route("/data/summary")
 def summary_data():
@@ -255,19 +239,20 @@ def summary_data():
         latest = None
     if not latest:
         return {}
-    # Use the instantaneous values directly from the simulation state
+    # Map to engine state keys
     return {
         'time': latest.get('time', 0),
         'torque': latest.get('torque', 0),
         'power': latest.get('power', 0),
-        'velocity': latest.get('velocity', 0),
+        'avg_floater_velocity': latest.get('avg_floater_velocity', 0),
         'floaters': latest.get('floaters', []),
         'pulse_torque': latest.get('pulse_torque', 0),
-        'base_torque': latest.get('base_torque', 0),
+        'base_buoy_torque': latest.get('base_buoy_torque', 0),
         'pulse_count': latest.get('pulse_count', 0),
-        'flywheel_speed': latest.get('flywheel_speed', 0),
-        'chain_speed': latest.get('chain_speed', 0),
-        'clutch_engaged': latest.get('clutch_engaged', False)
+        'flywheel_speed_rpm': latest.get('flywheel_speed_rpm', 0),
+        'chain_speed_rpm': latest.get('chain_speed_rpm', 0),
+        'clutch_engaged': latest.get('clutch_engaged', False),
+        'overall_efficiency': latest.get('overall_efficiency', 0)
     }
 
 @app.route("/chart/<metric>.png")
@@ -302,21 +287,21 @@ def chart_image(metric):
 
 @app.route("/data/history")
 def data_history():
-    # Return full time series for torque and power (instantaneous values)
-    times, torques, powers, pulse_torques = [], [], [], []
+    # Return full time series for all simulation state metrics
     with engine.data_queue.mutex:
         data_list = list(engine.data_queue.queue)
-    for entry in data_list:
-        times.append(entry.get('time', 0))
-        torques.append(entry.get('torque', 0))
-        powers.append(entry.get('power', 0))
-        pulse_torques.append(entry.get('pulse_torque', 0))
-    return {
-        'time': times,
-        'torque': torques,
-        'power': powers,
-        'pulse_torque': pulse_torques
-    }
+    # Define all history fields
+    history_fields = [
+        'time', 'power', 'torque', 'base_buoy_torque', 'pulse_torque', 'total_chain_torque',
+        'tau_net', 'tau_to_generator', 'clutch_c', 'clutch_state', 'total_energy', 'pulse_count',
+        'flywheel_speed_rpm', 'chain_speed_rpm', 'clutch_engaged', 'tank_pressure',
+        'overall_efficiency', 'avg_floater_velocity'
+    ]
+    # Build lists for each field
+    history = {}
+    for field in history_fields:
+        history[field] = [entry.get(field, 0) for entry in data_list]
+    return history
 
 @app.route("/reset", methods=["POST"])
 def reset_simulation():
@@ -328,23 +313,15 @@ def reset_simulation():
 def download_csv():
     """CSV export endpoint as specified in GuideV3.md"""
     def generate_csv():
-        # CSV header
-        yield 'time,torque,power,efficiency,pulse_torque,chain_speed,flywheel_speed\n'
+        # Updated CSV header to include all relevant fields
+        yield 'time,torque,power,base_buoy_torque,pulse_torque,total_chain_torque,tau_net,tau_to_generator,clutch_c,clutch_state,flywheel_speed,chain_speed,clutch_engaged,pulse_count\n'
         
         # Get data from engine's data log
         with engine.data_queue.mutex:
             data_list = list(engine.data_queue.queue)
         
         for entry in data_list:
-            time_val = entry.get('time', 0)
-            torque_val = entry.get('torque', 0)
-            power_val = entry.get('power', 0)
-            efficiency_val = entry.get('efficiency', 0)
-            pulse_torque_val = entry.get('pulse_torque', 0)
-            chain_speed_val = entry.get('chain_speed', 0)
-            flywheel_speed_val = entry.get('flywheel_speed', 0)
-            
-            yield f"{time_val},{torque_val},{power_val},{efficiency_val},{pulse_torque_val},{chain_speed_val},{flywheel_speed_val}\n"
+            yield f"{entry.get('time', 0)},{entry.get('torque', 0)},{entry.get('power', 0)},{entry.get('base_buoy_torque', 0)},{entry.get('pulse_torque', 0)},{entry.get('total_chain_torque', 0)},{entry.get('tau_net', 0)},{entry.get('tau_to_generator', 0)},{entry.get('clutch_c', 0)},{entry.get('clutch_state', '')},{entry.get('flywheel_speed_rpm', 0)},{entry.get('chain_speed_rpm', 0)},{entry.get('clutch_engaged', 0)},{entry.get('pulse_count', 0)}\n"
     
     # Stream CSV to client with proper headers
     response = Response(generate_csv(), mimetype='text/csv')
@@ -429,6 +406,13 @@ def set_load():
         return (f"User load set to {user_load} Nm", 200)
     else:
         return ("Missing user_load_torque in request", 400)
+
+@app.route('/data/live', methods=['GET'])
+def data_live():
+    """Return the full simulation data log as JSON for direct analysis."""
+    with engine.data_queue.mutex:
+        data_list = list(engine.data_queue.queue)
+    return {'data': data_list}, 200
 
 if __name__ == "__main__":
     app.run(debug=True, threaded=True)
