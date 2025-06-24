@@ -111,7 +111,16 @@ class SimulationEngine:
     def run(self):
         self.running = True
         logger.info("Simulation loop started.")
+        # Force an initial pulse at t=0 to kick off the system
+        if self.time == 0.0:
+            logger.info("Forcing initial pulse at t=0.0")
+            self.trigger_pulse()
         while self.running:
+            logger.debug(f"Step start: t={self.time:.2f}")
+            for i, floater in enumerate(self.floaters):
+                logger.debug(f"Floater {i}: theta={getattr(floater, 'theta', 0.0):.2f}, filled={getattr(floater, 'is_filled', False)}, pos={floater.get_cartesian_position() if hasattr(floater, 'get_cartesian_position') else 'N/A'}")
+            logger.debug(f"Drivetrain: omega_chain={getattr(self.drivetrain, 'omega_chain', 0.0):.2f}, omega_flywheel={getattr(self.drivetrain, 'omega_flywheel', 0.0):.2f}, clutch_engaged={getattr(self.drivetrain, 'clutch_engaged', False)}")
+            logger.debug(f"Generator: target_omega={getattr(self.generator, 'target_omega', 0.0):.2f}, target_power={getattr(self.generator, 'target_power', 0.0):.2f}")
             self.step(self.dt)
             time.sleep(self.dt)
         logger.info("Simulation loop stopped.")
@@ -245,7 +254,30 @@ class SimulationEngine:
                 floater.set_theta(2 * math.pi * i / len(self.floaters))
         # Set chain geometry and trigger a pulse for the first floater
         self.set_chain_geometry()
+        # --- Calibrated startup: set floaters for continuous movement ---
+        n = len(self.floaters)
+        for i, floater in enumerate(self.floaters):
+            floater.set_theta(2 * math.pi * i / n)
+            x, y = floater.get_cartesian_position()
+            if y > 0:
+                floater.is_filled = True
+                floater.fill_progress = 1.0
+                floater.state = 'FILLED'
+            else:
+                floater.is_filled = False
+                floater.fill_progress = 0.0
+                floater.state = 'EMPTY'
+        # Ensure one floater at injection is ready to fill (simulate injection point at theta=0)
+        self.floaters[0].set_theta(0.0)
+        self.floaters[0].is_filled = True
+        self.floaters[0].fill_progress = 0.0
+        self.floaters[0].state = 'FILLING'
+        logger.info("Floaters initialized for calibrated startup: ascending side buoyant, descending side drawing, one ready for injection.")
         self.pneumatics.trigger_injection(self.floaters[0])
         with self.data_queue.mutex:
             self.data_queue.queue.clear()
         logger.info("Simulation engine has been reset.")
+        # Debug: Log initial floater states after calibrated placement
+        for i, floater in enumerate(self.floaters):
+            x, y = floater.get_cartesian_position()
+            logger.debug(f"Floater {i}: theta={floater.theta:.2f}, x={x:.2f}, y={y:.2f}, is_filled={floater.is_filled}, fill_progress={floater.fill_progress:.2f}, state={floater.state}")

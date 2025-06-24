@@ -60,12 +60,21 @@ class SimulatorController:
         water_depth = params.get('water_depth', 10.0)
         self.top_sensor = PositionSensor(position_threshold=water_depth, trigger_when="above")
         self.bottom_sensor = PositionSensor(position_threshold=0.0, trigger_when="below")
+        # Pass drivetrain and control params to Control
         self.control = Control(
             floaters=self.floaters,
             pneumatic=self.pneumatic,
             sensors=self.sensors,
             top_sensor=self.top_sensor,
-            bottom_sensor=self.bottom_sensor
+            bottom_sensor=self.bottom_sensor,
+            drivetrain=self.drivetrain,
+            target_rpm=params.get('target_rpm', 20.0),
+            Kp=params.get('Kp', 1.0),
+            Ki=params.get('Ki', 0.0),
+            Kd=params.get('Kd', 0.0),
+            use_clutch=params.get('use_clutch', False),
+            T_eng=params.get('T_eng', 2.0),
+            T_free=params.get('T_free', 2.0)
         )
         self.h1 = H1Nanobubbles()
         self.h2 = H2Isothermal()

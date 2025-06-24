@@ -69,6 +69,11 @@ class Floater:
         self.air_pressure = air_pressure
         self.air_flow_rate = air_flow_rate
         self.jet_efficiency = jet_efficiency
+        # Floater FSM state and timing
+        self.state = 'EMPTY' if not is_filled else 'FILLED'
+        self.fill_start_time = None
+        self.vent_start_time = None
+        self.internal_pressure = 0.0  # Placeholder for future use
         
         # Store initial conditions for reset
         self.initial_position = position

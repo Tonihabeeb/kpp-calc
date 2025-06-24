@@ -6,6 +6,7 @@
 from flask import Flask, render_template, request, send_file, Response
 from simulation.engine import SimulationEngine
 from simulation.components.floater import Floater
+from utils.backend_logger import setup_backend_logger
 import os
 import json
 import io
@@ -18,6 +19,9 @@ import time
 import logging
 import csv
 from collections import deque
+
+# Initialize the backend logger
+setup_backend_logger('simulation.log')
 
 app = Flask(__name__)
 
@@ -48,6 +52,7 @@ sim_params = {
     # Generator: 530kW @ 375RPM (load calculated automatically)
 }
 engine = SimulationEngine(sim_params, sim_data_queue)
+engine.reset()
 
 # Add a global list to store simulation data for analysis
 collected_data = []
@@ -119,6 +124,19 @@ def index():
 @app.route("/stream")
 def stream():
     """Server-Sent Events endpoint for real-time data streaming"""
+    import csv
+    import os
+    log_file = 'realtime_log.csv'
+    log_fields = [
+        'time', 'torque', 'power', 'velocity', 'pulse_torque', 'base_torque', 'pulse_count',
+        'flywheel_speed', 'chain_speed', 'clutch_engaged', 'tank_pressure', 'efficiency'
+    ]
+    # Write header if file does not exist
+    if not os.path.exists(log_file):
+        with open(log_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=log_fields)
+            writer.writeheader()
+
     def event_stream():
         while True:
             try:
@@ -126,6 +144,12 @@ def stream():
                 if not engine.data_queue.empty():
                     data = engine.data_queue.get()
                     output_data.append(data)  # Collect data for analysis
+                    # Write to CSV in real time
+                    with open(log_file, 'a', newline='') as f:
+                        writer = csv.DictWriter(f, fieldnames=log_fields)
+                        # Only write fields that exist in data
+                        row = {k: data.get(k, '') for k in log_fields}
+                        writer.writerow(row)
                     yield f"data: {json.dumps(data)}\n\n"
                 else:
                     # Send heartbeat

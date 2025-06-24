@@ -104,10 +104,13 @@ class Drivetrain:
         T_drag_flywheel = T_bearing_flywheel + load_torque
 
         # Determine clutch engagement
-        static_friction_threshold = 10.0  # Nm, realistic for startup
+        static_friction_threshold = 1.0  # Lowered from 10.0 Nm for easier startup
         speed_difference = abs(self.omega_chain - self.omega_flywheel / self.gear_ratio)
-        # Allow clutch to engage if chain is at rest but net torque exceeds static friction
-        if (speed_difference < self.omega_threshold and self.omega_chain > 0.1) or (self.omega_chain == 0.0 and abs(net_torque) > static_friction_threshold):
+        # Add detailed logging for clutch logic
+        logger.debug(f"Clutch logic: speed_difference={speed_difference:.4f}, omega_chain={self.omega_chain:.4f}, net_torque={net_torque:.4f}, static_friction_threshold={static_friction_threshold}")
+        # Allow clutch engagement at zero speed if net torque is positive (creep mode)
+        if (speed_difference < self.omega_threshold and self.omega_chain >= 0.0) or (self.omega_chain == 0.0 and net_torque > 0):
+            logger.debug(f"Clutch engaged: (speed_difference < {self.omega_threshold})={speed_difference < self.omega_threshold}, (omega_chain >= 0.0)={self.omega_chain >= 0.0}, (omega_chain == 0.0 and net_torque > 0)={self.omega_chain == 0.0 and net_torque > 0}")
             self.clutch_engaged = True
             total_inertia = self.I_chain + (self.I_flywheel / (self.gear_ratio ** 2))
             net_force = net_torque - T_drag_chain - (T_drag_flywheel / self.gear_ratio)
@@ -115,6 +118,7 @@ class Drivetrain:
             self.omega_chain += alpha_chain * dt
             self.omega_flywheel = self.omega_chain * self.gear_ratio
         else:
+            logger.debug(f"Clutch disengaged: (speed_difference >= {self.omega_threshold})={speed_difference >= self.omega_threshold}, (omega_chain < 0.0)={self.omega_chain < 0.0}, (omega_chain == 0.0 and net_torque <= 0)={self.omega_chain == 0.0 and net_torque <= 0}")
             self.clutch_engaged = False
             alpha_chain = (net_torque - T_drag_chain) / self.I_chain if self.I_chain > 0 else 0
             self.omega_chain += alpha_chain * dt
