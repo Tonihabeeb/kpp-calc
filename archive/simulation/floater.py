@@ -110,7 +110,7 @@ class Floater:
     def update(self, dt, params, current_time=0.0):
         # Update H1/H2 effects first
         self.calculate_h1_h2_effects(params)
-        
+
         # Update other properties from params if changed
         self.mass = params.get('floater_mass_empty', self.mass)
         self.volume = params.get('floater_volume', self.volume)
@@ -118,22 +118,27 @@ class Floater:
         self.pulse_duration = params.get('air_fill_time', self.pulse_duration)
         self.air_pressure = params.get('air_pressure', self.air_pressure)
         self.air_flow_rate = params.get('air_flow_rate', self.air_flow_rate)
-        
+
         # Update pulse progress
         if self.is_pulsing:
             elapsed_time = current_time - self.pulse_start_time
             self.fill_progress = min(1.0, elapsed_time / self.pulse_duration)
-            
+
             if self.fill_progress >= 1.0:
                 self.is_pulsing = False
                 self.state = 'ascending'
-        
+
+        # Update dissolution loss
+        self.calculate_dissolution_loss(dt)
+
         # Forces (now using updated fluid_density from H1/H2 effects)
         self.gravity = self.mass * self.g
-        self.buoyancy = self.fluid_density * self.g * self.volume
-        
+
+        # Adjust buoyancy based on dissolved air fraction
+        effective_volume = self.volume * (1.0 - self.dissolved_air_fraction)
+        self.buoyancy = self.fluid_density * self.g * effective_volume
+
         # Drag force: F_drag = 0.5 * ρ * v² * Cd * A (always opposes motion)
-        # Fixed: velocity should be squared, and drag should be zero when velocity is zero
         if abs(self.velocity) > 0.001:  # Avoid division by zero
             self.drag = 0.5 * self.fluid_density * self.velocity * abs(self.velocity) * self.drag_coeff * self.area
         else:
@@ -142,13 +147,6 @@ class Floater:
         # Add pulse force if pulsing
         self.pulse_force = self.calculate_pulse_forces() if self.is_pulsing else 0.0
         
-        # Update dissolution loss
-        self.calculate_dissolution_loss(dt)
-
-        # Adjust buoyancy to account for dissolved air
-        effective_volume = self.volume * (1.0 - self.dissolved_air_fraction)
-        self.buoyancy = self.fluid_density * self.g * effective_volume
-
         # Net force: upward positive
         self.net_force = self.buoyancy - self.gravity - self.drag + self.pulse_force
         self.force = self.net_force

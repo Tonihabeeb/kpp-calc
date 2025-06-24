@@ -140,15 +140,19 @@ class Floater:
 
     def compute_buoyant_force(self) -> float:
         """
-        Compute the upward buoyant force based on the currently filled volume.
+        Compute the upward buoyant force based on the currently filled volume,
+        adjusted for dissolved air fraction.
 
         Returns:
             float: Buoyant force (N)
         """
+        # Adjust fill progress based on dissolved air fraction
+        effective_fill_progress = self.fill_progress * (1.0 - self.dissolved_air_fraction)
+
         # Buoyancy is based on the actual volume of air held
-        displaced_volume = self.volume * self.fill_progress
+        displaced_volume = self.volume * effective_fill_progress
         F_buoy = RHO_WATER * displaced_volume * G
-        logger.debug(f"Buoyant force: {F_buoy:.2f} N (fill_progress={self.fill_progress:.2f})")
+        logger.debug(f"Buoyant force: {F_buoy:.2f} N (effective_fill_progress={effective_fill_progress:.2f})")
         return F_buoy
 
     def compute_buoyant_force_adjusted(self, depth: float) -> float:
