@@ -57,13 +57,19 @@ class SimulatorController:
             target_pressure=params.get('air_pressure', 3.0)
         )
         self.sensors = Sensors()
-        self.control = Control()
-        self.h1 = H1Nanobubbles()
-        self.h2 = H2Isothermal()
-        self.h3 = H3PulseMode()
         water_depth = params.get('water_depth', 10.0)
         self.top_sensor = PositionSensor(position_threshold=water_depth, trigger_when="above")
         self.bottom_sensor = PositionSensor(position_threshold=0.0, trigger_when="below")
+        self.control = Control(
+            floaters=self.floaters,
+            pneumatic=self.pneumatic,
+            sensors=self.sensors,
+            top_sensor=self.top_sensor,
+            bottom_sensor=self.bottom_sensor
+        )
+        self.h1 = H1Nanobubbles()
+        self.h2 = H2Isothermal()
+        self.h3 = H3PulseMode()
         self.current_time = 0.0
         self.results_log = []
         self.plotting_utility = PlottingUtility()
@@ -74,13 +80,10 @@ class SimulatorController:
         Advance the simulation by one time step (dt seconds).
         """
         try:
+            # Closed-loop control: let Control decide actuator actions
+            self.control.update(dt)
             for floater in self.floaters:
-                floater.update(dt, self.environment)
-                # Check sensors for this floater
-                if self.bottom_sensor.check(floater) and not floater.is_filled:
-                    self.pneumatic.inject_air(floater)
-                if self.top_sensor.check(floater) and floater.is_filled:
-                    self.pneumatic.vent_air(floater)
+                floater.update(dt)
             # Compute net forces from floaters for drivetrain
             forces = []
             for floater in self.floaters:
@@ -90,7 +93,8 @@ class SimulatorController:
                 weight = floater.mass * self.environment.gravity
                 net_upward = buoyant - weight
                 forces.append(net_upward)
-            torque = self.drivetrain.compute_torque(sum(forces))
+            # Use Drivetrain.compute_input_torque instead of compute_torque
+            torque = self.drivetrain.compute_input_torque(sum(forces))
             # Update power (derive angular speed from floater velocity)
             avg_velocity = sum(f.velocity for f in self.floaters) / len(self.floaters)
             angular_speed = avg_velocity / self.drivetrain.sprocket_radius if self.drivetrain.sprocket_radius else 0.0
