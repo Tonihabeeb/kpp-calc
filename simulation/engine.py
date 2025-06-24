@@ -18,6 +18,13 @@ from simulation.components.pneumatics import PneumaticSystem
 from simulation.components.control import Control
 from simulation.components.sensors import Sensors
 from simulation.components.clutch import OverrunningClutch
+from simulation.components.sprocket import Sprocket
+from simulation.components.gearbox import create_kpp_gearbox
+from simulation.components.integrated_drivetrain import IntegratedDrivetrain, create_standard_kpp_drivetrain
+from simulation.components.integrated_electrical_system import IntegratedElectricalSystem, create_standard_kmp_electrical_system
+from simulation.control.integrated_control_system import IntegratedControlSystem, create_standard_kpp_control_system
+from simulation.physics.integrated_loss_model import IntegratedLossModel, create_standard_kpp_enhanced_loss_model
+from simulation.control.transient_event_controller import TransientEventController
 from utils.logging_setup import setup_logging
 
 setup_logging()
@@ -41,18 +48,96 @@ class SimulationEngine:
         self.running = False
         self.time = 0.0
         self.dt = params.get('time_step', 0.1)
-        self.last_pulse_time = -999 # Allow immediate first pulse
-
-        self.environment = Environment()
+        self.last_pulse_time = -999 # Allow immediate first pulse        self.environment = Environment()
         self.pneumatics = PneumaticSystem(
             target_pressure=params.get('target_pressure', 5.0)
         )
+        
+        # Initialize the new integrated drivetrain system
+        drivetrain_config = {
+            'sprocket_radius': params.get('sprocket_radius', 1.0),
+            'sprocket_teeth': params.get('sprocket_teeth', 20),
+            'clutch_engagement_threshold': params.get('clutch_engagement_threshold', 0.1),
+            'flywheel_moment_of_inertia': params.get('flywheel_inertia', 50.0),
+            'flywheel_target_speed': params.get('flywheel_target_speed', 375.0),
+            'pulse_coast_pulse_duration': params.get('pulse_duration', 2.0),
+            'pulse_coast_coast_duration': params.get('coast_duration', 1.0)        }
+        self.integrated_drivetrain = create_standard_kpp_drivetrain(drivetrain_config)
+        
+        # Initialize the integrated electrical system (Phase 3)
+        electrical_config = {
+            'rated_power': params.get('target_power', 530000.0),
+            'load_management': params.get('electrical_load_management', True),
+            'target_load_factor': params.get('electrical_load_factor', 0.8),
+            'generator': {
+                'rated_power': params.get('target_power', 530000.0),
+                'rated_speed': params.get('target_rpm', 375.0),
+                'efficiency_at_rated': params.get('generator_efficiency', 0.94)
+            },
+            'power_electronics': {
+                'rectifier_efficiency': params.get('pe_rectifier_efficiency', 0.97),
+                'inverter_efficiency': params.get('pe_inverter_efficiency', 0.96),
+                'transformer_efficiency': params.get('pe_transformer_efficiency', 0.985)
+            }        }
+        self.integrated_electrical_system = create_standard_kmp_electrical_system(electrical_config)
+        
+        # Initialize the integrated control system (Phase 4)
+        control_config = {
+            'num_floaters': params.get('num_floaters', 8),
+            'target_power': params.get('target_power', 530000.0),
+            'prediction_horizon': params.get('control_prediction_horizon', 5.0),
+            'optimization_window': params.get('control_optimization_window', 2.0),
+            'power_tolerance': params.get('control_power_tolerance', 0.05),
+            'max_ramp_rate': params.get('control_max_ramp_rate', 50000.0),
+            'nominal_voltage': params.get('grid_nominal_voltage', 480.0),
+            'nominal_frequency': params.get('grid_nominal_frequency', 60.0),
+            'voltage_regulation_band': params.get('grid_voltage_regulation_band', 0.05),
+            'frequency_regulation_band': params.get('grid_frequency_regulation_band', 0.1),
+            'monitoring_interval': params.get('control_monitoring_interval', 0.1),
+            'auto_recovery_enabled': params.get('control_auto_recovery', True),
+            'predictive_maintenance_enabled': params.get('control_predictive_maintenance', True),
+            'emergency_response_enabled': params.get('control_emergency_response', True),
+            'adaptive_control_enabled': params.get('control_adaptive_enabled', True)        }
+        self.integrated_control_system = create_standard_kpp_control_system(control_config)
+        
+        # Initialize enhanced loss model (Phase 5)
+        ambient_temperature = params.get('ambient_temperature', 20.0)
+        self.enhanced_loss_model = create_standard_kpp_enhanced_loss_model(ambient_temperature)
+        
+        # Initialize transient event controller (Phase 6)
+        transient_config = {
+            'startup': {
+                'target_startup_speed': params.get('startup_target_speed', 100.0),
+                'target_operational_speed': params.get('target_rpm', 375.0),
+                'acceleration_rate': params.get('startup_acceleration_rate', 10.0),
+                'sync_retry_limit': params.get('startup_sync_retries', 3)
+            },
+            'emergency': {
+                'max_flywheel_speed': params.get('emergency_max_flywheel_speed', 450.0),
+                'max_tank_pressure': params.get('emergency_max_pressure', 8.0),
+                'max_component_temperature': params.get('emergency_max_temperature', 85.0),
+                'max_torque': params.get('emergency_max_torque', 3000.0)
+            },
+            'grid': {
+                'frequency_droop': params.get('grid_frequency_droop', 0.05),
+                'voltage_droop': params.get('grid_voltage_droop', 0.02),
+                'max_frequency_response': params.get('grid_max_freq_response', 0.2),
+                'max_reactive_power': params.get('grid_max_reactive_power', 0.3)
+            },
+            'auto_startup': params.get('auto_startup_enabled', True),
+            'auto_recovery': params.get('auto_recovery_enabled', True),
+            'grid_support': params.get('grid_support_enabled', True)
+        }
+        self.transient_controller = TransientEventController(transient_config)
+        
+        # Keep legacy drivetrain for compatibility during transition
         self.drivetrain = Drivetrain(
             gear_ratio=params.get('gear_ratio', 16.7),
             efficiency=params.get('drivetrain_efficiency', 0.95),
             sprocket_radius=params.get('sprocket_radius', 0.5),
             flywheel_inertia=params.get('flywheel_inertia', 50.0)
         )
+        # Keep legacy generator for compatibility during transition
         self.generator = Generator(
             efficiency=params.get('generator_efficiency', 0.92),
             target_power=params.get('target_power', 530000.0),
@@ -69,8 +154,7 @@ class SimulationEngine:
                 phase_offset=2*math.pi*i/params.get('num_floaters',1)
             )
             for i in range(params.get('num_floaters', 1))
-        ]
-        
+        ]        
         self.control = Control(self)
         self.sensors = Sensors(self)
         self.clutch = OverrunningClutch(
@@ -80,11 +164,28 @@ class SimulationEngine:
             w_max=params.get('clutch_w_max', 40)
         )
         
+        # Legacy drivetrain components (kept for compatibility during transition)
+        self.top_sprocket = Sprocket(
+            radius=params.get('sprocket_radius', 1.0),
+            tooth_count=params.get('sprocket_teeth', 20),
+            position='top'
+        )
+        self.bottom_sprocket = Sprocket(
+            radius=params.get('sprocket_radius', 1.0),
+            tooth_count=params.get('sprocket_teeth', 20),
+            position='bottom'
+        )
+        self.gearbox = create_kpp_gearbox()
+          # Chain properties
+        self.chain_length = params.get('chain_length', 50.0)  # Total chain length (m)
+        self.chain_mass_per_meter = params.get('chain_mass_per_meter', 10.0)  # kg/m
+        self.chain_tension = 0.0  # Current chain tension (N)
+        
         self.data_log = []
         self.total_energy = 0.0
         self.pulse_count = 0
         self.thread = None
-        logger.info("SimulationEngine initialized with modular components.")
+        logger.info("SimulationEngine initialized with integrated drivetrain system.")
         # Initialize default chain geometry for torque calculations
         self.set_chain_geometry()
 
@@ -190,85 +291,249 @@ class SimulationEngine:
         # After kinematics update, track energy losses
         drag_loss_sum = sum(f.drag_loss for f in self.floaters)
         dissolution_loss_sum = sum(f.dissolution_loss for f in self.floaters)
-        venting_loss_sum = sum(f.venting_loss for f in self.floaters)
-
-        # 3. Calculate net torque from all floaters (vertical force × chain radius at each theta)
-        total_chain_torque = 0.0
-        base_buoy_torque = 0.0
-        pulse_torque = 0.0
+        venting_loss_sum = sum(f.venting_loss for f in self.floaters)        # 3. Calculate chain tension from all floaters
+        total_vertical_force = 0.0
+        base_buoy_force = 0.0
+        pulse_force = 0.0
+        
         for i, floater in enumerate(self.floaters):
             x, y = floater.get_cartesian_position()
             vertical_force = floater.get_vertical_force()
             # Log per-floater forces
             logger.debug(f"Floater {i}: x={x:.2f}, y={y:.2f}, vertical_force={vertical_force:.2f}, is_filled={floater.is_filled}, fill_progress={floater.fill_progress:.2f}, state={getattr(floater, 'state', 'N/A')}")
-            # Torque contributions use horizontal lever arm x for ripple smoothing
+            
+            # Sum up vertical forces to calculate chain tension
+            total_vertical_force += vertical_force
+            
+            # Track component forces for debugging
             buoy_force = floater.compute_buoyant_force()
-            base_buoy_torque += buoy_force * x
-            # Pulse torque using lever arm x
+            base_buoy_force += buoy_force
+            
             jet_force = floater.compute_pulse_jet_force()
             if abs(jet_force) > 1e-3:
-                pulse_torque += jet_force * x
-            # Total chain torque from vertical force and lever arm x
-            total_chain_torque += vertical_force * x
-        # Combine all torque components and apply drivetrain efficiency
-        raw_torque = total_chain_torque + pulse_torque
-        input_torque = raw_torque * self.drivetrain.efficiency
-        logger.info(f"Torque breakdown: base_buoy_torque={base_buoy_torque:.2f}, pulse_torque={pulse_torque:.2f}, total_chain_torque={total_chain_torque:.2f}")
-
-        # 4. Get generator load based on drivetrain speed
-        flywheel_speed_rad_s = self.drivetrain.omega_flywheel
-        load_torque = self.generator.get_load_torque(flywheel_speed_rad_s)
-
-        # 5. Update drivetrain dynamics with input and load torques
-        self.drivetrain.update_dynamics(input_torque, load_torque, dt)
-
-        # --- Clutch logic integration ---
-        # Calculate net torque available to the shaft
-        tau_net = input_torque - load_torque  # - friction if modeled
-        omega = self.drivetrain.omega_flywheel
-        c = self.clutch.update(tau_net, omega, dt)
-        tau_to_generator = c * tau_net
-        # Update shaft speed with clutch effect (simplified, add friction if needed)
-        # For now, update drivetrain with tau_to_generator as the load
-        self.drivetrain.update_dynamics(tau_to_generator, load_torque, dt)
-        # Log clutch state
-        logger.info(f"Clutch: state={self.clutch.state.state}, c={self.clutch.state.c:.2f}, tau_net={tau_net:.2f}, tau_to_generator={tau_to_generator:.2f}, omega={omega:.2f}")
-
-        # 6. Calculate power output
-        power_output = self.generator.calculate_power_output(flywheel_speed_rad_s)
-        self.total_energy += power_output * dt
-        # 7. Track energy losses
+                pulse_force += jet_force
+          # Update chain tension (positive = upward tension)
+        self.chain_tension = total_vertical_force
+          # 4. Get drivetrain output torque and speed from integrated drivetrain
+        # The integrated drivetrain handles the full conversion from chain tension to mechanical output
+        drivetrain_output = self.integrated_drivetrain.update(self.chain_tension, 0.0, dt)  # Temporary zero load
+        
+        # Extract mechanical values for electrical system
+        output_torque = drivetrain_output.get('gearbox_output_torque', 0.0)
+        output_speed_rpm = drivetrain_output.get('flywheel_speed_rpm', 0.0)
+        output_speed_rad_s = output_speed_rpm * (2 * math.pi / 60)  # Convert to rad/s
+        
+        # 5. Build system state for control system
+        system_state = {
+            'time': self.time,
+            'chain_tension': self.chain_tension,
+            'mechanical_torque': output_torque,
+            'mechanical_speed_rpm': output_speed_rpm,
+            'mechanical_speed_rad_s': output_speed_rad_s,
+            'total_vertical_force': total_vertical_force,
+            'base_buoy_force': base_buoy_force,
+            'pulse_force': pulse_force,
+            'floater_states': [f.to_dict() for f in self.floaters],
+            'pneumatics': {
+                'tank_pressure': self.pneumatics.tank_pressure,
+                'compressor_running': getattr(self.pneumatics, 'compressor_running', False)
+            },
+            'energy_losses': {
+                'drag_loss': drag_loss_sum,
+                'dissolution_loss': dissolution_loss_sum,
+                'venting_loss': venting_loss_sum
+            }
+        }        # 6. Update integrated control system with current state
+        control_output = self.integrated_control_system.update(system_state, dt)
+        
+        # Extract control system commands
+        timing_commands = control_output.get('timing_commands', {})
+        load_commands = control_output.get('load_commands', {})
+        grid_commands = control_output.get('grid_commands', {})
+        fault_status = control_output.get('fault_status', {})
+        control_mode = control_output.get('control_mode', 'normal')
+        
+        # Execute pneumatic control through timing controller
+        pneumatic_executed = False
+        if hasattr(self.integrated_control_system.timing_controller, 'execute_pneumatic_control'):
+            pneumatic_executed = self.integrated_control_system.timing_controller.execute_pneumatic_control(
+                self.pneumatics, self.floaters
+            )
+        
+        # Apply control system recommendations
+        # Pulse timing control
+        pulse_timing_adjustment = timing_commands.get('pulse_timing_adjustment', 0.0)
+        pulse_interval_adjustment = timing_commands.get('pulse_interval_adjustment', 0.0)
+        
+        # Load management
+        target_load_factor = load_commands.get('target_load_factor', 0.8)
+        power_setpoint = load_commands.get('power_setpoint', self.params.get('target_power', 530000.0))
+        
+        # Grid stability
+        voltage_setpoint = grid_commands.get('voltage_setpoint', 480.0)
+        frequency_setpoint = grid_commands.get('frequency_setpoint', 60.0)
+          # 7. Update integrated electrical system with mechanical input and control commands
+        electrical_config_updates = {
+            'target_load_factor': target_load_factor,
+            'power_setpoint': power_setpoint,
+            'voltage_setpoint': voltage_setpoint,
+            'frequency_setpoint': frequency_setpoint,
+            'control_mode': control_mode
+        }
+        electrical_output = self.integrated_electrical_system.update(output_torque, output_speed_rad_s, dt, electrical_config_updates)
+        
+        # 8. Update transient event controller (Phase 6)
+        # Build comprehensive system state for transient event monitoring
+        comprehensive_system_state = system_state.copy()
+        comprehensive_system_state.update({
+            'flywheel_speed_rpm': output_speed_rpm,
+            'chain_speed_rpm': drivetrain_output.get('chain_speed_rpm', 0.0),
+            'torque': output_torque,
+            'grid_voltage': electrical_output.get('grid_voltage', 480.0),
+            'grid_frequency': electrical_output.get('grid_frequency', 60.0),
+            'grid_connected': electrical_output.get('synchronized', False),
+            'component_temperatures': {
+                'sprocket': 20.0, 'gearbox': 20.0, 'clutch': 20.0, 
+                'flywheel': 20.0, 'generator': 20.0
+            }
+        })
+        
+        # Update transient event controller
+        transient_commands = self.transient_controller.update_transient_events(comprehensive_system_state, self.time)
+        
+        # 9. Update drivetrain again with actual electrical load torque
+        electrical_load_torque = electrical_output.get('load_torque_command', 0.0)
+        grid_power_output = electrical_output.get('grid_power_output', 0.0)
+        electrical_efficiency = electrical_output.get('system_efficiency', 0.0)
+          # Extract electrical system outputs
+        electrical_load_torque = electrical_output.get('load_torque_command', 0.0)
+        grid_power_output = electrical_output.get('grid_power_output', 0.0)
+        electrical_efficiency = electrical_output.get('system_efficiency', 0.0)
+        
+        # 10. Update drivetrain again with actual electrical load torque
+          # This provides the proper load feedback to the mechanical system
+        drivetrain_output = self.integrated_drivetrain.update(self.chain_tension, electrical_load_torque, dt)
+        
+        # Get final drivetrain values after load feedback
+        final_output_torque = drivetrain_output.get('gearbox_output_torque', 0.0)
+        final_output_speed = drivetrain_output.get('flywheel_speed_rpm', 0.0) * (2 * math.pi / 60)
+          # 11. Update enhanced loss model (Phase 5)
+        enhanced_system_state = {
+            'input_power': abs(output_torque * output_speed_rad_s),
+            'output_power': grid_power_output,
+            'electrical_power': grid_power_output,
+            'sprocket': {
+                'torque': drivetrain_output.get('sprocket_torque', 0.0),
+                'speed': drivetrain_output.get('chain_speed', 0.0),
+                'load_factor': 0.5,
+                'efficiency': 0.98
+            },
+            'gearbox': {
+                'torque': output_torque,
+                'speed': output_speed_rad_s,
+                'load_factor': min(1.0, abs(output_torque) / 2000.0),
+                'efficiency': drivetrain_output.get('gearbox_efficiency', 0.885)
+            },
+            'clutch': {
+                'torque': output_torque,
+                'speed': output_speed_rad_s,
+                'load_factor': min(1.0, abs(output_torque) / 2000.0),
+                'efficiency': drivetrain_output.get('clutch_efficiency', 0.95)
+            },
+            'flywheel': {
+                'torque': final_output_torque,
+                'speed': final_output_speed,
+                'load_factor': min(1.0, abs(final_output_torque) / 2000.0),
+                'efficiency': drivetrain_output.get('flywheel_efficiency', 0.98)
+            },
+            'generator': {
+                'torque': electrical_load_torque,
+                'speed': final_output_speed,
+                'load_factor': electrical_output.get('load_factor', 0.0),
+                'efficiency': electrical_efficiency
+            },
+            'electrical': {
+                'current': grid_power_output / max(480.0, electrical_output.get('grid_voltage', 480.0)),
+                'voltage': electrical_output.get('grid_voltage', 480.0),
+                'frequency': electrical_output.get('grid_frequency', 60.0),
+                'temperature': 40.0,  # Estimate electrical system temperature
+                'switching_frequency': 5000.0,
+                'flux_density': 1.0
+            }
+        }
+        
+        enhanced_state = self.enhanced_loss_model.update_system_losses(enhanced_system_state, dt)
+        
+        # 10. Update control system with electrical results for feedback
+        electrical_state = {
+            'electrical_power_output': grid_power_output,
+            'electrical_efficiency': electrical_efficiency,
+            'load_torque': electrical_load_torque,
+            'synchronized': electrical_output.get('synchronized', False),
+            'load_factor': electrical_output.get('load_factor', 0.0),
+            'grid_voltage': electrical_output.get('grid_voltage', 480.0),
+            'grid_frequency': electrical_output.get('grid_frequency', 60.0),
+            'enhanced_losses': enhanced_state.system_losses,
+            'thermal_state': enhanced_state.performance_metrics        }
+        system_state.update(electrical_state)
+        
+        logger.info(f"Integrated System: chain_tension={self.chain_tension:.2f}N, "
+                   f"mech_torque={final_output_torque:.2f}N·m, mech_speed={final_output_speed:.2f}rad/s, "
+                   f"elec_load={electrical_load_torque:.2f}N·m, grid_power={grid_power_output/1000:.1f}kW")
+        logger.info(f"Electrical: sync={electrical_output.get('synchronized', False)}, "
+                   f"efficiency={electrical_efficiency:.3f}, load_factor={electrical_output.get('load_factor', 0):.3f}")
+        logger.info(f"Control: mode={control_mode}, timing_adj={pulse_timing_adjustment:.3f}, "
+                   f"load_target={target_load_factor:.3f}, faults={len(fault_status.get('active_faults', []))}")
+        
+        # 10. Calculate final power output
+        power_output = grid_power_output  # Use grid power output from electrical system
+        
+        self.total_energy += power_output * dt        # For legacy compatibility, update the old drivetrain with equivalent values
+        # This maintains compatibility with existing logging and monitoring systems
+        self.drivetrain.omega_chain = drivetrain_output.get('chain_speed_rpm', 0.0) * (2 * math.pi / 60)
+        self.drivetrain.omega_flywheel = final_output_speed
+        
+        # Calculate derived values for logging compatibility
+        tau_net = final_output_torque - electrical_load_torque
+        tau_to_generator = drivetrain_output.get('clutch_transmitted_torque', final_output_torque)
+        clutch_engagement_factor = drivetrain_output.get('clutch_engagement_factor', 0.0)
+        clutch_engaged = drivetrain_output.get('clutch_engaged', False)# 7. Track energy losses
         # Capture clutch state for logging
-        clutch_state_val = self.clutch.state.state
+        clutch_state_val = 'engaged' if clutch_engaged else 'disengaged'
         drag_loss_sum = sum(f.drag_loss for f in self.floaters)
         dissolution_loss_sum = sum(f.dissolution_loss for f in self.floaters)
         venting_loss_sum = sum(f.venting_loss for f in self.floaters)
-
-        # Compute net energy balance
-        net_energy_balance = power_output - (drag_loss_sum + dissolution_loss_sum + venting_loss_sum)
+          # Compute net energy balance
+        net_energy_balance = power_output - (drag_loss_sum + dissolution_loss_sum + venting_loss_sum)        
         self.log_state(
             power_output,
-            input_torque,
-            base_buoy_torque=base_buoy_torque,
-            pulse_torque=pulse_torque,
-            total_chain_torque=total_chain_torque,
+            final_output_torque,
+            base_buoy_force=base_buoy_force,  # Updated variable name
+            pulse_force=pulse_force,          # Updated variable name
+            total_vertical_force=total_vertical_force,  # Updated variable name
             tau_net=tau_net,
             tau_to_generator=tau_to_generator,
-            clutch_c=c,
+            clutch_c=clutch_engagement_factor,
             clutch_state=clutch_state_val,
             drag_loss=drag_loss_sum,
             dissolution_loss=dissolution_loss_sum,
             venting_loss=venting_loss_sum,
-            net_energy=net_energy_balance
-        )
-        # 7. Collect and log data
+            net_energy=net_energy_balance,
+            control_output=control_output,
+            electrical_output=electrical_output,
+            pneumatic_executed=pneumatic_executed,
+            enhanced_state=enhanced_state
+        )# 8. Collect and log data
         self.time += dt
+        
+        # Return the complete state data for external access
+        return self.collect_state()
 
-    def log_state(self, power_output, torque, base_buoy_torque=None, pulse_torque=None, total_chain_torque=None, tau_net=None, tau_to_generator=None, clutch_c=None, clutch_state=None, drag_loss=None, dissolution_loss=None, venting_loss=None, net_energy=None):
+    def log_state(self, power_output, torque, base_buoy_force=None, pulse_force=None, total_vertical_force=None, tau_net=None, tau_to_generator=None, clutch_c=None, clutch_state=None, drag_loss=None, dissolution_loss=None, venting_loss=None, net_energy=None, control_output=None, electrical_output=None, pneumatic_executed=False, enhanced_state=None):
         """
-        Collect and log the current state of the simulation, including torque breakdowns and clutch state.
+        Collect and log the current state of the simulation, including force breakdowns and clutch state.
         """
-        print(f"LOG_STATE: t={self.time:.2f}, power={power_output:.2f}, torque={torque:.2f}, base_buoy_torque={base_buoy_torque}, pulse_torque={pulse_torque}, clutch_c={clutch_c}, clutch_state={clutch_state}, drag_loss={drag_loss}, dissolution_loss={dissolution_loss}, venting_loss={venting_loss}, net_energy={net_energy}")
+        print(f"LOG_STATE: t={self.time:.2f}, power={power_output:.2f}, torque={torque:.2f}, base_buoy_force={base_buoy_force}, pulse_force={pulse_force}, clutch_c={clutch_c}, clutch_state={clutch_state}, drag_loss={drag_loss}, dissolution_loss={dissolution_loss}, venting_loss={venting_loss}, net_energy={net_energy}")
         drivetrain_state = self.drivetrain.get_state()
         # Compute overall mechanical efficiency (output electrical power / mechanical input power)
         omega_fly = drivetrain_state['omega_flywheel_rpm'] * (2 * math.pi / 60)
@@ -285,9 +550,9 @@ class SimulationEngine:
             'time': self.time,
             'power': power_output,
             'torque': torque,
-            'base_buoy_torque': base_buoy_torque,
-            'pulse_torque': pulse_torque,
-            'total_chain_torque': total_chain_torque,
+            'base_buoy_force': base_buoy_force,
+            'pulse_force': pulse_force,
+            'total_vertical_force': total_vertical_force,
             'tau_net': tau_net,
             'tau_to_generator': tau_to_generator,
             'clutch_c': clutch_c,
@@ -300,16 +565,57 @@ class SimulationEngine:
             'tank_pressure': self.pneumatics.tank_pressure,
             'overall_efficiency': overall_eff,
             'avg_floater_velocity': avg_velocity,
-            'floaters': [f.to_dict() for f in self.floaters]
-        }
+            'floaters': [f.to_dict() for f in self.floaters]        }
+        
         # Include energy loss and net energy data
         state['drag_loss'] = drag_loss
         state['dissolution_loss'] = dissolution_loss
         state['venting_loss'] = venting_loss
-        state['net_energy'] = net_energy
+        state['net_energy'] = net_energy        # Include enhanced loss model data (Phase 5)
+        if enhanced_state is not None:
+            state['enhanced_losses'] = {
+                'total_system_losses': enhanced_state.system_losses.total_system_losses,
+                'system_efficiency': enhanced_state.system_losses.system_efficiency,
+                'mechanical_losses': {
+                    'bearing_friction': enhanced_state.system_losses.mechanical_losses.bearing_friction,
+                    'gear_mesh_losses': enhanced_state.system_losses.mechanical_losses.gear_mesh_losses,
+                    'seal_friction': enhanced_state.system_losses.mechanical_losses.seal_friction,
+                    'windage_losses': enhanced_state.system_losses.mechanical_losses.windage_losses,
+                    'clutch_losses': enhanced_state.system_losses.mechanical_losses.clutch_losses,
+                    'total_losses': enhanced_state.system_losses.mechanical_losses.total_losses
+                },
+                'electrical_losses': enhanced_state.system_losses.electrical_losses,
+                'thermal_losses': enhanced_state.system_losses.thermal_losses
+            }
+            state['thermal_state'] = enhanced_state.performance_metrics
+            state['component_temperatures'] = {
+                name: thermal_state.temperature 
+                for name, thermal_state in enhanced_state.thermal_states.items()
+            }
+        
+        # Include control system data
+        if control_output:
+            state['control_mode'] = control_output.get('control_mode', 'normal')
+            state['timing_commands'] = control_output.get('timing_commands', {})
+            state['load_commands'] = control_output.get('load_commands', {})
+            state['grid_commands'] = control_output.get('grid_commands', {})
+            state['fault_status'] = control_output.get('fault_status', {})
+            state['control_performance'] = control_output.get('performance_metrics', {})
+            state['pneumatic_control_executed'] = pneumatic_executed
+        
+        # Include electrical system data
+        if electrical_output:
+            state['electrical_load_torque'] = electrical_output.get('load_torque_command', 0.0)
+            state['grid_power_output'] = electrical_output.get('grid_power_output', 0.0)
+            state['electrical_efficiency'] = electrical_output.get('system_efficiency', 0.0)
+            state['electrical_synchronized'] = electrical_output.get('synchronized', False)
+            state['electrical_load_factor'] = electrical_output.get('load_factor', 0.0)
+            state['grid_voltage'] = electrical_output.get('grid_voltage', 480.0)
+            state['grid_frequency'] = electrical_output.get('grid_frequency', 60.0)
+        
         self.data_log.append(state)
         self.data_queue.put(state)
-        logger.debug(f"Step: t={self.time:.2f}, power={power_output:.2f}, torque={torque:.2f}, base_buoy_torque={base_buoy_torque}, pulse_torque={pulse_torque}, clutch_c={clutch_c}, clutch_state={clutch_state}")
+        logger.debug(f"Step: t={self.time:.2f}, power={power_output:.2f}, torque={torque:.2f}, base_buoy_force={base_buoy_force}, pulse_force={pulse_force}, clutch_c={clutch_c}, clutch_state={clutch_state}")
 
     def collect_state(self):
         """
@@ -334,8 +640,13 @@ class SimulationEngine:
         self.pulse_count = 0
         self.last_pulse_time = -999
         self.data_log.clear()
-
+        
         self.drivetrain.reset()
+        self.integrated_drivetrain.reset()
+        self.integrated_electrical_system.reset()
+        self.integrated_control_system.reset()
+        self.enhanced_loss_model.reset()
+        self.transient_controller.reset()
         self.generator.reset()
         self.pneumatics.reset()
         for i, floater in enumerate(self.floaters):
@@ -374,7 +685,45 @@ class SimulationEngine:
         with self.data_queue.mutex:
             self.data_queue.queue.clear()
         logger.info("Simulation engine has been reset.")
-        # Debug: Log initial floater states after calibrated placement
-        for i, floater in enumerate(self.floaters):
-            x, y = floater.get_cartesian_position()
-            logger.debug(f"Floater {i}: theta={floater.theta:.2f}, x={x:.2f}, y={y:.2f}, is_filled={floater.is_filled}, fill_progress={floater.fill_progress:.2f}, state={floater.state}")
+    
+    def initiate_startup(self, reason: str = "Manual startup") -> bool:
+        """
+        Initiate system startup sequence.
+        
+        Args:
+            reason: Reason for startup initiation
+            
+        Returns:
+            bool: True if startup initiated successfully
+        """
+        return self.transient_controller.initiate_startup(self.time, reason)
+    
+    def trigger_emergency_stop(self, reason: str):
+        """
+        Trigger emergency stop sequence.
+        
+        Args:
+            reason: Reason for emergency stop
+            
+        Returns:
+            Emergency stop response dictionary
+        """
+        return self.transient_controller.trigger_emergency_stop(reason, self.time)
+    
+    def get_transient_status(self):
+        """Get comprehensive transient event status"""
+        return self.transient_controller.get_transient_status()
+    
+    def acknowledge_transient_event(self, event_type: str, event_id: str = ""):
+        """
+        Acknowledge a transient event.
+        
+        Args:
+            event_type: Type of event to acknowledge
+            event_id: Specific event ID (if applicable)
+            
+        Returns:
+            bool: True if event acknowledged successfully
+        """
+        event_id_param = event_id if event_id else event_type
+        return self.transient_controller.acknowledge_event(event_type, event_id_param)
