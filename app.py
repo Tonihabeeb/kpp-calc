@@ -296,26 +296,8 @@ def data_history():
 
 @app.route("/reset", methods=["POST"])
 def reset_simulation():
-    engine.running = False
-    with engine.data_queue.mutex:
-        engine.data_queue.queue.clear()
-    engine.time = 0.0
-    engine.data_log = []
-    engine.total_energy = 0.0
-    engine.total_distance = 0.0
-    engine.pulse_count = 0
-    engine.last_pulse_time = 0.0
-    # Reset pulse physics
-    engine.pulse_physics.omega_chain = 0.0
-    engine.pulse_physics.omega_flywheel = 0.0
-    engine.pulse_physics.clutch_engaged = False
-    # Reset floaters
-    num_floaters = engine.params.get('num_floaters', 1)
-    engine.floaters = [Floater(volume=engine.params.get('floater_volume', 0.3),
-                             mass=engine.params.get('floater_mass_empty', 18.0),
-                             area=engine.params.get('floater_area', 0.035),
-                             Cd=engine.params.get('floater_Cd', 0.8))
-                   for _ in range(num_floaters)]
+    """Resets the simulation to its initial state."""
+    engine.reset()
     return ("Simulation reset", 200)
 
 @app.route('/download_csv')
@@ -412,6 +394,17 @@ def analyze_real_time_data():
 # Start the analysis thread
 analysis_thread = threading.Thread(target=analyze_real_time_data, daemon=True)
 analysis_thread.start()
+
+@app.route("/set_load", methods=["POST"])
+def set_load():
+    """Set the generator load torque (Nm) via user input."""
+    data = request.get_json() or {}
+    user_load = data.get('user_load_torque', None)
+    if user_load is not None:
+        engine.generator.set_user_load(float(user_load))
+        return (f"User load set to {user_load} Nm", 200)
+    else:
+        return ("Missing user_load_torque in request", 400)
 
 if __name__ == "__main__":
     app.run(debug=True, threaded=True)

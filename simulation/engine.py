@@ -9,6 +9,7 @@ import time
 import json
 import threading
 import logging
+import math
 from simulation.components.floater import Floater
 from simulation.components.drivetrain import Drivetrain
 from simulation.components.generator import Generator
@@ -119,6 +120,18 @@ class SimulationEngine:
         self.running = False
         logger.info("Simulation stopped.")
 
+    def set_chain_geometry(self, major_axis=5.0, minor_axis=10.0):
+        """
+        Set the geometry of the elliptical/circular chain and initialize floaters' theta.
+        """
+        self.chain_major_axis = major_axis
+        self.chain_minor_axis = minor_axis
+        self.chain_radius = (major_axis + minor_axis) / 2  # Approximate mean radius
+        n = len(self.floaters)
+        for i, floater in enumerate(self.floaters):
+            floater.set_chain_params(major_axis, minor_axis, self.chain_radius)
+            floater.set_theta(2 * math.pi * i / n)
+
     def step(self, dt):
         """
         Perform a single simulation step using the modular components.
@@ -133,12 +146,28 @@ class SimulationEngine:
 
         # 2. Update component states
         self.pneumatics.update(dt)
+
+        # 2a. Update chain kinematics: advance all floaters' theta
+        omega_chain = self.drivetrain.omega_chain
         for floater in self.floaters:
+            prev_theta = getattr(floater, 'theta', 0.0)
+            floater.set_theta(prev_theta + omega_chain * dt)
+            # If floater completes a revolution, vent and reset
+            if prev_theta < 2 * math.pi and floater.theta >= 2 * math.pi:
+                floater.is_filled = False
+                floater.fill_progress = 0.0
+                # Optionally, trigger a new pulse at the bottom
+                self.pneumatics.trigger_injection(floater)
             floater.update(dt)
 
-        # 3. Calculate forces and torques
-        total_chain_force = sum(f.force for f in self.floaters)
-        input_torque = self.drivetrain.compute_input_torque(total_chain_force)
+        # 3. Calculate net torque from all floaters (vertical force × chain radius at each theta)
+        total_chain_torque = 0.0
+        for floater in self.floaters:
+            _, y = floater.get_cartesian_position()
+            # Only consider floaters on the upward side (y > 0)
+            if y > 0:
+                total_chain_torque += floater.get_vertical_force() * self.chain_radius
+        input_torque = self.drivetrain.compute_input_torque(total_chain_torque)
 
         # 4. Get generator load based on drivetrain speed
         flywheel_speed_rad_s = self.drivetrain.omega_flywheel
@@ -189,3 +218,34 @@ class SimulationEngine:
             self.thread = threading.Thread(target=self.run, daemon=True)
             self.thread.start()
             logger.info("Simulation thread started.")
+
+    def reset(self):
+        """
+        Resets the entire simulation to its initial state.
+        """
+        self.time = 0.0
+        self.total_energy = 0.0
+        self.pulse_count = 0
+        self.last_pulse_time = -999
+        self.data_log.clear()
+
+        self.drivetrain.reset()
+        self.generator.reset()
+        self.pneumatics.reset()
+        for i, floater in enumerate(self.floaters):
+            floater.reset()
+            # Set the first floater unfilled at the bottom to kickstart the cycle
+            if i == 0:
+                floater.is_filled = False
+                floater.fill_progress = 0.0
+                floater.set_theta(0.0)
+            else:
+                floater.is_filled = True
+                floater.fill_progress = 1.0
+                floater.set_theta(2 * math.pi * i / len(self.floaters))
+        # Set chain geometry and trigger a pulse for the first floater
+        self.set_chain_geometry()
+        self.pneumatics.trigger_injection(self.floaters[0])
+        with self.data_queue.mutex:
+            self.data_queue.queue.clear()
+        logger.info("Simulation engine has been reset.")

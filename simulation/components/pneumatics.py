@@ -29,6 +29,7 @@ class PneumaticSystem:
             target_pressure (float): Target pressure to maintain (bar).
         """
         # All pneumatic state is encapsulated here for clarity and future extension.
+        self.initial_pressure = tank_pressure
         self.tank_pressure = tank_pressure
         self.tank_volume = tank_volume
         self.compressor_power = compressor_power
@@ -94,3 +95,10 @@ class PneumaticSystem:
         # Clamp pressure to target if slightly exceeded due to increment
         if self.tank_pressure > self.target_pressure:
             self.tank_pressure = self.target_pressure
+
+    def reset(self):
+        """
+        Resets the pneumatic system to its initial state.
+        """
+        self.tank_pressure = self.initial_pressure
+        logger.info("PneumaticSystem state has been reset.")

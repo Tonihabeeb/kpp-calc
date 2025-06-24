@@ -43,6 +43,12 @@ class Generator:
         self.target_load_torque = self.target_power / self.target_omega if self.target_omega > 0 else 0
         logger.info(f"Initialized Generator: efficiency={efficiency}, target_power={target_power}W, target_rpm={target_rpm} RPM")
 
+    def set_user_load(self, user_load_torque: float):
+        """
+        Set a user-defined load torque (Nm) to override the default generator load.
+        """
+        self.user_load_torque = user_load_torque
+
     def get_load_torque(self, current_omega: float) -> float:
         """
         Calculate the resistive load torque from the generator based on its current speed.
@@ -54,6 +60,10 @@ class Generator:
         Returns:
             float: The resistive load torque (Nm).
         """
+        # If user load is set, use it
+        if hasattr(self, 'user_load_torque') and self.user_load_torque is not None:
+            return self.user_load_torque
+        
         if current_omega < 0.1:
             return 0.0
         
@@ -102,3 +112,9 @@ class Generator:
         self.target_omega = self.target_rpm * (2 * math.pi / 60)
         self.target_load_torque = self.target_power / self.target_omega if self.target_omega > 0 else 0
         logger.info(f"Updated Generator params. Efficiency from {old_eff} to {self.efficiency}")
+
+    def reset(self):
+        """
+        Resets the generator to its initial state. Currently a no-op.
+        """
+        logger.info("Generator state has been reset.")

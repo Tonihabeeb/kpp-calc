@@ -21,6 +21,10 @@ class Floater:
     Handles buoyancy, drag, vertical motion, and pulse-jet physics.
     """
 
+    MAX_VELOCITY = 10.0  # m/s, physically reasonable max
+    MIN_POSITION = 0.0   # bottom of tank (m)
+    MAX_POSITION = 10.0  # top of tank (m)
+
     def __init__(
         self,
         volume: float,
@@ -51,9 +55,6 @@ class Floater:
             air_flow_rate (float, optional): Air flow rate for pulse jet (m^3/s). Defaults to 0.6.
             jet_efficiency (float, optional): Efficiency of the pulse jet. Defaults to 0.85.
         """
-        if volume < 0 or mass < 0 or area < 0 or Cd < 0:
-            logger.error("Invalid floater parameters: must be non-negative.")
-            raise ValueError("Floater parameters must be non-negative.")
         self.volume = volume
         self.mass = mass
         self.area = area
@@ -69,6 +70,20 @@ class Floater:
         self.air_flow_rate = air_flow_rate
         self.jet_efficiency = jet_efficiency
         
+        # Store initial conditions for reset
+        self.initial_position = position
+        self.initial_velocity = velocity
+        self.initial_is_filled = is_filled
+        
+        # Chain parameters
+        self.major_axis = 0.0
+        self.minor_axis = 0.0
+        self.chain_radius = 0.0
+        self.theta = 0.0  # Angular position for chain kinematics
+        
+        if volume < 0 or mass < 0 or area < 0 or Cd < 0:
+            logger.error("Invalid floater parameters: must be non-negative.")
+            raise ValueError("Floater parameters must be non-negative.")
         self.set_filled(is_filled)
         logger.info(f"Initialized Floater: {self.to_dict()}")
 
@@ -194,7 +209,58 @@ class Floater:
         F_net = self.force
         a = F_net / self.mass if self.mass > 0 else 0.0
         self.velocity += a * dt
+        # Clamp velocity to prevent runaway
+        if self.velocity > self.MAX_VELOCITY:
+            self.velocity = self.MAX_VELOCITY
+        elif self.velocity < -self.MAX_VELOCITY:
+            self.velocity = -self.MAX_VELOCITY
         self.position += self.velocity * dt
+        # Clamp position and reset velocity if hitting boundaries
+        if self.position < self.MIN_POSITION:
+            self.position = self.MIN_POSITION
+            self.velocity = 0.0
+        elif self.position > self.MAX_POSITION:
+            self.position = self.MAX_POSITION
+            self.velocity = 0.0
         logger.debug(f"Updated Floater: pos={self.position:.2f}, vel={self.velocity:.2f}, acc={a:.2f}")
         # TODO: Integrate with chain module for cyclic position reset at top/bottom
         # TODO: Add hooks for H1/H2 effects
+
+    def reset(self):
+        """
+        Resets the floater to its initial state.
+        """
+        self.position = self.initial_position
+        self.velocity = self.initial_velocity
+        self.is_filled = self.initial_is_filled
+        self.fill_progress = 1.0 if self.is_filled else 0.0
+        logger.info(f"Floater state has been reset.")
+
+    def set_chain_params(self, major_axis, minor_axis, chain_radius):
+        """
+        Set the geometric parameters for the elliptical/circular chain path.
+        """
+        self.major_axis = major_axis  # a (horizontal radius)
+        self.minor_axis = minor_axis  # b (vertical radius)
+        self.chain_radius = chain_radius
+
+    def set_theta(self, theta):
+        """
+        Set the angular position of the floater along the chain.
+        """
+        self.theta = theta % (2 * math.pi)
+
+    def get_cartesian_position(self):
+        """
+        Get the (x, y) position of the floater along the ellipse/circle.
+        """
+        x = self.major_axis * math.cos(self.theta)
+        y = self.minor_axis * math.sin(self.theta)
+        return x, y
+
+    def get_vertical_force(self):
+        """
+        Get the vertical force (buoyancy, gravity, drag, jet) at the current position.
+        """
+        # Use the same force calculation as before, but only the vertical component matters for torque
+        return self.force

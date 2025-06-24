@@ -477,6 +477,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
+    // Generator load control
+    document.getElementById('setLoadBtn').onclick = function() {
+        const userLoad = parseFloat(document.getElementById('userLoadInput').value);
+        fetch('/set_load', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_load_torque: userLoad })
+        })
+        .then(response => response.text())
+        .then(msg => {
+            document.getElementById('setLoadStatus').textContent = msg;
+        })
+        .catch(err => {
+            document.getElementById('setLoadStatus').textContent = 'Error setting load';
+        });
+    };
+
     // Initialize SSE connection
     connectSSE();
 });
