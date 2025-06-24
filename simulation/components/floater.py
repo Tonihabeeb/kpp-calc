@@ -7,8 +7,9 @@ Handles all floater-related calculations and updates
 """
 
 import logging
+import math
 from typing import Optional
-from config.config import G, RHO_WATER
+from config.config import G, RHO_WATER, RHO_AIR
 from utils.logging_setup import setup_logging
 
 setup_logging()
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 class Floater:
     """
     Represents a buoyant floater in the KPP system.
-    Handles buoyancy, drag, and vertical motion.
+    Handles buoyancy, drag, vertical motion, and pulse-jet physics.
     """
 
     def __init__(
@@ -29,6 +30,10 @@ class Floater:
         position: float = 0.0,
         velocity: float = 0.0,
         is_filled: bool = False,
+        air_fill_time: float = 0.5,
+        air_pressure: float = 300000,
+        air_flow_rate: float = 0.6,
+        jet_efficiency: float = 0.85
     ):
         """
         Initialize a Floater.
@@ -41,9 +46,13 @@ class Floater:
             position (float, optional): Initial vertical position (m). Defaults to 0.0.
             velocity (float, optional): Initial vertical velocity (m/s). Defaults to 0.0.
             is_filled (bool, optional): Whether the floater is filled with air (buoyant). Defaults to False.
+            air_fill_time (float, optional): Time to fill air volume (s). Defaults to 0.5.
+            air_pressure (float, optional): Air pressure for pulse jet (Pa). Defaults to 300000.
+            air_flow_rate (float, optional): Air flow rate for pulse jet (m^3/s). Defaults to 0.6.
+            jet_efficiency (float, optional): Efficiency of the pulse jet. Defaults to 0.85.
         """
         if volume < 0 or mass < 0 or area < 0 or Cd < 0:
-            logger.error("Invalid floater parameters: volume, mass, area, and Cd must be non-negative.")
+            logger.error("Invalid floater parameters: must be non-negative.")
             raise ValueError("Floater parameters must be non-negative.")
         self.volume = volume
         self.mass = mass
@@ -51,30 +60,50 @@ class Floater:
         self.Cd = Cd
         self.position = position
         self.velocity = velocity
-        self.is_filled = is_filled
+        self.is_filled = False
+        self.fill_progress = 0.0  # 0.0 to 1.0
+
+        # Pulse physics parameters
+        self.air_fill_time = air_fill_time
+        self.air_pressure = air_pressure
+        self.air_flow_rate = air_flow_rate
+        self.jet_efficiency = jet_efficiency
+        
+        self.set_filled(is_filled)
         logger.info(f"Initialized Floater: {self.to_dict()}")
 
     def set_filled(self, filled: bool) -> None:
         """
-        Set the filled state of the floater and log the event.
+        Set the filled state of the floater and reset progress.
 
         Args:
             filled (bool): True if filled with air, False otherwise.
         """
         if self.is_filled != filled:
             self.is_filled = filled
+            self.fill_progress = 1.0 if filled else 0.0
             logger.info(f"Floater fill state changed: is_filled={self.is_filled}")
+
+    def start_filling(self):
+        """
+        Begin the air filling process for the pulse.
+        """
+        if not self.is_filled:
+            self.is_filled = True
+            self.fill_progress = 0.0
+            logger.info("Floater has started filling.")
 
     def compute_buoyant_force(self) -> float:
         """
-        Compute the upward buoyant force on the floater.
+        Compute the upward buoyant force based on the currently filled volume.
 
         Returns:
             float: Buoyant force (N)
         """
-        displaced_volume = self.volume if self.is_filled else 0.0
+        # Buoyancy is based on the actual volume of air held
+        displaced_volume = self.volume * self.fill_progress
         F_buoy = RHO_WATER * displaced_volume * G
-        logger.debug(f"Buoyant force: {F_buoy} N (is_filled={self.is_filled})")
+        logger.debug(f"Buoyant force: {F_buoy:.2f} N (fill_progress={self.fill_progress:.2f})")
         return F_buoy
 
     def compute_drag_force(self) -> float:
@@ -85,24 +114,45 @@ class Floater:
             float: Drag force (N, sign opposes velocity)
         """
         drag_mag = 0.5 * self.Cd * RHO_WATER * self.area * (self.velocity ** 2)
-        if self.velocity > 0:
-            return -drag_mag  # Upward motion, drag is downward
-        else:
-            return drag_mag   # Downward motion, drag is upward
+        return -drag_mag if self.velocity > 0 else drag_mag
+
+    def compute_pulse_jet_force(self) -> float:
+        """
+        Calculate the additional upward force from the water jet effect during the pulse.
+        This force is only active while the floater is filling.
+
+        Returns:
+            float: Jet force (N)
+        """
+        if not (0 < self.fill_progress < 1.0):
+            return 0.0
+
+        # Simplified model from pulse_physics.py
+        v_jet = math.sqrt(2 * self.air_pressure / RHO_WATER)
+        water_displacement_rate = self.air_flow_rate
+        F_jet = self.jet_efficiency * RHO_WATER * water_displacement_rate * v_jet
+        logger.debug(f"Pulse jet force: {F_jet:.2f} N")
+        return F_jet
 
     @property
     def force(self) -> float:
         """
-        Calculate the net force acting on the floater.
+        Calculate the net force acting on the floater, including all effects.
 
         Returns:
             float: Net force (N)
         """
         F_buoy = self.compute_buoyant_force()
-        F_gravity = -self.mass * G
+        F_jet = self.compute_pulse_jet_force()
+        
+        # Weight includes the mass of the air inside
+        air_mass = RHO_AIR * self.volume * self.fill_progress
+        F_gravity = -(self.mass + air_mass) * G
+        
         F_drag = self.compute_drag_force()
-        F_net = F_buoy + F_gravity + F_drag
-        logger.debug(f"Net force: {F_net} N (Buoy={F_buoy}, Gravity={F_gravity}, Drag={F_drag})")
+        
+        F_net = F_buoy + F_gravity + F_drag + F_jet
+        logger.debug(f"Net force: {F_net:.2f} N (Buoy={F_buoy:.2f}, Jet={F_jet:.2f}, Grav={F_gravity:.2f}, Drag={F_drag:.2f})")
         return F_net
 
     def to_dict(self) -> dict:
@@ -115,30 +165,36 @@ class Floater:
         return {
             'volume': self.volume,
             'mass': self.mass,
-            'area': self.area,
-            'Cd': self.Cd,
             'position': self.position,
             'velocity': self.velocity,
-            'is_filled': self.is_filled
+            'is_filled': self.is_filled,
+            'fill_progress': self.fill_progress
         }
 
-    def update(self, dt: float, params: dict, time: float) -> None:
+    def update(self, dt: float) -> None:
         """
-        Update floater's velocity and position over a time step dt using simple physics integration.
-        Considers buoyancy, gravity, and drag forces.
+        Update floater's state over a time step dt.
+        Considers buoyancy, gravity, drag, and pulse jet forces.
 
         Args:
             dt (float): Time step (s)
-            params (dict): Simulation parameters
-            time (float): Current simulation time (s)
         """
         if dt <= 0:
-            logger.error("Time step dt must be positive.")
             raise ValueError("Time step dt must be positive.")
+
+        # Update fill progress if filling
+        if self.is_filled and self.fill_progress < 1.0:
+            # Rate of filling is determined by air_fill_time
+            fill_rate = 1.0 / self.air_fill_time if self.air_fill_time > 0 else float('inf')
+            self.fill_progress += fill_rate * dt
+            if self.fill_progress >= 1.0:
+                self.fill_progress = 1.0
+                logger.info("Floater finished filling.")
+
         F_net = self.force
         a = F_net / self.mass if self.mass > 0 else 0.0
         self.velocity += a * dt
         self.position += self.velocity * dt
-        logger.debug(f"Updated Floater: position={self.position}, velocity={self.velocity}, a={a}")
+        logger.debug(f"Updated Floater: pos={self.position:.2f}, vel={self.velocity:.2f}, acc={a:.2f}")
         # TODO: Integrate with chain module for cyclic position reset at top/bottom
         # TODO: Add hooks for H1/H2 effects

@@ -34,28 +34,30 @@ class PneumaticSystem:
         self.compressor_power = compressor_power
         self.target_pressure = target_pressure
         self.compressor_on = False
-        self.air_available = tank_volume * tank_pressure  # Simplified: total air in tank
         self.energy_used = 0.0
         logger.info(f"PneumaticSystem initialized: pressure={tank_pressure} bar, volume={tank_volume} m^3")
 
-    def inject_air(self, floater) -> None:
+    def trigger_injection(self, floater) -> bool:
         """
-        Inject air into a floater at the bottom.
+        Trigger the air injection process for a floater.
+
         Args:
-            floater: Floater object to fill with air.
+            floater: The Floater object to start filling.
+
+        Returns:
+            bool: True if injection was successfully started, False otherwise.
         """
-        # Only inject if there is enough air and pressure in the tank.
-        if self.air_available <= 0 or self.tank_pressure < 0.5:
-            logger.warning("Not enough air to inject. Injection skipped.")
-            return
-        # Fill the floater with air (makes it buoyant)
-        floater.set_filled(True)
-        air_used = floater.volume  # Assume 1 injection = 1 floater volume
-        self.air_available -= air_used
-        # Approximate pressure drop using P1V1 = P2V2 (ideal gas, isothermal)
-        self.tank_pressure -= air_used / self.tank_volume
-        self.compressor_on = True  # Start compressor to restore pressure
-        logger.info(f"Injected air into Floater; tank pressure now {self.tank_pressure:.2f} bar")
+        # Simplified check for available pressure
+        if self.tank_pressure > 1.5: # Some threshold above atmospheric
+            floater.start_filling()
+            # Model a pressure drop for the injection
+            pressure_drop = floater.volume / self.tank_volume * 0.5 # Simplified model
+            self.tank_pressure -= pressure_drop
+            logger.info(f"Triggered injection for a floater. Tank pressure dropped to {self.tank_pressure:.2f} bar.")
+            return True
+        else:
+            logger.warning("Injection failed: tank pressure too low.")
+            return False
 
     def vent_air(self, floater) -> None:
         """
@@ -80,14 +82,13 @@ class PneumaticSystem:
             logger.info("Compressor turned ON (pressure below target).")
         # Automatically switch compressor OFF if pressure is at or above target
         if self.tank_pressure >= self.target_pressure and self.compressor_on:
-            self.tank_pressure = self.target_pressure
             self.compressor_on = False
             logger.info("Compressor reached target pressure and turned OFF.")
         # If compressor is on and pressure is below target, increase pressure gradually
-        if self.compressor_on and self.tank_pressure < self.target_pressure:
-            pressure_increase = 0.1 * dt  # bar per second (tunable, simple model)
+        if self.compressor_on:
+            # Simplified pressure increase model
+            pressure_increase = (self.compressor_power / self.tank_volume) * dt * 0.1
             self.tank_pressure += pressure_increase
-            self.air_available = self.tank_volume * self.tank_pressure
             self.energy_used += self.compressor_power * dt
             logger.debug(f"Compressor running: pressure={self.tank_pressure:.2f} bar, energy_used={self.energy_used:.2f} kJ")
         # Clamp pressure to target if slightly exceeded due to increment

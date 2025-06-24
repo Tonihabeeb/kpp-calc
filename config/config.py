@@ -3,6 +3,7 @@
 # Physical constants
 G = 9.81  # gravitational acceleration (m/s^2)
 RHO_WATER = 1000.0  # density of water (kg/m^3)
+RHO_AIR = 1.225    # density of air (kg/m^3)
 
 # Default simulation parameters
 default_params = {

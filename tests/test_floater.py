@@ -1,35 +1,85 @@
 """
-Unit tests for the Floater class.
+Unit tests for the updated Floater component.
 """
 import unittest
+import sys
+import os
+from config.config import G, RHO_WATER, RHO_AIR
+
+# Add the project root to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from simulation.components.floater import Floater
 
 class TestFloater(unittest.TestCase):
-    def test_buoyant_force_air_filled(self):
-        floater = Floater(volume=0.1, mass=10, area=0.01, Cd=0.8, is_filled=True)
-        self.assertGreater(floater.compute_buoyant_force(), 0)
+    def setUp(self):
+        """Set up a default floater for tests."""
+        self.floater = Floater(
+            volume=0.3,
+            mass=18.0,
+            area=0.035,
+            Cd=0.8,
+            air_fill_time=0.5,
+            air_pressure=300000,
+            air_flow_rate=0.6,
+            jet_efficiency=0.85
+        )
 
-    def test_buoyant_force_water_filled(self):
-        floater = Floater(volume=0.1, mass=10, area=0.01, Cd=0.8, is_filled=False)
-        self.assertEqual(floater.compute_buoyant_force(), 0)
+    def test_initialization(self):
+        """Test that the floater initializes with correct default values."""
+        self.assertEqual(self.floater.volume, 0.3)
+        self.assertEqual(self.floater.mass, 18.0)
+        self.assertFalse(self.floater.is_filled)
+        self.assertEqual(self.floater.fill_progress, 0.0)
+        self.assertEqual(self.floater.position, 0.0)
+        self.assertEqual(self.floater.velocity, 0.0)
 
-    def test_drag_force(self):
-        floater = Floater(volume=0.1, mass=10, area=0.01, Cd=0.8, velocity=2.0, is_filled=True)
-        drag = floater.compute_drag_force()
-        self.assertTrue(isinstance(drag, float))
+    def test_start_filling(self):
+        """Test the process of starting to fill the floater."""
+        self.floater.start_filling()
+        self.assertTrue(self.floater.is_filled)
+        self.assertEqual(self.floater.fill_progress, 0.0)
 
-    def test_update(self):
-        floater = Floater(volume=0.1, mass=10, area=0.01, Cd=0.8, velocity=0.0, is_filled=True)
-        floater.update(0.1, {}, 0.0)
-        self.assertTrue(isinstance(floater.position, float))
-        self.assertTrue(isinstance(floater.velocity, float))
+    def test_update_filling_progress(self):
+        """Test that the fill progress correctly updates over time."""
+        self.floater.start_filling()
+        self.floater.update(dt=0.1)
+        self.assertAlmostEqual(self.floater.fill_progress, 0.2) # 0.1 / 0.5
+        self.floater.update(dt=0.4)
+        self.assertEqual(self.floater.fill_progress, 1.0)
 
-    def test_set_filled(self):
-        floater = Floater(volume=0.1, mass=10, area=0.01, Cd=0.8)
-        floater.set_filled(True)
-        self.assertTrue(floater.is_filled)
-        floater.set_filled(False)
-        self.assertFalse(floater.is_filled)
+    def test_force_calculation_when_empty(self):
+        """Test net force on an empty, stationary floater (should be just gravity)."""
+        expected_force = -self.floater.mass * G
+        self.assertAlmostEqual(self.floater.force, expected_force)
 
-if __name__ == "__main__":
+    def test_force_calculation_when_full(self):
+        """Test net force on a fully filled, stationary floater."""
+        self.floater.set_filled(True)
+        buoyancy = RHO_WATER * self.floater.volume * G
+        air_mass = RHO_AIR * self.floater.volume
+        gravity = -(self.floater.mass + air_mass) * G
+        expected_force = buoyancy + gravity
+        self.assertAlmostEqual(self.floater.force, expected_force)
+
+    def test_pulse_jet_force(self):
+        """Test that the pulse jet force is active only during filling."""
+        self.assertEqual(self.floater.compute_pulse_jet_force(), 0.0)
+        self.floater.start_filling()
+        self.floater.update(dt=0.01) # Start filling
+        self.assertGreater(self.floater.compute_pulse_jet_force(), 0)
+        self.floater.update(dt=0.5) # Finish filling
+        self.assertEqual(self.floater.compute_pulse_jet_force(), 0.0)
+
+    def test_update_kinematics(self):
+        """Test that the floater's position and velocity update correctly."""
+        self.floater.set_filled(True) # Make it buoyant
+        initial_pos = self.floater.position
+        initial_vel = self.floater.velocity
+        self.floater.update(dt=0.1)
+        self.assertNotEqual(self.floater.position, initial_pos)
+        self.assertNotEqual(self.floater.velocity, initial_vel)
+        self.assertGreater(self.floater.velocity, 0) # Should be moving up
+
+if __name__ == '__main__':
     unittest.main()
