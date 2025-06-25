@@ -26,6 +26,7 @@ from simulation.control.integrated_control_system import IntegratedControlSystem
 from simulation.physics.integrated_loss_model import IntegratedLossModel, create_standard_kpp_enhanced_loss_model
 from simulation.control.transient_event_controller import TransientEventController
 from utils.logging_setup import setup_logging
+from simulation.grid_services import GridServicesCoordinator, GridConditions, create_standard_grid_services_coordinator
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -189,6 +190,20 @@ class SimulationEngine:
         # Initialize default chain geometry for torque calculations
         self.set_chain_geometry()
 
+        # Initialize grid services coordinator (Phase 7)
+        grid_services_config = {
+            'enable_frequency_services': params.get('enable_frequency_services', True),
+            'enable_voltage_services': params.get('enable_voltage_services', False),  # TODO: Enable in Week 2
+            'enable_demand_response': params.get('enable_demand_response', False),   # TODO: Enable in Week 3
+            'enable_energy_storage': params.get('enable_energy_storage', False),    # TODO: Enable in Week 4
+            'enable_economic_optimization': params.get('enable_economic_optimization', False), # TODO: Enable in Week 5
+            'max_simultaneous_services': params.get('max_simultaneous_services', 3),
+            'max_frequency_response': params.get('max_frequency_response', 0.15),
+            'max_voltage_response': params.get('max_voltage_response', 0.10),
+            'max_storage_response': params.get('max_storage_response', 0.20)
+        }
+        self.grid_services_coordinator = create_standard_grid_services_coordinator()
+        
     def update_params(self, params):
         """
         Update simulation parameters and component parameters.
@@ -611,7 +626,31 @@ class SimulationEngine:
             state['electrical_synchronized'] = electrical_output.get('synchronized', False)
             state['electrical_load_factor'] = electrical_output.get('load_factor', 0.0)
             state['grid_voltage'] = electrical_output.get('grid_voltage', 480.0)
-            state['grid_frequency'] = electrical_output.get('grid_frequency', 60.0)
+            state['grid_frequency'] = electrical_output.get('grid_frequency', 60.0)        
+        # Include grid services data (Phase 7)
+        if hasattr(self, '_last_grid_services_response'):
+            state['grid_services'] = {
+                'total_power_command_mw': self._last_grid_services_response.get('total_power_command_mw', 0.0),
+                'active_services': self._last_grid_services_response.get('active_services', []),
+                'service_count': self._last_grid_services_response.get('service_count', 0),
+                'coordination_status': self._last_grid_services_response.get('status', 'No services active'),
+                'frequency_services': self._last_grid_services_response.get('frequency_services', {}),
+                'grid_conditions': getattr(self, '_last_grid_conditions', {})
+            }
+            
+            # Include detailed grid services performance metrics
+            grid_services_metrics = self.grid_services_coordinator.get_performance_metrics()
+            state['grid_services_performance'] = grid_services_metrics
+        else:
+            # Grid services not yet active
+            state['grid_services'] = {
+                'total_power_command_mw': 0.0,
+                'active_services': [],
+                'service_count': 0,
+                'coordination_status': 'Grid services not initialized',
+                'frequency_services': {},
+                'grid_conditions': {}
+            }
         
         self.data_log.append(state)
         self.data_queue.put(state)
