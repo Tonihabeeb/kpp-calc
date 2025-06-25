@@ -5,7 +5,7 @@ Combines all Phase 4 advanced control components into a unified system.
 
 import logging
 import numpy as np
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from collections import deque
 
@@ -41,7 +41,7 @@ class ControlSystemConfig:
     predictive_maintenance_enabled: bool = True
     
     # Control coordination config
-    control_priority_weights: Dict[str, float] = None
+    control_priority_weights: Optional[Dict[str, float]] = None
     emergency_response_enabled: bool = True
     adaptive_control_enabled: bool = True
 
@@ -104,10 +104,12 @@ class IntegratedControlSystem:
             'timing_optimization': 0.6,
             'efficiency_optimization': 0.5
         }
-        
-        # System state
+          # System state
         self.current_time = 0.0
         self.system_mode = 'normal'
+        self.control_mode = 'automatic'  # Add missing control_mode
+        self.power_setpoint = 0.0  # Add missing power_setpoint
+        self.control_output = 0.0  # Add missing control_output
         self.emergency_response_active = False
         self.adaptive_control_active = config.adaptive_control_enabled
         
@@ -536,6 +538,40 @@ class IntegratedControlSystem:
         self.efficiency_history.clear()
         
         logger.info("IntegratedControlSystem reset")
+    
+    def get_status(self) -> Dict[str, Any]:
+        """
+        Get current status of the integrated control system
+        
+        Returns:
+            Dict containing current control system status data
+        """
+        return {
+            'mode': self.control_mode,
+            'setpoint': self.power_setpoint,
+            'output': self.control_output,
+            'timing_status': getattr(self.timing_controller, 'get_state', lambda: {})(),
+            'load_management': {
+                'target_power': self.load_manager.target_power,
+                'current_power': getattr(self.load_manager, 'current_power', 0.0),
+                'power_error': getattr(self.load_manager, 'power_error', 0.0)
+            },
+            'grid_stability': {
+                'voltage_regulation': getattr(self.grid_stability_controller, 'voltage_regulation_active', False),
+                'frequency_regulation': getattr(self.grid_stability_controller, 'frequency_regulation_active', False),
+                'grid_compliance': getattr(self.grid_stability_controller, 'grid_compliance', True)
+            },
+            'fault_status': {
+                'active_faults': getattr(self.fault_detector, 'active_faults', []),
+                'fault_count': getattr(self.fault_detector, 'total_faults_detected', 0),
+                'system_health': getattr(self.fault_detector, 'system_health_score', 1.0)
+            },
+            'performance': {
+                'efficiency': getattr(self, 'system_efficiency', 0.0),
+                'power_factor': getattr(self, 'power_factor', 0.95),
+                'uptime': getattr(self, 'uptime_hours', 0.0)
+            }
+        }
 
 
 class ControlDecisionArbitrator:

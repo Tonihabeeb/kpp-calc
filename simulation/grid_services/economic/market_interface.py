@@ -456,9 +456,9 @@ class MarketInterface:
         
         # Calculate average clearing price
         if accepted_bids:
-            self.performance_metrics['average_clearing_price'] = np.mean([
+            self.performance_metrics['average_clearing_price'] = float(np.mean([
                 b.cleared_price for b in accepted_bids
-            ])
+            ]))
         
         # Calculate total revenue
         self.performance_metrics['total_revenue'] = sum(
@@ -473,9 +473,9 @@ class MarketInterface:
         
         # Calculate regulation score (simplified)
         if self.settlement_history:
-            self.performance_metrics['regulation_score'] = np.mean([
+            self.performance_metrics['regulation_score'] = float(np.mean([
                 s.regulation_performance for s in self.settlement_history
-            ])
+            ]))
 
 
 def create_market_interface(config: Dict[str, Any]) -> MarketInterface:

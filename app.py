@@ -171,14 +171,13 @@ def start_simulation():
     params = request.get_json() or {}
     # Reset engine for clean start
     engine.reset()
-    engine.update_params(params)
-    # Push initial state for live data
+    engine.update_params(params)    # Push initial state for live data
     engine.log_state(
         power_output=0.0,
         torque=0.0,
-        base_buoy_torque=0.0,
-        pulse_torque=0.0,
-        total_chain_torque=0.0,
+        base_buoy_force=0.0,
+        pulse_force=0.0,
+        total_vertical_force=0.0,
         tau_net=0.0,
         tau_to_generator=0.0,
         clutch_c=(engine.clutch.state.c if engine.clutch.state else 0.0),
@@ -413,6 +412,496 @@ def data_live():
     with engine.data_queue.mutex:
         data_list = list(engine.data_queue.queue)
     return {'data': data_list}, 200
+
+@app.route("/data/pneumatic_status")
+def pneumatic_status():
+    """Get comprehensive pneumatic system status including performance and energy data"""
+    try:
+        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
+    except Exception:
+        latest = None
+    
+    if not latest:
+        return {'status': 'no_data'}
+    
+    pneumatic_data = {
+        'tank_pressure': latest.get('tank_pressure', 0.0),
+        'performance': latest.get('pneumatic_performance', {}),
+        'energy': latest.get('pneumatic_energy', {}),
+        'optimization': latest.get('pneumatic_optimization', {}),
+        'timestamp': latest.get('time', 0.0)
+    }
+    
+    return pneumatic_data
+
+@app.route("/data/optimization_recommendations")
+def optimization_recommendations():
+    """Get current optimization recommendations from the pneumatic performance analyzer"""
+    try:
+        if hasattr(engine, 'pneumatic_performance_analyzer'):
+            recommendations = engine.pneumatic_performance_analyzer.generate_optimization_recommendations()
+            return {
+                'recommendations': [
+                    {
+                        'target': rec.target.value,
+                        'expected_improvement': rec.expected_improvement,
+                        'confidence': rec.confidence,
+                        'description': rec.description,
+                        'priority': 'medium'  # Default priority
+                    }
+                    for rec in recommendations
+                ],
+                'count': len(recommendations),
+                'timestamp': engine.time
+            }
+        else:
+            return {'recommendations': [], 'count': 0, 'error': 'Performance analyzer not available'}
+    except Exception as e:
+        return {'recommendations': [], 'count': 0, 'error': str(e)}
+
+@app.route("/data/energy_balance")
+def energy_balance():
+    """Get detailed energy balance information from the pneumatic energy analyzer"""
+    try:
+        if hasattr(engine, 'pneumatic_energy_analyzer'):
+            energy_summary = engine.pneumatic_energy_analyzer.get_energy_summary()
+            conservation = engine.pneumatic_energy_analyzer.validate_energy_conservation()
+            
+            return {
+                'energy_summary': energy_summary or {},
+                'conservation': conservation or {},
+                'timestamp': engine.time
+            }
+        else:
+            return {'error': 'Energy analyzer not available'}
+    except Exception as e:
+        return {'error': str(e)}
+
+# ========================================================================================
+# PHASE 8: INTEGRATED SYSTEMS API ENDPOINTS
+# ========================================================================================
+
+@app.route("/data/drivetrain_status")
+def drivetrain_status():
+    """Get comprehensive drivetrain system status from integrated drivetrain"""
+    try:
+        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
+    except Exception:
+        latest = None
+    
+    if not latest:
+        return {'status': 'no_data'}
+    
+    # Extract drivetrain data from the latest simulation state
+    drivetrain_data = {
+        'flywheel_speed_rpm': latest.get('flywheel_speed_rpm', 0.0),
+        'chain_speed_rpm': latest.get('chain_speed_rpm', 0.0),
+        'clutch_engaged': latest.get('clutch_engaged', False),
+        'system_efficiency': latest.get('system_efficiency', 0.0),
+        'gearbox_output_torque': latest.get('gearbox_output_torque', 0.0),
+        'chain_tension': latest.get('chain_tension', 0.0),
+        'sprocket_torque': latest.get('sprocket_torque', 0.0),
+        'flywheel_stored_energy': latest.get('flywheel_stored_energy', 0.0),
+        'power_flow': {
+            'input_power': latest.get('mechanical_power_input', 0.0),
+            'output_power': latest.get('power', 0.0),
+            'power_loss': latest.get('total_power_loss', 0.0)
+        },
+        'advanced_metrics': {
+            'clutch_engagement_factor': latest.get('clutch_c', 0.0),
+            'operating_time': latest.get('time', 0.0),
+            'pulse_count': latest.get('pulse_count', 0),
+            'overall_efficiency': latest.get('overall_efficiency', 0.0)
+        },
+        'timestamp': latest.get('time', 0.0)
+    }
+    
+    return drivetrain_data
+
+@app.route("/data/electrical_status")
+def electrical_status():
+    """Get comprehensive electrical system status from integrated electrical system"""
+    try:
+        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
+    except Exception:
+        latest = None
+    
+    if not latest:
+        return {'status': 'no_data'}
+    
+    # Extract electrical system data
+    electrical_data = {
+        'grid_power_output': latest.get('grid_power_output', 0.0),
+        'electrical_efficiency': latest.get('electrical_efficiency', 0.0),
+        'electrical_load_torque': latest.get('electrical_load_torque', 0.0),
+        'synchronized': latest.get('electrical_synchronized', False),
+        'load_factor': latest.get('electrical_load_factor', 0.0),
+        'grid_voltage': latest.get('grid_voltage', 480.0),
+        'grid_frequency': latest.get('grid_frequency', 60.0),
+        'power_quality': {
+            'power_factor': latest.get('power_factor', 0.0),
+            'voltage_regulation': latest.get('voltage_regulation', 1.0),
+            'frequency_stability': latest.get('frequency_stability', 0.0)
+        },
+        'performance_metrics': {
+            'total_energy_generated_kwh': latest.get('total_energy_generated_kwh', 0.0),
+            'total_energy_delivered_kwh': latest.get('total_energy_delivered_kwh', 0.0),
+            'operating_hours': latest.get('operating_hours', 0.0),
+            'capacity_factor_percent': latest.get('capacity_factor_percent', 0.0)
+        },
+        'timestamp': latest.get('time', 0.0)
+    }
+    
+    return electrical_data
+
+@app.route("/data/control_status")
+def control_status():
+    """Get comprehensive control system status from integrated control system"""
+    try:
+        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
+    except Exception:
+        latest = None
+    
+    if not latest:
+        return {'status': 'no_data'}
+    
+    # Extract control system data
+    control_data = {
+        'control_mode': latest.get('control_mode', 'normal'),
+        'timing_commands': latest.get('timing_commands', {}),
+        'load_commands': latest.get('load_commands', {}),
+        'grid_commands': latest.get('grid_commands', {}),
+        'fault_status': latest.get('fault_status', {}),
+        'control_performance': latest.get('control_performance', {}),
+        'pneumatic_control_executed': latest.get('pneumatic_control_executed', False),
+        'system_health': latest.get('system_health', 1.0),
+        'emergency_status': latest.get('emergency_status', {}),
+        'system_status': latest.get('system_status', {}),
+        'timestamp': latest.get('time', 0.0)
+    }
+    
+    return control_data
+
+@app.route("/data/grid_services_status")
+def grid_services_status():
+    """Get comprehensive grid services status and performance"""
+    try:
+        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
+    except Exception:
+        latest = None
+    
+    if not latest:
+        return {'status': 'no_data'}
+    
+    # Extract grid services data
+    grid_services_data = latest.get('grid_services', {})
+    grid_services_performance = latest.get('grid_services_performance', {})
+    
+    combined_data = {
+        'grid_services': grid_services_data,
+        'performance_metrics': grid_services_performance,
+        'coordination_status': grid_services_data.get('coordination_status', 'Unknown'),
+        'active_services_count': grid_services_data.get('service_count', 0),
+        'total_power_command_mw': grid_services_data.get('total_power_command_mw', 0.0),
+        'active_services': grid_services_data.get('active_services', []),
+        'timestamp': latest.get('time', 0.0)
+    }
+    
+    return combined_data
+
+@app.route("/data/enhanced_losses")
+def enhanced_losses_status():
+    """Get detailed loss analysis from the enhanced loss model"""
+    try:
+        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
+    except Exception:
+        latest = None
+    
+    if not latest:
+        return {'status': 'no_data'}
+    
+    # Extract enhanced loss model data
+    enhanced_losses = latest.get('enhanced_losses', {})
+    thermal_state = latest.get('thermal_state', {})
+    component_temperatures = latest.get('component_temperatures', {})
+    
+    loss_data = {
+        'total_system_losses': enhanced_losses.get('total_system_losses', 0.0),
+        'system_efficiency': enhanced_losses.get('system_efficiency', 0.0),
+        'mechanical_losses': enhanced_losses.get('mechanical_losses', {}),
+        'electrical_losses': enhanced_losses.get('electrical_losses', 0.0),
+        'thermal_losses': enhanced_losses.get('thermal_losses', 0.0),
+        'thermal_state': thermal_state,
+        'component_temperatures': component_temperatures,
+        'timestamp': latest.get('time', 0.0)
+    }
+    
+    return loss_data
+
+@app.route("/data/system_overview")
+def system_overview():
+    """Get comprehensive system overview combining all integrated systems"""
+    try:
+        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
+    except Exception:
+        latest = None
+    
+    if not latest:
+        return {'status': 'no_data'}
+    
+    # Combine key metrics from all systems
+    overview = {
+        'system_status': {
+            'operational': engine.running,
+            'simulation_time': latest.get('time', 0.0),
+            'overall_efficiency': latest.get('overall_efficiency', 0.0),
+            'total_energy': latest.get('total_energy', 0.0),
+            'pulse_count': latest.get('pulse_count', 0)
+        },
+        'power_generation': {
+            'mechanical_power': latest.get('mechanical_power_input', 0.0),
+            'electrical_power': latest.get('grid_power_output', 0.0),
+            'grid_synchronized': latest.get('electrical_synchronized', False),
+            'load_factor': latest.get('electrical_load_factor', 0.0)
+        },
+        'mechanical_systems': {
+            'flywheel_speed_rpm': latest.get('flywheel_speed_rpm', 0.0),
+            'chain_tension': latest.get('chain_tension', 0.0),
+            'clutch_engaged': latest.get('clutch_engaged', False),
+            'system_efficiency': latest.get('system_efficiency', 0.0)
+        },
+        'control_systems': {
+            'control_mode': latest.get('control_mode', 'normal'),
+            'faults_active': len(latest.get('fault_status', {}).get('active_faults', [])),
+            'pneumatic_control_active': latest.get('pneumatic_control_executed', False),
+            'system_health': latest.get('system_health', 1.0)
+        },
+        'grid_services': {
+            'services_active': latest.get('grid_services', {}).get('service_count', 0),
+            'power_command_mw': latest.get('grid_services', {}).get('total_power_command_mw', 0.0),
+            'coordination_status': latest.get('grid_services', {}).get('coordination_status', 'Unknown')
+        },
+        'pneumatic_systems': {
+            'tank_pressure': latest.get('tank_pressure', 0.0),
+            'average_efficiency': latest.get('pneumatic_performance', {}).get('average_efficiency', 0.0),
+            'optimization_opportunities': len(latest.get('pneumatic_optimization', {}).get('latest_recommendations', []))
+        },
+        'thermal_management': {
+            'component_temperatures': latest.get('component_temperatures', {}),
+            'thermal_efficiency': latest.get('thermal_state', {}).get('overall_thermal_efficiency', 1.0),
+            'cooling_active': latest.get('thermal_state', {}).get('cooling_system_active', False)
+        },
+        'timestamp': latest.get('time', 0.0)
+    }
+    
+    return overview
+
+@app.route("/control/set_control_mode", methods=["POST"])
+def set_control_mode():
+    """Set the control system mode (normal, emergency, manual, etc.)"""
+    data = request.get_json() or {}
+    control_mode = data.get('control_mode', 'normal')
+    
+    try:
+        # This would typically call a method on the integrated control system
+        # For now, we'll update the simulation parameters
+        engine.update_params({'control_mode': control_mode})
+        return {'status': 'success', 'control_mode': control_mode}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/control/trigger_emergency_stop", methods=["POST"])
+def trigger_emergency_stop():
+    """Trigger emergency stop sequence"""
+    data = request.get_json() or {}
+    reason = data.get('reason', 'Manual emergency stop')
+    
+    try:
+        if hasattr(engine, 'trigger_emergency_stop'):
+            response = engine.trigger_emergency_stop(reason)
+            return {'status': 'success', 'emergency_response': response}, 200
+        else:
+            # Fallback to stopping the simulation
+            engine.running = False
+            return {'status': 'success', 'message': 'Simulation stopped (emergency)'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/control/initiate_startup", methods=["POST"])
+def initiate_startup():
+    """Initiate controlled system startup sequence"""
+    data = request.get_json() or {}
+    reason = data.get('reason', 'Manual startup')
+    
+    try:
+        if hasattr(engine, 'initiate_startup'):
+            success = engine.initiate_startup(reason)
+            return {'status': 'success', 'startup_initiated': success}, 200
+        else:
+            # Fallback to starting the simulation
+            engine.running = True
+            if not engine.thread or not engine.thread.is_alive():
+                engine.thread = threading.Thread(target=engine.run, daemon=True)
+                engine.thread.start()
+            return {'status': 'success', 'message': 'Simulation started'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/data/transient_status")
+def transient_status():
+    """Get transient event controller status"""
+    try:
+        if hasattr(engine, 'get_transient_status'):
+            status = engine.get_transient_status()
+            return {'status': 'success', 'transient_status': status}, 200
+        else:
+            return {'status': 'unavailable', 'message': 'Transient controller not available'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+# ========================================================================================
+# PHYSICS MODULES API ENDPOINTS (Chain, Fluid, Thermal)
+# ========================================================================================
+
+@app.route("/data/physics_status")
+def physics_status():
+    """Get comprehensive physics modules status"""
+    try:
+        if hasattr(engine, 'get_physics_status'):
+            status = engine.get_physics_status()
+            return {'status': 'success', 'physics_status': status}, 200
+        else:
+            return {'status': 'unavailable', 'message': 'Physics modules not available'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/control/h1_nanobubbles", methods=["POST"])
+def control_h1_nanobubbles():
+    """Control H1 nanobubble effects"""
+    try:
+        data = request.get_json()
+        active = data.get('active', False)
+        bubble_fraction = data.get('bubble_fraction', 0.05)
+        drag_reduction = data.get('drag_reduction', 0.1)
+        
+        if hasattr(engine, 'set_h1_nanobubbles'):
+            engine.set_h1_nanobubbles(active, bubble_fraction, drag_reduction)
+            return {'status': 'success', 'h1_active': active, 
+                   'bubble_fraction': bubble_fraction, 'drag_reduction': drag_reduction}, 200
+        else:
+            return {'status': 'unavailable', 'message': 'H1 control not available'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/control/h2_thermal", methods=["POST"])
+def control_h2_thermal():
+    """Control H2 thermal effects"""
+    try:
+        data = request.get_json()
+        active = data.get('active', False)
+        efficiency = data.get('efficiency', 0.8)
+        buoyancy_boost = data.get('buoyancy_boost', 0.05)
+        compression_improvement = data.get('compression_improvement', 0.15)
+        
+        if hasattr(engine, 'set_h2_thermal'):
+            engine.set_h2_thermal(active, efficiency, buoyancy_boost, compression_improvement)
+            return {'status': 'success', 'h2_active': active, 'efficiency': efficiency,
+                   'buoyancy_boost': buoyancy_boost, 'compression_improvement': compression_improvement}, 200
+        else:
+            return {'status': 'unavailable', 'message': 'H2 control not available'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/control/water_temperature", methods=["POST"])
+def set_water_temperature():
+    """Set water temperature"""
+    try:
+        data = request.get_json()
+        temperature = data.get('temperature', 20.0)  # Default 20°C
+        
+        if hasattr(engine, 'set_water_temperature'):
+            engine.set_water_temperature(temperature)
+            return {'status': 'success', 'temperature': temperature}, 200
+        else:
+            return {'status': 'unavailable', 'message': 'Temperature control not available'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/control/enhanced_physics", methods=["POST"])
+def control_enhanced_physics():
+    """Enable/disable both H1 and H2 enhanced physics effects"""
+    try:
+        data = request.get_json()
+        h1_active = data.get('h1_active', True)
+        h2_active = data.get('h2_active', True)
+        enable = data.get('enable', True)
+        
+        if hasattr(engine, 'enable_enhanced_physics') and hasattr(engine, 'disable_enhanced_physics'):
+            if enable:
+                engine.enable_enhanced_physics(h1_active, h2_active)
+            else:
+                engine.disable_enhanced_physics()
+            return {'status': 'success', 'enabled': enable, 'h1_active': h1_active, 'h2_active': h2_active}, 200
+        else:
+            return {'status': 'unavailable', 'message': 'Enhanced physics control not available'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/data/enhanced_performance")
+def enhanced_performance():
+    """Get enhanced performance metrics with H1/H2 effects"""
+    try:
+        if hasattr(engine, 'get_enhanced_performance_metrics'):
+            metrics = engine.get_enhanced_performance_metrics()
+            return {'status': 'success', 'metrics': metrics}, 200
+        else:
+            return {'status': 'unavailable', 'message': 'Enhanced performance metrics not available'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/data/fluid_properties")
+def fluid_properties():
+    """Get current fluid system properties"""
+    try:
+        if hasattr(engine, 'fluid_system'):
+            properties = engine.fluid_system.get_fluid_properties()
+            return {'status': 'success', 'fluid_properties': properties}, 200
+        else:
+            return {'status': 'unavailable', 'message': 'Fluid system not available'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/data/thermal_properties")
+def thermal_properties():
+    """Get current thermal system properties"""
+    try:
+        if hasattr(engine, 'thermal_model'):
+            properties = engine.thermal_model.get_thermal_properties()
+            return {'status': 'success', 'thermal_properties': properties}, 200
+        else:
+            return {'status': 'unavailable', 'message': 'Thermal system not available'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route("/data/chain_status")
+def chain_status():
+    """Get current chain system status"""
+    try:
+        if hasattr(engine, 'chain_system'):
+            status = engine.chain_system.get_state()
+            return {'status': 'success', 'chain_status': status}, 200
+        else:
+            return {'status': 'unavailable', 'message': 'Chain system not available'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+# ========================================================================================
+# END PHYSICS MODULES API ENDPOINTS
+# ========================================================================================
+
+# ========================================================================================
+# END PHASE 8: INTEGRATED SYSTEMS API ENDPOINTS
+# ========================================================================================
 
 if __name__ == "__main__":
     app.run(debug=True, threaded=True)

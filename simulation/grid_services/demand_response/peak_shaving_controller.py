@@ -120,7 +120,7 @@ class PeakShavingController:
         self.last_update_time = time.time()
         
     def update(self, current_demand: float, current_generation: float, dt: float, 
-               external_forecast: List[float] = None) -> Dict[str, Any]:
+               external_forecast: Optional[List[float]] = None) -> Dict[str, Any]:
         """
         Update peak shaving controller with current demand and generation.
         
@@ -202,7 +202,7 @@ class PeakShavingController:
                     'weekday': datetime.fromtimestamp(current_time).weekday()
                 })
     
-    def _update_load_forecast(self, external_forecast: List[float] = None):
+    def _update_load_forecast(self, external_forecast: Optional[List[float]] = None):
         """Update load forecast using historical patterns or external data"""
         
         if external_forecast:
@@ -313,7 +313,7 @@ class PeakShavingController:
         return generation_cmd, load_cmd
     
     def _start_peak_shaving(self, peak_demand: float, current_time: float, 
-                          is_predicted: bool = False, peak_event: PeakEvent = None):
+                          is_predicted: bool = False, peak_event: Optional[PeakEvent] = None):
         """Start a peak shaving event"""
         
         if peak_event is None:
@@ -434,6 +434,7 @@ class PeakShavingController:
     def _create_response_dict(self, generation_cmd: float, load_cmd: float, status: str) -> Dict[str, Any]:
         """Create standardized response dictionary"""
         
+        next_peak = self._get_next_predicted_peak(time.time())
         return {
             'generation_boost_mw': generation_cmd,
             'load_reduction_mw': load_cmd,
@@ -443,7 +444,7 @@ class PeakShavingController:
             'daily_peak': self.daily_peak,
             'shaving_active': self.shaving_active,
             'predicted_peaks': len(self.predicted_peaks),
-            'next_peak_time': self._get_next_predicted_peak(time.time()).predicted_time if self._get_next_predicted_peak(time.time()) else None,
+            'next_peak_time': next_peak.predicted_time if next_peak else None,
             'forecast_confidence': self.forecast_confidence,
             'status': status,
             'service_type': 'peak_shaving',

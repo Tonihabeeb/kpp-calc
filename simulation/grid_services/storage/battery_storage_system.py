@@ -53,7 +53,7 @@ class BatteryState:
     voltage: float = 400.0               # DC bus voltage
     current: float = 0.0                 # DC current (positive = charging)
     temperature: float = 25.0            # Battery temperature (°C)
-    cycle_count: int = 0                 # Number of charge/discharge cycles
+    cycle_count: float = 0.0             # Number of charge/discharge cycles (can be fractional)
     health: float = 1.0                  # Battery health factor (0-1)
     available_energy_kwh: float = 0.0    # Available energy for discharge
     available_capacity_kwh: float = 0.0  # Available capacity for charging

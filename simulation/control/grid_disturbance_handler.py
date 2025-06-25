@@ -35,7 +35,7 @@ class DisturbanceEvent:
     """Grid disturbance event record"""
     disturbance_type: DisturbanceType
     start_time: float
-    end_time: float = None
+    end_time: Optional[float] = None
     magnitude: float = 0.0
     duration: float = 0.0
     response_mode: ResponseMode = ResponseMode.RIDE_THROUGH
@@ -76,7 +76,7 @@ class GridDisturbanceHandler:
     - Grid code compliance
     """
     
-    def __init__(self, config: Dict = None):
+    def __init__(self, config: Optional[Dict] = None):
         """
         Initialize grid disturbance handler.
         

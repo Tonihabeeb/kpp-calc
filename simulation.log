@@ -1,6 +1,128 @@
-2025-06-24 20:04:15,288 [INFO] root: Backend logger initialized. Logging to H:\My Drive\kpp force calc\simulation.log
-2025-06-24 20:04:15,288 [INFO] simulation.components.environment: Environment initialized: density=1000.0, viscosity=0.001, gravity=9.81
-2025-06-24 20:04:15,288 [INFO] simulation.components.pneumatics: PneumaticSystem initialized: pressure=5.0 bar, volume=0.1 m^3
-2025-06-24 20:04:15,288 [INFO] simulation.components.drivetrain: Initialized Drivetrain with detailed physics.
-2025-06-24 20:04:15,288 [INFO] simulation.components.generator: Initialized Generator: efficiency=0.92, target_power=530000.0W, target_rpm=375.0 RPM
-2025-06-24 20:04:15,288 [INFO] simulation.components.floater: Initialized Floater: {'volume': 0.3, 'mass': 18.0, 'position': 0.0, 'velocity': 0.0, 'is_filled': False, 'fill_progress': 0.0}
+2025-06-25 23:06:23,225 [INFO] root: Backend logger initialized. Logging to H:\My Drive\kpp force calc\simulation.log
+2025-06-25 23:06:23,230 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,231 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,231 [INFO] simulation.pneumatics.thermodynamics: CompressionThermodynamics initialized
+2025-06-25 23:06:23,232 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,232 [INFO] simulation.pneumatics.thermodynamics: ExpansionThermodynamics initialized (water temp: 293.1K)
+2025-06-25 23:06:23,233 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,234 [INFO] simulation.pneumatics.thermodynamics: ThermalBuoyancyCalculator initialized
+2025-06-25 23:06:23,234 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,235 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,236 [INFO] simulation.pneumatics.thermodynamics: CompressionThermodynamics initialized
+2025-06-25 23:06:23,236 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,237 [INFO] simulation.pneumatics.thermodynamics: ExpansionThermodynamics initialized (water temp: 293.1K)
+2025-06-25 23:06:23,237 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,238 [INFO] simulation.pneumatics.thermodynamics: ThermalBuoyancyCalculator initialized
+2025-06-25 23:06:23,238 [INFO] simulation.pneumatics.thermodynamics: AdvancedThermodynamics initialized (water: 293.1K, mode: mixed)
+2025-06-25 23:06:23,329 [INFO] simulation.pneumatics.heat_exchange: HeatTransferCoefficients initialized
+2025-06-25 23:06:23,329 [INFO] simulation.pneumatics.heat_exchange: Air-water heat exchange initialized (area: 0.50 m²)
+2025-06-25 23:06:23,330 [INFO] simulation.pneumatics.heat_exchange: HeatTransferCoefficients initialized
+2025-06-25 23:06:23,331 [INFO] simulation.pneumatics.heat_exchange: Compression heat recovery initialized
+2025-06-25 23:06:23,332 [INFO] simulation.pneumatics.heat_exchange: Integrated heat exchange system initialized
+2025-06-25 23:06:23,332 [INFO] simulation.components.pneumatics: Phase 5 thermodynamics enabled: water=293.1K, mode=mixed
+2025-06-25 23:06:23,333 [INFO] simulation.components.pneumatics: PneumaticSystem initialized: pressure=5.0 bar, volume=0.1 m^3
+2025-06-25 23:06:23,333 [INFO] simulation.components.gearbox: Created KPP gearbox with overall ratio: 39.4:1, efficiency: 0.885
+2025-06-25 23:06:23,334 [INFO] simulation.components.integrated_drivetrain: Created standard KPP drivetrain: gear_ratio=39.4:1, flywheel_inertia=500kg·m², target_speed=375RPM
+2025-06-25 23:06:23,334 [INFO] simulation.components.advanced_generator: Advanced generator initialized: 530kW, 375.0RPM, 4 pole pairs
+2025-06-25 23:06:23,335 [INFO] simulation.components.advanced_generator: Created KMP generator: 530kW, 375.0RPM
+2025-06-25 23:06:23,381 [INFO] simulation.components.power_electronics: Grid interface initialized: 13.8kV, 60.0Hz
+2025-06-25 23:06:23,381 [INFO] simulation.components.power_electronics: Created KMP power electronics and grid interface systems
+2025-06-25 23:06:23,381 [INFO] simulation.components.integrated_electrical_system: Integrated electrical system initialized: 530kW rated
+2025-06-25 23:06:23,381 [INFO] simulation.components.integrated_electrical_system: Created standard KMP electrical system: 530kW
+2025-06-25 23:06:23,381 [INFO] simulation.control.timing_controller: TimingController initialized with 8 floaters
+2025-06-25 23:06:23,381 [INFO] simulation.control.load_manager: LoadManager initialized: target=530.0kW, tolerance=5.0%
+2025-06-25 23:06:23,381 [INFO] simulation.control.grid_stability_controller: GridStabilityController initialized: 530.0kW, 480.0V, 60.0Hz
+2025-06-25 23:06:23,381 [INFO] simulation.control.fault_detector: FaultDetector initialized with 6 detection algorithms
+2025-06-25 23:06:23,381 [INFO] simulation.control.integrated_control_system: IntegratedControlSystem initialized with 6 control priorities
+2025-06-25 23:06:23,381 [INFO] simulation.physics.losses: DrivetrainLosses initialized with comprehensive loss modeling
+2025-06-25 23:06:23,381 [INFO] simulation.physics.losses: ElectricalLosses initialized
+2025-06-25 23:06:23,381 [INFO] simulation.physics.thermal: ThermalModel initialized with ambient temperature 20.0°C
+2025-06-25 23:06:23,381 [INFO] simulation.physics.integrated_loss_model: IntegratedLossModel initialized with comprehensive loss and thermal modeling
+2025-06-25 23:06:23,389 [DEBUG] simulation.physics.thermal: Added thermal component: sprocket
+2025-06-25 23:06:23,389 [DEBUG] simulation.physics.thermal: Added thermal component: gearbox
+2025-06-25 23:06:23,389 [DEBUG] simulation.physics.thermal: Added thermal component: clutch
+2025-06-25 23:06:23,390 [DEBUG] simulation.physics.thermal: Added thermal component: flywheel
+2025-06-25 23:06:23,390 [DEBUG] simulation.physics.thermal: Added thermal component: generator
+2025-06-25 23:06:23,390 [INFO] simulation.physics.integrated_loss_model: Initialized 5 thermal components
+2025-06-25 23:06:23,390 [INFO] simulation.physics.integrated_loss_model: Created standard KPP enhanced loss model with ambient temperature 20.0°C
+2025-06-25 23:06:23,391 [INFO] simulation.control.startup_controller: StartupController initialized
+2025-06-25 23:06:23,391 [INFO] simulation.control.emergency_response: EmergencyResponseSystem initialized
+2025-06-25 23:06:23,391 [INFO] simulation.control.grid_disturbance_handler: GridDisturbanceHandler initialized
+2025-06-25 23:06:23,392 [INFO] simulation.control.transient_event_controller: TransientEventController initialized
+2025-06-25 23:06:23,392 [INFO] simulation.components.drivetrain: Initialized Drivetrain with detailed physics.
+2025-06-25 23:06:23,393 [INFO] simulation.components.generator: Initialized Generator: efficiency=0.92, target_power=530000.0W, target_rpm=375.0 RPM
+2025-06-25 23:06:23,393 [INFO] simulation.components.floater: Initialized Floater: {'volume': 0.3, 'mass': 18.0, 'position': 0.0, 'velocity': 0.0, 'is_filled': False, 'fill_progress': 0.0}
+2025-06-25 23:06:23,394 [DEBUG] simulation.components.floater: Added mass initialized: 5.0
+2025-06-25 23:06:23,394 [INFO] simulation.components.floater: Initialized Floater: {'volume': 0.3, 'mass': 18.0, 'position': 0.0, 'velocity': 0.0, 'is_filled': False, 'fill_progress': 0.0}
+2025-06-25 23:06:23,394 [DEBUG] simulation.components.floater: Added mass initialized: 5.0
+2025-06-25 23:06:23,394 [INFO] simulation.components.floater: Initialized Floater: {'volume': 0.3, 'mass': 18.0, 'position': 0.0, 'velocity': 0.0, 'is_filled': False, 'fill_progress': 0.0}
+2025-06-25 23:06:23,395 [DEBUG] simulation.components.floater: Added mass initialized: 5.0
+2025-06-25 23:06:23,395 [INFO] simulation.components.floater: Initialized Floater: {'volume': 0.3, 'mass': 18.0, 'position': 0.0, 'velocity': 0.0, 'is_filled': False, 'fill_progress': 0.0}
+2025-06-25 23:06:23,396 [DEBUG] simulation.components.floater: Added mass initialized: 5.0
+2025-06-25 23:06:23,396 [INFO] simulation.components.floater: Initialized Floater: {'volume': 0.3, 'mass': 18.0, 'position': 0.0, 'velocity': 0.0, 'is_filled': False, 'fill_progress': 0.0}
+2025-06-25 23:06:23,396 [DEBUG] simulation.components.floater: Added mass initialized: 5.0
+2025-06-25 23:06:23,398 [INFO] simulation.components.floater: Initialized Floater: {'volume': 0.3, 'mass': 18.0, 'position': 0.0, 'velocity': 0.0, 'is_filled': False, 'fill_progress': 0.0}
+2025-06-25 23:06:23,398 [DEBUG] simulation.components.floater: Added mass initialized: 5.0
+2025-06-25 23:06:23,399 [INFO] simulation.components.floater: Initialized Floater: {'volume': 0.3, 'mass': 18.0, 'position': 0.0, 'velocity': 0.0, 'is_filled': False, 'fill_progress': 0.0}
+2025-06-25 23:06:23,399 [DEBUG] simulation.components.floater: Added mass initialized: 5.0
+2025-06-25 23:06:23,399 [INFO] simulation.components.floater: Initialized Floater: {'volume': 0.3, 'mass': 18.0, 'position': 0.0, 'velocity': 0.0, 'is_filled': False, 'fill_progress': 0.0}
+2025-06-25 23:06:23,399 [DEBUG] simulation.components.floater: Added mass initialized: 5.0
+2025-06-25 23:06:23,400 [INFO] simulation.components.control: Control system initialized.
+2025-06-25 23:06:23,400 [INFO] simulation.components.sensors: Sensors module initialized.
+2025-06-25 23:06:23,400 [INFO] simulation.components.gearbox: Created KPP gearbox with overall ratio: 39.4:1, efficiency: 0.885
+2025-06-25 23:06:23,401 [INFO] simulation.engine: SimulationEngine initialized with integrated drivetrain system.
+2025-06-25 23:06:23,401 [INFO] simulation.grid_services.economic.market_interface: Market interface initialized for operator generic
+2025-06-25 23:06:23,401 [INFO] simulation.grid_services.economic.bidding_strategy: Bidding strategy initialized with balanced strategy
+2025-06-25 23:06:23,402 [INFO] simulation.components.chain: Chain initialized: radius=0.5m, length=20.0m
+2025-06-25 23:06:23,402 [INFO] simulation.components.fluid: Fluid system initialized - Base density: 1000.0 kg/m³, Temperature: 293.15 K, H1 active: False
+2025-06-25 23:06:23,403 [INFO] simulation.components.thermal: Thermal model initialized - Water temp: 293.1 K, H2 active: False, efficiency: 80.0%
+2025-06-25 23:06:23,403 [INFO] simulation.engine: Chain, Fluid, and Thermal systems initialized
+2025-06-25 23:06:23,432 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,432 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,432 [INFO] simulation.pneumatics.thermodynamics: CompressionThermodynamics initialized
+2025-06-25 23:06:23,433 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,433 [INFO] simulation.pneumatics.thermodynamics: ExpansionThermodynamics initialized (water temp: 293.1K)
+2025-06-25 23:06:23,434 [INFO] simulation.pneumatics.thermodynamics: ThermodynamicProperties initialized
+2025-06-25 23:06:23,434 [INFO] simulation.pneumatics.thermodynamics: ThermalBuoyancyCalculator initialized
+2025-06-25 23:06:23,434 [INFO] simulation.pneumatics.thermodynamics: AdvancedThermodynamics initialized (water: 293.1K, mode: mixed)
+2025-06-25 23:06:23,459 [INFO] simulation.pneumatics.heat_exchange: HeatTransferCoefficients initialized
+2025-06-25 23:06:23,460 [INFO] simulation.pneumatics.heat_exchange: Air-water heat exchange initialized (area: 0.50 m²)
+2025-06-25 23:06:23,460 [INFO] simulation.pneumatics.heat_exchange: HeatTransferCoefficients initialized
+2025-06-25 23:06:23,460 [INFO] simulation.pneumatics.heat_exchange: Compression heat recovery initialized
+2025-06-25 23:06:23,461 [INFO] simulation.pneumatics.heat_exchange: Integrated heat exchange system initialized
+2025-06-25 23:06:23,461 [INFO] simulation.pneumatics.pneumatic_coordinator: PneumaticControlCoordinator initialized: thermodynamics=True, optimization=True
+2025-06-25 23:06:23,461 [INFO] simulation.pneumatics.pneumatic_coordinator: Created standard KPP pneumatic control coordinator
+2025-06-25 23:06:23,461 [INFO] simulation.pneumatics.energy_analysis: EnergyAnalyzer initialized: window=60.0s, rate=10.0Hz
+2025-06-25 23:06:23,462 [INFO] simulation.pneumatics.energy_analysis: Created standard energy analyzer for KPP pneumatic system
+2025-06-25 23:06:23,462 [INFO] simulation.pneumatics.performance_metrics: PerformanceAnalyzer initialized: rated_power=4200.0W, baseline_eff=0.800
+2025-06-25 23:06:23,463 [INFO] simulation.pneumatics.performance_metrics: Created standard performance analyzer for KPP pneumatic system
+2025-06-25 23:06:23,463 [INFO] simulation.engine: Pneumatic coordinator and performance analysis systems initialized
+2025-06-25 23:06:23,463 [INFO] simulation.components.drivetrain: Drivetrain state has been reset.
+2025-06-25 23:06:23,465 [INFO] simulation.components.advanced_generator: Advanced generator state reset
+2025-06-25 23:06:23,465 [INFO] simulation.components.power_electronics: Power electronics system reset
+2025-06-25 23:06:23,465 [INFO] simulation.components.integrated_electrical_system: Integrated electrical system reset
+2025-06-25 23:06:23,466 [INFO] simulation.control.timing_controller: TimingController reset
+2025-06-25 23:06:23,466 [INFO] simulation.control.load_manager: LoadManager reset
+2025-06-25 23:06:23,467 [INFO] simulation.control.grid_stability_controller: GridStabilityController reset
+2025-06-25 23:06:23,468 [INFO] simulation.control.fault_detector: FaultDetector reset
+2025-06-25 23:06:23,468 [INFO] simulation.control.integrated_control_system: IntegratedControlSystem reset
+2025-06-25 23:06:23,468 [INFO] simulation.physics.losses: DrivetrainLosses state reset
+2025-06-25 23:06:23,469 [INFO] simulation.physics.thermal: ThermalModel state reset
+2025-06-25 23:06:23,469 [INFO] simulation.physics.integrated_loss_model: IntegratedLossModel reset
+2025-06-25 23:06:23,469 [INFO] simulation.control.transient_event_controller: TransientEventController reset
+2025-06-25 23:06:23,469 [INFO] simulation.control.startup_controller: StartupController reset
+2025-06-25 23:06:23,470 [INFO] simulation.control.emergency_response: EmergencyResponseSystem reset
+2025-06-25 23:06:23,470 [INFO] simulation.control.grid_disturbance_handler: GridDisturbanceHandler reset
+2025-06-25 23:06:23,471 [INFO] simulation.components.generator: Generator state has been reset.
+2025-06-25 23:06:23,471 [INFO] simulation.components.pneumatics: PneumaticSystem state has been reset.
+2025-06-25 23:06:23,471 [INFO] simulation.components.floater: Floater state has been reset.
+2025-06-25 23:06:23,471 [INFO] simulation.components.floater: Floater state has been reset.
+2025-06-25 23:06:23,472 [INFO] simulation.components.floater: Floater state has been reset.
+2025-06-25 23:06:23,472 [INFO] simulation.components.floater: Floater state has been reset.
+2025-06-25 23:06:23,472 [INFO] simulation.components.floater: Floater state has been reset.
+2025-06-25 23:06:23,472 [INFO] simulation.components.floater: Floater state has been reset.
+2025-06-25 23:06:23,473 [INFO] simulation.components.floater: Floater state has been reset.
+2025-06-25 23:06:23,473 [INFO] simulation.components.floater: Floater state has been reset.
+2025-06-25 23:06:23,473 [INFO] simulation.engine: Floaters initialized for calibrated startup: ascending side buoyant, descending side drawing, one ready for injection.
+2025-06-25 23:06:23,474 [INFO] simulation.components.pneumatics: Triggered injection for a floater. Tank pressure dropped to 3.50 bar.
+2025-06-25 23:06:23,474 [INFO] simulation.engine: Simulation engine has been reset.

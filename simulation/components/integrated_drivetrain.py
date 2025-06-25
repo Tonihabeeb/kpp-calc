@@ -271,11 +271,31 @@ class IntegratedDrivetrain:
         
         return (f"Power Flow: {state['input_power']:.0f}W input → "
                 f"Sprocket({self.top_sprocket.efficiency*100:.1f}%) → "
-                f"Gearbox({self.gearbox.overall_efficiency*100:.1f}%, {self.gearbox.overall_ratio:.1f}:1) → "
-                f"Clutch({'ENGAGED' if self.one_way_clutch.is_engaged else 'COAST'}) → "
+                f"Gearbox({self.gearbox.overall_efficiency*100:.1f}%, {self.gearbox.overall_ratio:.1f}:1) → "                f"Clutch({'ENGAGED' if self.one_way_clutch.is_engaged else 'COAST'}) → "
                 f"Flywheel({self.flywheel.get_rpm():.0f}RPM, {self.flywheel.stored_energy/1000:.1f}kJ) → "
                 f"{state['output_power']:.0f}W output "
                 f"(η={state['system_efficiency']*100:.1f}%)")
+    
+    def get_status(self) -> Dict[str, float]:
+        """
+        Get current status of the integrated drivetrain system
+        
+        Returns:
+            Dict containing current drivetrain status data
+        """
+        return {
+            'shaft_speed': self.flywheel.angular_velocity * 60 / (2 * math.pi),  # Convert to RPM
+            'flywheel_speed': self.flywheel.angular_velocity * 60 / (2 * math.pi),
+            'gearbox_ratio': self.gearbox.overall_ratio,
+            'gearbox_efficiency': self.gearbox.overall_efficiency,
+            'chain_tension': self.chain_tension,
+            'generator_load_torque': self.generator_load_torque,
+            'power_loss': self.total_power_loss,
+            'system_efficiency': self.system_efficiency,
+            'input_energy': self.total_energy_input,
+            'output_energy': self.total_energy_output,
+            'operating_time': self.operating_time
+        }
 
 
 def create_standard_kpp_drivetrain(config: Optional[Dict[str, Any]] = None) -> IntegratedDrivetrain:

@@ -425,6 +425,29 @@ class IntegratedElectricalSystem:
         self.capacity_factor = 0.0
         
         logger.info("Integrated electrical system reset")
+    
+    def get_status(self) -> Dict[str, Any]:
+        """
+        Get current status of the integrated electrical system
+        
+        Returns:
+            Dict containing current electrical system status data
+        """
+        return {
+            'power_output': getattr(self.generator, 'current_power', 0.0),
+            'voltage': getattr(self.generator, 'terminal_voltage', 480.0),
+            'current': getattr(self.generator, 'current_output', 0.0),
+            'frequency': getattr(self.generator, 'frequency', 60.0),
+            'efficiency': getattr(self.generator, 'efficiency', 0.92),
+            'temperature': getattr(self.generator, 'temperature', 25.0),
+            'grid_voltage': getattr(self.grid_interface, 'grid_voltage', 13800.0),
+            'grid_frequency': getattr(self.grid_interface, 'grid_frequency', 60.0),
+            'grid_power_factor': getattr(self.grid_interface, 'power_factor', 0.95),
+            'pe_efficiency': getattr(self.power_electronics, 'efficiency', 0.96),
+            'pe_temperature': getattr(self.power_electronics, 'temperature', 25.0),
+            'operating_hours': self.operating_hours,
+            'total_energy_generated': getattr(self, 'total_energy_generated', 0.0)
+        }
 
 
 def create_standard_kmp_electrical_system(config: Optional[Dict[str, Any]] = None) -> IntegratedElectricalSystem:

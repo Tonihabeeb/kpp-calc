@@ -106,8 +106,7 @@
                     <li>Pulse Count: <span id="pulseCount">0</span></li>
                     <li>Clutch: <span id="clutchStatus">Disengaged</span></li>
                 </ul>
-            </div>
-            <div class="summary-section">
+            </div>            <div class="summary-section">
                 <h3>Mechanical Status</h3>
                 <ul>
                     <li>Chain Speed: <span id="chainSpeed">0.00</span> rad/s</li>
@@ -116,8 +115,54 @@
                     <li>System Efficiency: <span id="efficiency">0.00</span>%</li>
                 </ul>
             </div>
+            <div class="summary-section">
+                <h3>Pneumatic System (Phase 7)</h3>
+                <ul>
+                    <li>Tank Pressure: <span id="tankPressure">0.00</span> bar</li>
+                    <li>System Efficiency: <span id="pneumaticEfficiency">0.00</span>%</li>
+                    <li>Capacity Factor: <span id="capacityFactor">0.00</span>%</li>
+                    <li>Thermal Efficiency: <span id="thermalEfficiency">0.00</span>%</li>
+                </ul>
+            </div>
         </div>
     </div>
+    
+    <!-- Phase 7 Pneumatic System Status -->
+    <div id="pneumaticStatus">
+        <h2>Phase 7 Pneumatic System Analysis</h2>
+        <div class="pneumatic-grid">
+            <div class="pneumatic-section">
+                <h3>Performance Metrics</h3>
+                <ul>
+                    <li>Average Efficiency: <span id="avgEfficiency">0.00</span>%</li>
+                    <li>Peak Efficiency: <span id="peakEfficiency">0.00</span>%</li>
+                    <li>Power Factor: <span id="powerFactor">0.00</span></li>
+                    <li>Availability: <span id="availability">0.00</span>%</li>
+                </ul>
+            </div>
+            <div class="pneumatic-section">
+                <h3>Energy Balance</h3>
+                <ul>
+                    <li>Total Input Energy: <span id="totalInputEnergy">0.00</span> kJ</li>
+                    <li>Total Output Energy: <span id="totalOutputEnergy">0.00</span> kJ</li>
+                    <li>Overall Efficiency: <span id="overallEfficiency">0.00</span>%</li>
+                    <li>Energy Balance Error: <span id="energyBalanceError">0.00</span>%</li>
+                </ul>
+            </div>
+            <div class="pneumatic-section">
+                <h3>Optimization Status</h3>
+                <ul>
+                    <li>Active Recommendations: <span id="recommendationCount">0</span></li>
+                    <li>Conservation Valid: <span id="conservationValid">Unknown</span></li>
+                    <li>Thermal Contribution: <span id="thermalContribution">0.00</span>%</li>
+                </ul>
+                <div id="optimizationRecommendations">
+                    <h4>Latest Recommendations:</h4>
+                    <ul id="recommendationsList">
+                        <li>No recommendations available</li>
+                    </ul>
+                </div>
+            </div>
     
     <div id="floaters">
         <h2>Floaters Status</h2>
@@ -170,6 +215,480 @@
             </div>
         </div>
     </div>
+    
+    <!-- PHASE 8: Advanced Integrated Systems Status -->
+    
+    <!-- Advanced Drivetrain System Status -->
+    <div id="advancedDrivetrainStatus">
+        <h2>Advanced Drivetrain System</h2>
+        <div class="advanced-system-grid">
+            <div class="system-section">
+                <h3>Mechanical Components</h3>
+                <ul>
+                    <li>Sprocket Torque: <span id="sprocketTorque">0.00</span> N⋅m</li>
+                    <li>Gearbox Output Torque: <span id="gearboxTorque">0.00</span> N⋅m</li>
+                    <li>Flywheel Speed: <span id="flywheelSpeedAdvanced">0.00</span> RPM</li>
+                    <li>Chain Tension: <span id="chainTensionAdvanced">0.00</span> N</li>
+                    <li>Clutch Status: <span id="clutchStatusAdvanced">Disengaged</span></li>
+                </ul>
+            </div>
+            <div class="system-section">
+                <h3>Performance Metrics</h3>
+                <ul>
+                    <li>System Efficiency: <span id="drivetrainEfficiency">0.00</span>%</li>
+                    <li>Stored Energy: <span id="storedEnergy">0.00</span> kJ</li>
+                    <li>Power Transfer: <span id="powerTransfer">0.00</span> kW</li>
+                    <li>Operating Time: <span id="operatingTime">0.00</span> hrs</li>
+                    <li>Pulse Count: <span id="pulseCountAdvanced">0</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Electrical System Status -->
+    <div id="advancedElectricalStatus">
+        <h2>Advanced Electrical System</h2>
+        <div class="advanced-system-grid">
+            <div class="system-section">
+                <h3>Power Generation</h3>
+                <ul>
+                    <li>Grid Power Output: <span id="gridPowerOutput">0.00</span> kW</li>
+                    <li>Electrical Efficiency: <span id="electricalEfficiency">0.00</span>%</li>
+                    <li>Load Factor: <span id="loadFactor">0.00</span>%</li>
+                    <li>Load Torque Command: <span id="loadTorqueCommand">0.00</span> N⋅m</li>
+                </ul>
+            </div>
+            <div class="system-section">
+                <h3>Grid Interface</h3>
+                <ul>
+                    <li>Grid Synchronized: <span id="gridSynchronized">No</span></li>
+                    <li>Grid Voltage: <span id="gridVoltage">0.00</span> V</li>
+                    <li>Grid Frequency: <span id="gridFrequency">0.00</span> Hz</li>
+                    <li>Power Factor: <span id="powerFactorAdvanced">0.00</span></li>
+                </ul>
+            </div>
+            <div class="system-section">
+                <h3>Performance Summary</h3>
+                <ul>
+                    <li>Energy Generated: <span id="energyGenerated">0.00</span> kWh</li>
+                    <li>Energy Delivered: <span id="energyDelivered">0.00</span> kWh</li>
+                    <li>Operating Hours: <span id="operatingHours">0.00</span> hrs</li>
+                    <li>Capacity Factor: <span id="capacityFactorElectrical">0.00</span>%</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Control System Status -->
+    <div id="advancedControlStatus">
+        <h2>Advanced Control System</h2>
+        <div class="advanced-system-grid">
+            <div class="system-section">
+                <h3>Control State</h3>
+                <ul>
+                    <li>Control Mode: <span id="controlMode">Normal</span></li>
+                    <li>System Health: <span id="systemHealth">100.0</span>%</li>
+                    <li>Active Faults: <span id="activeFaults">0</span></li>
+                    <li>Pneumatic Control: <span id="pneumaticControlActive">Inactive</span></li>
+                </ul>
+            </div>
+            <div class="system-section">
+                <h3>Commands & Timing</h3>
+                <ul>
+                    <li>Timing Adjustment: <span id="timingAdjustment">0.00</span> s</li>
+                    <li>Load Target: <span id="loadTarget">0.00</span>%</li>
+                    <li>Grid Voltage Setpoint: <span id="gridVoltageSetpoint">480.0</span> V</li>
+                    <li>Grid Frequency Setpoint: <span id="gridFrequencySetpoint">60.0</span> Hz</li>
+                </ul>
+            </div>
+            <div class="system-section">
+                <h3>Emergency Systems</h3>
+                <ul>
+                    <li>Emergency Status: <span id="emergencyStatus">Normal</span></li>
+                    <li>System Status: <span id="systemStatus">Operational</span></li>
+                </ul>
+                <div class="control-buttons">
+                    <button id="emergencyStopBtn" class="emergency-btn">Emergency Stop</button>
+                    <button id="startupBtn" class="startup-btn">Initiate Startup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid Services Coordinator Status -->
+    <div id="gridServicesStatus">
+        <h2>Grid Services Coordinator</h2>
+        <div class="advanced-system-grid">
+            <div class="system-section">
+                <h3>Active Services</h3>
+                <ul>
+                    <li>Services Count: <span id="activeServicesCount">0</span></li>
+                    <li>Coordination Status: <span id="coordinationStatus">Unknown</span></li>
+                    <li>Power Command: <span id="totalPowerCommand">0.00</span> MW</li>
+                </ul>
+                <div id="activeServicesList">
+                    <h4>Active Services:</h4>
+                    <ul id="servicesListItems">
+                        <li>No active services</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="system-section">
+                <h3>Performance Metrics</h3>
+                <div id="gridServicesPerformance">
+                    <p>Performance metrics will be displayed here when available.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Loss Analysis -->
+    <div id="enhancedLossAnalysis">
+        <h2>Enhanced Loss Analysis</h2>
+        <div class="advanced-system-grid">
+            <div class="system-section">
+                <h3>System Losses</h3>
+                <ul>
+                    <li>Total System Losses: <span id="totalSystemLosses">0.00</span> W</li>
+                    <li>Mechanical Losses: <span id="mechanicalLosses">0.00</span> W</li>
+                    <li>Electrical Losses: <span id="electricalLosses">0.00</span> W</li>
+                    <li>Thermal Losses: <span id="thermalLosses">0.00</span> W</li>
+                </ul>
+            </div>
+            <div class="system-section">
+                <h3>Component Temperatures</h3>
+                <ul>
+                    <li>Sprocket: <span id="sprocketTemp">--</span> °C</li>
+                    <li>Gearbox: <span id="gearboxTemp">--</span> °C</li>
+                    <li>Clutch: <span id="clutchTemp">--</span> °C</li>
+                    <li>Flywheel: <span id="flywheelTemp">--</span> °C</li>
+                    <li>Generator: <span id="generatorTemp">--</span> °C</li>
+                </ul>
+            </div>
+            <div class="system-section">
+                <h3>Thermal Management</h3>
+                <ul>
+                    <li>Overall Thermal Efficiency: <span id="overallThermalEfficiency">0.00</span>%</li>
+                    <li>Cooling System: <span id="coolingSystemStatus">Unknown</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comprehensive System Overview Dashboard -->
+    <div id="systemOverviewDashboard">
+        <h2>System Overview Dashboard</h2>
+        <div class="overview-dashboard">
+            <div class="overview-card">
+                <h3>Power Flow Summary</h3>
+                <div class="power-flow">
+                    <div>Mechanical Input: <span id="mechanicalPowerInput">0.00</span> kW</div>
+                    <div>→ Electrical Output: <span id="electricalPowerOutput">0.00</span> kW</div>
+                    <div>→ Grid Delivery: <span id="gridPowerDelivery">0.00</span> kW</div>
+                    <div>Overall Efficiency: <span id="overallSystemEfficiency">0.00</span>%</div>
+                </div>
+            </div>
+            <div class="overview-card">
+                <h3>System Health Monitor</h3>
+                <ul>
+                    <li>Drivetrain: <span id="drivetrainHealth" class="status-normal">Normal</span></li>
+                    <li>Electrical: <span id="electricalHealth" class="status-normal">Normal</span></li>
+                    <li>Control: <span id="controlHealth" class="status-normal">Normal</span></li>
+                    <li>Pneumatic: <span id="pneumaticHealth" class="status-normal">Normal</span></li>
+                    <li>Grid Services: <span id="gridServicesHealth" class="status-normal">Normal</span></li>
+                </ul>            </div>
+            <div class="overview-card">
+                <h3>Operational Summary</h3>
+                <ul>
+                    <li>Simulation Time: <span id="simulationTime">0.00</span> s</li>
+                    <li>Total Energy: <span id="totalEnergyGenerated">0.00</span> kWh</li>
+                    <li>Grid Synchronized: <span id="gridSyncStatus">No</span></li>
+                    <li>System Status: <span id="operationalStatus">Offline</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHASE 8: Advanced System Status Sections -->
+    
+    <!-- Drivetrain Status -->
+    <div id="drivetrain-status" class="status-section">
+        <h2>Advanced Drivetrain System</h2>
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>Speed & Torque</h3>
+                <ul>
+                    <li>Shaft Speed: <span id="drivetrainShaftSpeed">0.0</span> RPM</li>
+                    <li>Flywheel Speed: <span id="drivetrainFlywheelSpeed">0.0</span> RPM</li>
+                    <li>Chain Tension: <span id="drivetrainChainTension">0.0</span> N</li>
+                    <li>Load Torque: <span id="drivetrainLoadTorque">0.0</span> N·m</li>
+                </ul>
+            </div>
+            <div class="status-card">
+                <h3>Performance</h3>
+                <ul>
+                    <li>Efficiency: <span id="drivetrainEfficiency">0.0</span>%</li>
+                    <li>Power Loss: <span id="drivetrainPowerLoss">0.0</span> W</li>
+                    <li>Input Energy: <span id="drivetrainInputEnergy">0.0</span> kWh</li>
+                    <li>Output Energy: <span id="drivetrainOutputEnergy">0.0</span> kWh</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Electrical Status -->
+    <div id="electrical-status" class="status-section">
+        <h2>Integrated Electrical System</h2>
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>Generator</h3>
+                <ul>
+                    <li>Power Output: <span id="electricalPowerOutput">0.0</span> kW</li>
+                    <li>Voltage: <span id="electricalVoltage">0.0</span> V</li>
+                    <li>Current: <span id="electricalCurrent">0.0</span> A</li>
+                    <li>Frequency: <span id="electricalFrequency">0.0</span> Hz</li>
+                </ul>
+            </div>
+            <div class="status-card">
+                <h3>Grid Interface</h3>
+                <ul>
+                    <li>Grid Voltage: <span id="electricalGridVoltage">0.0</span> V</li>
+                    <li>Grid Frequency: <span id="electricalGridFrequency">0.0</span> Hz</li>
+                    <li>Power Factor: <span id="electricalPowerFactor">0.0</span></li>
+                    <li>Energy Generated: <span id="electricalEnergyGenerated">0.0</span> kWh</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Status -->
+    <div id="control-status" class="status-section">
+        <h2>Advanced Control System</h2>
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>Control State</h3>
+                <ul>
+                    <li>Mode: <span id="controlMode">Offline</span></li>
+                    <li>Setpoint: <span id="controlSetpoint">0.0</span> kW</li>
+                    <li>Output: <span id="controlOutput">0.0</span>%</li>
+                    <li>Power Error: <span id="controlPowerError">0.0</span> kW</li>
+                </ul>
+            </div>
+            <div class="status-card">
+                <h3>System Health</h3>
+                <ul>
+                    <li>Active Faults: <span id="controlActiveFaults">0</span></li>
+                    <li>Health Score: <span id="controlHealthScore">100.0</span>%</li>
+                    <li>Grid Compliance: <span id="controlGridCompliance">Yes</span></li>
+                    <li>Uptime: <span id="controlUptime">0.0</span> hrs</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid Services Status -->
+    <div id="grid-services-status" class="status-section">
+        <h2>Grid Services & Economics</h2>
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>Market Participation</h3>
+                <ul>
+                    <li>Service Type: <span id="gridServiceType">Energy</span></li>
+                    <li>Bid Price: <span id="gridBidPrice">0.00</span> $/MWh</li>
+                    <li>Revenue: <span id="gridRevenue">0.00</span> $</li>
+                    <li>Capacity Factor: <span id="gridCapacityFactor">0.0</span>%</li>
+                </ul>
+            </div>
+            <div class="status-card">
+                <h3>Grid Support</h3>
+                <ul>
+                    <li>Frequency Response: <span id="gridFrequencyResponse">Disabled</span></li>
+                    <li>Voltage Support: <span id="gridVoltageSupport">Disabled</span></li>
+                    <li>Reactive Power: <span id="gridReactivePower">0.0</span> kVAR</li>
+                    <li>Grid Stability: <span id="gridStability">Stable</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>    <!-- Loss Analysis -->
+    <div id="loss-analysis" class="status-section">
+        <h2>Enhanced Loss Analysis</h2>
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>Mechanical Losses</h3>
+                <ul>
+                    <li>Drivetrain Loss: <span id="lossMechanical">0.0</span> W</li>
+                    <li>Bearing Loss: <span id="lossBearing">0.0</span> W</li>
+                    <li>Gearbox Loss: <span id="lossGearbox">0.0</span> W</li>
+                    <li>Windage Loss: <span id="lossWindage">0.0</span> W</li>
+                </ul>
+            </div>
+            <div class="status-card">
+                <h3>Electrical Losses</h3>
+                <ul>
+                    <li>Generator Loss: <span id="lossGenerator">0.0</span> W</li>
+                    <li>Power Electronics: <span id="lossPowerElectronics">0.0</span> W</li>
+                    <li>Transformer Loss: <span id="lossTransformer">0.0</span> W</li>
+                    <li>Total Loss: <span id="lossTotalLoss">0.0</span> W</li>
+                </ul>
+            </div>
+        </div>
+    </div>    <!-- System Overview -->
+    <div id="system-overview" class="status-section">
+        <h2>System Overview & Performance</h2>
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>Overall Performance</h3>
+                <ul>
+                    <li>System Efficiency: <span id="overviewSystemEfficiency">0.0</span>%</li>
+                    <li>Capacity Factor: <span id="overviewCapacityFactor">0.0</span>%</li>
+                    <li>Availability: <span id="overviewAvailability">100.0</span>%</li>
+                    <li>Performance Index: <span id="overviewPerformanceIndex">0.0</span></li>
+                </ul>
+            </div>
+            <div class="status-card">
+                <h3>System Status</h3>
+                <ul>
+                    <li>Operational Mode: <span id="overviewOperationalMode">Offline</span></li>
+                    <li>Active Subsystems: <span id="overviewActiveSubsystems">0</span>/6</li>
+                    <li>Current Load: <span id="overviewCurrentLoad">0.0</span> kW</li>
+                    <li>System Health: <span id="overviewSystemHealth">100.0</span>%</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ENHANCED PHYSICS MODULES: Chain, Fluid, Thermal Systems -->
+    <div id="physics-modules" class="status-section">
+        <h2>Enhanced Physics Systems</h2>
+        
+        <!-- Physics Status Display -->
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>Chain System</h3>
+                <ul>
+                    <li>Chain Tension: <span id="chainTensionPhysics">0.0</span> N</li>
+                    <li>Chain Velocity: <span id="chainVelocity">0.00</span> m/s</li>
+                    <li>Active Floaters: <span id="activeFloaters">0</span></li>
+                    <li>Angular Speed: <span id="chainAngularSpeed">0.00</span> rad/s</li>
+                </ul>
+            </div>
+            <div class="status-card">
+                <h3>Fluid System</h3>
+                <ul>
+                    <li>Effective Density: <span id="fluidDensity">1000.0</span> kg/m³</li>
+                    <li>H1 Status: <span id="h1Status">Inactive</span></li>
+                    <li>Reynolds Number: <span id="reynoldsNumber">0</span></li>
+                    <li>Drag Coefficient: <span id="dragCoefficient">0.60</span></li>
+                </ul>
+            </div>
+            <div class="status-card">
+                <h3>Thermal System</h3>
+                <ul>
+                    <li>H2 Status: <span id="h2Status">Inactive</span></li>
+                    <li>Water Temperature: <span id="thermalWaterTemp">20.0</span> °C</li>
+                    <li>Buoyancy Enhancement: <span id="buoyancyEnhancement">0.0</span>%</li>
+                    <li>Compression Efficiency: <span id="compressionEfficiency">100.0</span>%</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Enhanced Performance Metrics -->
+        <div id="enhanced-performance" class="status-section">
+            <h3>Enhanced Performance Impact</h3>
+            <div class="status-grid">
+                <div class="status-card">
+                    <h4>Physics Enhancements</h4>
+                    <ul>
+                        <li>H1 Buoyancy Gain: <span id="h1Enhancement">0.0</span>%</li>
+                        <li>H2 Thermal Gain: <span id="h2Enhancement">0.0</span>%</li>
+                        <li>Total Enhancement: <span id="totalEnhancement">0.0</span>%</li>
+                        <li>Base Buoyant Force: <span id="baseBouyantForce">0.0</span> N</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Physics Controls -->
+        <div id="physics-controls" class="controls-section">
+            <h3>Enhanced Physics Controls</h3>
+            
+            <!-- H1 Nanobubble Controls -->
+            <div class="control-group">
+                <h4>H1 Nanobubble Effects</h4>
+                <div class="control-row">
+                    <label>
+                        <input type="checkbox" id="h1Active"> Enable H1 Nanobubbles
+                    </label>
+                </div>
+                <div class="control-row">
+                    <label>Bubble Fraction: 
+                        <input type="range" id="bubbleFraction" min="0" max="0.2" step="0.01" value="0.05">
+                        <span id="bubbleFractionValue">5.0%</span>
+                    </label>
+                </div>
+                <div class="control-row">
+                    <label>Drag Reduction: 
+                        <input type="range" id="dragReduction" min="0" max="0.5" step="0.01" value="0.1">
+                        <span id="dragReductionValue">10.0%</span>
+                    </label>
+                </div>
+                <button onclick="controlH1Nanobubbles()" class="control-button">Apply H1 Settings</button>
+            </div>
+
+            <!-- H2 Thermal Controls -->
+            <div class="control-group">
+                <h4>H2 Thermal Effects</h4>
+                <div class="control-row">
+                    <label>
+                        <input type="checkbox" id="h2Active"> Enable H2 Thermal
+                    </label>
+                </div>
+                <div class="control-row">
+                    <label>H2 Efficiency: 
+                        <input type="range" id="h2Efficiency" min="0" max="1" step="0.01" value="0.8">
+                        <span id="h2EfficiencyValue">80.0%</span>
+                    </label>
+                </div>
+                <div class="control-row">
+                    <label>Buoyancy Boost: 
+                        <input type="range" id="buoyancyBoost" min="0" max="0.3" step="0.01" value="0.05">
+                        <span id="buoyancyBoostValue">5.0%</span>
+                    </label>
+                </div>
+                <div class="control-row">
+                    <label>Compression Improvement: 
+                        <input type="range" id="compressionImprovement" min="0" max="0.5" step="0.01" value="0.15">
+                        <span id="compressionImprovementValue">15.0%</span>
+                    </label>
+                </div>
+                <button onclick="controlH2Thermal()" class="control-button">Apply H2 Settings</button>
+            </div>
+
+            <!-- Temperature Control -->
+            <div class="control-group">
+                <h4>Environmental Controls</h4>
+                <div class="control-row">
+                    <label>Water Temperature: 
+                        <input type="number" id="waterTemperature" min="0" max="100" step="0.1" value="20.0"> °C
+                    </label>
+                    <button onclick="setWaterTemperature()" class="control-button">Set Temperature</button>
+                </div>
+            </div>
+
+            <!-- Quick Controls -->
+            <div class="control-group">
+                <h4>Quick Controls</h4>
+                <div class="control-row">
+                    <button onclick="enableEnhancedPhysics()" class="control-button primary">Enable All Enhanced Physics</button>
+                    <button onclick="disableEnhancedPhysics()" class="control-button secondary">Disable All Enhanced Physics</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- END ENHANCED PHYSICS MODULES -->
+
+    <!-- END PHASE 8: Advanced Integrated Systems Status -->
     
     <script src="/static/js/main.js"></script>
 </body>

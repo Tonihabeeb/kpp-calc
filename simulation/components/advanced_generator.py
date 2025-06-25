@@ -238,15 +238,27 @@ class AdvancedGenerator:
         Returns:
             float: Required load torque (N⋅m)
         """
+        # Ensure we have a valid target power
         if target_power is None:
-            target_power = self.rated_power
+            power_to_use = self.rated_power
+        else:
+            power_to_use = target_power
+            
+        # Ensure target_power is valid
+        if not isinstance(power_to_use, (int, float)) or power_to_use <= 0:
+            power_to_use = self.rated_power
             
         if speed < 0.1:
             return 0.0
             
         # Account for efficiency
-        estimated_efficiency = self._estimate_efficiency(speed, target_power / self.rated_power)
-        mechanical_power_needed = target_power / estimated_efficiency
+        estimated_efficiency = self._estimate_efficiency(speed, power_to_use / self.rated_power)
+        
+        # Ensure we have valid efficiency
+        if estimated_efficiency is None or estimated_efficiency <= 0:
+            estimated_efficiency = 0.85  # Default efficiency
+        
+        mechanical_power_needed = power_to_use / estimated_efficiency
         
         return mechanical_power_needed / speed
     

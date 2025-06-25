@@ -509,8 +509,8 @@ class GridStabilizationController:
         if not enable and self.mode == StabilizationMode.GRID_FORMING:
             self.mode = StabilizationMode.STANDBY
     
-    def set_control_parameters(self, frequency_droop: float = None, voltage_droop: float = None,
-                             response_time_ms: float = None):
+    def set_control_parameters(self, frequency_droop: Optional[float] = None, voltage_droop: Optional[float] = None,
+                             response_time_ms: Optional[float] = None):
         """Update control parameters"""
         if frequency_droop is not None:
             self.specs.droop_frequency = frequency_droop

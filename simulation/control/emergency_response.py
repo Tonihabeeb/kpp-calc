@@ -36,8 +36,8 @@ class EmergencyCondition:
     priority: EmergencyPriority
     description: str
     detected_time: float
-    threshold_value: float = None
-    current_value: float = None
+    threshold_value: Optional[float] = None
+    current_value: Optional[float] = None
     acknowledged: bool = False
     resolved: bool = False
 
@@ -67,7 +67,7 @@ class EmergencyResponseSystem:
     - Emergency logging and reporting
     """
     
-    def __init__(self, config: Dict = None):
+    def __init__(self, config: Optional[Dict] = None):
         """
         Initialize emergency response system.
         

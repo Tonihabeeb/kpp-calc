@@ -87,12 +87,11 @@ class EconomicState:
     roi: float = 0.0                       # Return on investment
     
     operating_hours: float = 0.0           # Total operating hours
-    service_utilization: Dict[str, float] = None  # Service utilization rates
+    service_utilization: Optional[Dict[str, float]] = None  # Service utilization rates
 
 
 class EconomicOptimizer:
-    """
-    Comprehensive economic optimization system for grid services.
+    """    Comprehensive economic optimization system for grid services.
     
     Optimizes revenue across all grid services while maintaining grid support
     requirements and managing operational risks.
@@ -102,6 +101,12 @@ class EconomicOptimizer:
         """Initialize economic optimizer"""
         self.constraints = constraints or OptimizationConstraints()
         self.objective = OptimizationObjective.BALANCED_OPTIMIZATION
+          # Expose key constraints for testing
+        self.max_power_kw = self.constraints.max_power_output
+        self.risk_tolerance = self.constraints.risk_tolerance
+        
+        # Service portfolio tracking
+        self.service_portfolio = []
         
         # Service economic parameters
         self.service_parameters = {
@@ -164,14 +169,14 @@ class EconomicOptimizer:
         self.optimization_history = []
         self.last_optimization_time = 0.0
         self.optimization_interval = 300.0  # 5-minute optimization cycle
-        
-        # Performance tracking
+          # Performance tracking
         self.performance_metrics = {
             'decisions': 0,
             'profitable_decisions': 0,
             'total_opportunity_value': 0.0,
             'captured_value': 0.0,
-            'optimization_efficiency': 0.0
+            'optimization_efficiency': 0.0,
+            'total_revenue': 0.0
         }
         
         # Risk management
@@ -306,9 +311,11 @@ class EconomicOptimizer:
                             available_services: Dict[str, Any],
                             conditions: Dict[str, Any]) -> Dict[str, Any]:
         """Perform multi-objective optimization"""
-        
-        # Available capacity
-        total_capacity = self.constraints.max_power_output
+          # Available capacity - use the minimum of configured max and currently available
+        total_capacity = min(
+            self.constraints.max_power_output,
+            conditions.get('available_capacity', self.constraints.max_power_output)
+        )
         
         # Service allocation based on optimization objective
         if self.objective == OptimizationObjective.REVENUE_MAXIMIZATION:
@@ -319,8 +326,7 @@ class EconomicOptimizer:
             allocation = self._optimize_grid_support(service_values, total_capacity)
         else:  # BALANCED_OPTIMIZATION
             allocation = self._optimize_balanced(service_values, total_capacity, conditions)
-        
-        # Calculate expected performance
+          # Calculate expected performance
         expected_revenue = self._calculate_expected_revenue(allocation, service_values)
         expected_risk = self._calculate_expected_risk(allocation)
         
@@ -332,7 +338,9 @@ class EconomicOptimizer:
             'service_allocation': allocation,
             'service_commands': service_commands,
             'expected_revenue_rate': expected_revenue,
+            'total_revenue': expected_revenue * 24,  # Daily revenue estimate
             'expected_risk_level': expected_risk,
+            'risk_score': expected_risk,  # Alias for compatibility
             'capacity_utilization': sum(allocation.values()) / total_capacity,
             'optimization_timestamp': time.time(),
             'total_opportunity_value': sum(service_values.values()),
@@ -628,8 +636,7 @@ class EconomicOptimizer:
         
         # Calculate efficiency
         if self.performance_metrics['total_opportunity_value'] > 0:
-            self.performance_metrics['optimization_efficiency'] = (
-                self.performance_metrics['captured_value'] / 
+            self.performance_metrics['optimization_efficiency'] = (                self.performance_metrics['captured_value'] / 
                 self.performance_metrics['total_opportunity_value']
             )
     
@@ -643,9 +650,13 @@ class EconomicOptimizer:
                 'service_allocation': {},
                 'service_commands': {},
                 'expected_revenue_rate': 0.0,
+                'total_revenue': 0.0,
                 'expected_risk_level': 0.0,
+                'risk_score': 0.0,
                 'capacity_utilization': 0.0,
-                'optimization_timestamp': time.time()
+                'optimization_timestamp': time.time(),
+                'total_opportunity_value': 0.0,
+                'captured_value_ratio': 0.0
             }
     
     def get_economic_status(self) -> Dict[str, Any]:

@@ -7,7 +7,7 @@ import logging
 import time
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
@@ -37,14 +37,10 @@ class StartupConditions:
 class StartupMetrics:
     """Startup performance metrics"""
     startup_time: float = 0.0
-    phase_times: Dict[str, float] = None
+    phase_times: Dict[str, float] = field(default_factory=dict)
     max_acceleration: float = 0.0
     sync_attempts: int = 0
     fault_count: int = 0
-    
-    def __post_init__(self):
-        if self.phase_times is None:
-            self.phase_times = {}
 
 class StartupController:
     """
@@ -54,7 +50,7 @@ class StartupController:
     condition checking and fault handling.
     """
     
-    def __init__(self, config: Dict = None):
+    def __init__(self, config: Optional[Dict] = None):
         """
         Initialize startup controller.
         

@@ -660,7 +660,7 @@ class BiddingStrategyController:
                 (p['revenue'] - p['expected_revenue']) / max(p['expected_revenue'], 1)
                 for p in successful_bids
             ]
-            self.strategy_performance['average_margin'] = np.mean(margins)
+            self.strategy_performance['average_margin'] = float(np.mean(margins))
         
         # Total revenue
         self.strategy_performance['total_revenue'] = sum(

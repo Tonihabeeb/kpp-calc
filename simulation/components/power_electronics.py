@@ -179,6 +179,13 @@ class PowerElectronics:
             dt (float): Time step (s)
         """
         grid_frequency = grid_conditions.get('frequency', self.grid_frequency)
+        
+        # Handle potential None values
+        if grid_frequency is None:
+            grid_frequency = self.grid_frequency
+        if grid_frequency is None:
+            grid_frequency = 60.0  # Default frequency
+            
         frequency_error = abs(generator_frequency - grid_frequency)
         
         # Synchronization criteria
@@ -276,7 +283,7 @@ class PowerElectronics:
         else:
             self.power_factor_actual = 1.0
     
-    def _get_state_dict(self) -> Dict[str, float]:
+    def _get_state_dict(self) -> Dict[str, Any]:
         """
         Get comprehensive power electronics state.
         

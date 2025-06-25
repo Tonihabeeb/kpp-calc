@@ -56,15 +56,17 @@ class ForecastAccuracy:
 
 class PriceForecaster:
     """
-    Advanced electricity price forecasting system.
-    
-    Provides multi-horizon price forecasts using pattern analysis,
+    Advanced electricity price forecasting system.      Provides multi-horizon price forecasts using pattern analysis,
     machine learning techniques, and real-time accuracy monitoring.
     """
     
     def __init__(self, pattern: Optional[PricePattern] = None):
         """Initialize price forecaster"""
         self.pattern = pattern or PricePattern()
+        
+        # Expose key pattern attributes for testing
+        self.base_price = self.pattern.base_price
+        self.volatility = self.pattern.volatility
         
         # Historical data storage
         self.price_history = deque(maxlen=8760)  # Store 1 year of hourly data
@@ -87,13 +89,16 @@ class PriceForecaster:
             ForecastHorizon.WEEK_AHEAD: ForecastAccuracy()
         }
         
+        # Forecast accuracy tracking
+        self.forecast_accuracy = []  # List to track forecast accuracy over time
+        
         # Forecast cache
         self.cached_forecasts = {}
         
         # Initialize with typical patterns
         self._initialize_patterns()
         
-    def update(self, current_price: float, timestamp: float = None) -> Dict[str, Any]:
+    def update(self, current_price: float, timestamp: Optional[float] = None) -> Dict[str, Any]:
         """
         Update price forecaster with new price data
         
@@ -122,7 +127,7 @@ class PriceForecaster:
         
         return self._get_status()
     
-    def get_forecast(self, horizon: ForecastHorizon, timestamp: float = None) -> Dict[str, Any]:
+    def get_forecast(self, horizon: ForecastHorizon, timestamp: Optional[float] = None) -> Dict[str, Any]:
         """
         Get price forecast for specified horizon
         
@@ -471,15 +476,22 @@ class PriceForecaster:
             return "High"
         elif accuracy.accuracy_score >= 0.70:
             return "Medium"
-        elif accuracy.accuracy_score >= 0.60:
-            return "Low"
+        elif accuracy.accuracy_score >= 0.60:            return "Low"
         else:
             return "Very Low"
     
     def _get_status(self) -> Dict[str, Any]:
         """Get current price forecaster status"""
+        current_price = self.price_history[-1][1] if self.price_history else self.base_price
+        
+        # Generate forecast prices for current conditions
+        current_time = time.time()
+        forecast_data = self._generate_simple_forecast(current_time, 24)  # 24-hour forecast
+        
         return {
             'active': True,
+            'current_price': current_price,
+            'forecast_prices': forecast_data,
             'data_points': len(self.price_history),
             'last_update': self.last_update,
             'cached_forecasts': len(self.cached_forecasts),
@@ -495,7 +507,8 @@ class PriceForecaster:
                 'weekday_peak': max(self.daily_patterns.get('weekday', [60.0])),
                 'weekend_peak': max(self.daily_patterns.get('weekend', [60.0])),
                 'base_price': self.pattern.base_price
-            }        }
+            }
+        }
     
     def set_pattern_parameters(self, base_price: Optional[float] = None, 
                              peak_multiplier: Optional[float] = None,
@@ -503,13 +516,89 @@ class PriceForecaster:
         """Update pattern parameters"""
         if base_price is not None:
             self.pattern.base_price = base_price
-        if peak_multiplier is not None:
-            self.pattern.peak_multiplier = peak_multiplier
+        if peak_multiplier is not None:            self.pattern.peak_multiplier = peak_multiplier
         if volatility is not None:
             self.pattern.volatility = volatility
         
         # Reinitialize patterns with new parameters
         self._initialize_patterns()
+    
+    def analyze_patterns(self) -> Dict[str, Any]:
+        """Analyze current price patterns"""
+        if len(self.price_history) < 24:
+            return {
+                'hourly_pattern': [],
+                'daily_volatility': 0.0,
+                'volatility': 0.0,
+                'peak_hours': [],
+                'off_peak_hours': [],
+                'weekend_discount': 0.0,
+                'trend': 'neutral'
+            }
+        
+        # Extract recent prices
+        recent_prices = [price for _, price in list(self.price_history)[-24:]]
+        
+        # Calculate volatility
+        volatility = statistics.stdev(recent_prices) / statistics.mean(recent_prices) if recent_prices else 0.0
+        
+        # Find peak and off-peak hours (simplified)
+        avg_price = statistics.mean(recent_prices)
+        peak_hours = [i for i, price in enumerate(recent_prices) if price > avg_price * 1.2]
+        off_peak_hours = [i for i, price in enumerate(recent_prices) if price < avg_price * 0.8]
+        
+        # Calculate trend
+        if len(recent_prices) >= 12:
+            first_half = statistics.mean(recent_prices[:12])
+            second_half = statistics.mean(recent_prices[12:])
+            if second_half > first_half * 1.05:
+                trend = 'rising'
+            elif second_half < first_half * 0.95:
+                trend = 'falling'
+            else:
+                trend = 'stable'
+        else:
+            trend = 'neutral'
+        
+        # Create hourly pattern from recent data
+        hourly_pattern = recent_prices[:24] if len(recent_prices) >= 24 else recent_prices
+        
+        return {
+            'hourly_pattern': hourly_pattern,
+            'daily_volatility': volatility,
+            'volatility': volatility,  # Alias for compatibility
+            'peak_hours': peak_hours,
+            'off_peak_hours': off_peak_hours,
+            'weekend_discount': self.pattern.weekend_discount,
+            'trend': trend
+        }
+    
+    def _generate_simple_forecast(self, timestamp: float, hours: int) -> List[float]:
+        """Generate simple price forecast for specified hours"""
+        forecasts = []
+        current_price = self.price_history[-1][1] if self.price_history else self.base_price
+        
+        for i in range(hours):
+            future_time = timestamp + (i * 3600)  # Each hour
+            hour_of_day = int((future_time % 86400) / 3600)
+            day_of_week = int((future_time // 86400) % 7)
+            
+            # Use pattern-based forecasting
+            if day_of_week < 5:  # Weekday
+                pattern = self.daily_patterns.get('weekday', [current_price] * 24)
+            else:  # Weekend
+                pattern = self.daily_patterns.get('weekend', [current_price] * 24)
+            
+            if hour_of_day < len(pattern):
+                forecast_price = pattern[hour_of_day]
+            else:
+                forecast_price = current_price
+            
+            # Add some variation based on volatility
+            variation = (hash(str(future_time)) % 1000 - 500) / 1000 * self.pattern.volatility * forecast_price
+            forecasts.append(max(0.1, forecast_price + variation))
+        
+        return forecasts
 
 
 def create_price_forecaster(base_price: float = 60.0, volatility: float = 0.20) -> PriceForecaster:

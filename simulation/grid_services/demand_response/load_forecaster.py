@@ -110,7 +110,7 @@ class LoadForecaster:
         self.last_update_time = time.time()
         
     def update(self, current_load: float, dt: float, 
-               weather_data: Dict[str, float] = None) -> Dict[str, Any]:
+               weather_data: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
         """
         Update load forecaster with current load data.
         
@@ -145,7 +145,7 @@ class LoadForecaster:
         
         return self._create_response_dict()
     
-    def get_forecast(self, hours_ahead: int = None) -> List[Dict[str, Any]]:
+    def get_forecast(self, hours_ahead: Optional[int] = None) -> List[Dict[str, Any]]:
         """
         Get current forecast for specified hours ahead.
         
@@ -235,7 +235,7 @@ class LoadForecaster:
         
         return False
     
-    def _generate_forecast(self, current_time: float, weather_data: Dict[str, float] = None):
+    def _generate_forecast(self, current_time: float, weather_data: Optional[Dict[str, float]] = None):
         """Generate new load forecast"""
         
         if len(self.hourly_data) < 24:  # Need at least 24 hours of data
@@ -478,7 +478,7 @@ class LoadForecaster:
                 self.forecast_accuracy_history.append(forecast_point.error)
                 
                 # Update overall accuracy metrics
-                if forecast_point.error <= self.config.accuracy_target_mape:
+                if forecast_point.error is not None and forecast_point.error <= self.config.accuracy_target_mape:
                     self.accurate_forecasts += 1
         
         # Calculate current MAPE

@@ -186,7 +186,7 @@ class DrivetrainLosses:
         return total_power
     
     def calculate_total_losses(self, component_states: Dict[str, ComponentState], 
-                             system_config: Dict = None) -> LossComponents:
+                             system_config: Optional[Dict] = None) -> LossComponents:
         """
         Calculate total system losses from all components.
         

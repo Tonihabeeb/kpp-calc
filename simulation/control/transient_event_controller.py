@@ -54,7 +54,7 @@ class TransientEventController:
     - Performance tracking and optimization
     """
     
-    def __init__(self, config: Dict = None):
+    def __init__(self, config: Optional[Dict] = None):
         """
         Initialize transient event controller.
         
@@ -314,7 +314,7 @@ class TransientEventController:
         
         return emergency_response
     
-    def acknowledge_event(self, event_type: str, event_id: str = None) -> bool:
+    def acknowledge_event(self, event_type: str, event_id: Optional[str] = None) -> bool:
         """
         Acknowledge a transient event.
         

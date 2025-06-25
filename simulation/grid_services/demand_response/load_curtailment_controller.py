@@ -135,7 +135,7 @@ class LoadCurtailmentController:
         
         self.last_update_time = time.time()
         
-    def update(self, current_load: float, dt: float, grid_conditions: Dict[str, Any] = None) -> Dict[str, Any]:
+    def update(self, current_load: float, dt: float, grid_conditions: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Update load curtailment controller with current load and grid conditions.
         

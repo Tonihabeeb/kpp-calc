@@ -295,7 +295,7 @@ class FaultDetector:
             health = fill_efficiency * (1.0 - min(0.5, dissolution_rate * 10))
             health_scores.append(health)
         
-        return np.mean(health_scores) if health_scores else 0.5
+        return float(np.mean(health_scores)) if health_scores else 0.5
     
     def _assess_drivetrain_health(self, system_state: Dict) -> float:
         """Assess mechanical drivetrain health"""
