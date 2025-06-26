@@ -39,7 +39,7 @@ class AdvancedGenerator:
         # Basic electrical parameters
         self.rated_power = config.get('rated_power', 530000.0)  # W
         self.rated_voltage = config.get('rated_voltage', 480.0)  # V (line-to-line)
-        self.rated_frequency = config.get('rated_frequency', 60.0)  # Hz
+        self.rated_frequency = config.get('rated_frequency', 50.0)  # Hz
         self.rated_speed = config.get('rated_speed', 375.0)  # RPM
         self.pole_pairs = config.get('pole_pairs', 4)  # Number of pole pairs
         
@@ -357,6 +357,26 @@ class AdvancedGenerator:
         self.total_losses = 0.0
         
         logger.info("Advanced generator state reset")
+    
+    def set_user_load(self, load_torque: float):
+        """
+        Set the user-specified load torque.
+        
+        Args:
+            load_torque (float): User load torque in N⋅m
+        """
+        # Store the user load torque
+        self.user_load_torque = load_torque
+        logger.info(f"Generator user load set to {load_torque:.2f} N⋅m")
+    
+    def get_user_load(self) -> float:
+        """
+        Get the current user-specified load torque.
+        
+        Returns:
+            float: Current user load torque in N⋅m
+        """
+        return getattr(self, 'user_load_torque', 0.0)
 
 
 def create_kmp_generator(config: Optional[Dict[str, Any]] = None) -> AdvancedGenerator:
@@ -372,7 +392,7 @@ def create_kmp_generator(config: Optional[Dict[str, Any]] = None) -> AdvancedGen
     default_config = {
         'rated_power': 530000.0,  # 530 kW
         'rated_voltage': 480.0,   # 480V line-to-line
-        'rated_frequency': 60.0,  # 60 Hz
+        'rated_frequency': 50.0,  # 50 Hz
         'rated_speed': 375.0,     # 375 RPM (matches flywheel target)
         'pole_pairs': 4,          # 8-pole machine
         'efficiency_at_rated': 0.94,  # 94% efficiency at rated conditions

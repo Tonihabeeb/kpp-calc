@@ -29,7 +29,7 @@ class StartupConditions:
     max_component_temperature: float = 60.0  # °C
     min_system_voltage: float = 450.0  # V
     max_system_voltage: float = 510.0  # V
-    target_frequency: float = 60.0  # Hz
+    target_frequency: float = 50.0  # Hz
     frequency_tolerance: float = 0.5  # Hz
     min_floater_count: int = 2  # minimum operational floaters
 

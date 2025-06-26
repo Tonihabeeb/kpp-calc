@@ -57,7 +57,7 @@ class GridStabilityController:
     def __init__(self,
                  rated_power: float = 530000.0,
                  nominal_voltage: float = 480.0,
-                 nominal_frequency: float = 60.0,
+                 nominal_frequency: float = 50.0,
                  voltage_regulation_band: float = 0.05,
                  frequency_regulation_band: float = 0.1,
                  response_time: float = 0.1,

@@ -225,7 +225,7 @@ class EmergencyResponseSystem:
                 ))
         
         # Check grid frequency
-        grid_frequency = system_state.get('grid_frequency', 60.0)
+        grid_frequency = system_state.get('grid_frequency', 50.0)
         if grid_frequency < self.limits.min_grid_frequency or grid_frequency > self.limits.max_grid_frequency:
             if EmergencyType.GRID_DISTURBANCE not in self.active_emergencies:
                 new_emergencies.append(EmergencyCondition(
@@ -464,7 +464,7 @@ class EmergencyResponseSystem:
             return (self.limits.min_grid_voltage * 1.05 <= grid_voltage <= self.limits.max_grid_voltage * 0.95)
         
         elif emergency.emergency_type == EmergencyType.GRID_DISTURBANCE:
-            grid_frequency = system_state.get('grid_frequency', 60.0)
+            grid_frequency = system_state.get('grid_frequency', 50.0)
             return (self.limits.min_grid_frequency * 1.01 <= grid_frequency <= self.limits.max_grid_frequency * 0.99)
         
         elif emergency.emergency_type == EmergencyType.MECHANICAL_FAILURE:

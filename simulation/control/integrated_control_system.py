@@ -31,7 +31,7 @@ class ControlSystemConfig:
     
     # Grid stability config
     nominal_voltage: float = 480.0
-    nominal_frequency: float = 60.0
+    nominal_frequency: float = 50.0
     voltage_regulation_band: float = 0.05
     frequency_regulation_band: float = 0.1
     
@@ -314,7 +314,7 @@ class IntegratedControlSystem:
                 'grid_connection_enable': False,
                 'target_load_factor': 0.5,  # Reduce to 50% for island operation
                 'voltage_reference': 480.0,
-                'frequency_reference': 60.0
+                'frequency_reference': 50.0
             })
         
         elif self.system_mode == 'load_emergency':
@@ -672,7 +672,7 @@ def create_standard_kpp_control_system(config_overrides: Optional[Dict] = None) 
         power_tolerance=0.05,
         max_ramp_rate=50000.0,
         nominal_voltage=480.0,
-        nominal_frequency=60.0,
+        nominal_frequency=50.0,
         voltage_regulation_band=0.05,
         frequency_regulation_band=0.1,
         monitoring_interval=0.1,

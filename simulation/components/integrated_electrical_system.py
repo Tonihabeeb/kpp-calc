@@ -123,6 +123,7 @@ class IntegratedElectricalSystem:
         # Step 1: Update grid conditions
         self.grid_state = self.grid_interface.update(dt)        # Step 2: Calculate generator load factor based on mechanical input
         # The generator can only produce electrical power from the mechanical power available
+        logger.debug(f"DEBUG electrical update: shaft_speed={shaft_speed:.2f}, mechanical_torque={mechanical_torque:.2f}")
         if shaft_speed > 0.1:
             # Calculate load factor from mechanical torque input
             # The generator presents a load torque, and can generate electrical power up to
@@ -134,38 +135,51 @@ class IntegratedElectricalSystem:
             max_electrical_power = mechanical_power_available * 0.95  # Assume 95% max efficiency
             max_load_factor = max_electrical_power / self.rated_power
             
+            logger.debug(f"Electrical System: mech_torque={mechanical_torque:.1f}Nm, "
+                        f"shaft_speed={shaft_speed:.2f}rad/s, "
+                        f"mech_power={mechanical_power_available/1000:.1f}kW, "
+                        f"max_load_factor={max_load_factor:.3f}, "
+                        f"target_load_factor={self.target_load_factor:.3f}, "
+                        f"current_grid_power={self.grid_power_output/1000:.1f}kW")
+            
             # Use target load factor but limit by available mechanical power and maximum 1.0
             if self.load_management_enabled:
                 # Use PID control to determine optimal load factor
                 target_power = self.rated_power * self.target_load_factor
                 current_power = self.grid_power_output
                 
-                # PID control for power regulation
-                power_error = target_power - current_power
-                
-                # Proportional term
-                p_term = self.power_controller_kp * power_error
-                
-                # Integral term
-                self.power_error_integral += power_error * dt
-                i_term = self.power_controller_ki * self.power_error_integral
-                
-                # Derivative term
-                if dt > 0:
-                    d_term = self.power_controller_kd * (power_error - self.power_error_previous) / dt
+                # Bootstrap fix: if we have no current power but any mechanical power,
+                # start with the target load factor to get the system going
+                if current_power <= 1000.0 and mechanical_power_available > 1000.0:  # More aggressive bootstrap
+                    effective_load_factor = self.target_load_factor
+                    logger.info(f"Bootstrap: using target load factor {effective_load_factor:.3f} (mech_power={mechanical_power_available:.0f}W, current={current_power:.0f}W)")
                 else:
-                    d_term = 0.0
-                
-                self.power_error_previous = power_error
-                
-                # Calculate desired load factor
-                pid_output = p_term + i_term + d_term
-                desired_power = current_power + pid_output
-                desired_load_factor = desired_power / self.rated_power
-                
-                # Limit by available mechanical power
-                effective_load_factor = min(desired_load_factor, max_load_factor, 1.0)
-                effective_load_factor = max(0.0, effective_load_factor)
+                    # PID control for power regulation
+                    power_error = target_power - current_power
+                    
+                    # Proportional term
+                    p_term = self.power_controller_kp * power_error
+                    
+                    # Integral term
+                    self.power_error_integral += power_error * dt
+                    i_term = self.power_controller_ki * self.power_error_integral
+                    
+                    # Derivative term
+                    if dt > 0:
+                        d_term = self.power_controller_kd * (power_error - self.power_error_previous) / dt
+                    else:
+                        d_term = 0.0
+                    
+                    self.power_error_previous = power_error
+                    
+                    # Calculate desired load factor
+                    pid_output = p_term + i_term + d_term
+                    desired_power = current_power + pid_output
+                    desired_load_factor = desired_power / self.rated_power
+                    
+                    # Limit by available mechanical power
+                    effective_load_factor = min(desired_load_factor, max_load_factor, 1.0)
+                    effective_load_factor = max(0.0, effective_load_factor)
             else:
                 # Direct load factor based on available mechanical power
                 effective_load_factor = min(max_load_factor, 1.0)
@@ -348,7 +362,7 @@ class IntegratedElectricalSystem:
             # Power quality
             'power_factor': self.power_electronics_state.get('power_factor', 0.0),
             'voltage_regulation': self.power_electronics_state.get('output_voltage', 0.0) / self.power_electronics.output_voltage,
-            'frequency_stability': abs(self.grid_state.get('frequency', 60.0) - 60.0)
+            'frequency_stability': abs(self.grid_state.get('frequency', 50.0) - 50.0)
         }
     
     def set_target_load_factor(self, load_factor: float):
@@ -437,11 +451,11 @@ class IntegratedElectricalSystem:
             'power_output': getattr(self.generator, 'current_power', 0.0),
             'voltage': getattr(self.generator, 'terminal_voltage', 480.0),
             'current': getattr(self.generator, 'current_output', 0.0),
-            'frequency': getattr(self.generator, 'frequency', 60.0),
+            'frequency': getattr(self.generator, 'frequency', 50.0),
             'efficiency': getattr(self.generator, 'efficiency', 0.92),
             'temperature': getattr(self.generator, 'temperature', 25.0),
             'grid_voltage': getattr(self.grid_interface, 'grid_voltage', 13800.0),
-            'grid_frequency': getattr(self.grid_interface, 'grid_frequency', 60.0),
+            'grid_frequency': getattr(self.grid_interface, 'grid_frequency', 50.0),
             'grid_power_factor': getattr(self.grid_interface, 'power_factor', 0.95),
             'pe_efficiency': getattr(self.power_electronics, 'efficiency', 0.96),
             'pe_temperature': getattr(self.power_electronics, 'temperature', 25.0),
@@ -476,7 +490,7 @@ def create_standard_kmp_electrical_system(config: Optional[Dict[str, Any]] = Non
         },
         'grid': {
             'nominal_voltage': 13800.0,  # 13.8 kV
-            'nominal_frequency': 60.0
+            'nominal_frequency': 50.0
         }
     }
     

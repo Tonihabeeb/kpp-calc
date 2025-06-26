@@ -101,7 +101,7 @@ class LoadManager:
         # Grid condition monitoring
         self.grid_conditions = GridConditions(
             voltage=480.0,
-            frequency=60.0,
+            frequency=50.0,
             power_factor=0.95,
             grid_stability=1.0,
             fault_detected=False
@@ -174,13 +174,13 @@ class LoadManager:
         
         # Update grid conditions from electrical system
         self.grid_conditions.voltage = electrical_output.get('grid_voltage', 480.0)
-        self.grid_conditions.frequency = electrical_output.get('grid_frequency', 60.0)
+        self.grid_conditions.frequency = electrical_output.get('grid_frequency', 50.0)
         self.grid_conditions.power_factor = electrical_output.get('power_factor', 0.95)
         self.grid_conditions.fault_detected = electrical_output.get('fault_detected', False)
         
         # Calculate grid stability metric
         voltage_stability = max(0.0, 1.0 - abs(self.grid_conditions.voltage - 480.0) / 48.0)
-        frequency_stability = max(0.0, 1.0 - abs(self.grid_conditions.frequency - 60.0) / 3.0)
+        frequency_stability = max(0.0, 1.0 - abs(self.grid_conditions.frequency - 50.0) / 3.0)
         pf_stability = max(0.0, 1.0 - abs(self.grid_conditions.power_factor - 0.95) / 0.2)
         
         self.grid_conditions.grid_stability = min(1.0, (voltage_stability + frequency_stability + pf_stability) / 3.0)
@@ -383,7 +383,7 @@ class LoadManager:
         load_factor *= self.thermal_derate_factor
         
         # Frequency-based load shedding
-        freq_deviation = abs(self.grid_conditions.frequency - 60.0)
+        freq_deviation = abs(self.grid_conditions.frequency - 50.0)
         if freq_deviation > 1.0:  # >1 Hz deviation
             load_factor *= max(0.2, 1.0 - (freq_deviation - 1.0) / 2.0)
         

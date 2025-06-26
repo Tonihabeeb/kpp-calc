@@ -39,7 +39,7 @@ class PowerElectronics:
         self.input_voltage = config.get('input_voltage', 480.0)  # V (generator output)
         self.dc_link_voltage = config.get('dc_link_voltage', 800.0)  # V
         self.output_voltage = config.get('output_voltage', 13800.0)  # V (grid voltage)
-        self.grid_frequency = config.get('grid_frequency', 60.0)  # Hz
+        self.grid_frequency = config.get('grid_frequency', 50.0)  # Hz
         
         # Component efficiencies
         self.rectifier_efficiency = config.get('rectifier_efficiency', 0.97)
@@ -184,7 +184,7 @@ class PowerElectronics:
         if grid_frequency is None:
             grid_frequency = self.grid_frequency
         if grid_frequency is None:
-            grid_frequency = 60.0  # Default frequency
+            grid_frequency = 50.0  # Default frequency
             
         frequency_error = abs(generator_frequency - grid_frequency)
         
@@ -361,7 +361,7 @@ class GridInterface:
             
         # Grid parameters
         self.nominal_voltage = config.get('nominal_voltage', 13800.0)  # V
-        self.nominal_frequency = config.get('nominal_frequency', 60.0)  # Hz
+        self.nominal_frequency = config.get('nominal_frequency', 50.0)  # Hz
         self.short_circuit_power = config.get('short_circuit_power', 50e6)  # VA
         self.grid_impedance = config.get('grid_impedance', 0.1)  # Ohms
         
@@ -472,7 +472,7 @@ def create_kmp_power_electronics(config: Optional[Dict[str, Any]] = None) -> Tup
     
     default_grid_config = {
         'nominal_voltage': 13800.0,  # 13.8 kV
-        'nominal_frequency': 60.0,
+        'nominal_frequency': 50.0,
         'voltage_variation': 0.02,
         'frequency_variation': 0.05
     }

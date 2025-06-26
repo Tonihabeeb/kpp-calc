@@ -97,6 +97,10 @@ class Floater:
         self.chain_radius = 1.0
         # theta already initialized above
         
+        # Enhanced physics attributes
+        self.chain_tension = 0.0  # N - chain tension for advanced dynamics
+        self.deformation = 0.0    # m - structural deformation
+        
         # Dissolved air fraction
         self.dissolved_air_fraction = 0.0  # Fraction of air dissolved into water
         
@@ -165,6 +169,12 @@ class Floater:
             logger.error("Invalid floater parameters: must be non-negative.")
             raise ValueError("Floater parameters must be non-negative.")
         self.set_filled(is_filled)
+        
+        # Phase 8: Additional properties for new physics engine
+        self.container_mass = mass  # Mass of empty container
+        self.state = "heavy" if not is_filled else "light"  # State for physics engine
+        self.angle = phase_offset  # Alias for theta for physics engine compatibility
+        
         logger.info(f"Initialized Floater: {self.to_dict()}")
         logger.debug(f"Added mass initialized: {self.added_mass}")
 
@@ -178,7 +188,14 @@ class Floater:
         if self.is_filled != filled:
             self.is_filled = filled
             self.fill_progress = 1.0 if filled else 0.0
-            logger.info(f"Floater fill state changed: is_filled={self.is_filled}")
+            # Phase 8: Update state for physics engine
+            self.state = "light" if filled else "heavy"
+            # Update mass based on state
+            if filled:
+                self.mass = self.container_mass  # Air-filled (light)
+            else:
+                self.mass = self.container_mass + RHO_WATER * self.volume  # Water-filled (heavy)
+            logger.info(f"Floater fill state changed: is_filled={self.is_filled}, state={self.state}, mass={self.mass:.1f}kg")
 
     def start_filling(self):
         """
@@ -192,7 +209,7 @@ class Floater:
     def compute_buoyant_force(self) -> float:
         """
         Compute the upward buoyant force based on the currently filled volume,
-        adjusted for dissolved air fraction.
+        adjusted for dissolved air fraction and enhanced physics effects.
 
         Returns:
             float: Buoyant force (N)
@@ -205,9 +222,24 @@ class Floater:
         # Adjust fill progress based on dissolved air fraction
         effective_fill_progress = self.fill_progress * (1.0 - self.dissolved_air_fraction)
 
+        # Apply H1 density reduction effects if available
+        effective_density = RHO_WATER
+        if hasattr(self, '_nanobubble_density_factor'):
+            effective_density *= self._nanobubble_density_factor
+
+        # Apply H2 thermal volume expansion if available  
+        effective_volume = self.volume
+        if hasattr(self, '_thermal_volume_factor'):
+            effective_volume *= self._thermal_volume_factor
+
         # Buoyancy is based on the actual volume of air held
-        displaced_volume = self.volume * effective_fill_progress
-        F_buoy = RHO_WATER * displaced_volume * G
+        displaced_volume = effective_volume * effective_fill_progress
+        F_buoy = effective_density * displaced_volume * G
+        
+        # Add H2 thermal buoyancy boost if available
+        if hasattr(self, '_thermal_buoyancy_boost'):
+            F_buoy += self._thermal_buoyancy_boost
+        
         logger.debug(f"Buoyant force: {F_buoy:.2f} N (effective_fill_progress={effective_fill_progress:.2f})")
         return F_buoy
 
@@ -267,11 +299,20 @@ class Floater:
     def compute_drag_force(self) -> float:
         """
         Compute the drag force opposing motion (quadratic drag).
+        Enhanced with H1 nanobubble drag reduction effects.
 
         Returns:
             float: Drag force (N, sign opposes velocity)
         """
-        drag_mag = 0.5 * self.Cd * RHO_WATER * self.area * (self.velocity ** 2)
+        # Use effective drag coefficient (potentially reduced by H1 nanobubbles)
+        effective_Cd = self.Cd
+        
+        # Apply H1 nanobubble density reduction to drag calculation
+        effective_density = RHO_WATER
+        if hasattr(self, '_nanobubble_density_factor'):
+            effective_density *= self._nanobubble_density_factor
+        
+        drag_mag = 0.5 * effective_Cd * effective_density * self.area * (self.velocity ** 2)
         return -drag_mag if self.velocity > 0 else drag_mag
 
     def compute_pulse_jet_force(self) -> float:
@@ -336,13 +377,15 @@ class Floater:
             'fill_progress': self.fill_progress
         }
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, enhanced_physics=None) -> None:
         """
         Update floater's state over a time step dt.
         Considers buoyancy, gravity, drag, and pulse jet forces.
+        Enhanced with H1, H2, H3 physics modules.
 
         Args:
             dt (float): Time step (s)
+            enhanced_physics (dict): Dictionary containing H1, H2, H3 physics modules
         """
         if dt <= 0:
             raise ValueError("Time step dt must be positive.")
@@ -360,6 +403,10 @@ class Floater:
 
         # Record old velocity for calculating drag loss
         old_velocity = self.velocity
+
+        # Apply H1, H2, H3 physics enhancements if provided
+        if enhanced_physics:
+            self._apply_enhanced_physics(enhanced_physics, dt)
 
         # Determine net force, allowing for test override of compute_buoyant_force as net force
         cb_override = self.__dict__.get('compute_buoyant_force', None)
@@ -650,12 +697,6 @@ class Floater:
         self.minor_axis = minor_axis  # b (vertical radius)
         self.chain_radius = chain_radius
 
-    def set_theta(self, theta):
-        """
-        Set the angular position of the floater along the chain.
-        """
-        self.theta = theta % (2 * math.pi)
-
     def get_cartesian_position(self):
         """
         Get the (x, y) position of the floater along the ellipse/circle.
@@ -667,9 +708,35 @@ class Floater:
     def get_vertical_force(self):
         """
         Get the vertical force (buoyancy, gravity, drag, jet) at the current position.
+        
+        Returns:
+            float: Net vertical force in Newtons (positive = upward)
         """
-        # Use the same force calculation as before, but only the vertical component matters for torque
-        return self.force
+        # Phase 8: Enhanced compatibility method for physics engine
+        buoyant = self.compute_buoyant_force()
+        drag = self.compute_drag_force()
+        jet = self.compute_pulse_jet_force()
+        weight = self.mass * G
+        
+        return buoyant - weight + drag + jet
+
+    def is_ascending(self):
+        """
+        Check if floater is on ascending side of chain loop.
+        
+        Returns:
+            bool: True if ascending (0 to π), False if descending (π to 2π)
+        """
+        angle_normalized = self.angle % (2 * math.pi)
+        return 0 <= angle_normalized < math.pi
+
+    def set_theta(self, theta):
+        """
+        Set the angular position of the floater along the chain.
+        Also updates the angle alias for physics engine compatibility.
+        """
+        self.theta = theta % (2 * math.pi)
+        self.angle = self.theta  # Keep angle in sync
 
     def pivot(self) -> None:
         """
@@ -801,8 +868,8 @@ class Floater:
         # Update water mass to full floater volume
         self.water_mass = RHO_WATER * self.volume
         
-        # Clean up venting system tracking
-        venting_system.cleanup_completed_venting(floater_id)
+        # Clean up venting system tracking (commented out for Phase 8 compatibility)
+        # venting_system.cleanup_completed_venting(floater_id)
         
         logger.info(f"Floater venting completed - reset to heavy state with {self.water_mass:.1f} kg water")
     
@@ -829,3 +896,44 @@ class Floater:
         return (self.pneumatic_fill_state == 'empty' and 
                 self.total_air_injected <= 0.001 and  # Essentially no air
                 self.water_mass > 0.9 * RHO_WATER * self.volume)  # >90% filled with water
+    
+    def _apply_enhanced_physics(self, enhanced_physics, dt):
+        """
+        Apply H1, H2, H3 enhanced physics effects to the floater.
+        
+        Args:
+            enhanced_physics (dict): Dictionary containing physics modules
+            dt (float): Time step
+        """
+        # H1: Nanobubble Physics (drag/density reduction)
+        if 'nanobubble' in enhanced_physics and enhanced_physics['nanobubble']:
+            nanobubble_effects = enhanced_physics['nanobubble'].compute_effects(
+                self.position, self.velocity, self.area, dt
+            )
+            
+            # Apply drag reduction
+            if hasattr(self, '_original_Cd'):
+                self.Cd = self._original_Cd * (1 - nanobubble_effects['drag_reduction'])
+            else:
+                self._original_Cd = self.Cd
+                self.Cd = self.Cd * (1 - nanobubble_effects['drag_reduction'])
+            
+            # Apply effective density reduction (affects buoyancy calculations)
+            self._nanobubble_density_factor = 1 - nanobubble_effects['density_reduction']
+        
+        # H2: Thermal Physics (thermal expansion/boost)  
+        if 'thermal' in enhanced_physics and enhanced_physics['thermal']:
+            thermal_effects = enhanced_physics['thermal'].compute_effects(
+                self.position, self.velocity, self.volume, dt
+            )
+            
+            # Apply volume expansion (affects buoyancy)
+            self._thermal_volume_factor = 1 + thermal_effects['volume_expansion']
+            
+            # Apply buoyancy boost
+            self._thermal_buoyancy_boost = thermal_effects['buoyancy_boost']
+        
+        # H3: Pulse Controller effects are handled at the system level
+        # but we can track if we're in a pulse or coast phase
+        if 'pulse_controller' in enhanced_physics and enhanced_physics['pulse_controller']:
+            self._pulse_phase = enhanced_physics['pulse_controller'].get_current_phase()

@@ -46,7 +46,7 @@ class DisturbanceEvent:
 class GridLimits:
     """Grid operating limits and thresholds"""
     # Frequency limits (Hz)
-    nominal_frequency: float = 60.0
+    nominal_frequency: float = 50.0
     frequency_deadband: float = 0.05    # ±0.05 Hz normal operation
     frequency_warning: float = 0.1      # ±0.1 Hz warning threshold
     frequency_critical: float = 0.5     # ±0.5 Hz critical threshold
