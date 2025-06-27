@@ -193,6 +193,7 @@ class SimulationEngine:
         self.chain_tension = 0.0  # Current chain tension (N)
         
         self.data_log = []
+        self.output_data = []  # For analysis collection in SSE streaming
         self.total_energy = 0.0
         self.pulse_count = 0
         self.thread = None
@@ -212,7 +213,12 @@ class SimulationEngine:
             'drag_reduction_factor': params.get('drag_reduction_factor', 0.12),
             'bubble_generator_power': params.get('nanobubble_generation_power', 2500.0)
         })
-        self.nanobubble_physics = NanobubblePhysics(h1_config)
+        self.nanobubble_physics = NanobubblePhysics(
+            enabled=h1_config['h1_enabled'],
+            nanobubble_fraction=h1_config['nanobubble_fraction'],
+            generation_power=h1_config['bubble_generator_power'],
+            max_drag_reduction=h1_config['drag_reduction_factor']
+        )
         
         # H2 Thermal Physics
         h2_config = physics_config.copy()
@@ -222,7 +228,12 @@ class SimulationEngine:
             'water_temperature': params.get('water_temperature', 293.15),
             'surface_area': params.get('floater_area', 0.035) * 2.0  # Air-water interface
         })
-        self.thermal_physics = ThermalPhysics(h2_config)
+        self.thermal_physics = ThermalPhysics(
+            enabled=h2_config['h2_enabled'],
+            thermal_coefficient=0.0001,  # Default thermal expansion coefficient
+            thermal_efficiency=h2_config['thermal_efficiency'],
+            target_temperature=h2_config['water_temperature']
+        )
         
         # H3 Pulse Controller
         h3_config = {
@@ -232,7 +243,12 @@ class SimulationEngine:
             'coast_duration': params.get('coast_duration', 5.0),
             'pulse_duty_cycle': params.get('pulse_duty_cycle', 0.5)
         }
-        self.pulse_controller = PulseController(h3_config)
+        self.pulse_controller = PulseController(
+            enabled=h3_config['h3_enabled'],
+            pulse_duration=h3_config['pulse_duration'],
+            coast_duration=h3_config['coast_duration'],
+            initial_phase='pulse'
+        )
         
         # Enhanced physics state tracking
         self.h1_nanobubbles_active = h1_config['h1_enabled']
@@ -418,7 +434,7 @@ class SimulationEngine:
                         f"buoyancy_enhancement={self.thermal_model.state.buoyancy_enhancement:.1%}")
             logger.debug(f"Enhanced physics - H1: {self.h1_nanobubbles_active}, "
                         f"H2: {self.h2_thermal_active}, H3: {self.h3_pulse_active}")
-            logger.debug(f"Pulse state: phase={pulse_state.phase}, clutch_engaged={pulse_state.clutch_engaged}")# 2a. Update pneumatic system performance tracking
+            logger.debug(f"Pulse state: phase={pulse_state.get('current_phase', 'unknown')}, clutch_engaged={pulse_state.get('clutch_engaged', False)}")# 2a. Update pneumatic system performance tracking
         if hasattr(self, 'pneumatic_coordinator') and hasattr(self, 'pneumatic_performance_analyzer'):
             # Get pneumatic system data for performance tracking
             pneumatic_power = getattr(self.pneumatics, 'compressor_power', 4200.0) if getattr(self.pneumatics, 'compressor_running', False) else 0.0
@@ -468,15 +484,15 @@ class SimulationEngine:
             # ===== H1 NANOBUBBLE PHYSICS =====
             nanobubble_state = None
             if self.h1_nanobubbles_active:
-                # Apply H1 nanobubble effects to descending floaters only
-                nanobubble_state = self.nanobubble_physics.apply_nanobubble_effects(
-                    floater, floater_velocity, is_descending
+                # Apply H1 nanobubble effects to fluid density and drag
+                current_density = self.nanobubble_physics.apply_density_effect(
+                    self.params.get('water_density', 1000.0)
                 )
                 
                 # Calculate enhanced buoyancy with nanobubbles
-                if nanobubble_state.active and is_descending:
+                if self.nanobubble_physics.active:
                     # Reduced effective density enhances buoyancy
-                    density_factor = nanobubble_state.effective_density / self.nanobubble_physics.water_density
+                    density_factor = current_density / self.params.get('water_density', 1000.0)
                     h1_enhanced_buoyancy = base_buoyancy / density_factor
                     h1_nanobubble_force += (h1_enhanced_buoyancy - base_buoyancy)
                 else:
@@ -485,18 +501,17 @@ class SimulationEngine:
                 h1_enhanced_buoyancy = base_buoyancy
             
             # ===== H2 THERMAL PHYSICS =====
-            thermal_state = None
             if self.h2_thermal_active:
                 # Apply H2 thermal effects to ascending floaters only
-                ascent_height = max(0, y) if is_ascending else 0.0
-                thermal_state = self.thermal_physics.apply_thermal_effects(
-                    floater, floater_velocity, is_ascending, ascent_height
-                )
-                
-                # Calculate thermal-enhanced buoyancy
-                if thermal_state.active and is_ascending:
-                    h2_enhanced_buoyancy = base_buoyancy + thermal_state.buoyancy_boost
-                    h2_thermal_force += thermal_state.buoyancy_boost
+                if is_ascending:
+                    # Update thermal physics with current conditions
+                    ambient_temp = 293.15  # Room temperature
+                    heat_input = 1000.0 if y > 0.5 else 0.0  # Apply heat when ascending
+                    self.thermal_physics.update(dt, ambient_temp, heat_input)
+                    
+                    # Apply thermal enhancement to buoyancy
+                    h2_enhanced_buoyancy = self.thermal_physics.apply_buoyancy_enhancement(base_buoyancy)
+                    h2_thermal_force += (h2_enhanced_buoyancy - base_buoyancy)
                 else:
                     h2_enhanced_buoyancy = base_buoyancy
             else:
@@ -505,7 +520,7 @@ class SimulationEngine:
             # ===== H3 PULSE CONTROL =====
             # H3 affects clutch engagement and pulse timing - handled in pulse_state above
             floater_pulse_force = 0.0
-            if self.h3_pulse_active and pulse_state.clutch_engaged:
+            if self.h3_pulse_active and pulse_state.get('clutch_engaged', False):
                 # During pulse phase, apply additional force via pulse jet
                 floater_pulse_force = floater.compute_pulse_jet_force() if hasattr(floater, 'compute_pulse_jet_force') else 0.0
                 h3_pulse_force += floater_pulse_force
@@ -566,9 +581,11 @@ class SimulationEngine:
                            f"drag={drag_force:.1f}, pulse={floater_pulse_force:.1f}, net={net_force:.1f}")
                 if nanobubble_state:
                     logger.debug(f"  H1: active={nanobubble_state.active}, drag_red={nanobubble_state.drag_reduction:.2f}")
-                if thermal_state:
-                    logger.debug(f"  H2: active={thermal_state.active}, buoy_boost={thermal_state.buoyancy_boost:.1f}N")
-                logger.debug(f"  H3: clutch_engaged={pulse_state.clutch_engaged}, phase={pulse_state.phase}")
+                if self.h2_thermal_active:
+                    thermal_status = self.thermal_physics.get_status()
+                    thermal_boost = h2_enhanced_buoyancy - base_buoyancy
+                    logger.debug(f"  H2: active={thermal_status['active']}, buoy_boost={thermal_boost:.1f}N")
+                logger.debug(f"  H3: clutch_engaged={pulse_state.get('clutch_engaged', False)}, phase={pulse_state.get('current_phase', 'unknown')}")
         
         # Store enhanced physics forces for output data
         self.h1_nanobubble_force = h1_nanobubble_force
