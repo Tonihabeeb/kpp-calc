@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <title>KPP Force Simulation - Pulse Physics v2.0</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/physics-styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>KPP Force Simulation - Pulse Physics v2.0</h1>
     <div id="connection-status" class="status-indicator">
         <span id="sseStatus">Disconnected</span>
+        <span id="connectionQuality" class="quality-unknown"></span>
+        <span id="connectionLatency" class="latency-display"></span>
     </div>
     
     <div id="controls">
@@ -36,11 +39,106 @@
             <label>Flywheel Inertia (kg⋅m²): <input type="number" name="flywheel_inertia" value="50.0" step="1.0"></label>
             <label>Pulse Interval (s): <input type="number" name="pulse_interval" value="2.0" step="0.1"></label>
             
-            <h3>H1/H2 Effects (GuideV3)</h3>
-            <label>Nanobubble %: <input type="range" id="nanobubbleSlider" name="nanobubble_frac" min="0" max="100" value="0"> <span id="nanobubbleValue">0%</span></label>
-            <label>Thermal Expansion Coeff: <input type="number" id="heatCoeff" name="thermal_coeff" step="0.0001" value="0.0001"></label>
-            <label>Water Temperature (°C): <input type="number" id="waterTemp" name="water_temp" step="0.1" value="20.0"></label>
-            <label>Air Pressure (Pa): <input type="number" id="airPressure" name="air_pressure" step="1000" value="300000"></label>
+            <!-- Enhanced Physics Controls Section -->
+            <h3>🔬 Enhanced Physics (H1, H2, H3)</h3>
+            
+            <!-- H1 Nanobubble Physics Controls -->
+            <div class="physics-section">
+                <h4>H1: Nanobubble Physics</h4>
+                <div class="control-group">
+                    <label for="h1_enabled">
+                        <input type="checkbox" id="h1_enabled" name="h1_enabled" value="true">
+                        Enable Nanobubble System
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label for="nanobubble_fraction">Nanobubble Fraction:</label>
+                    <input type="range" id="nanobubble_fraction" name="nanobubble_fraction" 
+                           min="0" max="1" step="0.01" value="0.05">
+                    <span id="nanobubble_fraction_val">5.0%</span>
+                    <small>Controls bubble density in water (0-100%)</small>
+                </div>
+                <div class="control-group">
+                    <label for="drag_reduction_factor">Drag Reduction Factor:</label>
+                    <input type="range" id="drag_reduction_factor" name="drag_reduction_factor" 
+                           min="0" max="1" step="0.01" value="0.12">
+                    <span id="drag_reduction_factor_val">12%</span>
+                    <small>Drag coefficient reduction (0-100%)</small>
+                </div>
+                <div class="control-group">
+                    <label for="bubble_generator_power">Generator Power (W):</label>
+                    <input type="number" id="bubble_generator_power" name="bubble_generator_power" 
+                           min="0" max="10000" step="100" value="2500">
+                    <small>Power consumption for bubble generation</small>
+                </div>
+            </div>
+            
+            <!-- H2 Thermal Physics Controls -->
+            <div class="physics-section">
+                <h4>H2: Thermal Enhancement</h4>
+                <div class="control-group">
+                    <label for="h2_enabled">
+                        <input type="checkbox" id="h2_enabled" name="h2_enabled" value="true">
+                        Enable Thermal System
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label for="thermal_efficiency">Thermal Efficiency:</label>
+                    <input type="range" id="thermal_efficiency" name="thermal_efficiency" 
+                           min="0" max="1" step="0.01" value="0.75">
+                    <span id="thermal_efficiency_val">75%</span>
+                    <small>Heat transfer efficiency (0-100%)</small>
+                </div>
+                <div class="control-group">
+                    <label for="surface_area">Surface Area (m²):</label>
+                    <input type="number" id="surface_area" name="surface_area" 
+                           min="0.01" max="1" step="0.01" value="0.07">
+                    <small>Thermal exchange surface area</small>
+                </div>
+                <div class="control-group">
+                    <label for="water_temperature">Water Temperature (°C):</label>
+                    <input type="number" id="water_temperature" name="water_temperature" 
+                           min="5" max="95" step="0.1" value="20.0">
+                    <small>Ambient water temperature</small>
+                </div>
+            </div>
+            
+            <!-- H3 Pulse Control Physics -->
+            <div class="physics-section">
+                <h4>H3: Pulse Control System</h4>
+                <div class="control-group">
+                    <label for="h3_enabled">
+                        <input type="checkbox" id="h3_enabled" name="h3_enabled" value="true">
+                        Enable Pulse Mode
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label for="pulse_enabled">
+                        <input type="checkbox" id="pulse_enabled" name="pulse_enabled" value="true">
+                        Pulse Active
+                    </label>
+                    <small>Enable/disable pulse operation</small>
+                </div>
+                <div class="control-group">
+                    <label for="pulse_duration">Pulse Duration (s):</label>
+                    <input type="number" id="pulse_duration" name="pulse_duration" 
+                           min="0.1" max="10" step="0.1" value="5.0">
+                    <small>Active pulse phase duration</small>
+                </div>
+                <div class="control-group">
+                    <label for="coast_duration">Coast Duration (s):</label>
+                    <input type="number" id="coast_duration" name="coast_duration" 
+                           min="0.1" max="10" step="0.1" value="5.0">
+                    <small>Coast phase duration</small>
+                </div>
+                <div class="control-group">
+                    <label for="pulse_duty_cycle">Duty Cycle:</label>
+                    <input type="range" id="pulse_duty_cycle" name="pulse_duty_cycle" 
+                           min="0.1" max="0.9" step="0.05" value="0.5">
+                    <span id="pulse_duty_cycle_val">50%</span>
+                    <small>Pulse vs coast time ratio</small>
+                </div>
+            </div>
             
             <h3>Generator Specifications</h3>
             <p><strong>Power:</strong> 530 kW @ 375 RPM (Load calculated automatically)</p>
@@ -48,36 +146,106 @@
             
             <button type="submit">Update Params</button>
         </form>
-    </div>
-    
-    <div id="charts">
-        <h2>Real-Time Charts</h2>
-        <div class="chart-grid">
-            <div class="chart-container">
-                <h3>Torque (Nm)</h3>
-                <canvas id="torqueChart" width="400" height="200"></canvas>
-            </div>
-            <div class="chart-container">
-                <h3>Power (kW)</h3>
-                <canvas id="powerChart" width="400" height="200"></canvas>
-            </div>
-            <div class="chart-container">
-                <h3>Efficiency (%)</h3>
-                <canvas id="effChart" width="400" height="200"></canvas>
-            </div>
-            <div class="chart-container">
-                <h3>Pulse Torque (Nm)</h3>
-                <canvas id="pulseChart" width="400" height="200"></canvas>
+        
+        <!-- Physics Status Indicators -->
+        <div id="physics-status">
+            <h3>🔋 Physics System Status</h3>
+            <div class="status-grid">
+                <div class="status-indicator" id="h1-status">
+                    <div class="status-light" id="h1-light"></div>
+                    <div class="status-info">
+                        <span class="status-label">H1 Nanobubbles</span>
+                        <span class="status-value" id="h1-value">Inactive</span>
+                    </div>
+                </div>
+                <div class="status-indicator" id="h2-status">
+                    <div class="status-light" id="h2-light"></div>
+                    <div class="status-info">
+                        <span class="status-label">H2 Thermal</span>
+                        <span class="status-value" id="h2-value">Inactive</span>
+                    </div>
+                </div>
+                <div class="status-indicator" id="h3-status">
+                    <div class="status-light" id="h3-light"></div>
+                    <div class="status-info">
+                        <span class="status-label">H3 Pulse Control</span>
+                        <span class="status-value" id="h3-value">Inactive</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
-    <!-- Per-Floater State Table -->
+    <div id="charts">
+        <h2>📊 Real-Time Charts</h2>
+        <div class="chart-grid">
+            <!-- Primary Performance Charts -->
+            <div class="chart-container">
+                <h3>Torque Components (Nm)</h3>
+                <canvas id="torqueChart" width="400" height="200"></canvas>
+                <small>Buoyant, Drag, Generator, and Net Torque</small>
+            </div>
+            <div class="chart-container">
+                <h3>Power Output (kW)</h3>
+                <canvas id="powerChart" width="400" height="200"></canvas>
+                <small>Electrical power generation</small>
+            </div>
+            
+            <!-- Physics Enhancement Charts -->
+            <div class="chart-container">
+                <h3>Physics Forces (N)</h3>
+                <canvas id="physicsChart" width="400" height="200"></canvas>
+                <small>H1 Nanobubble, H2 Thermal, H3 Pulse Forces</small>
+            </div>
+            <div class="chart-container">
+                <h3>System Efficiency (%)</h3>
+                <canvas id="effChart" width="400" height="200"></canvas>
+                <small>Overall, Drivetrain, and Pneumatic Efficiency</small>
+            </div>
+            
+            <!-- Advanced Analysis Charts -->
+            <div class="chart-container">
+                <h3>Pulse Analysis</h3>
+                <canvas id="pulseChart" width="400" height="200"></canvas>
+                <small>Pulse timing, clutch state, duty cycle</small>
+            </div>
+            <div class="chart-container">
+                <h3>Thermal Profile (°C)</h3>
+                <canvas id="thermalChart" width="400" height="200"></canvas>
+                <small>Water temperature and thermal effects</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced Floater State Table -->
     <div id="floaterStates">
-        <h2>Per-Floater State (GuideV3)</h2>
-        <table id="floaterTable" border="1">
-            <tr><th>Floater</th><th>Position</th><th>Velocity</th><th>Buoyancy</th><th>Drag</th><th>State</th><th>Fluid Density</th></tr>
+        <h2>⚙️ Per-Floater State Analysis</h2>
+        <table id="floaterTable" border="1" class="physics-table">
+            <thead>
+                <tr>
+                    <th>Floater</th>
+                    <th>Position (m)</th>
+                    <th>Velocity (m/s)</th>
+                    <th>Base Buoyancy (N)</th>
+                    <th>Drag Force (N)</th>
+                    <th>H1 Effect (N)</th>
+                    <th>H2 Effect (N)</th>
+                    <th>H3 Pulse (N)</th>
+                    <th>Net Force (N)</th>
+                    <th>State</th>
+                    <th>Physics Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic content populated by JavaScript -->
+            </tbody>
         </table>
+        <div class="table-legend">
+            <small>
+                <strong>Legend:</strong> 
+                H1 = Nanobubble effects, H2 = Thermal enhancement, H3 = Pulse forces
+            </small>
+        </div>
     </div>
     
     <!-- Export Data -->
@@ -690,6 +858,14 @@
 
     <!-- END PHASE 8: Advanced Integrated Systems Status -->
     
-    <script src="/static/js/main.js"></script>
+    <!-- Enhanced Physics UI JavaScript Modules -->
+    <script src="/static/js/error-handler.js"></script>
+    <script src="/static/js/realtime-data-manager.js"></script>
+    <script src="/static/js/parameter-manager.js"></script>
+    <script src="/static/js/chart-manager.js"></script>
+    <script src="/static/js/floater-table.js"></script>
+    
+    <!-- Enhanced Main Application Script -->
+    <script src="/static/js/enhanced-main.js"></script>
 </body>
 </html>
