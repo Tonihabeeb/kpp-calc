@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, send_file, Response, jsonify
 from simulation.engine import SimulationEngine
 from simulation.components.floater import Floater
 from utils.backend_logger import setup_backend_logger
-from config.parameter_schema import PARAM_SCHEMA, validate_parameters_batch, get_default_parameters
+from config.parameter_schema import PARAM_SCHEMA, validate_parameters_batch, get_default_parameters, get_all_parameter_info
 import os
 import json
 import io
@@ -28,6 +28,7 @@ app = Flask(__name__)
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Set up the data queue and initial params for the real-time engine
 sim_data_queue = queue.Queue()
@@ -124,47 +125,68 @@ def index():
 
 @app.route("/stream")
 def stream():
-    """Server-Sent Events endpoint for real-time data streaming"""
+    """Enhanced Server-Sent Events endpoint for real-time data streaming"""
     import csv
     import os
     log_file = 'realtime_log.csv'
-    # Align CSV fields with SimulationEngine.log_state() output
-    log_fields = [
-        'time', 'power', 'torque', 'base_buoy_torque', 'pulse_torque', 'total_chain_torque',
-        'tau_net', 'tau_to_generator', 'clutch_c', 'clutch_state', 'total_energy', 'pulse_count',
-        'flywheel_speed_rpm', 'chain_speed_rpm', 'clutch_engaged', 'tank_pressure',
-        'overall_efficiency', 'avg_floater_velocity'
-    ]
-    # Write header if file does not exist
-    if not os.path.exists(log_file):
-        with open(log_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=log_fields)
-            writer.writeheader()
-
+    
     def event_stream():
         while True:
             try:
-                # Get latest data from engine
-                if not engine.data_queue.empty():
+                # Get comprehensive data from engine using new method
+                if hasattr(engine, 'get_output_data'):
+                    data = engine.get_output_data()
+                elif not engine.data_queue.empty():
+                    # Fallback to legacy data queue
                     data = engine.data_queue.get()
-                    output_data.append(data)  # Collect data for analysis
-                    # Write to CSV in real time
-                    with open(log_file, 'a', newline='') as f:
-                        writer = csv.DictWriter(f, fieldnames=log_fields)
-                        # Map engine state keys directly to CSV columns
-                        row = {k: data.get(k, '') for k in log_fields}
-                        writer.writerow(row)
-                        yield f"data: {json.dumps(data)}\n\n"
                 else:
-                    # Send heartbeat
-                    yield f"data: {json.dumps({'heartbeat': True})}\n\n"
+                    # Send heartbeat with minimal data
+                    data = {
+                        'heartbeat': True,
+                        'timestamp': time.time(),
+                        'engine_running': getattr(engine, 'running', False)
+                    }
+                
+                # Add to output collection for analysis
+                if hasattr(engine, 'output_data'):
+                    engine.output_data.append(data)
+                
+                # Write comprehensive data to CSV (for debugging)
+                try:
+                    if 'heartbeat' not in data:
+                        with open(log_file, 'a', newline='') as f:
+                            # Write simplified data for CSV compatibility
+                            csv_data = {
+                                'time': data.get('time', 0),
+                                'power': data.get('power', 0),
+                                'torque': data.get('torque', 0),
+                                'efficiency': data.get('efficiency', 0),
+                                'floater_count': len(data.get('floaters', [])),
+                                'h1_active': data.get('system_state', {}).get('h1_active', False),
+                                'h2_active': data.get('system_state', {}).get('h2_active', False),
+                                'h3_active': data.get('system_state', {}).get('h3_active', False)
+                            }
+                            writer = csv.DictWriter(f, fieldnames=csv_data.keys())
+                            if f.tell() == 0:  # Write header if file is empty
+                                writer.writeheader()
+                            writer.writerow(csv_data)
+                except Exception as csv_error:
+                    logger.warning(f"CSV logging error: {csv_error}")
+                
+                # Stream the complete data structure
+                yield f"data: {json.dumps(data)}\n\n"
                 time.sleep(0.1)
+                
             except GeneratorExit:
                 break
             except Exception as e:
-                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+                logger.error(f"Stream error: {e}")
+                yield f"data: {json.dumps({'error': str(e), 'timestamp': time.time()})}\n\n"
     
-    return Response(event_stream(), mimetype='text/event-stream')
+    response = Response(event_stream(), mimetype='text/event-stream')
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 @app.route("/start", methods=["POST"])
 def start_simulation():
@@ -173,25 +195,17 @@ def start_simulation():
     # Reset engine for clean start
     engine.reset()
     engine.update_params(params)    # Push initial state for live data
-    # Note: log_state method doesn't exist, but we can create initial state data
-    try:
-        # Use the engine's existing data logging mechanism
-        initial_data = {
-            'time': 0.0,
-            'power_output': 0.0,
-            'torque': 0.0,
-            'base_buoy_force': 0.0,
-            'pulse_force': 0.0,
-            'total_vertical_force': 0.0,
-            'tau_net': 0.0,
-            'tau_to_generator': 0.0,
-            'clutch_c': (engine.clutch.state.c if engine.clutch.state else 0.0),
-            'clutch_state': (engine.clutch.state.state if engine.clutch.state else None)
-        }
-        # Log to data queue for UI consumption
-        engine.data_queue.put(initial_data)
-    except Exception as e:
-        logging.warning(f"Could not log initial state: {e}")
+    engine.log_state(
+        power_output=0.0,
+        torque=0.0,
+        base_buoy_force=0.0,
+        pulse_force=0.0,
+        total_vertical_force=0.0,
+        tau_net=0.0,
+        tau_to_generator=0.0,
+        clutch_c=(engine.clutch.state.c if engine.clutch.state else 0.0),
+        clutch_state=(engine.clutch.state.state if engine.clutch.state else None)
+    )
     # Start simulation thread
     if not engine.thread or not engine.thread.is_alive():
         engine.running = True
@@ -231,67 +245,135 @@ def update_params():
     engine.update_params(params)
     return ("OK", 200)
 
-@app.route("/set_params", methods=["POST"])
+@app.route("/set_params", methods=["PATCH", "POST"])
 def set_simulation_params():
     """Enhanced endpoint to dynamically update simulation parameters with validation."""
     try:
-        data = request.get_json() or {}
+        params = request.get_json() or {}
         
-        # Validate parameters using schema
-        valid_params, errors = validate_parameters_batch(data)
+        if not params:
+            return jsonify({
+                'status': 'error',
+                'error': 'No parameters provided'
+            }), 400
         
-        if errors:
-            app.logger.warning(f"Parameter validation errors: {errors}")
-            return jsonify({'errors': errors}), 400
+        # Validate parameters
+        validation_result = validate_parameters_batch(params)
         
-        # Apply validated parameters to simulation engine
-        for param_name, value in valid_params.items():
-            if hasattr(engine, param_name):
-                setattr(engine, param_name, value)
-                app.logger.info(f"Updated parameter {param_name} = {value}")
-            elif hasattr(engine, 'params') and isinstance(engine.params, dict):
-                engine.params[param_name] = value
-                app.logger.info(f"Updated parameter {param_name} = {value} in engine.params")
-            else:
-                app.logger.warning(f"Parameter {param_name} not found in engine")
+        if not validation_result['valid']:
+            return jsonify({
+                'status': 'error',
+                'error': 'Parameter validation failed',
+                'errors': validation_result['errors']
+            }), 400
         
-        # Special handling for parameter-dependent resets
-        if 'num_floaters' in valid_params:
-            if hasattr(engine, 'reset_floaters'):
-                engine.reset_floaters()
-                app.logger.info("Reset floaters due to num_floaters change")
-            elif hasattr(engine, 'reset'):
-                engine.reset()
-                app.logger.info("Reset engine due to num_floaters change")
+        # Update engine with validated parameters
+        validated_params = validation_result['validated_params']
+        engine.update_params(validated_params)
         
-        # Update engine params if it has an update_params method
-        if hasattr(engine, 'update_params'):
-            engine.update_params(valid_params)
-        
-        app.logger.info(f"Successfully updated parameters: {list(valid_params.keys())}")
-        return '', 204  # No Content - successful update
+        return jsonify({
+            'status': 'success',
+            'updated_params': validated_params,
+            'message': f'Successfully updated {len(validated_params)} parameters'
+        }), 200
         
     except Exception as e:
-        app.logger.error(f"Error updating parameters: {e}")
-        return jsonify({'errors': [f'Internal error: {str(e)}']}), 500
+        logger.error(f"Error updating parameters: {e}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route("/get_output_schema", methods=["GET"])
+def get_output_schema():
+    """Return comprehensive API documentation and parameter schema."""
+    try:
+        # Get current engine state for sample data structure
+        sample_data = {
+            "time": 0.0,
+            "torque": 0.0,
+            "power": 0.0,
+            "efficiency": 0.0,
+            "torque_components": {
+                "buoyant": 0.0,
+                "drag": 0.0,
+                "generator": 0.0
+            },
+            "floaters": [
+                {
+                    "id": 0,
+                    "buoyancy": 0.0,
+                    "drag": 0.0,
+                    "net_force": 0.0,
+                    "pulse_force": 0.0,
+                    "position": 0.0,
+                    "velocity": 0.0,
+                    "state": "heavy"
+                }
+            ],
+            "system_state": {
+                "clutch_engaged": True,
+                "air_tank_pressure": 0.0,
+                "compressor_active": False,
+                "h1_active": False,
+                "h2_active": False,
+                "h3_active": False
+            },
+            "eff_drivetrain": 0.85,
+            "eff_pneumatic": 0.75,
+            "parameters": {
+                "nanobubble_frac": 0.0,
+                "thermal_coeff": 0.0,
+                "pulse_enabled": False
+            }
+        }
+        
+        schema = {
+            "api_version": "1.0",
+            "endpoints": {
+                "/stream": {
+                    "method": "GET",
+                    "description": "Server-Sent Events stream with real-time simulation data",
+                    "data_format": sample_data
+                },
+                "/set_params": {
+                    "methods": ["PATCH", "POST"],
+                    "description": "Update simulation parameters",
+                    "parameters": get_all_parameter_info()
+                },
+                "/get_output_schema": {
+                    "method": "GET",
+                    "description": "Get API documentation and schema"
+                }
+            },
+            "parameter_schema": get_all_parameter_info(),
+            "default_parameters": get_default_parameters(),
+            "sample_output": sample_data
+        }
+        
+        return jsonify(schema), 200
+        
+    except Exception as e:
+        logger.error(f"Error generating schema: {e}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
 
 @app.route("/data/summary")
 def summary_data():
-    # Get the latest data from the engine's collect_state method
+    # Get the latest data from the queue if available
     try:
-        latest = engine.collect_state()
-    except Exception as e:
-        logging.error(f"Error collecting state: {e}")
-        latest = {}
-    
+        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
+    except Exception:
+        latest = None
     if not latest:
-        return {"status": "no_data", "error": "No simulation data available"}
-    
-    # Map to engine state keys with better error handling
+        return {}
+    # Map to engine state keys
     return {
         'time': latest.get('time', 0),
         'torque': latest.get('torque', 0),
-        'power': latest.get('power', 0),  # This should now show the real power!
+        'power': latest.get('power', 0),
         'avg_floater_velocity': latest.get('avg_floater_velocity', 0),
         'floaters': latest.get('floaters', []),
         'pulse_torque': latest.get('pulse_torque', 0),
@@ -300,8 +382,7 @@ def summary_data():
         'flywheel_speed_rpm': latest.get('flywheel_speed_rpm', 0),
         'chain_speed_rpm': latest.get('chain_speed_rpm', 0),
         'clutch_engaged': latest.get('clutch_engaged', False),
-        'overall_efficiency': latest.get('overall_efficiency', 0),
-        'status': 'active' if latest.get('power', 0) > 0 else 'running'
+        'overall_efficiency': latest.get('overall_efficiency', 0)
     }
 
 @app.route("/chart/<metric>.png")
@@ -587,7 +668,7 @@ def electrical_status():
         'synchronized': latest.get('electrical_synchronized', False),
         'load_factor': latest.get('electrical_load_factor', 0.0),
         'grid_voltage': latest.get('grid_voltage', 480.0),
-        'grid_frequency': latest.get('grid_frequency', 50.0),
+        'grid_frequency': latest.get('grid_frequency', 60.0),
         'power_quality': {
             'power_factor': latest.get('power_factor', 0.0),
             'voltage_regulation': latest.get('voltage_regulation', 1.0),
@@ -692,13 +773,12 @@ def enhanced_losses_status():
 def system_overview():
     """Get comprehensive system overview combining all integrated systems"""
     try:
-        latest = engine.collect_state()
-    except Exception as e:
-        logging.error(f"Error getting system overview: {e}")
-        latest = {}
+        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
+    except Exception:
+        latest = None
     
     if not latest:
-        return {'status': 'no_data', 'error': 'No simulation data available'}
+        return {'status': 'no_data'}
     
     # Combine key metrics from all systems
     overview = {
@@ -707,13 +787,11 @@ def system_overview():
             'simulation_time': latest.get('time', 0.0),
             'overall_efficiency': latest.get('overall_efficiency', 0.0),
             'total_energy': latest.get('total_energy', 0.0),
-            'pulse_count': latest.get('pulse_count', 0),
-            'power_output': latest.get('power', 0.0)  # Add main power output
+            'pulse_count': latest.get('pulse_count', 0)
         },
         'power_generation': {
             'mechanical_power': latest.get('mechanical_power_input', 0.0),
             'electrical_power': latest.get('grid_power_output', 0.0),
-            'power_output': latest.get('power', 0.0),  # Main power from CSV
             'grid_synchronized': latest.get('electrical_synchronized', False),
             'load_factor': latest.get('electrical_load_factor', 0.0)
         },
@@ -955,57 +1033,6 @@ def chain_status():
 # ========================================================================================
 # END PHASE 8: INTEGRATED SYSTEMS API ENDPOINTS
 # ========================================================================================
-
-@app.route('/get_output_schema', methods=['GET'])
-def get_output_schema():
-    """Return the structure of SSE output data for frontend development."""
-    schema = {
-        'time': 'float (s) - Simulation time',
-        'torque': 'float (N·m) - Net torque on main shaft',
-        'power': 'float (W) - Generator electrical output',
-        'efficiency': 'float (%) - Overall system efficiency',
-        'torque_components': {
-            'buoyant': 'float (N·m) - Torque from buoyancy forces',
-            'drag': 'float (N·m) - Torque lost to drag',
-            'generator': 'float (N·m) - Generator load torque'
-        },
-        'floaters': [{
-            'buoyancy': 'float (N) - Buoyant force',
-            'drag': 'float (N) - Drag force',
-            'net_force': 'float (N) - Net force on floater',
-            'pulse_force': 'float (N) - Additional pulse injection force',
-            'position': 'float (m) - Vertical position',
-            'velocity': 'float (m/s) - Vertical velocity'
-        }],
-        'system_state': {
-            'clutch_engaged': 'bool - H3 clutch engagement state',
-            'air_tank_pressure': 'float (bar) - Compressed air pressure',
-            'water_temp': 'float (°C) - Water temperature'
-        },
-        'efficiency_breakdown': {
-            'drivetrain': 'float (%) - Drivetrain efficiency',
-            'pneumatic': 'float (%) - Pneumatic system efficiency'
-        }
-    }
-    return jsonify(schema)
-
-@app.route('/get_parameter_schema', methods=['GET'])
-def get_parameter_schema():
-    """Return the parameter schema for frontend validation."""
-    # Convert schema to JSON-serializable format
-    json_schema = {}
-    for param_name, schema in PARAM_SCHEMA.items():
-        json_schema[param_name] = {
-            'type': schema['type'].__name__,  # Convert type to string
-            'unit': schema['unit'],
-            'default': schema['default']
-        }
-        if 'min' in schema:
-            json_schema[param_name]['min'] = schema['min']
-        if 'max' in schema:
-            json_schema[param_name]['max'] = schema['max']
-    
-    return jsonify(json_schema)
 
 if __name__ == "__main__":
     app.run(debug=True, threaded=True)

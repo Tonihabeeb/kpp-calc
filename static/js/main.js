@@ -485,86 +485,66 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     };
 
-    // UNIFIED PARAMETER UPDATE SYSTEM (Stage 1)
-    function updateParam(paramName, value) {
+    // Parameter controls (GuideV3.md requirement)
+    document.getElementById('nanobubbleSlider').oninput = function(e) {
+        const value = e.target.value / 100.0;
+        document.getElementById('nanobubbleValue').textContent = e.target.value + '%';
+        
         fetch('/set_params', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ [paramName]: value })
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => Promise.reject(err));
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ nanobubble_frac: value })
+        });
+    };
+
+    document.getElementById('heatCoeff').onchange = function(e) {
+        fetch('/set_params', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ thermal_coeff: parseFloat(e.target.value) })
+        });
+    };
+
+    document.getElementById('waterTemp').onchange = function(e) {
+        fetch('/set_params', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ water_temp: parseFloat(e.target.value) })
+        });
+    };
+
+    document.getElementById('airPressure').onchange = function(e) {
+        fetch('/set_params', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ air_pressure: parseFloat(e.target.value) })
+        });
+    };
+
+    // Parameter form submission
+    document.getElementById('paramsForm').onsubmit = function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const params = {};
+        
+        // Convert form data to proper types
+        for (let [key, value] of formData.entries()) {
+            if (['num_floaters'].includes(key)) {
+                params[key] = parseInt(value);
+            } else if (key === 'nanobubble_frac') {
+                params[key] = parseFloat(value) / 100.0; // Convert percentage to fraction
+            } else {
+                params[key] = parseFloat(value);
             }
-            console.log(`Parameter ${paramName} updated to ${value}`);
-        })
-        .catch(err => {
-            console.error('Parameter update failed:', err);
-            showErrorMessage(err.errors ? err.errors.join(', ') : 'Update failed');
-        });
-    }
-
-    function showErrorMessage(message) {
-        // Create or update error display
-        let errorDiv = document.getElementById('error-message');
-        if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.id = 'error-message';
-            errorDiv.style.cssText = 'position: fixed; top: 10px; right: 10px; background: #ff4444; color: white; padding: 10px; border-radius: 5px; z-index: 1000;';
-            document.body.appendChild(errorDiv);
         }
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
         
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            errorDiv.style.display = 'none';
-        }, 5000);
-    }
-
-    // BIND ALL CONTROLS TO UNIFIED HANDLER
-    document.addEventListener('DOMContentLoaded', function() {
-        // Number inputs
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', (e) => {
-                let value = parseFloat(e.target.value);
-                if (!isNaN(value)) {
-                    updateParam(e.target.id, value);
-                }
-            });
+        fetch('/set_params', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(params)
         });
-        
-        // Range sliders
-        document.querySelectorAll('input[type="range"]').forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                
-                // Special handling for percentage sliders
-                if (e.target.id === 'nanobubble_frac') {
-                    updateParam(e.target.id, value / 100); // Convert percentage to fraction
-                    document.getElementById(e.target.id + '_val').textContent = value + '%';
-                } else {
-                    updateParam(e.target.id, value);
-                }
-            });
-        });
-        
-        // Checkboxes
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                updateParam(e.target.id, e.target.checked);
-            });
-        });
-        
-        // Prevent form submission and use unified parameter system
-        const paramsForm = document.getElementById('paramsForm');
-        if (paramsForm) {
-            paramsForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                console.log('Form submission prevented - using unified parameter system');
-            });
-        }
-    });
+    };
 
     // Generator load control
     document.getElementById('setLoadBtn').onclick = function() {

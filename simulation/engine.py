@@ -10,10 +10,9 @@ import json
 import threading
 import logging
 import math
-from typing import Optional
 from simulation.components.floater import Floater
 from simulation.components.drivetrain import Drivetrain
-from simulation.components.advanced_generator import AdvancedGenerator
+from simulation.components.generator import Generator
 from simulation.components.environment import Environment
 from simulation.components.pneumatics import PneumaticSystem
 from simulation.components.control import Control
@@ -33,16 +32,10 @@ from config.config import G, RHO_WATER  # Add physics constants
 from simulation.components.chain import Chain
 from simulation.components.fluid import Fluid
 from simulation.components.thermal import ThermalModel
-# Stage 2: Import H1, H2, H3 enhanced physics modules
+# Import H1, H2, H3 enhanced physics
 from simulation.physics.nanobubble_physics import NanobubblePhysics
-from simulation.physics.thermal_physics import ThermalPhysics  
+from simulation.physics.thermal_physics import ThermalPhysics
 from simulation.physics.pulse_controller import PulseController
-# Phase 8: Import new physics engine and event handler
-from simulation.physics.physics_engine import PhysicsEngine
-from simulation.physics.event_handler import EventHandler
-# Stage 4: Import real-time optimization and monitoring
-from simulation.optimization.real_time_optimizer import RealTimeOptimizer
-from simulation.monitoring.real_time_monitor import RealTimeController
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -155,14 +148,12 @@ class SimulationEngine:
             sprocket_radius=params.get('sprocket_radius', 0.5),
             flywheel_inertia=params.get('flywheel_inertia', 50.0)
         )
-        # Replace legacy generator with advanced generator for main simulation loop
-        advanced_generator_config = {
-            'rated_power': params.get('target_power', 530000.0),
-            'rated_speed': params.get('target_rpm', 375.0),  # RPM
-            'rated_frequency': params.get('grid_nominal_frequency', 50.0),
-            'power_factor': params.get('generator_power_factor', 0.92)
-        }
-        self.generator = AdvancedGenerator(advanced_generator_config)
+        # Keep legacy generator for compatibility during transition
+        self.generator = Generator(
+            efficiency=params.get('generator_efficiency', 0.92),
+            target_power=params.get('target_power', 530000.0),
+            target_rpm=params.get('target_rpm', 375.0)
+        )
         self.floaters = [
             Floater(
                 volume=params.get('floater_volume', 0.3),
@@ -204,8 +195,58 @@ class SimulationEngine:
         self.data_log = []
         self.total_energy = 0.0
         self.pulse_count = 0
-        self.thread: Optional[threading.Thread] = None
+        self.thread = None
+        
+        # Initialize H1, H2, H3 Enhanced Physics (Stage 2)
+        physics_config = {
+            'water_density': params.get('water_density', 1000.0),
+            'water_temperature': params.get('water_temperature', 293.15),
+            'gravity': params.get('gravity', 9.81)
+        }
+        
+        # H1 Nanobubble Physics
+        h1_config = physics_config.copy()
+        h1_config.update({
+            'h1_enabled': params.get('h1_enabled', False),
+            'nanobubble_fraction': params.get('nanobubble_frac', 0.0),
+            'drag_reduction_factor': params.get('drag_reduction_factor', 0.12),
+            'bubble_generator_power': params.get('nanobubble_generation_power', 2500.0)
+        })
+        self.nanobubble_physics = NanobubblePhysics(h1_config)
+        
+        # H2 Thermal Physics
+        h2_config = physics_config.copy()
+        h2_config.update({
+            'h2_enabled': params.get('h2_enabled', False),
+            'thermal_efficiency': params.get('thermal_efficiency', 0.75),
+            'water_temperature': params.get('water_temperature', 293.15),
+            'surface_area': params.get('floater_area', 0.035) * 2.0  # Air-water interface
+        })
+        self.thermal_physics = ThermalPhysics(h2_config)
+        
+        # H3 Pulse Controller
+        h3_config = {
+            'h3_enabled': params.get('h3_enabled', False),
+            'pulse_enabled': params.get('pulse_enabled', False),
+            'pulse_duration': params.get('pulse_duration', 5.0),
+            'coast_duration': params.get('coast_duration', 5.0),
+            'pulse_duty_cycle': params.get('pulse_duty_cycle', 0.5)
+        }
+        self.pulse_controller = PulseController(h3_config)
+        
+        # Enhanced physics state tracking
+        self.h1_nanobubbles_active = h1_config['h1_enabled']
+        self.h2_thermal_active = h2_config['h2_enabled']
+        self.h3_pulse_active = h3_config['h3_enabled']
+        self.enhanced_physics_enabled = any([
+            self.h1_nanobubbles_active,
+            self.h2_thermal_active, 
+            self.h3_pulse_active
+        ])
+        
         logger.info("SimulationEngine initialized with integrated drivetrain system.")
+        logger.info(f"Enhanced physics: H1={self.h1_nanobubbles_active}, "
+                   f"H2={self.h2_thermal_active}, H3={self.h3_pulse_active}")
         # Initialize default chain geometry for torque calculations
         self.set_chain_geometry()        # Initialize grid services coordinator (Phase 7)
         grid_services_config = {
@@ -258,42 +299,6 @@ class SimulationEngine:
         }
         self.thermal_model = ThermalModel(thermal_config)
         
-        # Stage 2: Initialize H1, H2, H3 enhanced physics modules
-        # H1: Nanobubble Physics (drag/density reduction)
-        h1_config = {
-            'bubble_volume_fraction': params.get('h1_bubble_fraction', 0.05),
-            'drag_reduction_factor': params.get('h1_drag_reduction', 0.1),
-            'density_reduction_factor': params.get('h1_density_reduction', 0.02),
-            'activation_depth': params.get('h1_activation_depth', 2.0),
-            'decay_rate': params.get('h1_decay_rate', 0.1),
-            'h1_enabled': params.get('h1_active', False)
-        }
-        self.nanobubble_physics = NanobubblePhysics(h1_config)
-        
-        # H2: Thermal Physics (thermal expansion/boost)
-        h2_config = {
-            'thermal_coefficient': params.get('h2_thermal_coefficient', 0.0002),
-            'heat_capacity_ratio': params.get('h2_heat_capacity_ratio', 1.4),
-            'heat_transfer_coefficient': params.get('h2_heat_transfer_coeff', 50.0),
-            'ambient_temperature': params.get('ambient_temperature', 293.15),
-            'water_temperature': params.get('water_temperature', 293.15),
-            'h2_enabled': params.get('h2_active', False)
-        }
-        self.thermal_physics = ThermalPhysics(h2_config)
-        
-        # H3: Pulse Controller (pulse-and-coast clutch control)
-        h3_config = {
-            'pulse_duration': params.get('h3_pulse_duration', 2.0),
-            'coast_duration': params.get('h3_coast_duration', 3.0),
-            'clutch_engagement_threshold': params.get('h3_clutch_threshold', 0.1),
-            'torque_modulation_factor': params.get('h3_torque_modulation', 0.8),
-            'efficiency_boost': params.get('h3_efficiency_boost', 0.05),
-            'enabled': params.get('h3_active', False)
-        }
-            'enabled': params.get('h3_active', False)
-        }
-        self.pulse_controller = PulseController(h3_config)
-        
         logger.info("Chain, Fluid, and Thermal systems initialized")
           # Initialize Phase 7 pneumatic coordinator integration
         from simulation.pneumatics.pneumatic_coordinator import create_standard_kpp_pneumatic_coordinator
@@ -313,53 +318,6 @@ class SimulationEngine:
         self.pneumatic_performance_analyzer = create_standard_performance_analyzer(rated_power=compressor_power)
         
         logger.info("Pneumatic coordinator and performance analysis systems initialized")
-        
-        # Phase 8: Initialize new physics engine and enhanced event handler (Stage 2)
-        physics_params = {
-            'time_step': self.dt,
-            'chain_mass': self.chain_length * self.chain_mass_per_meter,
-            'friction_coefficient': params.get('friction_coefficient', 0.01),
-            'adaptive_timestep': params.get('adaptive_timestep_enabled', False),
-            'min_timestep': params.get('min_timestep', 0.01),
-            'max_timestep': params.get('max_timestep', 0.2)
-        }
-        self.physics_engine = PhysicsEngine(physics_params)
-        
-        # Store number of floaters for validation framework
-        self.num_floaters = params.get('num_floaters', 1)
-        
-        # Initialize advanced event handler for floater state transitions (Stage 2)
-        tank_depth = params.get('tank_depth', 10.0)
-        optimization_params = {
-            'adaptive_pressure': params.get('adaptive_pressure_enabled', True),
-            'pressure_safety_factor': params.get('pressure_safety_factor', 1.2),
-            'min_injection_pressure': params.get('min_injection_pressure', 150000),
-            'efficiency_target': params.get('energy_efficiency_target', 0.4)
-        }
-        
-        # Import and initialize advanced event handler
-        from simulation.physics.advanced_event_handler import AdvancedEventHandler
-        self.advanced_event_handler = AdvancedEventHandler(tank_depth, optimization_params)
-        
-        # Stage 4: Initialize real-time optimization and monitoring systems
-        target_fps = params.get('target_fps', 10.0)
-        self.real_time_optimizer = RealTimeOptimizer(target_fps)
-        self.real_time_controller = RealTimeController()
-        
-        # Configure performance mode based on params
-        performance_mode = params.get('performance_mode', 'balanced')
-        self.real_time_controller.configure_performance_mode(performance_mode)
-        
-        logger.info(f"Real-time optimization initialized: target_fps={target_fps}, mode={performance_mode}")
-        
-        # Initialize state synchronizer for immediate consistency (Stage 2)
-        from simulation.physics.state_synchronizer import StateSynchronizer
-        
-        self.state_synchronizer = StateSynchronizer(self.physics_engine, self.advanced_event_handler)
-        
-        logger.info("Enhanced physics engine, advanced event handler, and state synchronizer initialized")
-        logger.info(f"Stage 2 features: adaptive_pressure={optimization_params['adaptive_pressure']}, "
-                   f"efficiency_target={optimization_params['efficiency_target']}")
 
     def update_params(self, params):
         """
@@ -367,8 +325,7 @@ class SimulationEngine:
         """
         self.params.update(params)
         self.drivetrain.update_params(self.params)
-        # TODO: Implement parameter updates for AdvancedGenerator if needed
-        # self.generator.update_params(self.params)
+        self.generator.update_params(self.params)
         
         # Update existing floaters instead of recreating them
         for floater in self.floaters:
@@ -405,7 +362,7 @@ class SimulationEngine:
             for i, floater in enumerate(self.floaters):
                 logger.debug(f"Floater {i}: theta={getattr(floater, 'theta', 0.0):.2f}, filled={getattr(floater, 'is_filled', False)}, pos={floater.get_cartesian_position() if hasattr(floater, 'get_cartesian_position') else 'N/A'}")
             logger.debug(f"Drivetrain: omega_chain={getattr(self.drivetrain, 'omega_chain', 0.0):.2f}, omega_flywheel={getattr(self.drivetrain, 'omega_flywheel', 0.0):.2f}, clutch_engaged={getattr(self.drivetrain, 'clutch_engaged', False)}")
-            logger.debug(f"Generator: angular_velocity={getattr(self.generator, 'angular_velocity', 0.0):.2f}, electrical_power={getattr(self.generator, 'electrical_power', 0.0):.2f}")
+            logger.debug(f"Generator: target_omega={getattr(self.generator, 'target_omega', 0.0):.2f}, target_power={getattr(self.generator, 'target_power', 0.0):.2f}")
             self.step(self.dt)
             time.sleep(self.dt)
         logger.info("Simulation loop stopped.")
@@ -428,217 +385,709 @@ class SimulationEngine:
 
     def step(self, dt):
         """
-        Perform a single simulation step using the enhanced physics engine and real-time optimization (Stage 4).
+        Perform a single simulation step using the modular components.
         """
         if dt <= 0:
             raise ValueError("Time step dt must be positive.")
 
-        # Stage 4: Real-time optimized simulation loop
-        step_start_time = time.time()
-        
-        # 1. Synchronize floater states before processing
-        sync_summary = self.state_synchronizer.synchronize_all_floaters(self.floaters, self.time)
-        
-        # 2. Handle floater state transitions with advanced event processing
-        event_summary = self.advanced_event_handler.process_all_events(self.floaters, self.time)
-        
-        # 3. Update physics engine energy input from injections
-        self.physics_engine.energy_input = self.advanced_event_handler.energy_input
-        
-        # 4. Get generator torque and sprocket radius
-        sprocket_radius = self.params.get('sprocket_radius', 1.0)
-        
-        # Use dynamic generator control if available, otherwise constant torque
-        generator_torque = self.params.get('generator_torque', 500.0)  # N⋅m
-        
-        # 5. Real-time force calculation optimization
-        optimization_result = self.real_time_optimizer.optimize_force_calculations(self.floaters)
-        
-        # 6. Perform enhanced physics engine step with adaptive timestep
-        # Prepare H1, H2, H3 enhanced physics modules for passing to physics engine
-        enhanced_physics = {
-            'nanobubble': self.nanobubble_physics,
-            'thermal': self.thermal_physics, 
-            'pulse_controller': self.pulse_controller
-        }
-        
-        # Apply H3 pulse controller effects before physics step
-        if self.pulse_controller.state.enabled:
-            # Update pulse controller state
-            system_speed = abs(self.physics_engine.v_chain) if hasattr(self.physics_engine, 'v_chain') else 0.0
-            pulse_result = self.pulse_controller.update(self.time, system_speed, generator_torque, dt)
-            # Get modified generator torque from pulse controller
-            generator_torque = self.pulse_controller.get_generator_load_torque(generator_torque)
-        
-        physics_state = self.physics_engine.step(
-            self.floaters, 
-            generator_torque, 
-            sprocket_radius,
-            enhanced_physics
-        )
-        
-        # 7. Real-time optimization and monitoring
-        optimization_recommendations = self.real_time_optimizer.optimize_step(physics_state, step_start_time)
-        
-        # Apply adaptive timestep if recommended
-        if optimization_recommendations.get('adjust_timestep', False):
-            new_dt = optimization_recommendations['new_timestep']
-            if abs(new_dt - dt) > 1e-6:
-                self.dt = new_dt
-                logger.debug(f"Adaptive timestep: {dt:.4f} → {new_dt:.4f}")
-        
-        # 8. Post-simulation state validation and synchronization
-        validation_results = self.state_synchronizer.validate_system_consistency(self.floaters)
-        if not validation_results['consistent']:
-            logger.warning(f"State inconsistencies detected: {len(validation_results['inconsistencies'])} issues")
-        
-        # 9. Update legacy components for compatibility
-        self._update_legacy_components(dt, physics_state)
-        
-        # 10. Real-time data processing and streaming
-        performance_data = self.real_time_optimizer.get_performance_report()
-        rt_processing_result = self.real_time_controller.process_realtime_data(
-            physics_state, performance_data
-        )
-        
-        # 11. Enhanced data logging with Stage 4 metrics  
-        self._log_simulation_data(physics_state, event_summary, optimization_recommendations, rt_processing_result)
-        self.time += dt
-    
-    def _update_legacy_components(self, dt, physics_state):
-        """
-        Update legacy components to maintain compatibility.
-        
-        Args:
-            dt (float): Time step
-            physics_state (dict): State from physics engine
-        """
-        # Update pneumatic system
+        # 1. Check for pulse trigger
+        if self.time - self.last_pulse_time >= self.params.get('pulse_interval', 2.0):
+            if self.trigger_pulse():
+                self.last_pulse_time = self.time        # 2. Update component states
         self.pneumatics.update(dt)
         
-        # Update thermal and fluid systems
-        if hasattr(self, 'fluid_system'):
-            self.fluid_system.update_state()
-        if hasattr(self, 'thermal_model'):
-            self.thermal_model.update_state()
+        # 2a. Update thermal and fluid system states (legacy components)
+        self.fluid_system.update_state()
+        self.thermal_model.update_state()
         
-        # Update drivetrain with physics engine outputs
-        if hasattr(self, 'drivetrain'):
-            # Convert chain velocity to angular velocity
-            sprocket_radius = self.params.get('sprocket_radius', 1.0)
-            omega = physics_state['angular_velocity']
-            self.drivetrain.omega_chain = omega
-            self.drivetrain.omega_flywheel = omega  # Simplified for now
-        
-        # Update generator
-        if hasattr(self, 'generator'):
-            self.generator.angular_velocity = physics_state['angular_velocity']
-            self.generator.electrical_power = physics_state['power_output']
-        
-        # Update chain tension
-        self.chain_tension = abs(physics_state['net_force_total'] / sprocket_radius) if sprocket_radius > 0 else 0.0
-        
-        # Reset event handler cycle tracking periodically
-        if self.time % 5.0 < dt:  # Every 5 seconds
-            self.advanced_event_handler.reset_cycle_tracking()
-    
-    def _log_simulation_data(self, physics_state, event_summary, optimization_recommendations=None, rt_processing_result=None):
-        """
-        Log simulation data for streaming and analysis (Enhanced for Stage 4).
-        
-        Args:
-            physics_state (dict): State from physics engine
-            event_summary (dict): Summary of events processed
-            optimization_recommendations (dict): Real-time optimization recommendations
-            rt_processing_result (dict): Real-time processing results
-        """
-        # Create enhanced data entry for logging/streaming
-        data_entry = {
-            'time': physics_state['time'],
-            'chain_velocity': physics_state['chain_velocity'],
-            'chain_acceleration': physics_state['chain_acceleration'],
-            'net_force': physics_state['net_force_total'],
-            'angular_velocity': physics_state['angular_velocity'],
-            'power_output': physics_state['power_output'],
-            'energy_output': physics_state['energy_output'],
-            'energy_input': physics_state['energy_input'],
-            'net_energy': physics_state['energy_output'] - physics_state['energy_input'],
-            'injections': event_summary['injections'],
-            'ventings': event_summary['ventings'],
-            'floater_count': len(self.floaters),
-            'floaters': [
-                {
-                    'id': i,
-                    'angle': getattr(f, 'angle', getattr(f, 'theta', 0.0)),
-                    'state': getattr(f, 'state', 'unknown'),
-                    'is_filled': getattr(f, 'is_filled', False),
-                    'mass': f.mass,
-                    'velocity': getattr(f, 'velocity', 0.0)
-                }
-                for i, f in enumerate(self.floaters)
-            ]
+        # 2b. Update H1, H2, H3 enhanced physics modules
+        # H3 Pulse Controller - update timing state
+        pulse_system_state = {
+            'power_output': getattr(self.generator, 'power', 0.0),
+            'rpm': self.drivetrain.omega_flywheel * 60 / (2 * math.pi) if hasattr(self.drivetrain, 'omega_flywheel') else 0.0,
+            'efficiency': getattr(self.generator, 'efficiency', 0.92),
+            'clutch_engaged': getattr(self.clutch, 'engaged', False)
         }
+        pulse_state = self.pulse_controller.update(self.time, dt, pulse_system_state)
         
-        # Stage 2: Add advanced event handler metrics
-        if hasattr(self.advanced_event_handler, 'get_energy_analysis'):
-            energy_analysis = self.advanced_event_handler.get_energy_analysis()
-            data_entry.update({
-                'average_injection_energy': energy_analysis.get('average_energy_per_injection', 0.0),
-                'injection_success_rate': energy_analysis.get('injection_success_rate', 1.0),
-                'estimated_system_efficiency': energy_analysis.get('estimated_system_efficiency', 0.0),
-                'energy_optimization_active': event_summary.get('energy_optimization_active', False)
-            })
-        
-        # Stage 4: Add real-time optimization metrics
-        if optimization_recommendations:
-            data_entry.update({
-                'optimization_timestep_adjusted': optimization_recommendations.get('adjust_timestep', False),
-                'optimization_timestep': optimization_recommendations.get('new_timestep', self.dt),
-                'optimization_warnings': len(optimization_recommendations.get('warnings', [])),
-                'stability_score': optimization_recommendations.get('stability_score', 1.0),
-                'continue_simulation': optimization_recommendations.get('continue', True)
-            })
-        
-        # Stage 4: Add real-time processing metrics
-        if rt_processing_result:
-            data_entry.update({
-                'rt_processed': rt_processing_result.get('processed', False),
-                'rt_alerts': len(rt_processing_result.get('alerts', [])),
-                'rt_recovery_actions': len(rt_processing_result.get('recovery_actions', [])),
-                'rt_streaming_enabled': rt_processing_result.get('streaming_status', {}).get('enabled', False),
-                'rt_subscribers': rt_processing_result.get('streaming_status', {}).get('subscribers', 0)
-            })
-        
-        # Add to data log
-        self.data_log.append(data_entry)
-        
-        # Stream data to clients if queue exists
-        if hasattr(self, 'data_queue') and self.data_queue:
-            try:
-                self.data_queue.put_nowait(data_entry)
-            except:
-                pass  # Queue might be full, ignore
-        
-        # Enhanced logging with Stage 4 metrics
-        if self.time % 10.0 < self.dt:  # Every 10 seconds
-            efficiency = (physics_state['energy_output'] / physics_state['energy_input'] * 100) if physics_state['energy_input'] > 0 else 0
+        # Log thermal and fluid system status for monitoring
+        if self.time % 1.0 < dt:  # Log every second
+            logger.debug(f"Fluid system: H1_active={self.fluid_system.h1_active}, "
+                        f"effective_density={self.fluid_system.state.effective_density:.1f} kg/m³")
+            logger.debug(f"Thermal system: H2_active={self.thermal_model.h2_active}, "
+                        f"buoyancy_enhancement={self.thermal_model.state.buoyancy_enhancement:.1%}")
+            logger.debug(f"Enhanced physics - H1: {self.h1_nanobubbles_active}, "
+                        f"H2: {self.h2_thermal_active}, H3: {self.h3_pulse_active}")
+            logger.debug(f"Pulse state: phase={pulse_state.phase}, clutch_engaged={pulse_state.clutch_engaged}")# 2a. Update pneumatic system performance tracking
+        if hasattr(self, 'pneumatic_coordinator') and hasattr(self, 'pneumatic_performance_analyzer'):
+            # Get pneumatic system data for performance tracking
+            pneumatic_power = getattr(self.pneumatics, 'compressor_power', 4200.0) if getattr(self.pneumatics, 'compressor_running', False) else 0.0
             
-            log_msg = (f"t={self.time:.1f}s: P_out={physics_state['power_output']:.1f}W, "
-                      f"v_chain={physics_state['chain_velocity']:.3f}m/s, "
-                      f"efficiency={efficiency:.1}%")
+            # Calculate mechanical power contribution from pneumatic system
+            # This is the power added to the system by buoyancy from air injection
+            total_pneumatic_force = sum(f.compute_buoyant_force() - f.volume * RHO_WATER * G 
+                                      for f in self.floaters if getattr(f, 'is_filled', False))
+            chain_speed = getattr(self.drivetrain, 'omega_chain', 0.0) * self.params.get('sprocket_radius', 1.0)
+            mechanical_power_from_pneumatics = total_pneumatic_force * chain_speed
             
-            # Add Stage 4 metrics to log
-            if optimization_recommendations:
-                stability = optimization_recommendations.get('stability_score', 1.0)
-                log_msg += f", stability={stability:.2f}"
+            # Record performance snapshot if compressor is active
+            if pneumatic_power > 0:
+                avg_depth = sum(f.position for f in self.floaters) / len(self.floaters) if self.floaters else 10.0
                 
-            if rt_processing_result:
-                alerts = len(rt_processing_result.get('alerts', []))
-                if alerts > 0:
-                    log_msg += f", alerts={alerts}"
+                self.pneumatic_performance_analyzer.record_performance_snapshot(
+                    electrical_power=pneumatic_power,
+                    mechanical_power=max(0, mechanical_power_from_pneumatics),
+                    thermal_power=pneumatic_power * 0.05,  # Assume 5% thermal boost
+                    compression_efficiency=0.85,  # Standard efficiency
+                    expansion_efficiency=0.90,   # Standard efficiency
+                    depth=avg_depth
+                )        # 2c. Calculate forces using enhanced H1, H2, H3 physics modules
+        total_vertical_force = 0.0
+        base_buoy_force = 0.0
+        pulse_force = 0.0
+        enhanced_buoy_force = 0.0
+        thermal_enhanced_force = 0.0
+        h1_nanobubble_force = 0.0
+        h2_thermal_force = 0.0
+        h3_pulse_force = 0.0
+        
+        for i, floater in enumerate(self.floaters):
+            x, y = floater.get_cartesian_position()
             
-            logger.info(log_msg)
-    
+            # Determine if floater is ascending or descending
+            is_ascending = y > 0  # Above mid-point
+            is_descending = not is_ascending
+            
+            # Get floater velocity for physics calculations
+            current_chain_speed = self.chain_system.get_chain_speed() if hasattr(self, 'chain_system') else 2.0
+            floater_velocity = current_chain_speed
+            
+            # Base buoyant force calculation
+            base_buoyancy = floater.compute_buoyant_force()
+            
+            # ===== H1 NANOBUBBLE PHYSICS =====
+            nanobubble_state = None
+            if self.h1_nanobubbles_active:
+                # Apply H1 nanobubble effects to descending floaters only
+                nanobubble_state = self.nanobubble_physics.apply_nanobubble_effects(
+                    floater, floater_velocity, is_descending
+                )
+                
+                # Calculate enhanced buoyancy with nanobubbles
+                if nanobubble_state.active and is_descending:
+                    # Reduced effective density enhances buoyancy
+                    density_factor = nanobubble_state.effective_density / self.nanobubble_physics.water_density
+                    h1_enhanced_buoyancy = base_buoyancy / density_factor
+                    h1_nanobubble_force += (h1_enhanced_buoyancy - base_buoyancy)
+                else:
+                    h1_enhanced_buoyancy = base_buoyancy
+            else:
+                h1_enhanced_buoyancy = base_buoyancy
+            
+            # ===== H2 THERMAL PHYSICS =====
+            thermal_state = None
+            if self.h2_thermal_active:
+                # Apply H2 thermal effects to ascending floaters only
+                ascent_height = max(0, y) if is_ascending else 0.0
+                thermal_state = self.thermal_physics.apply_thermal_effects(
+                    floater, floater_velocity, is_ascending, ascent_height
+                )
+                
+                # Calculate thermal-enhanced buoyancy
+                if thermal_state.active and is_ascending:
+                    h2_enhanced_buoyancy = base_buoyancy + thermal_state.buoyancy_boost
+                    h2_thermal_force += thermal_state.buoyancy_boost
+                else:
+                    h2_enhanced_buoyancy = base_buoyancy
+            else:
+                h2_enhanced_buoyancy = base_buoyancy
+            
+            # ===== H3 PULSE CONTROL =====
+            # H3 affects clutch engagement and pulse timing - handled in pulse_state above
+            floater_pulse_force = 0.0
+            if self.h3_pulse_active and pulse_state.clutch_engaged:
+                # During pulse phase, apply additional force via pulse jet
+                floater_pulse_force = floater.compute_pulse_jet_force() if hasattr(floater, 'compute_pulse_jet_force') else 0.0
+                h3_pulse_force += floater_pulse_force
+            
+            # Combined enhanced physics forces
+            combined_buoyancy = max(h1_enhanced_buoyancy, h2_enhanced_buoyancy)  # Take the higher enhancement
+            
+            # Legacy enhanced buoyancy calculation (for backward compatibility)
+            fluid_buoyancy = self.fluid_system.calculate_buoyant_force(
+                floater.volume, 
+                1.0 if getattr(floater, 'is_filled', False) else 0.0
+            )
+            
+            # Thermal enhancement using legacy Thermal model (H2 isothermal expansion)
+            ascent_height = max(0, y)  # Height above bottom
+            thermal_buoyancy = self.thermal_model.calculate_thermal_buoyancy_enhancement(
+                fluid_buoyancy, ascent_height
+            )
+            
+            # Enhanced drag calculation 
+            drag_force = 0.0
+            if nanobubble_state and nanobubble_state.active:
+                # H1: Reduced drag for descending floaters
+                base_drag = self.fluid_system.calculate_drag_force(current_chain_speed, floater.area)
+                drag_force = base_drag * (1 - nanobubble_state.drag_reduction)
+            else:
+                drag_force = self.fluid_system.calculate_drag_force(current_chain_speed, floater.area)
+            
+            # Apply drag force direction based on motion
+            if y > 0:  # Ascending side
+                drag_force = -drag_force  # Opposes upward motion
+            else:  # Descending side  
+                drag_force = drag_force   # Opposes downward motion
+            
+            # Calculate net vertical force for this floater
+            floater_weight = floater.mass * self.fluid_system.gravity
+            if getattr(floater, 'is_filled', False):
+                # Air-filled floater: enhanced buoyancy up, weight down, drag opposing motion
+                net_force = combined_buoyancy - floater_weight + drag_force + floater_pulse_force
+            else:
+                # Water-filled floater: weight + water weight down, drag opposing motion
+                water_weight = floater.volume * self.fluid_system.state.effective_density * self.fluid_system.gravity
+                net_force = -(floater_weight + water_weight) + drag_force + floater_pulse_force
+            
+            # Sum up forces for analysis
+            total_vertical_force += net_force
+            base_buoy_force += base_buoyancy
+            enhanced_buoy_force += fluid_buoyancy
+            thermal_enhanced_force += thermal_buoyancy
+            
+            if abs(floater_pulse_force) > 1e-3:
+                pulse_force += floater_pulse_force
+            
+            # Enhanced physics logging per-floater
+            if i == 0 and self.time % 1.0 < dt:  # Log first floater every second to avoid spam
+                logger.debug(f"Floater {i}: x={x:.2f}, y={y:.2f}, is_asc={is_ascending}")
+                logger.debug(f"  Forces: base_buoy={base_buoyancy:.1f}, enhanced={combined_buoyancy:.1f}, "
+                           f"drag={drag_force:.1f}, pulse={floater_pulse_force:.1f}, net={net_force:.1f}")
+                if nanobubble_state:
+                    logger.debug(f"  H1: active={nanobubble_state.active}, drag_red={nanobubble_state.drag_reduction:.2f}")
+                if thermal_state:
+                    logger.debug(f"  H2: active={thermal_state.active}, buoy_boost={thermal_state.buoyancy_boost:.1f}N")
+                logger.debug(f"  H3: clutch_engaged={pulse_state.clutch_engaged}, phase={pulse_state.phase}")
+        
+        # Store enhanced physics forces for output data
+        self.h1_nanobubble_force = h1_nanobubble_force
+        self.h2_thermal_force = h2_thermal_force
+        self.h3_pulse_force = h3_pulse_force
+        
+        # Update chain kinematics using the Chain system with calculated force
+        chain_results = self.chain_system.advance(dt, total_vertical_force)
+        
+        # Update floater positions based on chain motion
+        for i, floater in enumerate(self.floaters):
+            prev_theta = getattr(floater, 'theta', 0.0)
+            # Use chain motion to advance floater position
+            chain_angular_velocity = self.chain_system.get_angular_speed()
+            new_theta = prev_theta + chain_angular_velocity * dt
+            floater.set_theta(new_theta)
+            
+            # Detect top sprocket crossing (180° pivot)
+            if prev_theta % (2*math.pi) < math.pi and new_theta % (2*math.pi) >= math.pi:
+                floater.pivot()
+
+            # Detect bottom sprocket crossing (360° pivot + water drainage)
+            if prev_theta < 2 * math.pi and new_theta >= 2 * math.pi:
+                floater.pivot()
+                floater.drain_water()
+                floater.is_filled = False
+                floater.fill_progress = 0.0
+                # Trigger air injection after drainage
+                self.pneumatics.trigger_injection(floater)
+            floater.update(dt)
+
+        # After kinematics update, track energy losses
+        drag_loss_sum = sum(f.drag_loss for f in self.floaters)
+        dissolution_loss_sum = sum(f.dissolution_loss for f in self.floaters)
+        venting_loss_sum = sum(f.venting_loss for f in self.floaters)
+        
+        # Get chain tension from chain system
+        self.chain_tension = self.chain_system.get_tension()
+          # 4. Get drivetrain output torque and speed from integrated drivetrain
+        # The integrated drivetrain handles the full conversion from chain tension to mechanical output
+        drivetrain_output = self.integrated_drivetrain.update(self.chain_tension, 0.0, dt)  # Temporary zero load
+        
+        # Extract mechanical values for electrical system
+        output_torque = drivetrain_output.get('gearbox_output_torque', 0.0)
+        output_speed_rpm = drivetrain_output.get('flywheel_speed_rpm', 0.0)
+        output_speed_rad_s = output_speed_rpm * (2 * math.pi / 60)  # Convert to rad/s
+          # 5. Build system state for control system
+        system_state = {
+            'time': self.time,
+            'chain_tension': self.chain_tension,
+            'mechanical_torque': output_torque,
+            'mechanical_speed_rpm': output_speed_rpm,
+            'mechanical_speed_rad_s': output_speed_rad_s,
+            'total_vertical_force': total_vertical_force,
+            'base_buoy_force': base_buoy_force,
+            'enhanced_buoy_force': enhanced_buoy_force,
+            'thermal_enhanced_force': thermal_enhanced_force,
+            'pulse_force': pulse_force,
+            'floater_states': [f.to_dict() for f in self.floaters],
+            'pneumatics': {
+                'tank_pressure': self.pneumatics.tank_pressure,
+                'compressor_running': getattr(self.pneumatics, 'compressor_running', False)
+            },
+            'energy_losses': {
+                'drag_loss': drag_loss_sum,
+                'dissolution_loss': dissolution_loss_sum,
+                'venting_loss': venting_loss_sum
+            },
+            # New physics system data
+            'chain_system': self.chain_system.get_state(),
+            'fluid_system': self.fluid_system.get_fluid_properties(),
+            'thermal_system': self.thermal_model.get_thermal_properties()
+        }# 6. Update integrated control system with current state
+        control_output = self.integrated_control_system.update(system_state, dt)
+        
+        # Extract control system commands
+        timing_commands = control_output.get('timing_commands', {})
+        load_commands = control_output.get('load_commands', {})
+        grid_commands = control_output.get('grid_commands', {})
+        fault_status = control_output.get('fault_status', {})
+        control_mode = control_output.get('control_mode', 'normal')
+        
+        # Execute pneumatic control through timing controller
+        pneumatic_executed = False
+        if hasattr(self.integrated_control_system.timing_controller, 'execute_pneumatic_control'):
+            pneumatic_executed = self.integrated_control_system.timing_controller.execute_pneumatic_control(
+                self.pneumatics, self.floaters
+            )
+        
+        # Apply control system recommendations
+        # Pulse timing control
+        pulse_timing_adjustment = timing_commands.get('pulse_timing_adjustment', 0.0)
+        pulse_interval_adjustment = timing_commands.get('pulse_interval_adjustment', 0.0)
+        
+        # Load management
+        target_load_factor = load_commands.get('target_load_factor', 0.8)
+        power_setpoint = load_commands.get('power_setpoint', self.params.get('target_power', 530000.0))
+        
+        # Grid stability
+        voltage_setpoint = grid_commands.get('voltage_setpoint', 480.0)
+        frequency_setpoint = grid_commands.get('frequency_setpoint', 60.0)
+          # 7. Update integrated electrical system with mechanical input and control commands
+        electrical_config_updates = {
+            'target_load_factor': target_load_factor,
+            'power_setpoint': power_setpoint,
+            'voltage_setpoint': voltage_setpoint,
+            'frequency_setpoint': frequency_setpoint,
+            'control_mode': control_mode
+        }
+        electrical_output = self.integrated_electrical_system.update(output_torque, output_speed_rad_s, dt, electrical_config_updates)
+        
+        # 8. Update transient event controller (Phase 6)
+        # Build comprehensive system state for transient event monitoring
+        comprehensive_system_state = system_state.copy()
+        comprehensive_system_state.update({
+            'flywheel_speed_rpm': output_speed_rpm,
+            'chain_speed_rpm': drivetrain_output.get('chain_speed_rpm', 0.0),
+            'torque': output_torque,
+            'grid_voltage': electrical_output.get('grid_voltage', 480.0),
+            'grid_frequency': electrical_output.get('grid_frequency', 60.0),
+            'grid_connected': electrical_output.get('synchronized', False),
+            'component_temperatures': {
+                'sprocket': 20.0, 'gearbox': 20.0, 'clutch': 20.0, 
+                'flywheel': 20.0, 'generator': 20.0
+            }
+        })
+        
+        # Update transient event controller
+        transient_commands = self.transient_controller.update_transient_events(comprehensive_system_state, self.time)
+        
+        # 9. Update drivetrain again with actual electrical load torque
+        electrical_load_torque = electrical_output.get('load_torque_command', 0.0)
+        grid_power_output = electrical_output.get('grid_power_output', 0.0)
+        electrical_efficiency = electrical_output.get('system_efficiency', 0.0)
+          # Extract electrical system outputs
+        electrical_load_torque = electrical_output.get('load_torque_command', 0.0)
+        grid_power_output = electrical_output.get('grid_power_output', 0.0)
+        electrical_efficiency = electrical_output.get('system_efficiency', 0.0)
+        
+        # 10. Update drivetrain again with actual electrical load torque
+          # This provides the proper load feedback to the mechanical system
+        drivetrain_output = self.integrated_drivetrain.update(self.chain_tension, electrical_load_torque, dt)
+        
+        # Get final drivetrain values after load feedback
+        final_output_torque = drivetrain_output.get('gearbox_output_torque', 0.0)
+        final_output_speed = drivetrain_output.get('flywheel_speed_rpm', 0.0) * (2 * math.pi / 60)
+          # 11. Update enhanced loss model (Phase 5)
+        enhanced_system_state = {
+            'input_power': abs(output_torque * output_speed_rad_s),
+            'output_power': grid_power_output,
+            'electrical_power': grid_power_output,
+            'sprocket': {
+                'torque': drivetrain_output.get('sprocket_torque', 0.0),
+                'speed': drivetrain_output.get('chain_speed', 0.0),
+                'load_factor': 0.5,
+                'efficiency': 0.98
+            },
+            'gearbox': {
+                'torque': output_torque,
+                'speed': output_speed_rad_s,
+                'load_factor': min(1.0, abs(output_torque) / 2000.0),
+                'efficiency': drivetrain_output.get('gearbox_efficiency', 0.885)
+            },
+            'clutch': {
+                'torque': output_torque,
+                'speed': output_speed_rad_s,
+                'load_factor': min(1.0, abs(output_torque) / 2000.0),
+                'efficiency': drivetrain_output.get('clutch_efficiency', 0.95)
+            },
+            'flywheel': {
+                'torque': final_output_torque,
+                'speed': final_output_speed,
+                'load_factor': min(1.0, abs(final_output_torque) / 2000.0),
+                'efficiency': drivetrain_output.get('flywheel_efficiency', 0.98)
+            },
+            'generator': {
+                'torque': electrical_load_torque,
+                'speed': final_output_speed,
+                'load_factor': electrical_output.get('load_factor', 0.0),
+                'efficiency': electrical_efficiency
+            },
+            'electrical': {
+                'current': grid_power_output / max(480.0, electrical_output.get('grid_voltage', 480.0)),
+                'voltage': electrical_output.get('grid_voltage', 480.0),
+                'frequency': electrical_output.get('grid_frequency', 60.0),
+                'temperature': 40.0,  # Estimate electrical system temperature
+                'switching_frequency': 5000.0,
+                'flux_density': 1.0
+            }
+        }        
+        enhanced_state = self.enhanced_loss_model.update_system_losses(enhanced_system_state, dt)
+          # 12. Update grid services coordinator (Phase 7)
+        # Build grid conditions for grid services
+        grid_conditions = GridConditions(
+            frequency=electrical_output.get('grid_frequency', 60.0),
+            voltage=electrical_output.get('grid_voltage', 480.0),
+            active_power=grid_power_output / 1000.0,  # Convert to MW
+            reactive_power=electrical_output.get('reactive_power', 0.0) / 1000.0,  # Convert to MVAR
+            grid_connected=electrical_output.get('synchronized', False),
+            agc_signal=self.params.get('agc_signal', 0.0),  # AGC regulation signal
+            timestamp=self.time
+        )
+        
+        # Get system rated power from parameters
+        rated_power_mw = self.params.get('rated_power_mw', 0.53)  # Default 530kW = 0.53MW
+        
+        # Update grid services coordinator
+        grid_services_response = self.grid_services_coordinator.update(grid_conditions, dt, rated_power_mw)
+          # Apply grid services commands to electrical system if any
+        if grid_services_response.get('power_adjustment_mw', 0.0) != 0.0:
+            # Apply power adjustment command from grid services
+            power_adjustment = grid_services_response.get('power_adjustment_mw', 0.0) * 1000.0  # Convert to W
+            electrical_config_updates['power_adjustment'] = power_adjustment
+            logger.info(f"Grid Services: Applied power adjustment of {power_adjustment/1000:.2f} kW")
+            
+        # Store grid services response for state collection
+        self._last_grid_services_response = grid_services_response
+        
+        # Log grid services activity for monitoring
+        active_services = grid_services_response.get('active_services', [])
+        if active_services:
+            logger.debug(f"Grid Services: {len(active_services)} active services: {', '.join(active_services)}")
+        
+        logger.debug(f"Grid Services: Status={grid_services_response.get('status', 'Unknown')}, "
+                    f"Power Command={grid_services_response.get('total_power_command_mw', 0.0):.3f} MW")
+        
+        # 13. Update control system with electrical results for feedback
+        electrical_state = {
+            'electrical_power_output': grid_power_output,
+            'electrical_efficiency': electrical_efficiency,
+            'load_torque': electrical_load_torque,
+            'synchronized': electrical_output.get('synchronized', False),
+            'load_factor': electrical_output.get('load_factor', 0.0),
+            'grid_voltage': electrical_output.get('grid_voltage', 480.0),
+            'grid_frequency': electrical_output.get('grid_frequency', 60.0),
+            'enhanced_losses': enhanced_state.system_losses,
+            'thermal_state': enhanced_state.performance_metrics        }
+        system_state.update(electrical_state)
+        
+        logger.info(f"Integrated System: chain_tension={self.chain_tension:.2f}N, "
+                   f"mech_torque={final_output_torque:.2f}N·m, mech_speed={final_output_speed:.2f}rad/s, "
+                   f"elec_load={electrical_load_torque:.2f}N·m, grid_power={grid_power_output/1000:.1f}kW")
+        logger.info(f"Electrical: sync={electrical_output.get('synchronized', False)}, "
+                   f"efficiency={electrical_efficiency:.3f}, load_factor={electrical_output.get('load_factor', 0):.3f}")
+        logger.info(f"Control: mode={control_mode}, timing_adj={pulse_timing_adjustment:.3f}, "
+                   f"load_target={target_load_factor:.3f}, faults={len(fault_status.get('active_faults', []))}")
+        
+        # 10. Calculate final power output
+        power_output = grid_power_output  # Use grid power output from electrical system
+        
+        self.total_energy += power_output * dt        # Extract advanced system state for logging and monitoring
+        # These values now come directly from the integrated systems
+        tau_net = final_output_torque - electrical_load_torque
+        tau_to_generator = drivetrain_output.get('clutch_transmitted_torque', final_output_torque)
+        clutch_engagement_factor = drivetrain_output.get('clutch_engagement_factor', 0.0)
+        clutch_engaged = drivetrain_output.get('clutch_engaged', False)
+        
+        # For legacy compatibility, update the old drivetrain with equivalent values
+        # This maintains compatibility with existing logging and monitoring systems
+        self.drivetrain.omega_chain = drivetrain_output.get('chain_speed_rpm', 0.0) * (2 * math.pi / 60)
+        self.drivetrain.omega_flywheel = final_output_speed# 7. Track energy losses
+        # Capture clutch state for logging
+        clutch_state_val = 'engaged' if clutch_engaged else 'disengaged'
+        drag_loss_sum = sum(f.drag_loss for f in self.floaters)
+        dissolution_loss_sum = sum(f.dissolution_loss for f in self.floaters)
+        venting_loss_sum = sum(f.venting_loss for f in self.floaters)
+          # Compute net energy balance
+        net_energy_balance = power_output - (drag_loss_sum + dissolution_loss_sum + venting_loss_sum)        
+        self.log_state(
+            power_output,
+            final_output_torque,
+            base_buoy_force=base_buoy_force,  # Updated variable name
+            pulse_force=pulse_force,          # Updated variable name
+            total_vertical_force=total_vertical_force,  # Updated variable name
+            tau_net=tau_net,
+            tau_to_generator=tau_to_generator,
+            clutch_c=clutch_engagement_factor,
+            clutch_state=clutch_state_val,
+            drag_loss=drag_loss_sum,
+            dissolution_loss=dissolution_loss_sum,
+            venting_loss=venting_loss_sum,
+            net_energy=net_energy_balance,
+            control_output=control_output,
+            electrical_output=electrical_output,
+            pneumatic_executed=pneumatic_executed,
+            enhanced_state=enhanced_state        )
+        
+        # 8. Collect and log data
+        self.time += dt
+        
+        # Return the complete state data for external access
+        return self.collect_state()
+
+    def log_state(self, power_output, torque, base_buoy_force=None, pulse_force=None, total_vertical_force=None, tau_net=None, tau_to_generator=None, clutch_c=None, clutch_state=None, drag_loss=None, dissolution_loss=None, venting_loss=None, net_energy=None, control_output=None, electrical_output=None, pneumatic_executed=False, enhanced_state=None):
+        """
+        Collect and log the current state of the simulation, including all advanced integrated systems.
+        """
+        print(f"LOG_STATE: t={self.time:.2f}, power={power_output:.2f}, torque={torque:.2f}, base_buoy_force={base_buoy_force}, pulse_force={pulse_force}, clutch_c={clutch_c}, clutch_state={clutch_state}, drag_loss={drag_loss}, dissolution_loss={dissolution_loss}, venting_loss={venting_loss}, net_energy={net_energy}")        # Get advanced drivetrain state (primary source)
+        try:
+            integrated_drivetrain_state = self.integrated_drivetrain.get_comprehensive_state()
+        except AttributeError:
+            # Fallback to basic system outputs if comprehensive state not available
+            try:
+                integrated_drivetrain_state = self.integrated_drivetrain._calculate_system_outputs()
+            except AttributeError:
+                # Final fallback to empty state
+                integrated_drivetrain_state = {}
+        
+        # Get legacy drivetrain state for compatibility
+        legacy_drivetrain_state = self.drivetrain.get_state()        # Use integrated state when available, extract key values for compatibility
+        if integrated_drivetrain_state and isinstance(integrated_drivetrain_state, dict):
+            # Safely extract nested values with proper type checking
+            def safe_get_nested(data, *keys, default=0.0):
+                """Safely get nested dictionary values"""
+                current = data
+                for key in keys:
+                    if isinstance(current, dict) and key in current:
+                        current = current[key]
+                    else:
+                        return default
+                return current if current is not None else default
+            
+            drivetrain_state = {
+                'omega_flywheel_rpm': integrated_drivetrain_state.get('flywheel_speed_rpm', 
+                                    safe_get_nested(integrated_drivetrain_state, 'flywheel', 'speed_rpm')),
+                'omega_chain_rpm': integrated_drivetrain_state.get('chain_speed_rpm',
+                                 safe_get_nested(integrated_drivetrain_state, 'sprocket', 'top', 'speed_rpm')),
+                'clutch_engaged': integrated_drivetrain_state.get('clutch_engaged',
+                                safe_get_nested(integrated_drivetrain_state, 'clutch', 'is_engaged', default=False)),
+                'flywheel_speed_rpm': integrated_drivetrain_state.get('flywheel_speed_rpm', 0.0),
+                'gearbox_output_torque': integrated_drivetrain_state.get('gearbox_output_torque', 0.0),
+                'system_efficiency': integrated_drivetrain_state.get('system_efficiency', 
+                                   safe_get_nested(integrated_drivetrain_state, 'system', 'efficiency'))
+            }
+        else:
+            # Use legacy state as fallback
+            drivetrain_state = legacy_drivetrain_state.copy()
+            drivetrain_state.update({
+                'flywheel_speed_rpm': legacy_drivetrain_state.get('omega_flywheel_rpm', 0.0),
+                'gearbox_output_torque': 0.0,
+                'system_efficiency': 0.0
+            })
+        
+        # Compute overall mechanical efficiency (output electrical power / mechanical input power)
+        omega_fly_rpm = drivetrain_state.get('flywheel_speed_rpm', 0.0)
+        omega_fly = omega_fly_rpm * (2 * math.pi / 60)
+        if torque and omega_fly:
+            overall_eff = power_output / (torque * omega_fly)
+        else:
+            overall_eff = 0.0
+        # Compute average floater velocity
+        if self.floaters:
+            avg_velocity = sum(abs(f.velocity) for f in self.floaters) / len(self.floaters)
+        else:
+            avg_velocity = 0.0
+        state = {
+            'time': self.time,
+            'power': power_output,
+            'torque': torque,
+            'base_buoy_force': base_buoy_force,
+            'pulse_force': pulse_force,
+            'total_vertical_force': total_vertical_force,
+            'tau_net': tau_net,
+            'tau_to_generator': tau_to_generator,
+            'clutch_c': clutch_c,
+            'clutch_state': clutch_state,
+            'total_energy': self.total_energy,
+            'pulse_count': self.pulse_count,
+            'flywheel_speed_rpm': drivetrain_state['omega_flywheel_rpm'],
+            'chain_speed_rpm': drivetrain_state['omega_chain_rpm'],
+            'clutch_engaged': drivetrain_state['clutch_engaged'],
+            'tank_pressure': self.pneumatics.tank_pressure,
+            'overall_efficiency': overall_eff,
+            'avg_floater_velocity': avg_velocity,
+            'floaters': [f.to_dict() for f in self.floaters]        }
+        
+        # Include energy loss and net energy data
+        state['drag_loss'] = drag_loss
+        state['dissolution_loss'] = dissolution_loss
+        state['venting_loss'] = venting_loss
+        state['net_energy'] = net_energy        # Include enhanced loss model data (Phase 5)
+        if enhanced_state is not None:
+            state['enhanced_losses'] = {
+                'total_system_losses': enhanced_state.system_losses.total_system_losses,
+                'system_efficiency': enhanced_state.system_losses.system_efficiency,
+                'mechanical_losses': {
+                    'bearing_friction': enhanced_state.system_losses.mechanical_losses.bearing_friction,
+                    'gear_mesh_losses': enhanced_state.system_losses.mechanical_losses.gear_mesh_losses,
+                    'seal_friction': enhanced_state.system_losses.mechanical_losses.seal_friction,
+                    'windage_losses': enhanced_state.system_losses.mechanical_losses.windage_losses,
+                    'clutch_losses': enhanced_state.system_losses.mechanical_losses.clutch_losses,
+                    'total_losses': enhanced_state.system_losses.mechanical_losses.total_losses
+                },
+                'electrical_losses': enhanced_state.system_losses.electrical_losses,
+                'thermal_losses': enhanced_state.system_losses.thermal_losses
+            }
+            state['thermal_state'] = enhanced_state.performance_metrics
+            state['component_temperatures'] = {
+                name: thermal_state.temperature 
+                for name, thermal_state in enhanced_state.thermal_states.items()
+            }
+        
+        # Include control system data
+        if control_output:
+            state['control_mode'] = control_output.get('control_mode', 'normal')
+            state['timing_commands'] = control_output.get('timing_commands', {})
+            state['load_commands'] = control_output.get('load_commands', {})
+            state['grid_commands'] = control_output.get('grid_commands', {})
+            state['fault_status'] = control_output.get('fault_status', {})
+            state['control_performance'] = control_output.get('performance_metrics', {})
+            state['pneumatic_control_executed'] = pneumatic_executed
+        
+        # Include electrical system data
+        if electrical_output:
+            state['electrical_load_torque'] = electrical_output.get('load_torque_command', 0.0)
+            state['grid_power_output'] = electrical_output.get('grid_power_output', 0.0)
+            state['electrical_efficiency'] = electrical_output.get('system_efficiency', 0.0)
+            state['electrical_synchronized'] = electrical_output.get('synchronized', False)
+            state['electrical_load_factor'] = electrical_output.get('load_factor', 0.0)
+            state['grid_voltage'] = electrical_output.get('grid_voltage', 480.0)
+            state['grid_frequency'] = electrical_output.get('grid_frequency', 60.0)        
+        # Include grid services data (Phase 7)
+        if hasattr(self, '_last_grid_services_response'):
+            state['grid_services'] = {
+                'total_power_command_mw': self._last_grid_services_response.get('total_power_command_mw', 0.0),
+                'active_services': self._last_grid_services_response.get('active_services', []),
+                'service_count': self._last_grid_services_response.get('service_count', 0),
+                'coordination_status': self._last_grid_services_response.get('status', 'No services active'),
+                'frequency_services': {},
+                'grid_conditions': getattr(self, '_last_grid_conditions', {})
+            }
+            
+            # Include detailed grid services performance metrics
+            grid_services_metrics = self.grid_services_coordinator.get_performance_metrics()
+            state['grid_services_performance'] = grid_services_metrics
+        else:
+            # Grid services not yet active
+            state['grid_services'] = {
+                'total_power_command_mw': 0.0,
+                'active_services': [],
+                'service_count': 0,
+                'coordination_status': 'Grid services not initialized',
+                'frequency_services': {},
+                'grid_conditions': {}
+            }
+        
+        # Include pneumatic performance analysis data (Phase 7)
+        if hasattr(self, 'pneumatic_performance_analyzer'):
+            pneumatic_summary = self.pneumatic_performance_analyzer.get_performance_summary()
+            if pneumatic_summary:
+                state['pneumatic_performance'] = {
+                    'average_efficiency': pneumatic_summary.get('average_efficiency', 0.0),
+                    'peak_efficiency': pneumatic_summary.get('peak_efficiency', 0.0),
+                    'capacity_factor': pneumatic_summary.get('capacity_factor', 0.0),
+                    'thermal_efficiency': pneumatic_summary.get('thermal_efficiency', 1.0),
+                    'power_factor': pneumatic_summary.get('power_factor', 0.0),
+                    'availability': pneumatic_summary.get('availability', 0.0)
+                }
+                
+                # Add optimization recommendations if any exist
+                recommendations = self.pneumatic_performance_analyzer.generate_optimization_recommendations()
+                if recommendations:
+                    state['pneumatic_optimization'] = {
+                        'recommendation_count': len(recommendations),
+                        'latest_recommendations': [
+                            {
+                                'target': rec.target.value,
+                                'expected_improvement': rec.expected_improvement,
+                                'confidence': rec.confidence,
+                                'description': rec.description
+                            }
+                            for rec in recommendations[:3]  # Top 3 recommendations
+                        ]
+                    }
+            else:
+                state['pneumatic_performance'] = {
+                    'average_efficiency': 0.0,
+                    'peak_efficiency': 0.0,
+                    'capacity_factor': 0.0,
+                    'thermal_efficiency': 1.0,
+                    'power_factor': 0.0,
+                    'availability': 0.0
+                }
+        
+        # Include pneumatic energy analysis data
+        if hasattr(self, 'pneumatic_energy_analyzer'):
+            energy_summary = self.pneumatic_energy_analyzer.get_energy_summary()
+            if energy_summary:
+                state['pneumatic_energy'] = {
+                    'total_input_energy': energy_summary.get('total_input_energy', 0.0),
+                    'total_output_energy': energy_summary.get('total_output_energy', 0.0),
+                    'overall_efficiency': energy_summary.get('overall_efficiency', 0.0),
+                    'thermal_contribution': energy_summary.get('thermal_contribution', 0.0)
+                }
+                  # Include energy conservation validation
+                conservation = self.pneumatic_energy_analyzer.validate_energy_conservation()
+                state['pneumatic_energy']['conservation_valid'] = conservation.get('conservation_valid', True)
+                state['pneumatic_energy']['energy_balance_error'] = conservation.get('conservation_error_percent', 0.0)
+        
+        self.data_log.append(state)
+        self.data_queue.put(state)
+        logger.debug(f"Step: t={self.time:.2f}, power={power_output:.2f}, torque={torque:.2f}, base_buoy_force={base_buoy_force}, pulse_force={pulse_force}, clutch_c={clutch_c}, clutch_state={clutch_state}")
+        
+        return state
+
+    def collect_state(self):
+        """
+        Return the latest simulation state.
+        """
+        if not self.data_log:
+            return {}
+        return self.data_log[-1]
+
+    def start_thread(self):
+        if not self.thread or not self.thread.is_alive():
+            self.thread = threading.Thread(target=self.run, daemon=True)
+            self.thread.start()
+            logger.info("Simulation thread started.")
+
     def reset(self):
         """
         Resets the entire simulation to its initial state.
@@ -857,56 +1306,74 @@ class SimulationEngine:
             'fluid_properties': self.fluid_system.get_fluid_properties(),
             'thermal_properties': self.thermal_model.get_thermal_properties()
         }
-    
-    def collect_state(self) -> dict:
+
+    def get_output_data(self) -> dict:
         """
-        Collect current simulation state for API consumption.
+        Get comprehensive simulation output data for SSE streaming.
         
         Returns:
-            dict: Current simulation state
+            dict: Complete simulation state data structure
         """
         try:
-            # Get the latest data from the data queue
-            if hasattr(self, 'data_queue') and not self.data_queue.empty():
-                latest_data = None
-                # Get the most recent data from queue
-                while not self.data_queue.empty():
-                    try:
-                        latest_data = self.data_queue.get_nowait()
-                    except:
-                        break
-                if latest_data:
-                    return latest_data
+            # Get basic simulation state
+            current_time = getattr(self, 'time', 0.0)
+            total_torque = getattr(self, 'torque_total', 0.0)
+            power_output = getattr(self, 'power_output', 0.0)
+            efficiency = getattr(self, 'efficiency', 0.0)
             
-            # Fallback: create state from current engine state
+            # Get floater data
+            floaters_data = []
+            if hasattr(self, 'floaters'):
+                for i, floater in enumerate(self.floaters):
+                    floaters_data.append({
+                        "id": i,
+                        "buoyancy": floater.compute_buoyant_force(),
+                        "drag": abs(floater.compute_drag_force()),
+                        "net_force": floater.force,
+                        "pulse_force": floater.compute_pulse_jet_force(),
+                        "position": getattr(floater, 'position', 0.0),
+                        "velocity": getattr(floater, 'velocity', 0.0),
+                        "state": getattr(floater, 'state', 'unknown')
+                    })
+            
+            # Compile output data
             return {
-                'time': getattr(self, 'time', 0.0),
-                'chain_velocity': getattr(self, 'chain_velocity', 0.0),
-                'power': getattr(self, 'power_output', 0.0),
-                'torque': getattr(self, 'torque', 0.0),
-                'avg_floater_velocity': 0.0,
-                'floaters': [
-                    {
-                        'id': i,
-                        'angle': getattr(f, 'angle', getattr(f, 'theta', 0.0)),
-                        'state': getattr(f, 'state', 'unknown'),
-                        'is_filled': getattr(f, 'is_filled', False),
-                        'mass': f.mass,
-                        'velocity': getattr(f, 'velocity', 0.0)
-                    }
-                    for i, f in enumerate(getattr(self, 'floaters', []))
-                ],
-                'status': 'running' if getattr(self, 'running', False) else 'stopped'
+                "timestamp": time.time(),
+                "time": current_time,
+                "torque": total_torque,
+                "power": power_output,
+                "efficiency": efficiency,
+                "torque_components": {
+                    "buoyant": getattr(self, 'torque_buoyant', 0.0),
+                    "drag": getattr(self, 'torque_drag', 0.0),
+                    "generator": getattr(self, 'torque_generator', 0.0)
+                },
+                "floaters": floaters_data,
+                "system_state": {
+                    "h1_active": getattr(self, 'h1_nanobubbles_active', False),
+                    "h2_active": getattr(self, 'h2_thermal_active', False),
+                    "h3_active": getattr(self, 'h3_pulse_active', False),
+                    "enhanced_physics_enabled": getattr(self, 'enhanced_physics_enabled', False)
+                },
+                "eff_drivetrain": getattr(self, 'eff_drivetrain', 0.85),
+                "eff_pneumatic": getattr(self, 'eff_pneumatic', 0.75),
+                "physics_status": {
+                    "h1_nanobubbles": self.nanobubble_physics.get_status() if hasattr(self, 'nanobubble_physics') else {},
+                    "h2_thermal": self.thermal_physics.get_status() if hasattr(self, 'thermal_physics') else {},
+                    "h3_pulse": self.pulse_controller.get_status() if hasattr(self, 'pulse_controller') else {}
+                },
+                "enhanced_forces": {
+                    "h1_nanobubble_force": getattr(self, 'h1_nanobubble_force', 0.0),
+                    "h2_thermal_force": getattr(self, 'h2_thermal_force', 0.0),
+                    "h3_pulse_force": getattr(self, 'h3_pulse_force', 0.0)
+                },
+                "parameters": {
+                    "nanobubble_frac": getattr(self, 'nanobubble_frac', 0.0),
+                    "thermal_coeff": getattr(self, 'thermal_coeff', 0.0),
+                    "pulse_enabled": getattr(self, 'pulse_enabled', False)
+                }
             }
+            
         except Exception as e:
-            logger.error(f"Error collecting state: {e}")
-            return {
-                'time': 0.0,
-                'chain_velocity': 0.0,
-                'power': 0.0,
-                'torque': 0.0,
-                'avg_floater_velocity': 0.0,
-                'floaters': [],
-                'status': 'error',
-                'error': str(e)
-            }
+            logger.error(f"Error generating output data: {e}")
+            return {"error": str(e)}
