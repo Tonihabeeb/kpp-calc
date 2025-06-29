@@ -50,7 +50,7 @@ def quick_health_check():
         data_queue = queue.Queue()
         engine = SimulationEngine(params, data_queue)
         engine.reset()
-        engine.step()
+        engine.step(dt=0.1)
         
         print("✓ Simulation engine working")
         tests_passed += 1
@@ -60,7 +60,7 @@ def quick_health_check():
     # Test 4: Flask app
     total_tests += 1
     try:
-        import app
+        import app_legacy_flask as app
         if hasattr(app, 'app'):
             with app.app.test_client() as client:
                 response = client.get('/health')
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         # Try to start the server automatically
         try:
             print("\nAttempting to start server...")
-            import app
+            import app_legacy_flask as app
             app.app.run(debug=True, host='127.0.0.1', port=5000, threaded=True)
         except KeyboardInterrupt:
             print("\nServer stopped by user")

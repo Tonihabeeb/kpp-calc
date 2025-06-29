@@ -36,7 +36,7 @@ PARAM_SCHEMA = {
     # Drivetrain parameters
     "sprocket_radius": {"type": float, "min": 0.1, "max": 2.0, "default": 0.5},
     "flywheel_inertia": {"type": float, "min": 1.0, "max": 200.0, "default": 50.0},
-    "gear_ratio": {"type": float, "min": 0.1, "max": 10.0, "default": 1.0},
+    "gear_ratio": {"type": float, "min": 1.01, "max": 10.0, "default": 2.5},
     "drivetrain_efficiency": {"type": float, "min": 0.1, "max": 1.0, "default": 0.85},
     # H1 Nanobubble parameters
     "nanobubble_frac": {"type": float, "min": 0.0, "max": 1.0, "default": 0.0},

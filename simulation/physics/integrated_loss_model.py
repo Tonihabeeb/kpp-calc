@@ -469,46 +469,57 @@ class IntegratedLossModel:
         logger.info("IntegratedLossModel reset")
 
 
+from typing import Union, Dict, Any
+
 def create_standard_kpp_enhanced_loss_model(
-    ambient_temp: float = 20.0,
+    config_or_temp: Union[float, Dict[str, Any]] = 20.0,
 ) -> IntegratedLossModel:
     """
     Create standard KPP enhanced loss model with realistic parameters.
 
     Args:
-        ambient_temp: Ambient temperature in °C
+        config_or_temp: Either ambient temperature (float, °C) or config dict
 
     Returns:
         Configured IntegratedLossModel
     """
-    model = IntegratedLossModel(ambient_temp)
 
-    # Standard KPP configuration
-    config = {
-        "ambient_temperature": ambient_temp,
-        "sprocket_mass": 25.0,  # kg
-        "sprocket_surface_area": 0.5,  # m²
-        "gearbox_mass": 200.0,  # kg
-        "gearbox_surface_area": 2.0,  # m²
-        "clutch_mass": 50.0,  # kg
-        "clutch_surface_area": 0.5,  # m²
-        "flywheel_mass": 500.0,  # kg
-        "flywheel_surface_area": 3.0,  # m²
-        "generator_mass": 300.0,  # kg
-        "generator_surface_area": 4.0,  # m²
-        "gear_ratios": {
-            "sprocket": 1.0,
-            "gearbox": 39.4,
-            "clutch": 1.0,
-            "flywheel": 1.0,
-            "generator": 1.0,
-        },
-    }
-
-    model.initialize_system_components(config)
-
-    logger.info(
-        f"Created standard KPP enhanced loss model with ambient temperature {ambient_temp}°C"
-    )
-
-    return model
+    # If a dict is passed, treat as config dict
+    if isinstance(config_or_temp, dict):
+        config = config_or_temp.copy()
+        ambient_temp = config.get("ambient_temperature", 20.0)
+        model = IntegratedLossModel(ambient_temp)
+        model.initialize_system_components(config)
+        logger.info(
+            f"Created KPP enhanced loss model from config dict (ambient_temperature={ambient_temp}°C)"
+        )
+        return model
+    else:
+        ambient_temp = float(config_or_temp)
+        model = IntegratedLossModel(ambient_temp)
+        # Standard KPP configuration
+        config = {
+            "ambient_temperature": ambient_temp,
+            "sprocket_mass": 25.0,  # kg
+            "sprocket_surface_area": 0.5,  # m²
+            "gearbox_mass": 200.0,  # kg
+            "gearbox_surface_area": 2.0,  # m²
+            "clutch_mass": 50.0,  # kg
+            "clutch_surface_area": 0.5,  # m²
+            "flywheel_mass": 500.0,  # kg
+            "flywheel_surface_area": 3.0,  # m²
+            "generator_mass": 300.0,  # kg
+            "generator_surface_area": 4.0,  # m²
+            "gear_ratios": {
+                "sprocket": 1.0,
+                "gearbox": 39.4,
+                "clutch": 1.0,
+                "flywheel": 1.0,
+                "generator": 1.0,
+            },
+        }
+        model.initialize_system_components(config)
+        logger.info(
+            f"Created standard KPP enhanced loss model with ambient temperature {ambient_temp}°C"
+        )
+        return model

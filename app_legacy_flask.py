@@ -299,13 +299,6 @@ def trigger_pulse():
         return ("No available floater for pulse", 400)
 
 
-@app.route("/update_params", methods=["POST"])
-def update_params():
-    params = request.get_json() or {}
-    engine.update_params(params)
-    return ("OK", 200)
-
-
 @app.route("/set_params", methods=["PATCH", "POST"])
 def set_simulation_params():
     """Enhanced endpoint to dynamically update simulation parameters with validation."""
@@ -420,30 +413,6 @@ def get_output_schema():
         return jsonify({"status": "error", "error": str(e)}), 500
 
 
-@app.route("/data/summary")
-def summary_data():
-    # Get the latest data from the queue if available
-    try:
-        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
-    except Exception:
-        latest = None
-    if not latest:
-        return {}
-    # Map to engine state keys
-    return {
-        "time": latest.get("time", 0),
-        "torque": latest.get("torque", 0),
-        "power": latest.get("power", 0),
-        "avg_floater_velocity": latest.get("avg_floater_velocity", 0),
-        "floaters": latest.get("floaters", []),
-        "pulse_torque": latest.get("pulse_torque", 0),
-        "base_buoy_torque": latest.get("base_buoy_torque", 0),
-        "pulse_count": latest.get("pulse_count", 0),
-        "flywheel_speed_rpm": latest.get("flywheel_speed_rpm", 0),
-        "chain_speed_rpm": latest.get("chain_speed_rpm", 0),
-        "clutch_engaged": latest.get("clutch_engaged", False),
-        "overall_efficiency": latest.get("overall_efficiency", 0),
-    }
 
 
 @app.route("/chart/<metric>.png")
@@ -477,37 +446,6 @@ def chart_image(metric):
     return send_file(buf, mimetype="image/png")
 
 
-@app.route("/data/history")
-def data_history():
-    # Return full time series for all simulation state metrics
-    with engine.data_queue.mutex:
-        data_list = list(engine.data_queue.queue)
-    # Define all history fields
-    history_fields = [
-        "time",
-        "power",
-        "torque",
-        "base_buoy_torque",
-        "pulse_torque",
-        "total_chain_torque",
-        "tau_net",
-        "tau_to_generator",
-        "clutch_c",
-        "clutch_state",
-        "total_energy",
-        "pulse_count",
-        "flywheel_speed_rpm",
-        "chain_speed_rpm",
-        "clutch_engaged",
-        "tank_pressure",
-        "overall_efficiency",
-        "avg_floater_velocity",
-    ]
-    # Build lists for each field
-    history = {}
-    for field in history_fields:
-        history[field] = [entry.get(field, 0) for entry in data_list]
-    return history
 
 
 @app.route("/reset", methods=["POST"])
@@ -517,189 +455,25 @@ def reset_simulation():
     return ("Simulation reset", 200)
 
 
-@app.route("/download_csv")
-def download_csv():
-    """CSV export endpoint as specified in GuideV3.md"""
-
-    def generate_csv():
-        # Updated CSV header to include all relevant fields
-        yield "time,torque,power,base_buoy_torque,pulse_torque,total_chain_torque,tau_net,tau_to_generator,clutch_c,clutch_state,flywheel_speed,chain_speed,clutch_engaged,pulse_count\n"
-
-        # Get data from engine's data log
-        with engine.data_queue.mutex:
-            data_list = list(engine.data_queue.queue)
-
-        for entry in data_list:
-            yield f"{entry.get('time', 0)},{entry.get('torque', 0)},{entry.get('power', 0)},{entry.get('base_buoy_torque', 0)},{entry.get('pulse_torque', 0)},{entry.get('total_chain_torque', 0)},{entry.get('tau_net', 0)},{entry.get('tau_to_generator', 0)},{entry.get('clutch_c', 0)},{entry.get('clutch_state', '')},{entry.get('flywheel_speed_rpm', 0)},{entry.get('chain_speed_rpm', 0)},{entry.get('clutch_engaged', 0)},{entry.get('pulse_count', 0)}\n"
-
-    # Stream CSV to client with proper headers
-    response = Response(generate_csv(), mimetype="text/csv")
-    response.headers["Content-Disposition"] = 'attachment; filename="sim_data.csv"'
-    return response
 
 
-@app.route("/export_collected_data", methods=["GET"])
-def export_collected_data():
-    """Export collected simulation data to a CSV file."""
-    output_file = "collected_simulation_data.csv"
-    try:
-        with open(output_file, "w", newline="") as csvfile:
-            fieldnames = [
-                "time",
-                "torque",
-                "power",
-                "velocity",
-                "pulse_torque",
-                "base_torque",
-                "pulse_count",
-                "flywheel_speed",
-                "chain_speed",
-                "clutch_engaged",
-            ]
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-            writer.writeheader()
-            writer.writerows(collected_data)
-
-        return send_file(output_file, as_attachment=True)
-    except Exception as e:
-        app.logger.error(f"Failed to export collected data: {e}")
-        return ("Failed to export data", 500)
 
 
-@app.route("/inspect/input_data", methods=["GET"])
-def inspect_input_data():
-    """Endpoint to inspect collected input data."""
-    try:
-        return {"input_data": list(input_data)}, 200
-    except Exception as e:
-        app.logger.error(f"Failed to retrieve input data: {e}")
-        return {"error": "Failed to retrieve input data"}, 500
 
 
-@app.route("/inspect/output_data", methods=["GET"])
-def inspect_output_data():
-    """Endpoint to inspect collected output data."""
-    try:
-        return {"output_data": list(output_data)}, 200
-    except Exception as e:
-        app.logger.error(f"Failed to retrieve output data: {e}")
-        return {"error": "Failed to retrieve output data"}, 500
 
 
-# Thread for real-time analysis
-def analyze_real_time_data():
-    while True:
-        if output_data:
-            try:
-                # Analyze the latest data
-                latest_data = output_data[-1]
-                app.logger.debug(f"Analyzing data: {latest_data}")
 
-                # Monitor key metrics
-                torque = latest_data.get("torque", 0)
-                power = latest_data.get("power", 0)
-                efficiency = latest_data.get("efficiency", 0)
-                clutch_engaged = latest_data.get("clutch_engaged", False)
 
-                # Log behavioral insights
-                if clutch_engaged:
-                    app.logger.info(
-                        f"Clutch engaged at time {latest_data.get('time', 0):.2f}s."
-                    )
-                if efficiency < 50:
-                    app.logger.warning(
-                        f"Low efficiency detected: {efficiency:.2f}% at time {latest_data.get('time', 0):.2f}s."
-                    )
-                if torque > 1000:
-                    app.logger.warning(
-                        f"High torque spike detected: {torque:.2f} Nm at time {latest_data.get('time', 0):.2f}s."
-                    )
 
-                # Add more behavioral analysis as needed
 
-                time.sleep(0.1)  # Adjust analysis frequency as needed
-            except Exception as e:
-                app.logger.error(f"Error during real-time analysis: {e}")
+
 
 
 # Start the analysis thread
-analysis_thread = threading.Thread(target=analyze_real_time_data, daemon=True)
-analysis_thread.start()
 
 
-@app.route("/set_load", methods=["POST"])
-def set_load():
-    """Set the generator load torque (Nm) via user input."""
-    data = request.get_json() or {}
-    user_load = data.get("user_load_torque", None)
-    if user_load is not None:
-        engine.generator.set_user_load(float(user_load))
-        return (f"User load set to {user_load} Nm", 200)
-    else:
-        return ("Missing user_load_torque in request", 400)
 
-
-@app.route("/data/live", methods=["GET"])
-def data_live():
-    """Return the full simulation data log as JSON for direct analysis."""
-    with engine.data_queue.mutex:
-        data_list = list(engine.data_queue.queue)
-    return {"data": data_list}, 200
-
-
-@app.route("/data/pneumatic_status")
-def pneumatic_status():
-    """Get comprehensive pneumatic system status including performance and energy data"""
-    try:
-        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
-    except Exception:
-        latest = None
-
-    if not latest:
-        return {"status": "no_data"}
-
-    pneumatic_data = {
-        "tank_pressure": latest.get("tank_pressure", 0.0),
-        "performance": latest.get("pneumatic_performance", {}),
-        "energy": latest.get("pneumatic_energy", {}),
-        "optimization": latest.get("pneumatic_optimization", {}),
-        "timestamp": latest.get("time", 0.0),
-    }
-
-    return pneumatic_data
-
-
-@app.route("/data/optimization_recommendations")
-def optimization_recommendations():
-    """Get current optimization recommendations from the pneumatic performance analyzer"""
-    try:
-        if hasattr(engine, "pneumatic_performance_analyzer"):
-            recommendations = (
-                engine.pneumatic_performance_analyzer.generate_optimization_recommendations()
-            )
-            return {
-                "recommendations": [
-                    {
-                        "target": rec.target.value,
-                        "expected_improvement": rec.expected_improvement,
-                        "confidence": rec.confidence,
-                        "description": rec.description,
-                        "priority": "medium",  # Default priority
-                    }
-                    for rec in recommendations
-                ],
-                "count": len(recommendations),
-                "timestamp": engine.time,
-            }
-        else:
-            return {
-                "recommendations": [],
-                "count": 0,
-                "error": "Performance analyzer not available",
-            }
-    except Exception as e:
-        return {"recommendations": [], "count": 0, "error": str(e)}
 
 
 @app.route("/data/energy_balance")

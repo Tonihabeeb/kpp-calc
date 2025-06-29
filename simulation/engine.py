@@ -1,8 +1,6 @@
-# SimulationEngine: orchestrates all simulation modules
-# Coordinates state updates, manages simulation loop, and handles cross-module interactions
 """
-Simulation engine class.
-Coordinates all simulation components and manages the simulation loop.
+SimulationEngine: orchestrates all simulation modules.
+Coordinates state updates, manages simulation loop, and handles cross-module interactions.
 """
 
 import json
@@ -449,25 +447,63 @@ class SimulationEngine:
         
         logger.info("Manager classes initialized: PhysicsManager, SystemManager, StateManager, ComponentManager")
 
-    def update_params(self, params):
-        """Update simulation parameters and component parameters."""
+    def update_params(self, params: Dict[str, Any]):
+        """
+        Update simulation parameters and component parameters.
+        This method now updates the integrated systems directly.
+        """
         self.params.update(params)
-        self.drivetrain.update_params(self.params)
-        self.generator.update_params(self.params)
+        
+        # Update validated Pydantic model if it exists
+        if self.validated_params:
+            try:
+                updated_data = self.validated_params.model_dump()
+                updated_data.update(params)
+                self.validated_params = SimulationParams(**updated_data)
+            except Exception as e:
+                logger.warning(f"Failed to re-validate parameters after update: {e}")
 
-        # Update existing floaters instead of recreating them
+        # Re-initialize integrated systems with new parameters
+        if hasattr(self, 'integrated_drivetrain') and self.integrated_drivetrain:
+            drivetrain_config = getattr(self.integrated_drivetrain, 'config', {})
+            if not isinstance(drivetrain_config, dict):
+                drivetrain_config = {}
+            drivetrain_config.update(params)
+            self.integrated_drivetrain = create_standard_kpp_drivetrain(drivetrain_config)
+
+        if hasattr(self, 'integrated_electrical_system') and self.integrated_electrical_system:
+            electrical_config = getattr(self.integrated_electrical_system, 'config', {})
+            if not isinstance(electrical_config, dict):
+                electrical_config = {}
+            electrical_config.update(params)
+            self.integrated_electrical_system = create_standard_kmp_electrical_system(electrical_config)
+
+        if hasattr(self, 'integrated_control_system') and self.integrated_control_system:
+            # Convert config dataclass to dict if needed
+            control_config = getattr(self.integrated_control_system, 'config', {})
+            if hasattr(control_config, '__dict__'):
+                control_config = dict(control_config.__dict__)
+            elif not isinstance(control_config, dict):
+                control_config = {}
+            control_config.update(params)
+            self.integrated_control_system = create_standard_kpp_control_system(control_config)
+
+        if hasattr(self, 'enhanced_loss_model') and self.enhanced_loss_model:
+            loss_model_config = getattr(self.enhanced_loss_model, 'config', {})
+            if not isinstance(loss_model_config, dict):
+                loss_model_config = {}
+            loss_model_config.update(params)
+            self.integrated_loss_model = create_standard_kpp_enhanced_loss_model(loss_model_config)
+
+        # Update existing floaters
         for floater in self.floaters:
             floater.volume = self.params.get("floater_volume", floater.volume)
             floater.mass = self.params.get("floater_mass_empty", floater.mass)
             floater.area = self.params.get("floater_area", floater.area)
-            floater.drag_coefficient = self.params.get(
-                "drag_coefficient", floater.drag_coefficient
-            )
-            floater.air_fill_time = self.params.get(
-                "air_fill_time", floater.air_fill_time
-            )
+            floater.drag_coefficient = self.params.get("drag_coefficient", floater.drag_coefficient)
+            floater.air_fill_time = self.params.get("air_fill_time", floater.air_fill_time)
 
-        logger.info("Simulation parameters updated.")
+        logger.info("Simulation parameters updated for all integrated systems.")
 
     def trigger_pulse(self):
         """
