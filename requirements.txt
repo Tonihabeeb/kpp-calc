@@ -1,0 +1,19 @@
+# KPP Simulator - Runtime Dependencies
+# Core web framework
+flask>=2.3.0
+
+# Scientific computing
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+
+# HTTP requests and data validation
+requests>=2.31.0
+pydantic>=2.0.0
+
+# Real-time streaming
+sseclient-py>=1.8.0
+
+# Date/time utilities
+python-dateutil>=2.8.0

@@ -1,0 +1,19 @@
+# KPP Simulator - Optional Advanced Dependencies
+# Install with: pip install -r requirements-advanced.txt
+
+# Performance optimization
+numba>=0.57.0
+
+# Advanced visualization
+plotly>=5.15.0
+dash>=2.10.0
+
+# Machine learning (future)
+scikit-learn>=1.3.0
+
+# GPU acceleration (optional)
+# cupy>=12.0.0  # Uncomment if CUDA available
+
+# Database support (future)
+sqlalchemy>=2.0.0
+alembic>=1.11.0

@@ -1,0 +1,77 @@
+{
+  "timestamp": "2025-06-27T22:59:21.520333",
+  "overall_success_rate": 100.0,
+  "status": "HEALTHY",
+  "category_results": {
+    "imports": {
+      "passed": 4,
+      "total": 4
+    },
+    "data_logger": {
+      "passed": 6,
+      "total": 6
+    },
+    "components": {
+      "passed": 6,
+      "total": 6
+    },
+    "file_structure": {
+      "passed": 9,
+      "total": 9
+    },
+    "integration_scripts": {
+      "passed": 4,
+      "total": 4
+    },
+    "flask_app": {
+      "passed": 3,
+      "total": 3
+    }
+  },
+  "detailed_results": {
+    "imports": {
+      "SimulationEngine": true,
+      "DataLogger": true,
+      "ExportRoutes": true,
+      "FlaskApp": true
+    },
+    "data_logger": {
+      "logger_init": true,
+      "logging": true,
+      "entry_count": true,
+      "export": true,
+      "metrics": true,
+      "cleanup": true
+    },
+    "components": {
+      "Floater": true,
+      "Drivetrain": true,
+      "Generator": true,
+      "Environment": true,
+      "Control": true,
+      "Sensors": true
+    },
+    "file_structure": {
+      "app.py": true,
+      "simulation/engine.py": true,
+      "simulation/logging/data_logger.py": true,
+      "routes/export_routes.py": true,
+      "static/js/analytics.js": true,
+      "static/css/physics-styles.css": true,
+      "templates/index.html": true,
+      "dir_logs": true,
+      "dir_logs/simulation": true
+    },
+    "integration_scripts": {
+      "test_stage5_integration.py": true,
+      "test_stage4_realtime_integration.py": true,
+      "final_integration_test.py": true,
+      "demo_stage5_features.py": true
+    },
+    "flask_app": {
+      "app_object": true,
+      "export_blueprint": true,
+      "simulation_engine": true
+    }
+  }
+}

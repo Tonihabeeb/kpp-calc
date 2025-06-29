@@ -1,0 +1,419 @@
+/* Physics-specific styles for KPP Simulator enhanced physics features */
+
+/* Enhanced Physics Controls Section */
+.physics-section {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+    border-left: 4px solid #667eea;
+}
+
+.physics-section h4 {
+    color: #495057;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.control-group {
+    margin: 0.75em 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.control-group label {
+    font-weight: 500;
+    color: #495057;
+    min-width: 140px;
+}
+
+.control-group input[type="range"] {
+    flex: 1;
+    min-width: 120px;
+}
+
+.control-group input[type="number"] {
+    width: 100px;
+    padding: 0.25em 0.5em;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.control-group small {
+    color: #6c757d;
+    font-style: italic;
+    flex-basis: 100%;
+    margin-top: 0.25em;
+    font-size: 0.85em;
+}
+
+/* Physics Status Indicators */
+#physics-status {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1em;
+    margin: 1em 0;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1em;
+    margin-top: 0.5em;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 0.75em;
+    transition: all 0.3s ease;
+}
+
+.status-light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.75em;
+    background: #6c757d;
+    transition: background-color 0.3s ease;
+}
+
+.status-light.active {
+    background: #28a745;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
+}
+
+.status-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.status-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9em;
+}
+
+.status-value {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-top: 0.2em;
+}
+
+/* Enhanced Tables */
+.physics-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9em;
+}
+
+.physics-table th {
+    background: #495057;
+    color: white;
+    padding: 0.5em;
+    text-align: center;
+    font-weight: 600;
+}
+
+.physics-table td {
+    padding: 0.4em;
+    text-align: center;
+    border: 1px solid #dee2e6;
+}
+
+.physics-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.physics-table tbody tr:hover {
+    background: #e9ecef;
+}
+
+.table-legend {
+    margin-top: 0.5em;
+    padding: 0.5em;
+    background: #e9ecef;
+    border-radius: 4px;
+}
+
+/* Chart containers */
+.chart-container small {
+    display: block;
+    text-align: center;
+    color: #6c757d;
+    margin-top: 0.5em;
+    font-style: italic;
+}
+
+/* Enhanced Connection Status Styles */
+#connection-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 2px solid #ccc;
+    background: #f8f9fa;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+#connection-status.connected {
+    border-color: #28a745;
+    background: #d4edda;
+    color: #155724;
+}
+
+#connection-status.disconnected {
+    border-color: #dc3545;
+    background: #f8d7da;
+    color: #721c24;
+}
+
+#connection-status.failed {
+    border-color: #6c757d;
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+#connectionQuality {
+    font-size: 0.85em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+#connectionQuality.quality-good {
+    background: #d4edda;
+    color: #155724;
+}
+
+#connectionQuality.quality-fair {
+    background: #fff3cd;
+    color: #856404;
+}
+
+#connectionQuality.quality-poor {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+#connectionQuality.quality-unknown {
+    background: #e2e3e5;
+    color: #6c757d;
+}
+
+#connectionLatency {
+    font-size: 0.8em;
+    color: #6c757d;
+    font-family: 'Courier New', monospace;
+}
+
+/* Error Notification Styles */
+.error-notification {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.error-notification.low {
+    border-left-color: #17a2b8;
+    background: #d1ecf1;
+}
+
+.error-notification.medium {
+    border-left-color: #ffc107;
+    background: #fff3cd;
+}
+
+.error-notification.high {
+    border-left-color: #fd7e14;
+    background: #fff2e6;
+}
+
+.error-notification.critical {
+    border-left-color: #dc3545;
+    background: #f8d7da;
+}
+
+.error-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.error-content {
+    flex: 1;
+}
+
+.error-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #495057;
+}
+
+.error-message {
+    font-size: 0.9em;
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.error-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.error-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Performance Mode Indicators */
+.performance-mode {
+    padding: 4px 8px;
+    background: #fff3cd;
+    color: #856404;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+.performance-mode::before {
+    content: "⚡ ";
+}
+
+/* Enhanced Status Indicators */
+.status-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Data Quality Indicators */
+.data-quality {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: 6px;
+}
+
+.data-quality.excellent {
+    background: #28a745;
+}
+
+.data-quality.good {
+    background: #17a2b8;
+}
+
+.data-quality.fair {
+    background: #ffc107;
+}
+
+.data-quality.poor {
+    background: #dc3545;
+}
+
+/* Debug Information Panel */
+.debug-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 12px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75em;
+    max-width: 300px;
+    display: none;
+    z-index: 9999;
+}
+
+.debug-panel.active {
+    display: block;
+}
+
+.debug-panel h4 {
+    margin: 0 0 8px 0;
+    color: #17a2b8;
+}
+
+.debug-panel .metric {
+    margin: 4px 0;
+}
+
+.debug-panel .metric-label {
+    color: #ffc107;
+}
+
+.debug-panel .metric-value {
+    color: #28a745;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    #connection-status {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .error-notification {
+        padding: 12px;
+        gap: 8px;
+    }
+    
+    .error-notification .error-icon {
+        font-size: 20px;
+    }
+    
+    .debug-panel {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        margin: 10px 0;
+        max-width: 100%;
+    }
+}
