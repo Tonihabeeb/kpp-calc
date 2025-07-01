@@ -204,7 +204,7 @@ class Floater:
             self.fill_progress = 0.0
             logger.info("Floater has started filling.")
 
-    def compute_buoyant_force(self) -> float:
+    def compute_buoyant_force(self, fluid_system=None) -> float:
         """
         Compute the upward buoyant force based on the currently submerged volume.
 
@@ -227,9 +227,17 @@ class Floater:
             )
             displaced_volume = self.volume * effective_fill_progress
 
-        F_buoy = RHO_WATER * displaced_volume * G
+        # Use fluid_system's effective_density and gravity if provided, else fallback to constants
+        if fluid_system is not None:
+            rho = getattr(fluid_system.state, "effective_density", RHO_WATER)
+            g = getattr(fluid_system, "gravity", G)
+        else:
+            rho = RHO_WATER
+            g = G
+
+        F_buoy = rho * displaced_volume * g
         logger.debug(
-            f"Buoyant force: {F_buoy:.2f} N (displaced_volume={displaced_volume:.4f} m³)"
+            f"Buoyant force: {F_buoy:.2f} N (displaced_volume={displaced_volume:.4f} m³, rho={rho:.1f}, g={g:.2f})"
         )
         return F_buoy
 
@@ -293,12 +301,22 @@ class Floater:
 
         return buoyant_force
 
-    def compute_drag_force(self) -> float:
+    def compute_drag_force(self, fluid_system=None) -> float:
         """
-        Compute drag force on the floater based on current velocity.
+        Compute drag force on the floater based on current velocity and fluid properties.
+        Args:
+            fluid_system: Optional fluid system object providing effective_density and drag_coefficient
+        Returns:
+            float: Drag force (N)
         """
-        # Basic drag formula: 0.5 * rho_water * v^2 * area * Cd
-        return 0.5 * RHO_WATER * (self.velocity**2) * self.area * self.drag_coefficient
+        # Use fluid_system's effective_density and drag_coefficient if provided, else fallback to constants
+        if fluid_system is not None:
+            rho = getattr(fluid_system.state, "effective_density", RHO_WATER)
+            Cd = getattr(fluid_system.state, "drag_coefficient", self.drag_coefficient)
+        else:
+            rho = RHO_WATER
+            Cd = self.drag_coefficient
+        return 0.5 * rho * (self.velocity ** 2) * self.area * Cd
 
     def compute_pulse_jet_force(self) -> float:
         """
@@ -307,14 +325,17 @@ class Floater:
         # Simplified stub: no pulse jet force by default
         return 0.0
 
-    @property
-    def force(self) -> float:
+    def force(self, fluid_system=None) -> float:
         """
         Combined net force on the floater, including buoyancy, drag, and pulse jet.
+        Args:
+            fluid_system: Optional fluid system object for physics properties
+        Returns:
+            float: Net force (N)
         """
         return (
-            self.compute_buoyant_force()
-            + self.compute_drag_force()
+            self.compute_buoyant_force(fluid_system=fluid_system)
+            + self.compute_drag_force(fluid_system=fluid_system)
             + self.compute_pulse_jet_force()
         )
 
@@ -334,13 +355,13 @@ class Floater:
             "fill_progress": self.fill_progress,
         }
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, fluid_system=None) -> None:
         """
         Update floater's state over a time step dt.
         Considers buoyancy, gravity, drag, and pulse jet forces.
-
         Args:
             dt (float): Time step (s)
+            fluid_system: Optional fluid system object for physics properties
         """
         if dt <= 0:
             raise ValueError("Time step dt must be positive.")
@@ -364,12 +385,12 @@ class Floater:
         # Determine net force, allowing for test override of compute_buoyant_force as net force
         cb_override = self.__dict__.get("compute_buoyant_force", None)
         if cb_override is not None:
-            F_net = cb_override()
+            F_net = cb_override(fluid_system=fluid_system)
         else:
-            F_net = self.force
+            F_net = self.force(fluid_system=fluid_system)
 
         # Compute drag force explicitly for loss calculation
-        F_drag = self.compute_drag_force()
+        F_drag = self.compute_drag_force(fluid_system=fluid_system)
         # Calculate drag loss energy: |F_drag * velocity * dt|
         drag_loss = abs(F_drag * old_velocity * dt)
 

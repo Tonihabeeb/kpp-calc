@@ -63,7 +63,7 @@ class ComponentManager(BaseManager):
         
         # 4. Update individual floaters
         for floater in self.engine.floaters:
-            floater.update(dt)
+            floater.update(dt, fluid_system=self.engine.fluid_system)
         
         # 5. Handle pneumatic performance tracking if available
         pneumatic_executed = self._update_pneumatic_performance_tracking(dt)

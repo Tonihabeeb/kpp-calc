@@ -15,6 +15,7 @@ import time
 import queue
 from datetime import datetime
 import logging
+import requests
 
 # Import our existing simulation engine
 from simulation.engine import SimulationEngine
@@ -46,39 +47,6 @@ def initialize_simulation():
     except Exception as e:
         logger.error(f"Failed to initialize simulation engine: {e}")
         return False
-
-def get_simulation_data():
-    """Get current simulation data in Dash-compatible format"""
-    if not sim_engine:
-        return {
-            "time": 0,
-            "power": 0,
-            "torque": 0,
-            "efficiency": 0,
-            "status": "not_initialized",
-            "error": "Simulation engine not initialized"
-        }
-    
-    try:
-        # Get comprehensive output data
-        data = sim_engine.get_output_data()
-        
-        # Add metadata for Dash
-        data["status"] = "running" if getattr(sim_engine, "running", False) else "stopped"
-        data["timestamp"] = time.time()
-        data["health"] = "healthy"
-        
-        return data
-    except Exception as e:
-        logger.error(f"Error getting simulation data: {e}")
-        return {
-            "time": 0,
-            "power": 0,
-            "torque": 0,
-            "efficiency": 0,
-            "status": "error",
-            "error": str(e)
-        }
 
 # Layout Components
 def create_header():
@@ -521,8 +489,18 @@ app.layout = dbc.Container([
     prevent_initial_call=False
 )
 def update_simulation_data(n_intervals):
-    """Update simulation data store with latest data"""
-    return get_simulation_data()
+    """Fetch latest simulation data from backend via HTTP GET"""
+    backend_url = "http://localhost:5000/data/summary"
+    try:
+        resp = requests.get(backend_url, timeout=5)
+        if resp.status_code == 200:
+            return resp.json()
+        else:
+            logger.error(f"Failed to fetch simulation data: {resp.text}")
+            return {"status": "error", "error": resp.text}
+    except Exception as e:
+        logger.error(f"Error fetching simulation data: {e}")
+        return {"status": "error", "error": str(e)}
 
 @app.callback(
     [Output("power-value", "children"),
@@ -713,51 +691,38 @@ def update_connection_status(data):
 )
 def handle_simulation_controls(start_clicks, stop_clicks, pause_clicks, reset_clicks,
                              num_floaters, floater_volume, air_pressure, pulse_interval):
-    """Handle simulation control button clicks"""
-    global sim_engine
-    
+    """Handle simulation control button clicks via HTTP requests to Flask backend"""
     ctx = dash.callback_context
     if not ctx.triggered:
         return False
     
     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    
+    backend_url = "http://localhost:5000"
     try:
-        if button_id == "start-btn" and sim_engine:
-            # Update parameters before starting
+        if button_id == "start-btn":
             params = {
                 "num_floaters": int(num_floaters),
                 "floater_volume": float(floater_volume),
                 "air_pressure": float(air_pressure),
                 "pulse_interval": float(pulse_interval)
             }
-            
-            # Validate parameters
-            validation_result = validate_parameters_batch(params)
-            if validation_result["valid"]:
-                sim_engine.update_params(validation_result["validated_params"])
-                sim_engine.running = True
-                # Start simulation in background thread if needed
-                logger.info("Simulation started")
-            else:
-                logger.error(f"Parameter validation failed: {validation_result['errors']}")
-                
-        elif button_id == "stop-btn" and sim_engine:
-            sim_engine.running = False
-            logger.info("Simulation stopped")
-            
-        elif button_id == "pause-btn" and sim_engine:
-            sim_engine.running = False
-            logger.info("Simulation paused")
-            
-        elif button_id == "reset-btn" and sim_engine:
-            sim_engine.reset()
-            sim_engine.running = False
-            logger.info("Simulation reset")
-            
+            resp = requests.post(f"{backend_url}/start", json=params, timeout=5)
+            if resp.status_code != 200:
+                logger.error(f"Failed to start simulation: {resp.text}")
+        elif button_id == "stop-btn":
+            resp = requests.post(f"{backend_url}/stop", timeout=5)
+            if resp.status_code != 200:
+                logger.error(f"Failed to stop simulation: {resp.text}")
+        elif button_id == "pause-btn":
+            resp = requests.post(f"{backend_url}/pause", timeout=5)
+            if resp.status_code != 200:
+                logger.error(f"Failed to pause simulation: {resp.text}")
+        elif button_id == "reset-btn":
+            resp = requests.post(f"{backend_url}/reset", timeout=5)
+            if resp.status_code != 200:
+                logger.error(f"Failed to reset simulation: {resp.text}")
     except Exception as e:
-        logger.error(f"Error in simulation control: {e}")
-    
+        logger.error(f"Error in simulation control HTTP request: {e}")
     return False  # Never disable start button permanently
 
 if __name__ == "__main__":
