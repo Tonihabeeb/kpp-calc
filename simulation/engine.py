@@ -155,7 +155,7 @@ class SimulationEngine:
                 volume=params.get('floater_volume', 0.3),
                 mass=params.get('floater_mass_empty', 18.0),
                 area=params.get('floater_area', 0.035),
-                Cd=params.get('floater_Cd', 0.8),
+                drag_coefficient=params.get('floater_Cd', 0.8),
                 air_fill_time=params.get('air_fill_time', 0.5),
                 added_mass=params.get('floater_added_mass', 5.0),
                 phase_offset=2*math.pi*i/params.get('num_floaters',1)
@@ -278,7 +278,7 @@ class SimulationEngine:
             floater.volume = self.params.get('floater_volume', floater.volume)
             floater.mass = self.params.get('floater_mass_empty', floater.mass)
             floater.area = self.params.get('floater_area', floater.area)
-            floater.Cd = self.params.get('floater_Cd', floater.Cd)
+            floater.drag_coefficient = self.params.get('floater_Cd', floater.drag_coefficient)
             floater.air_fill_time = self.params.get('air_fill_time', floater.air_fill_time)
 
         logger.info("Simulation parameters updated.")

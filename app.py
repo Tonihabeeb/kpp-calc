@@ -19,11 +19,13 @@ import time
 import logging
 import csv
 from collections import deque
+from flask_cors import CORS
 
 # Initialize the backend logger
 setup_backend_logger('simulation.log')
 
 app = Flask(__name__)
+CORS(app)
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -119,7 +121,7 @@ def log_response_info(response):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return "KPP Simulator Backend is Running. Use the Dash UI at http://localhost:8050"
 
 @app.route("/stream")
 def stream():
