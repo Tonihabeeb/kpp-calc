@@ -3,7 +3,7 @@
 # Handles real-time simulation, streaming, and control requests
 
 # app.py
-from flask import Flask, render_template, request, send_file, Response
+from flask import Flask, render_template, request, send_file, Response, jsonify
 from simulation.engine import SimulationEngine
 from simulation.components.floater import Floater
 from utils.backend_logger import setup_backend_logger
@@ -20,6 +20,11 @@ import logging
 import csv
 from collections import deque
 from flask_cors import CORS
+import requests
+import requests as real_requests
+from flask_socketio import SocketIO, emit
+from config.parameter_schema import get_default_parameters, validate_parameters_batch
+from pydantic import BaseModel, ValidationError
 
 # Initialize the backend logger
 setup_backend_logger('simulation.log')
@@ -28,7 +33,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
 
 # Set up the data queue and initial params for the real-time engine
 sim_data_queue = queue.Queue()
@@ -88,13 +93,15 @@ analysis_thread.start()
 
 @app.before_request
 def log_request_info():
-    app.logger.info("Request Headers: %s", request.headers)
-    app.logger.info("Request Body: %s", request.get_data())
+    logging.info(f"Incoming request: {request.method} {request.path}")
+    logging.info(f"Headers: {dict(request.headers)}")
+    if request.method in ['POST', 'PUT', 'PATCH']:
+        logging.info(f"Body: {request.get_data()}")
 
 @app.after_request
 def log_response_info(response):
-    app.logger.info("Response Status: %s", response.status)
-    app.logger.info("Response Headers: %s", response.headers)
+    logging.info(f"Response status: {response.status}")
+    logging.info(f"Response headers: {dict(response.headers)}")
 
     # Collect data from the /data/summary endpoint for analysis
     if request.endpoint == 'summary_data' and response.status_code == 200:
@@ -121,7 +128,7 @@ def log_response_info(response):
 
 @app.route("/")
 def index():
-    return "KPP Simulator Backend is Running. Use the Dash UI at http://localhost:8050"
+    return "KPP Simulator Backend is Running. Use the Dash UI at http://localhost:8051"
 
 @app.route("/stream")
 def stream():
@@ -148,7 +155,8 @@ def stream():
                 # Get latest data from engine
                 if not engine.data_queue.empty():
                     data = engine.data_queue.get()
-                    output_data.append(data)  # Collect data for analysis
+                    output_data.append(data)
+                    emit_realtime_data(data)
                     # Write to CSV in real time
                     with open(log_file, 'a', newline='') as f:
                         writer = csv.DictWriter(f, fieldnames=log_fields)
@@ -187,14 +195,8 @@ def start_simulation():
             clutch_c=(engine.clutch.state.c if engine.clutch.state else 0.0),
             clutch_state=(engine.clutch.state.state if engine.clutch.state else None)
         )
-        # Start simulation thread if not already running
-        if not hasattr(engine, 'thread') or engine.thread is None or not engine.thread.is_alive():
-            engine.running = True
-            engine.thread = threading.Thread(target=engine.run, daemon=True)
-            engine.thread.start()
-            app.logger.info("Simulation thread started.")
-        else:
-            app.logger.info("Simulation thread already running.")
+        # Always start the simulation
+        engine.start()
         return ("Simulation started", 200)
     except Exception as e:
         app.logger.error(f"Error in /start: {e}")
@@ -251,31 +253,6 @@ def set_simulation_params():
     engine.update_params(params)
     return (json.dumps({'status': 'ok', 'updated_params': params}), 200, {'ContentType':'application/json'})
 
-@app.route("/data/summary")
-def summary_data():
-    # Get the latest data from the queue if available
-    try:
-        latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
-    except Exception:
-        latest = None
-    if not latest:
-        return {}
-    # Map to engine state keys
-    return {
-        'time': latest.get('time', 0),
-        'torque': latest.get('torque', 0),
-        'power': latest.get('power', 0),
-        'avg_floater_velocity': latest.get('avg_floater_velocity', 0),
-        'floaters': latest.get('floaters', []),
-        'pulse_torque': latest.get('pulse_torque', 0),
-        'base_buoy_torque': latest.get('base_buoy_torque', 0),
-        'pulse_count': latest.get('pulse_count', 0),
-        'flywheel_speed_rpm': latest.get('flywheel_speed_rpm', 0),
-        'chain_speed_rpm': latest.get('chain_speed_rpm', 0),
-        'clutch_engaged': latest.get('clutch_engaged', False),
-        'overall_efficiency': latest.get('overall_efficiency', 0)
-    }
-
 @app.route("/chart/<metric>.png")
 def chart_image(metric):
     # Collect history from the queue for plotting
@@ -323,18 +300,6 @@ def data_history():
     for field in history_fields:
         history[field] = [entry.get(field, 0) for entry in data_list]
     return history
-
-@app.route("/reset", methods=["POST"])
-def reset_simulation():
-    app.logger.info("/reset endpoint triggered.")
-    try:
-        engine.reset()
-        engine.running = False
-        app.logger.info("Simulation reset.")
-        return ("Simulation reset", 200)
-    except Exception as e:
-        app.logger.error(f"Error in /reset: {e}")
-        return (json.dumps({"status": "error", "message": str(e)}), 500, {'ContentType':'application/json'})
 
 @app.route('/download_csv')
 def download_csv():
@@ -931,5 +896,63 @@ def chain_status():
 # END PHASE 8: INTEGRATED SYSTEMS API ENDPOINTS
 # ========================================================================================
 
+# Example schema for outgoing realtime data
+class RealtimeDataSchema(BaseModel):
+    time: float
+    power: float
+    torque: float
+    avg_floater_velocity: float = 0.0
+    pulse_count: int = 0
+    flywheel_speed_rpm: float = 0.0
+    chain_speed_rpm: float = 0.0
+    overall_efficiency: float = 0.0
+    status: str = "running"
+    # Add more fields as needed
+
+# Initialize SocketIO
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+
+def emit_realtime_data(data):
+    try:
+        # Validate data against schema
+        validated = RealtimeDataSchema(**data)
+        socketio.emit('realtime_data', validated.dict())
+        app.logger.info(f"[WebSocket] Emitted realtime_data: {validated.dict()}")
+    except ValidationError as ve:
+        app.logger.error(f"[WebSocket] Validation error: {ve}")
+    except Exception as e:
+        app.logger.error(f"[WebSocket] Emit error: {e}")
+
+@socketio.on('connect')
+def ws_connect():
+    app.logger.info("[WebSocket] Client connected.")
+
+@socketio.on('disconnect')
+def ws_disconnect():
+    app.logger.info("[WebSocket] Client disconnected.")
+
+@socketio.on_error()
+def ws_error(e):
+    app.logger.error(f"[WebSocket] Error: {e}")
+
+@app.route("/parameters", methods=["GET"])
+def get_parameters():
+    params = engine.get_parameters()
+    return jsonify(params)
+
+@app.route("/parameters", methods=["POST"])
+def set_parameters():
+    params = request.get_json() or {}
+    validation = validate_parameters_batch(params)
+    if not validation["valid"]:
+        return jsonify({"status": "error", "errors": validation["errors"]}), 400
+    engine.set_parameters(validation["validated_params"])
+    return jsonify({"status": "ok", "updated_params": validation["validated_params"]})
+
+@app.route("/data/summary", methods=["GET"])
+def summary_data():
+    summary = engine.get_summary()
+    return jsonify(summary)
+
 if __name__ == "__main__":
-    app.run(debug=True, threaded=True)
+    socketio.run(app, host="0.0.0.0", port=5001)

@@ -774,6 +774,20 @@ def handle_simulation_controls(start_clicks, stop_clicks, pause_clicks, reset_cl
     
     return False
 
+# Status Display Functions
+def create_drivetrain_status_display(data):
+    """Create drivetrain status card with RPM, torque, clutch state"""
+    if not data:
+        return dbc.Alert("No drivetrain data", color="warning")
+    return dbc.Card([
+        dbc.CardHeader("Drivetrain Status"),
+        dbc.CardBody([
+            html.P(f"Output RPM: {data.get('output_rpm', 'N/A')}", className="mb-1"),
+            html.P(f"Torque: {data.get('torque', 'N/A')} Nm", className="mb-1"),
+            html.P(f"Clutch Engaged: {data.get('clutch_engaged', 'N/A')}", className="mb-1")
+        ])
+    ], color="primary", inverse=True)
+
 # System Overview Callbacks
 @app.callback(
     [Output("drivetrain-overview", "children"),
@@ -784,40 +798,45 @@ def handle_simulation_controls(start_clicks, stop_clicks, pause_clicks, reset_cl
 )
 def update_system_overview(data):
     """Update comprehensive system overview panels"""
+    empty_status = html.Small("No data", className="text-muted")
     if not data:
-        empty_status = html.Small("No data", className="text-muted")
         return empty_status, empty_status, empty_status, empty_status
-    
-    # Drivetrain Overview
-    drivetrain = [
-        html.Small(f"RPM: {data.get('flywheel_speed_rpm', 0):.0f}", className="d-block"),
-        html.Small(f"Clutch: {'Engaged' if data.get('clutch_engaged', False) else 'Disengaged'}", className="d-block"),
-        html.Small(f"Chain Tension: {data.get('chain_tension', 0):.1f}N", className="d-block text-muted")
-    ]
-    
-    # Electrical Overview
-    electrical = [
-        html.Small(f"Grid Power: {data.get('grid_power_output', 0):.0f}W", className="d-block"),
-        html.Small(f"Sync: {'Yes' if data.get('electrical_synchronized', False) else 'No'}", className="d-block"),
-        html.Small(f"Load Factor: {data.get('electrical_load_factor', 0)*100:.1f}%", className="d-block text-muted")
-    ]
-    
-    # Control Overview
-    control = [
-        html.Small(f"Mode: {data.get('control_mode', 'Normal').title()}", className="d-block"),
-        html.Small(f"Health: {data.get('system_health', 1.0)*100:.0f}%", className="d-block"),
-        html.Small(f"Status: Active", className="d-block text-muted")
-    ]
-    
-    # Physics Overview
+
+    # Drivetrain Overview (new card)
+    drivetrain = create_drivetrain_status_display(data.get('drivetrain_status', {}))
+
+    # Electrical Overview (placeholder, to be improved)
+    electrical = dbc.Card([
+        dbc.CardHeader("Electrical Status"),
+        dbc.CardBody([
+            html.P(f"Grid Power: {data.get('grid_power_output', 0):.0f}W", className="mb-1"),
+            html.P(f"Sync: {'Yes' if data.get('electrical_synchronized', False) else 'No'}", className="mb-1"),
+            html.P(f"Load Factor: {data.get('electrical_load_factor', 0)*100:.1f}%", className="mb-1 text-muted")
+        ])
+    ], color="success", inverse=True)
+
+    # Control Overview (placeholder, to be improved)
+    control = dbc.Card([
+        dbc.CardHeader("Control Status"),
+        dbc.CardBody([
+            html.P(f"Mode: {data.get('control_mode', 'Normal').title()}", className="mb-1"),
+            html.P(f"Health: {data.get('system_health', 1.0)*100:.0f}%", className="mb-1"),
+            html.P(f"Status: Active", className="mb-1 text-muted")
+        ])
+    ], color="warning", inverse=True)
+
+    # Physics Overview (placeholder, to be improved)
     h1_active = data.get('nanobubble_frac', 0) > 0
     h2_active = data.get('thermal_coeff', 0.0001) != 0.0001
-    physics = [
-        html.Small(f"H1 Nanobubbles: {'Active' if h1_active else 'Inactive'}", className="d-block"),
-        html.Small(f"H2 Thermal: {'Active' if h2_active else 'Inactive'}", className="d-block"),
-        html.Small(f"Water Temp: {data.get('water_temp', 20):.1f}°C", className="d-block text-muted")
-    ]
-    
+    physics = dbc.Card([
+        dbc.CardHeader("Physics Status"),
+        dbc.CardBody([
+            html.P(f"H1 Nanobubbles: {'Active' if h1_active else 'Inactive'}", className="mb-1"),
+            html.P(f"H2 Thermal: {'Active' if h2_active else 'Inactive'}", className="mb-1"),
+            html.P(f"Water Temp: {data.get('water_temp', 20):.1f}°C", className="mb-1 text-muted")
+        ])
+    ], color="info", inverse=True)
+
     return drivetrain, electrical, control, physics
 
 if __name__ == "__main__":

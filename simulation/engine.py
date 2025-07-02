@@ -32,6 +32,7 @@ from config.config import G, RHO_WATER  # Add physics constants
 from simulation.components.chain import Chain
 from simulation.components.fluid import Fluid
 from simulation.components.thermal import ThermalModel
+from config.parameter_schema import get_default_parameters
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -265,6 +266,9 @@ class SimulationEngine:
         
         logger.info("Pneumatic coordinator and performance analysis systems initialized")
 
+        self.latest_state = {}
+        self.latest_state_lock = threading.Lock()
+
     def update_params(self, params):
         """
         Update simulation parameters and component parameters.
@@ -299,7 +303,6 @@ class SimulationEngine:
     def run(self):
         self.running = True
         logger.info("Simulation loop started.")
-        # Force an initial pulse at t=0 to kick off the system
         if self.time == 0.0:
             logger.info("Forcing initial pulse at t=0.0")
             self.trigger_pulse()
@@ -309,7 +312,14 @@ class SimulationEngine:
                 logger.debug(f"Floater {i}: theta={getattr(floater, 'theta', 0.0):.2f}, filled={getattr(floater, 'is_filled', False)}, pos={floater.get_cartesian_position() if hasattr(floater, 'get_cartesian_position') else 'N/A'}")
             logger.debug(f"Drivetrain: omega_chain={getattr(self.drivetrain, 'omega_chain', 0.0):.2f}, omega_flywheel={getattr(self.drivetrain, 'omega_flywheel', 0.0):.2f}, clutch_engaged={getattr(self.drivetrain, 'clutch_engaged', False)}")
             logger.debug(f"Generator: target_omega={getattr(self.generator, 'target_omega', 0.0):.2f}, target_power={getattr(self.generator, 'target_power', 0.0):.2f}")
-            self.step(self.dt)
+            state = self.step(self.dt)
+            # Update latest_state atomically
+            with self.latest_state_lock:
+                self.latest_state = state
+            # Log after step to confirm loop is running
+            logger.info(f"Simulation loop running: t={self.time:.2f}")
+            # Log queue size
+            logger.info(f"Data queue size: {self.data_queue.qsize()}")
             time.sleep(self.dt)
         logger.info("Simulation loop stopped.")
 
@@ -335,6 +345,9 @@ class SimulationEngine:
         """
         if dt <= 0:
             raise ValueError("Time step dt must be positive.")
+
+        step_start = time.time()
+        logger.debug(f"[PERF] Simulation step started at {step_start:.3f}")
 
         # 1. Check for pulse trigger
         if self.time - self.last_pulse_time >= self.params.get('pulse_interval', 2.0):
@@ -723,6 +736,10 @@ class SimulationEngine:
         # 8. Collect and log data
         self.time += dt
         
+        # At the end of the step
+        step_end = time.time()
+        logger.debug(f"[PERF] Simulation step finished at {step_end:.3f}, duration: {step_end - step_start:.4f} seconds")
+        
         # Return the complete state data for external access
         return self.collect_state()
 
@@ -946,11 +963,17 @@ class SimulationEngine:
             return {}
         return self.data_log[-1]
 
-    def start_thread(self):
-        if not self.thread or not self.thread.is_alive():
+    def start(self):
+        """
+        Start the simulation loop. Sets running=True and starts the thread if needed.
+        """
+        self.running = True
+        if not hasattr(self, 'thread') or self.thread is None or not self.thread.is_alive():
             self.thread = threading.Thread(target=self.run, daemon=True)
             self.thread.start()
-            logger.info("Simulation thread started.")
+            logger.info("Simulation thread started (from start method).")
+        else:
+            logger.info("Simulation thread already running; set running=True.")
 
     def reset(self):
         """
@@ -1170,3 +1193,47 @@ class SimulationEngine:
             'fluid_properties': self.fluid_system.get_fluid_properties(),
             'thermal_properties': self.thermal_model.get_thermal_properties()
         }
+
+    def get_latest_state(self):
+        with self.latest_state_lock:
+            return dict(self.latest_state) if self.latest_state else {}
+
+    def get_parameters(self):
+        """
+        Return all current simulation parameters as a dict.
+        """
+        params = get_default_parameters()
+        params.update(getattr(self, "params", {}))
+        return params
+
+    def set_parameters(self, params):
+        """
+        Set simulation parameters from a dict.
+        """
+        self.update_params(params)
+        # Optionally, update any other subsystems/components here
+
+    def get_summary(self):
+        """
+        Return a summary of all key metrics and system state for the frontend.
+        """
+        if hasattr(self, "get_latest_state"):
+            state = self.get_latest_state()
+        elif hasattr(self, "collect_state"):
+            state = self.collect_state()
+        else:
+            state = {}
+
+        summary = {
+            "time": state.get("time", 0),
+            "power": state.get("power", 0),
+            "torque": state.get("torque", 0),
+            "overall_efficiency": state.get("overall_efficiency", 0),
+            "pulse_count": state.get("pulse_count", 0),
+            "flywheel_speed_rpm": state.get("flywheel_speed_rpm", 0),
+            "grid_power_output": state.get("grid_power_output", 0),
+            "electrical_efficiency": state.get("electrical_efficiency", 0),
+            "status": "running" if getattr(self, "running", False) else "stopped",
+            # Add more fields as needed for your UI
+        }
+        return summary

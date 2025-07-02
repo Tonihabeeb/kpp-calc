@@ -163,7 +163,7 @@ class WaterThermalReservoir:
         ) / tank_height
 
         logger.info(
-            f"Water thermal reservoir: {bottom_temperature:.1f}K → {surface_temperature:.1f}K"
+            f"Water thermal reservoir: {bottom_temperature:.1f}K -> {surface_temperature:.1f}K"
         )
 
     def water_temperature_at_depth(self, depth: float) -> float:
@@ -231,7 +231,7 @@ class WaterThermalReservoir:
         }
 
         logger.debug(
-            f"Thermal stratification: {temp_initial:.1f}K → {temp_final:.1f}K "
+            f"Thermal stratification: {temp_initial:.1f}K -> {temp_final:.1f}K "
             f"(Δpos: {position_change:.1f}m)"
         )
 
@@ -456,7 +456,7 @@ class AirWaterHeatExchange:
 
         logger.debug(
             f"Heat transfer over {time_duration:.1f}s: "
-            f"{initial_air_temperature:.1f}K → {final_temperature:.1f}K "
+            f"{initial_air_temperature:.1f}K -> {final_temperature:.1f}K "
             f"(total heat: {cumulative_heat/1000:.1f} kJ)"
         )
 
@@ -570,7 +570,7 @@ class CompressionHeatRecovery:
         }
 
         logger.debug(
-            f"Heat recovery: {actual_heat_transferred/1000:.1f} kJ → "
+            f"Heat recovery: {actual_heat_transferred/1000:.1f} kJ -> "
             f"water temp rise {water_temperature_rise:.2f}K"
         )
 
