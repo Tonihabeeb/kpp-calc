@@ -14,9 +14,9 @@ class SimulationConfig(BaseModel):
     floater_volume: float = 0.3
     floater_mass_empty: float = 18.0
     floater_area: float = 0.035
-    airPressure: float = 3.0
+    # Fixed: Remove duplicate air pressure fields, use consistent naming
+    air_pressure: float = 300000  # Pa (Pascals)
     air_fill_time: float = 0.5
-    air_pressure: float = 300000
     air_flow_rate: float = 0.6
     jet_efficiency: float = 0.85
     sprocket_radius: float = 0.5
@@ -71,10 +71,16 @@ class SimulationCore:
 
     def _run_loop(self):
         while not self._stop_event.is_set():
-            if self.running:
+            # Check running state with proper synchronization
+            with self.lock:
+                should_run = self.running
+            
+            if should_run:
                 self.tick()
                 self.broadcast()
-            time.sleep(0.1)
+            
+            # Use the stop event for sleeping to enable immediate shutdown
+            self._stop_event.wait(timeout=0.1)
 
     def tick(self):
         with self.lock:
@@ -84,29 +90,59 @@ class SimulationCore:
             logging.info(f"tick() -> {self.state}")
 
     def broadcast(self):
-        for queue in self.listeners:
+        # Clean up disconnected listeners to prevent memory leaks
+        active_listeners = []
+        for queue in self.listeners[:]:  # Create a copy to iterate safely
             try:
                 queue.put_nowait(self.state.dict())
+                active_listeners.append(queue)
             except Exception as e:
-                logging.warning(f"Broadcast failed: {e}")
+                logging.warning(f"Broadcast failed, removing listener: {e}")
+                # Don't add failed listeners to active list (auto-cleanup)
+        
+        # Update listeners list with only active ones
+        with self.lock:
+            self.listeners = active_listeners
+        
         logging.info(f"broadcast() -> {len(self.listeners)} clients")
 
     def register_listener(self, queue: asyncio.Queue):
-        self.listeners.append(queue)
+        with self.lock:
+            # Prevent excessive memory usage by limiting concurrent listeners
+            if len(self.listeners) >= 100:  # Reasonable limit
+                logging.warning("Maximum listener limit reached, rejecting new listener")
+                return False
+            self.listeners.append(queue)
+            return True
 
     def unregister_listener(self, queue: asyncio.Queue):
-        if queue in self.listeners:
-            self.listeners.remove(queue)
+        with self.lock:
+            if queue in self.listeners:
+                self.listeners.remove(queue)
 
 # --- FastAPI App ---
 logging.basicConfig(level=logging.INFO)
 app = FastAPI()
+# Configure CORS with secure defaults
+# In production, replace with specific allowed origins
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React dev server
+    "http://localhost:8000",  # Local development
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000",
+]
+
+# Get allowed origins from environment variable for production
+import os
+if origins_env := os.getenv("ALLOWED_ORIGINS"):
+    ALLOWED_ORIGINS = origins_env.split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],  # Specific methods only
+    allow_headers=["Content-Type", "Authorization"],  # Specific headers only
 )
 sim_core = SimulationCore(SimulationConfig())
 sim_core.start()
@@ -115,7 +151,12 @@ sim_core.start()
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     queue: asyncio.Queue = asyncio.Queue()
-    sim_core.register_listener(queue)
+    
+    # Check if listener registration was successful
+    if not sim_core.register_listener(queue):
+        await websocket.close(code=1013, reason="Server overloaded")
+        return
+    
     try:
         while True:
             data = await queue.get()
