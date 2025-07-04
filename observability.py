@@ -129,15 +129,16 @@ def trace_operation(operation_name: str):
 def init_observability(app):
     """Initialize observability hooks for Flask/Dash application"""
     
-    # Configure logging format to include trace IDs
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s | %(levelname)s | %(trace_id)s | %(name)s | %(message)s",
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler('kpp_traces.log')
-        ]
-    )
+    # Configure logging format to include trace IDs (only if not already configured)
+    if not logging.getLogger().handlers:
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s | %(levelname)s | %(trace_id)s | %(name)s | %(message)s",
+            handlers=[
+                logging.StreamHandler(),
+                logging.FileHandler('kpp_traces.log', mode='a', encoding='utf-8')
+            ]
+        )
     
     # Create trace-aware logger
     trace_logger = get_trace_logger("observability")

@@ -12,6 +12,10 @@ except ImportError:
 
 
 def setup_logging():
+    # Check if logging is already configured to prevent duplicate setup
+    if logging.getLogger().handlers:
+        return  # Already configured, skip setup
+    
     # Remove all handlers
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)

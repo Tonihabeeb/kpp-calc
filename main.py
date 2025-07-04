@@ -58,7 +58,8 @@ class SynchronizedKPPFetcher:
             asyncio.create_task(self.listen_for_frames())
             
         except Exception as e:
-            logging.error(f"Failed to connect to master clock: {e}")
+            # Don't log as error during startup - master clock might not be ready yet
+            logging.info(f"Master clock not available during startup: {e}")
             self.master_clock_connected = False
     
     async def listen_for_frames(self):
