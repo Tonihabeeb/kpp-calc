@@ -131,14 +131,19 @@ def init_observability(app):
     
     # Configure logging format to include trace IDs (only if not already configured)
     if not logging.getLogger().handlers:
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s | %(levelname)s | %(trace_id)s | %(name)s | %(message)s",
-            handlers=[
-                logging.StreamHandler(),
-                logging.FileHandler('kpp_traces.log', mode='a', encoding='utf-8')
-            ]
-        )
+        # Create handlers with proper cleanup
+        console_handler = logging.StreamHandler()
+        file_handler = logging.FileHandler('kpp_traces.log', mode='a', encoding='utf-8')
+        
+        # Set formatter
+        formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(trace_id)s | %(name)s | %(message)s")
+        console_handler.setFormatter(formatter)
+        file_handler.setFormatter(formatter)
+        
+        # Add handlers to root logger
+        logging.getLogger().addHandler(console_handler)
+        logging.getLogger().addHandler(file_handler)
+        logging.getLogger().setLevel(logging.INFO)
     
     # Create trace-aware logger
     trace_logger = get_trace_logger("observability")

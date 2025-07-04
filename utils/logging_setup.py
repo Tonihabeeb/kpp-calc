@@ -16,6 +16,11 @@ def setup_logging():
     if logging.getLogger().handlers:
         return  # Already configured, skip setup
     
+    # Check if we've already set up logging (global flag)
+    if hasattr(setup_logging, '_configured'):
+        return
+    setup_logging._configured = True
+    
     # Remove all handlers
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)

@@ -1037,7 +1037,7 @@ app.layout = dbc.Container([
     ]),
     
     # Synchronized real-time interval (30 FPS for smooth animations)
-    dcc.Interval(id="interval-component", interval=1000, n_intervals=0),  # 1 Hz for stable performance
+            dcc.Interval(id="interval-component", interval=5000, n_intervals=0),  # 5 Hz for stable performance (reduced from 1 Hz)
             dcc.Interval(id="realtime-interval", interval=5000, n_intervals=0),   # 5 second updates (reduced from 1 second)
     
     # Layout components
