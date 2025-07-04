@@ -33,7 +33,7 @@ app.layout = dbc.Container([
             html.Div(id="output-area", className="mt-3"),
             
             # Auto-refresh
-            dcc.Interval(id="auto-refresh", interval=2000, n_intervals=0)
+            dcc.Interval(id="auto-refresh", interval=10000, n_intervals=0)
         ])
     ])
 ], fluid=True)

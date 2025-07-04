@@ -1,0 +1,115 @@
+{
+  "system": {
+    "name": "KPP Simulator Synchronized System",
+    "version": "2.0.0",
+    "environment": "development"
+  },
+  "servers": {
+    "flask_backend": {
+      "name": "Flask Backend",
+      "script": "app.py",
+      "port": 9100,
+      "health_endpoint": "/status",
+      "startup_timeout": 10,
+      "retry_attempts": 3,
+      "retry_delay": 2
+    },
+    "master_clock": {
+      "name": "Master Clock Server",
+      "script": "realtime_sync_master.py",
+      "port": 9200,
+      "health_endpoint": "/health",
+      "startup_timeout": 5,
+      "retry_attempts": 3,
+      "retry_delay": 1
+    },
+    "websocket_server": {
+      "name": "WebSocket Server",
+      "script": "main.py",
+      "port": 9101,
+      "health_endpoint": "/",
+      "startup_timeout": 5,
+      "retry_attempts": 3,
+      "retry_delay": 1
+    },
+    "dash_frontend": {
+      "name": "Dash Frontend",
+      "script": "dash_app.py",
+      "port": 9103,
+      "health_endpoint": "/",
+      "startup_timeout": 10,
+      "retry_attempts": 3,
+      "retry_delay": 2
+    }
+  },
+  "monitoring": {
+    "health_check_interval": 30,
+    "error_check_interval": 30,
+    "max_error_log_size": 1000,
+    "performance_thresholds": {
+      "cpu_warning": 80,
+      "cpu_critical": 90,
+      "memory_warning": 80,
+      "memory_critical": 85,
+      "disk_warning": 15,
+      "disk_critical": 10
+    },
+    "response_time_thresholds": {
+      "warning": 1000,
+      "critical": 5000
+    }
+  },
+  "error_handling": {
+    "max_retries": 3,
+    "retry_delay": 5,
+    "backoff_multiplier": 2,
+    "circuit_breaker_threshold": 5,
+    "circuit_breaker_timeout": 60
+  },
+  "logging": {
+    "log_level": "INFO",
+    "log_file": "logs/kpp_system.log",
+    "max_log_size_mb": 10,
+    "log_rotation_count": 5,
+    "console_output": true,
+    "file_output": true
+  },
+  "security": {
+    "url_validation": true,
+    "input_sanitization": true,
+    "script_integrity_check": false,
+    "allowed_scripts": [
+      "app.py",
+      "realtime_sync_master.py",
+      "main.py",
+      "dash_app.py"
+    ]
+  },
+  "dependencies": {
+    "python_packages": [
+      "uvicorn",
+      "websockets",
+      "fastapi",
+      "dash",
+      "plotly"
+    ],
+    "startup_sequence": [
+      "flask_backend",
+      "master_clock",
+      "websocket_server",
+      "dash_frontend"
+    ],
+    "shutdown_sequence": [
+      "dash_frontend",
+      "websocket_server",
+      "master_clock",
+      "flask_backend"
+    ]
+  },
+  "urls": {
+    "dashboard": "http://localhost:9103",
+    "master_clock_metrics": "http://localhost:9200/metrics",
+    "backend_api": "http://localhost:9100/status",
+    "websocket": "http://localhost:9101"
+  }
+} 

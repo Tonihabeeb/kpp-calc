@@ -31,6 +31,91 @@ from config.parameter_schema import get_default_parameters, validate_parameters_
 # Configure logging
 setup_logging()
 
+# ADDED: Connection pooling and request management to fix ERR_INSUFFICIENT_RESOURCES
+import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
+# Create a session with connection pooling and limits
+def create_http_session():
+    """Create HTTP session with connection pooling and retry logic"""
+    session = requests.Session()
+    
+    # Configure retry strategy
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=0.3,
+        status_forcelist=[429, 500, 502, 503, 504],
+    )
+    
+    # Configure HTTP adapter with connection pooling
+    adapter = HTTPAdapter(
+        pool_connections=5,  # Number of connection pools
+        pool_maxsize=10,     # Maximum number of connections in pool
+        max_retries=retry_strategy,
+        pool_block=False     # Don't block when pool is full
+    )
+    
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    
+    return session
+
+# Global HTTP session for connection reuse
+http_session = create_http_session()
+
+# ADDED: Rate limiting and caching to prevent resource exhaustion
+import time as time_module
+from threading import Lock
+
+# Rate limiting variables
+_last_request_time = 0
+_cached_data = None
+_cache_lock = Lock()
+_request_count = 0
+_max_requests_per_second = 2  # Limit to 2 requests per second
+
+def should_throttle_request():
+    """Check if we should throttle the request to prevent resource exhaustion"""
+    global _last_request_time, _request_count
+    
+    current_time = time_module.time()
+    
+    # Reset counter every second
+    if current_time - _last_request_time >= 1.0:
+        _request_count = 0
+        _last_request_time = current_time
+    
+    # Check if we've exceeded the limit
+    if _request_count >= _max_requests_per_second:
+        return True
+    
+    _request_count += 1
+    return False
+
+# ADDED: Memory management to prevent memory leaks
+import gc
+import weakref
+
+def cleanup_memory():
+    """Periodic memory cleanup to prevent leaks"""
+    # Force garbage collection
+    gc.collect()
+    
+    # Clear any large data structures periodically
+    global _cached_data
+    with _cache_lock:
+        # Keep only recent data to prevent memory buildup
+        if _cached_data and isinstance(_cached_data, dict):
+            # Limit cached data size
+            if len(str(_cached_data)) > 10000:  # If data is getting too large
+                _cached_data = {
+                    'time': _cached_data.get('time', 0.0),
+                    'power': _cached_data.get('power', 0.0),
+                    'torque': _cached_data.get('torque', 0.0),
+                    'status': _cached_data.get('status', 'unknown')
+                }
+
 # Import observability system
 from observability import init_observability, get_trace_logger, trace_operation, get_current_trace_id
 
@@ -68,7 +153,7 @@ trace_logger = get_trace_logger("kpp_dash")
 class SynchronizedDataManager:
     """Manages real-time data from master clock for smooth visualization"""
     
-    def __init__(self, master_clock_url="ws://localhost:9200/sync"):
+    def __init__(self, master_clock_url="ws://localhost:9201/sync"):
         self.master_clock_url = master_clock_url
         self.latest_frame = {
             'time': 0.0,
@@ -952,8 +1037,8 @@ app.layout = dbc.Container([
     ]),
     
     # Synchronized real-time interval (30 FPS for smooth animations)
-    dcc.Interval(id="interval-component", interval=33, n_intervals=0),  # 30 FPS for smooth charts
-    dcc.Interval(id="realtime-interval", interval=33, n_intervals=0),   # Synchronized with master clock
+    dcc.Interval(id="interval-component", interval=1000, n_intervals=0),  # 1 Hz for stable performance
+    dcc.Interval(id="realtime-interval", interval=1000, n_intervals=0),   # 1 Hz synchronized updates
     
     # Layout components
     create_header(),
@@ -1195,8 +1280,8 @@ def unified_param_notification_preset_callback(
                     "target_power": current_params.get("target_power", 530000.0)
                 }
                 
-                # Send to backend
-                response = requests.post(f"{BACKEND_URL}/update_params", json=backend_params)
+                # Send to backend using pooled session
+                response = http_session.post(f"{BACKEND_URL}/update_params", json=backend_params, timeout=5)
                 if response.status_code == 200:
                     notification = {"show": True, "message": "Advanced parameters updated successfully", "color": "success"}
                     params = backend_params
@@ -1231,8 +1316,8 @@ def unified_param_notification_preset_callback(
                     "ambient_temp": ambient_temp + 273.15  # Convert to Kelvin for backend
                 }
                 
-                # Send to backend
-                response = requests.post(f"{BACKEND_URL}/control/enhanced_physics", json=physics_params)
+                # Send to backend using pooled session
+                response = http_session.post(f"{BACKEND_URL}/control/enhanced_physics", json=physics_params, timeout=5)
                 if response.status_code == 200:
                     notification = {"show": True, "message": "Physics controls updated successfully", "color": "success"}
                     params = physics_params
@@ -1274,26 +1359,26 @@ def handle_simulation_controls(start_clicks, stop_clicks, pause_clicks, reset_cl
     
     try:
         if button_id == "start-btn":
-            response = requests.post(f"{BACKEND_URL}/start", timeout=10)
+            response = http_session.post(f"{BACKEND_URL}/start", timeout=10)
             if response.status_code == 200:
                 return True, False, False, False  # Start disabled, others enabled
             else:
                 print(f"Start button failed: {response.status_code} - {response.text}")
                 return False, True, True, True   # Keep start enabled if failed
         elif button_id == "stop-btn":
-            response = requests.post(f"{BACKEND_URL}/stop", timeout=10)
+            response = http_session.post(f"{BACKEND_URL}/stop", timeout=10)
             if response.status_code == 200:
                 return False, True, True, True   # Start enabled, others disabled
             else:
                 return True, False, False, False # Keep stop enabled if failed
         elif button_id == "pause-btn":
-            response = requests.post(f"{BACKEND_URL}/pause", timeout=10)
+            response = http_session.post(f"{BACKEND_URL}/pause", timeout=10)
             if response.status_code == 200:
                 return False, False, True, False # Pause disabled, others enabled
             else:
                 return True, False, False, False # Keep pause enabled if failed
         elif button_id == "reset-btn":
-            response = requests.post(f"{BACKEND_URL}/reset", timeout=10)
+            response = http_session.post(f"{BACKEND_URL}/reset", timeout=10)
             if response.status_code == 200:
                 return False, True, True, True   # Start enabled, others disabled
             else:
@@ -1733,12 +1818,24 @@ def update_status_indicators(simulation_data):
     prevent_initial_call=True
 )
 def fetch_synchronized_data(n_intervals):
-    """Fetch real-time simulation data from synchronized master clock (30 FPS smooth updates)"""
+    """Fetch real-time simulation data with rate limiting to prevent resource exhaustion"""
+    global _cached_data
     
     # Initialize master clock connection on first call
     if n_intervals == 1:
         sync_data_manager.start_background_connection()
         logging.info("Starting synchronized data connection to master clock")
+    
+    # ADDED: Periodic memory cleanup to prevent leaks
+    if n_intervals % 60 == 0:  # Every 60 seconds
+        cleanup_memory()
+    
+    # ADDED: Rate limiting to prevent ERR_INSUFFICIENT_RESOURCES
+    if should_throttle_request():
+        # Return cached data if we're being throttled
+        with _cache_lock:
+            if _cached_data is not None:
+                return _cached_data
     
     try:
         # Get latest synchronized data
@@ -1747,10 +1844,14 @@ def fetch_synchronized_data(n_intervals):
             synchronized_data = sync_data_manager.get_latest_data()
             
             # Log successful sync occasionally for monitoring
-            if n_intervals % 300 == 0:  # Every 10 seconds at 30 FPS
+            if n_intervals % 300 == 0:  # Every 10 seconds at 1 Hz
                 logging.info(f"Synchronized data: t={synchronized_data['time']:.1f}s, "
                            f"P={synchronized_data['power']:.0f}W, "
                            f"frame_id={synchronized_data.get('frame_id', 0)}")
+            
+            # Cache the data for throttling
+            with _cache_lock:
+                _cached_data = synchronized_data
             
             return synchronized_data
         

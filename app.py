@@ -25,6 +25,35 @@ sim_data_queue = queue.Queue(maxsize=1000)  # FIXED: Bounded queue
 def index():
     return "KPP Simulator Backend (CRASH-FIXED) is Running"
 
+# ADDED: Static file serving route to fix CSS 500 errors
+@app.route("/static/<path:filename>")
+def serve_static(filename):
+    """Serve static files (CSS, JS, images) properly"""
+    try:
+        import os
+        from flask import send_from_directory
+        
+        # Get the static directory path
+        static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+        
+        # Ensure the static directory exists
+        if not os.path.exists(static_dir):
+            logger.error(f"Static directory not found: {static_dir}")
+            return "Static directory not found", 404
+        
+        # Check if the requested file exists
+        file_path = os.path.join(static_dir, filename)
+        if not os.path.exists(file_path):
+            logger.error(f"Static file not found: {file_path}")
+            return f"File not found: {filename}", 404
+        
+        logger.info(f"Serving static file: {filename}")
+        return send_from_directory(static_dir, filename)
+        
+    except Exception as e:
+        logger.error(f"Error serving static file {filename}: {e}")
+        return f"Error serving file: {str(e)}", 500
+
 @app.route("/status", methods=["GET"])
 def status():
     """FIXED: Safe status endpoint with proper error handling"""

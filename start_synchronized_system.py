@@ -35,9 +35,9 @@ class KPPSynchronizedSystemLauncher:
             },
             {
                 'name': 'Master Clock Server',
-                'script': 'realtime_sync_master.py',
-                'port': 9200,
-                'health_url': 'http://localhost:9200/health',
+                'script': 'realtime_sync_master_fixed.py',
+                        'port': 9201,
+        'health_url': 'http://localhost:9201/health',
                 'startup_delay': 2
             },
             {
@@ -88,6 +88,18 @@ class KPPSynchronizedSystemLauncher:
         # Check if port is available
         if not self.check_port_available(config['port']):
             logger.warning(f"⚠️ Port {config['port']} is already in use")
+            
+            # Check if the service is actually healthy
+            try:
+                response = requests.get(config['health_url'], timeout=2)
+                if response.status_code == 200:
+                    logger.info(f"✅ {config['name']} is already running and healthy!")
+                    return "existing"  # Return special value to indicate existing service
+                else:
+                    logger.warning(f"⚠️ {config['name']} port in use but not responding")
+            except:
+                logger.warning(f"⚠️ {config['name']} port in use but not responding")
+            
             return None
         
         try:
@@ -131,14 +143,20 @@ class KPPSynchronizedSystemLauncher:
         success_count = 0
         
         for config in self.server_configs:
-            process = self.start_server(config)
+            result = self.start_server(config)
             
-            if process:
-                # Wait for server to become healthy
+            if result == "existing":
+                # Service already running and healthy
+                success_count += 1
+                logger.info(f"✅ {config['name']} already running and healthy!")
+            elif result:
+                # New service started successfully
                 if self.wait_for_server(config):
                     success_count += 1
                 else:
                     logger.error(f"❌ {config['name']} failed health check")
+            else:
+                logger.error(f"❌ {config['name']} failed to start")
             
             # Small delay between servers
             time.sleep(1)
@@ -170,7 +188,7 @@ class KPPSynchronizedSystemLauncher:
         logger.info("-" * 50)
         logger.info("🌐 Access URLs:")
         logger.info(f"  • Backend API:     http://localhost:9100")
-        logger.info(f"  • Master Clock:    http://localhost:9200/metrics")
+        logger.info(f"  • Master Clock:    http://localhost:9201/metrics")
         logger.info(f"  • WebSocket:       http://localhost:9101")
         logger.info(f"  • Dashboard:       http://localhost:9103")
         logger.info("-" * 50)

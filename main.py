@@ -19,10 +19,11 @@ import uuid
 from datetime import datetime
 from typing import Dict, Any, Optional
 from collections import deque
+from contextlib import asynccontextmanager
 
 # Synchronized data fetcher connected to master clock
 class SynchronizedKPPFetcher:
-    def __init__(self, backend_url="http://localhost:9100", master_clock_url="ws://localhost:9200/sync"):
+    def __init__(self, backend_url="http://localhost:9100", master_clock_url="ws://localhost:9201/sync"):
         self.backend_url = backend_url
         self.master_clock_url = master_clock_url
         self.last_good_data = {
@@ -315,8 +316,18 @@ class SynchronizedWebSocketCore:
             self.listeners.remove(queue)
             logging.info(f"WebSocket client disconnected. Total: {len(self.listeners)}")
 
-# FastAPI app
-app = FastAPI(title="Enhanced KPP WebSocket Server with Observability")
+# Modern lifespan event handler (replaces deprecated on_event)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize master clock connection on startup"""
+    await ws_core.initialize()
+    ws_core.start_loop()
+    yield
+    # Cleanup on shutdown
+    ws_core.running = False
+
+# FastAPI app with modern lifespan
+app = FastAPI(title="Enhanced KPP WebSocket Server with Observability", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -327,12 +338,6 @@ app.add_middleware(
 
 # Initialize synchronized core
 ws_core = SynchronizedWebSocketCore()
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize master clock connection on startup"""
-    await ws_core.initialize()
-    ws_core.start_loop()
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
