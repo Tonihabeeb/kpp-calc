@@ -9,7 +9,10 @@ import logging
 import time
 import json
 import functools
-from typing import Dict, Any, Optional
+import signal
+import atexit
+import sys
+from typing import Dict, Any, Optional, Callable
 from flask import g, request, current_app
 from datetime import datetime
 import threading
@@ -133,16 +136,35 @@ def init_observability(app):
     if not logging.getLogger().handlers:
         # Create handlers with proper cleanup
         console_handler = logging.StreamHandler()
-        file_handler = logging.FileHandler('kpp_traces.log', mode='a', encoding='utf-8')
         
-        # Set formatter
-        formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(trace_id)s | %(name)s | %(message)s")
+        # Create file handler with proper encoding and ensure it's closed on shutdown
+        file_handler = None
+        try:
+            file_handler = logging.FileHandler('kpp_traces.log', mode='a', encoding='utf-8')
+            # Store reference for cleanup
+            app._observability_file_handler = file_handler
+        except Exception as e:
+            # If file handler creation fails, log warning and continue without file logging
+            logging.warning(f"Could not create file handler for observability: {e}")
+            file_handler = None
+        
+        # Set formatter with fallback for missing trace_id
+        class TraceAwareFormatter(logging.Formatter):
+            def format(self, record):
+                # Add trace_id if not present
+                if not hasattr(record, 'trace_id'):
+                    record.trace_id = 'NO-TRACE'
+                return super().format(record)
+        
+        formatter = TraceAwareFormatter("%(asctime)s | %(levelname)s | %(trace_id)s | %(name)s | %(message)s")
         console_handler.setFormatter(formatter)
-        file_handler.setFormatter(formatter)
+        if file_handler:
+            file_handler.setFormatter(formatter)
         
         # Add handlers to root logger
         logging.getLogger().addHandler(console_handler)
-        logging.getLogger().addHandler(file_handler)
+        if file_handler:
+            logging.getLogger().addHandler(file_handler)
         logging.getLogger().setLevel(logging.INFO)
     
     # Create trace-aware logger
@@ -150,6 +172,51 @@ def init_observability(app):
     
     # Determine if this is a Dash app (has .server attribute) or Flask app
     flask_app = app.server if hasattr(app, 'server') else app
+    
+    # Add cleanup on app shutdown
+    @flask_app.teardown_appcontext
+    def cleanup_observability(error):
+        """Cleanup observability resources"""
+        if hasattr(app, '_observability_file_handler') and app._observability_file_handler:
+            try:
+                app._observability_file_handler.close()
+                app._observability_file_handler = None
+            except Exception as e:
+                logging.warning(f"Error closing observability file handler: {e}")
+    
+    # Add cleanup on application shutdown
+    def cleanup_on_shutdown():
+        """Cleanup function to be called on application shutdown"""
+        if hasattr(app, '_observability_file_handler') and app._observability_file_handler:
+            try:
+                app._observability_file_handler.close()
+                app._observability_file_handler = None
+            except Exception as e:
+                logging.warning(f"Error closing observability file handler during shutdown: {e}")
+    
+    # Register cleanup function
+    if hasattr(flask_app, 'teardown_appcontext'):
+        # For Flask apps
+        flask_app.teardown_appcontext(cleanup_observability)
+    
+    # Store cleanup function for manual call if needed
+    app._observability_cleanup = cleanup_on_shutdown
+    
+    # Register cleanup with atexit to ensure it runs on application shutdown
+    atexit.register(cleanup_on_shutdown)
+    
+    # Register signal handlers for graceful shutdown
+    def signal_handler(signum, frame):
+        """Handle shutdown signals"""
+        cleanup_on_shutdown()
+        sys.exit(0)
+    
+    try:
+        signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
+    except (OSError, ValueError):
+        # Signal handlers may not be available in all environments
+        pass
     
     @flask_app.before_request
     def _setup_trace_context():
