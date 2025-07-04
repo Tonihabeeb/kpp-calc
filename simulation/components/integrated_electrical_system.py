@@ -140,106 +140,104 @@ class IntegratedElectricalSystem:
         # Step 1: Update grid conditions
         self.grid_state = self.grid_interface.update(
             dt
-        )  # Step 2: Calculate generator load factor based on mechanical input
-        # The generator can only produce electrical power from the mechanical power available
+        )  # Step 2: Calculate generator operation at FIXED GRID-SYNCHRONIZED SPEED
+        # FUNDAMENTAL FIX: Generator operates at fixed 375 RPM (39.27 rad/s) synchronized to grid
+        # The load torque varies based on available mechanical power and control system
+        
+        target_generator_speed_rpm = 375.0  # Fixed grid-synchronized speed
+        target_generator_speed_rad_s = target_generator_speed_rpm * (2 * math.pi / 60)  # 39.27 rad/s
+        
         logger.debug(
-            f"DEBUG electrical update: shaft_speed={shaft_speed:.2f}, mechanical_torque={mechanical_torque:.2f}"
+            f"DEBUG electrical update: actual_shaft_speed={shaft_speed:.2f}rad/s, "
+            f"target_generator_speed={target_generator_speed_rad_s:.2f}rad/s, "
+            f"mechanical_torque={mechanical_torque:.2f}Nm"
         )
-        if shaft_speed > 0.1:
-            # Calculate load factor from mechanical torque input
-            # The generator presents a load torque, and can generate electrical power up to
-            # the mechanical power limit imposed by the available torque
-            mechanical_power_available = mechanical_torque * shaft_speed
+        
+        # Calculate available mechanical power
+        mechanical_power_available = mechanical_torque * shaft_speed
+        
+        # Determine maximum electrical power we can generate
+        # Limited by available mechanical power and generator rating
+        max_electrical_power = min(
+            mechanical_power_available * 0.93,  # 93% efficiency maximum
+            self.rated_power  # Cannot exceed generator rating
+        )
+        
+        # Calculate effective load factor based on what we can actually produce
+        max_load_factor = max_electrical_power / self.rated_power if self.rated_power > 0 else 0.0
+        
+        logger.debug(
+            f"Electrical System: mech_torque={mechanical_torque:.1f}Nm, "
+            f"actual_speed={shaft_speed:.2f}rad/s, "
+            f"target_speed={target_generator_speed_rad_s:.2f}rad/s, "
+            f"mech_power={mechanical_power_available/1000:.1f}kW, "
+            f"max_load_factor={max_load_factor:.3f}, "
+            f"target_load_factor={self.target_load_factor:.3f}"
+        )
 
-            # Determine what load factor the generator should operate at
-            # Limited by both the available mechanical power and the target operation point
-            max_electrical_power = (
-                mechanical_power_available * 0.95
-            )  # Assume 95% max efficiency
-            max_load_factor = max_electrical_power / self.rated_power
-
-            logger.debug(
-                f"Electrical System: mech_torque={mechanical_torque:.1f}Nm, "
-                f"shaft_speed={shaft_speed:.2f}rad/s, "
-                f"mech_power={mechanical_power_available/1000:.1f}kW, "
-                f"max_load_factor={max_load_factor:.3f}, "
-                f"target_load_factor={self.target_load_factor:.3f}, "
-                f"current_grid_power={self.grid_power_output/1000:.1f}kW"
-            )
-
-            # Use target load factor but limit by available mechanical power and maximum 1.0
-            if self.load_management_enabled:
-                # Use PID control to determine optimal load factor
-                target_power = self.rated_power * self.target_load_factor
-                current_power = self.grid_power_output
-
-                # Bootstrap fix: if we have no current power but any mechanical power,
-                # start with the target load factor to get the system going
-                if (
-                    current_power <= 1000.0 and mechanical_power_available > 1000.0
-                ):  # More aggressive bootstrap
-                    effective_load_factor = self.target_load_factor
+        # Use target load factor but limit by available mechanical power
+        if self.load_management_enabled:
+            # Enhanced engagement logic for better startup
+            if mechanical_power_available > 2000.0:  # 2kW threshold for engagement
+                # FIXED: Lower meaningful power threshold from 10% to 1% for smaller systems
+                if max_load_factor > 0.01:  # Only engage if we can produce >1% (>5.3kW) 
+                    effective_load_factor = min(self.target_load_factor, max_load_factor)
                     logger.info(
-                        f"Bootstrap: using target load factor {effective_load_factor:.3f} (mech_power={mechanical_power_available:.0f}W, current={current_power:.0f}W)"
+                        f"Electrical engagement: mech_power={mechanical_power_available:.0f}W, "
+                        f"load_factor={effective_load_factor:.3f}, "
+                        f"expected_power={effective_load_factor * self.rated_power:.0f}W"
                     )
                 else:
-                    # PID control for power regulation
-                    power_error = target_power - current_power
-
-                    # Proportional term
-                    p_term = self.power_controller_kp * power_error
-
-                    # Integral term
-                    self.power_error_integral += power_error * dt
-                    i_term = self.power_controller_ki * self.power_error_integral
-
-                    # Derivative term
-                    if dt > 0:
-                        d_term = (
-                            self.power_controller_kd
-                            * (power_error - self.power_error_previous)
-                            / dt
-                        )
-                    else:
-                        d_term = 0.0
-
-                    self.power_error_previous = power_error
-
-                    # Calculate desired load factor
-                    pid_output = p_term + i_term + d_term
-                    desired_power = current_power + pid_output
-                    desired_load_factor = desired_power / self.rated_power
-
-                    # Limit by available mechanical power
-                    effective_load_factor = min(
-                        desired_load_factor, max_load_factor, 1.0
+                    effective_load_factor = 0.0  # Not enough mechanical power
+                    logger.warning(
+                        f"Electrical engagement blocked: max_load_factor={max_load_factor:.3f} < 0.01"
                     )
-                    effective_load_factor = max(0.0, effective_load_factor)
             else:
-                # Direct load factor based on available mechanical power
-                effective_load_factor = min(max_load_factor, 1.0)
-                effective_load_factor = max(0.0, effective_load_factor)
+                effective_load_factor = 0.0  # Below engagement threshold
+                logger.warning(
+                    f"Electrical engagement blocked: mech_power={mechanical_power_available:.0f}W < 2000W"
+                )
         else:
-            effective_load_factor = 0.0
+            # Direct load factor based on available mechanical power
+            effective_load_factor = max_load_factor
 
-        # Step 3: Update generator with effective load factor
+        # Step 3: Update generator at FIXED TARGET SPEED (not actual shaft speed)
+        # Generator always operates at 375 RPM synchronized to grid
         self.generator_state = self.generator.update(
-            shaft_speed, effective_load_factor, dt
+            target_generator_speed_rad_s,  # FIXED: Always 375 RPM
+            effective_load_factor, 
+            dt
         )
 
-        # Step 4: Extract generator outputs
+        # Step 4: Extract generator outputs at target speed
         generator_power = self.generator_state["electrical_power"]
         generator_voltage = self.generator_state["voltage"]
-        generator_frequency = self._calculate_generator_frequency(shaft_speed)
+        generator_frequency = self._calculate_generator_frequency(target_generator_speed_rad_s)
 
-        # Step 5: Calculate the load torque from generator electrical power
-        # The generator converts mechanical power to electrical power, so it presents
-        # a load torque equal to the electrical power divided by the shaft speed
-        if shaft_speed > 0.1 and generator_power > 0:
-            # Load torque = electrical power / shaft speed (with some efficiency consideration)
-            generator_efficiency = self.generator_state.get("efficiency", 0.9)
-            mechanical_power_required = generator_power / generator_efficiency
-            self.load_torque_command = mechanical_power_required / shaft_speed
+        # Step 5: Calculate VARIABLE load torque based on mechanical power availability
+        # This is the key fix: load torque adjusts to match available mechanical power
+        if effective_load_factor > 0.0 and mechanical_power_available > 100.0:
+            # Calculate load torque to extract the electrical power we want to generate
+            # Load torque = (electrical power we want) / (actual mechanical speed available)
+            desired_electrical_power = self.rated_power * effective_load_factor
+            
+            # The load torque is what we need to extract from the mechanical system
+            # to produce the desired electrical power
+            if shaft_speed > 0.1:
+                # Load torque scales with actual mechanical speed
+                self.load_torque_command = desired_electrical_power / shaft_speed
+                
+                # Ensure reasonable limits
+                min_torque = 10.0  # Minimum engagement torque
+                max_torque = mechanical_power_available / shaft_speed  # Cannot exceed available
+                self.load_torque_command = max(min_torque, min(self.load_torque_command, max_torque))
+                
+                logger.debug(f"Variable Load Torque: desired_power={desired_electrical_power/1000:.1f}kW, "
+                            f"actual_speed={shaft_speed:.2f}rad/s, "
+                            f"load_torque={self.load_torque_command:.1f}Nm, "
+                            f"available_power={mechanical_power_available/1000:.1f}kW")
+            else:
+                self.load_torque_command = 0.0
         else:
             self.load_torque_command = 0.0
 

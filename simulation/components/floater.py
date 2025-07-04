@@ -320,10 +320,76 @@ class Floater:
 
     def compute_pulse_jet_force(self) -> float:
         """
-        Compute pulse jet force for the floater (stubbed implementation).
+        Compute pulse jet force from water displacement during air injection and expansion.
+        
+        Based on KPP technical document: "Water jets provide an extra upward thrust on the float
+        (action-reaction). As the trapped air will expand, continuously forcing water out in jets 
+        below the float."
+        
+        Returns:
+            float: Pulse jet force (N) - upward thrust from water jet reaction
         """
-        # Simplified stub: no pulse jet force by default
-        return 0.0
+        # Only applies when floater is being filled or air is expanding
+        if not self.is_filled or self.air_fill_level <= 0.0:
+            return 0.0
+            
+        # Calculate air expansion rate during ascent
+        if hasattr(self, 'current_air_pressure') and hasattr(self, 'initial_air_pressure'):
+            # Air is expanding as pressure decreases with ascent
+            pressure_ratio = self.current_air_pressure / self.initial_air_pressure
+            expansion_factor = 1.0 / pressure_ratio if pressure_ratio > 0 else 1.0
+        else:
+            # Fallback: estimate expansion based on position
+            depth_factor = max(0.1, 1.0 - (self.position / 25.0))  # Decreases with ascent
+            expansion_factor = 1.0 / depth_factor
+            
+        # Calculate water displacement rate (m³/s)
+        # As air expands, it forces water out of the floater
+        air_volume_rate = self.total_air_injected * (expansion_factor - 1.0) * 0.1  # Rate factor
+        water_displacement_rate = air_volume_rate  # Conservation of volume
+        
+        # Water jet velocity from displacement
+        # Using Torricelli's law: v = sqrt(2gh) where h is effective pressure head
+        if hasattr(self, 'pneumatic_pressure'):
+            pressure_head = self.pneumatic_pressure / (RHO_WATER * G)
+        else:
+            pressure_head = 1.0  # Default 1m equivalent head
+            
+        jet_velocity = math.sqrt(2 * G * pressure_head)
+        
+        # Thrust force from water jet (Newton's 3rd law: F = dm/dt * v)
+        water_mass_flow_rate = RHO_WATER * water_displacement_rate
+        jet_thrust = water_mass_flow_rate * jet_velocity * self.jet_efficiency
+        
+        # Add contribution from air expansion work
+        # Air doing work on water creates additional thrust
+        if hasattr(self, 'expansion_work_done') and self.expansion_work_done > 0:
+            # Convert expansion work rate to force
+            expansion_thrust = self.expansion_work_done * 0.01  # Work-to-force conversion factor
+            jet_thrust += expansion_thrust
+            
+        # Apply pulse timing - stronger during active injection/expansion
+        if self.pneumatic_fill_state == 'filling':
+            pulse_multiplier = 2.0  # Stronger during active filling
+        elif self.air_fill_level > 0.8:
+            pulse_multiplier = 1.5  # Strong when highly filled
+        elif self.air_fill_level > 0.4:
+            pulse_multiplier = 1.2  # Moderate when partially filled
+        else:
+            pulse_multiplier = 0.8  # Weak when low fill
+            
+        final_thrust = jet_thrust * pulse_multiplier
+        
+        # Reasonable limits (5-15% of typical buoyant force)
+        max_thrust = 0.15 * RHO_WATER * G * self.volume  # 15% of full buoyancy
+        final_thrust = min(final_thrust, max_thrust)
+        
+        if final_thrust > 1.0:  # Only log significant forces
+            logger.debug(f"Water jet force: {final_thrust:.2f}N "
+                        f"(expansion_factor={expansion_factor:.2f}, "
+                        f"jet_vel={jet_velocity:.2f}m/s, fill_level={self.air_fill_level:.2f})")
+        
+        return final_thrust
 
     def force(self, fluid_system=None) -> float:
         """

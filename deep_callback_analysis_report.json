@@ -1,0 +1,733 @@
+{
+  "data_structures": {
+    "simulation-data-store": {
+      "time": 0.0,
+      "power": 0.0,
+      "torque": 0.0,
+      "power_output": 0.0,
+      "overall_efficiency": 0.0,
+      "status": "stopped",
+      "health": "initializing"
+    },
+    "chart-data-store": {
+      "time": [],
+      "power": [],
+      "torque": [],
+      "efficiency": []
+    },
+    "notification-store": "parse_error"
+  },
+  "callbacks": [
+    {
+      "function_name": "update_chart_data",
+      "outputs": [
+        [
+          "chart-data-store",
+          "data"
+        ]
+      ],
+      "inputs": [
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "states": [
+        [
+          "chart-data-store",
+          "data"
+        ]
+      ]
+    },
+    {
+      "function_name": "update_power_torque_chart",
+      "outputs": [
+        [
+          "power-torque-chart",
+          "figure"
+        ]
+      ],
+      "inputs": [
+        [
+          "chart-data-store",
+          "data"
+        ],
+        [
+          "metric-selector",
+          "value"
+        ]
+      ],
+      "states": []
+    },
+    {
+      "function_name": "update_efficiency_chart",
+      "outputs": [
+        [
+          "efficiency-chart",
+          "figure"
+        ]
+      ],
+      "inputs": [
+        [
+          "chart-data-store",
+          "data"
+        ],
+        [
+          "metric-selector",
+          "value"
+        ]
+      ],
+      "states": []
+    },
+    {
+      "function_name": "unified_param_notification_preset_callback",
+      "outputs": [
+        [
+          "parameters-store",
+          "data"
+        ],
+        [
+          "last-parameters-store",
+          "data"
+        ],
+        [
+          "notification-store",
+          "data"
+        ],
+        [
+          "parameter-presets-store",
+          "data"
+        ],
+        [
+          "preset-dropdown",
+          "options"
+        ],
+        [
+          "preset-dropdown",
+          "value"
+        ]
+      ],
+      "inputs": [
+        [
+          "interval-component",
+          "n_intervals"
+        ],
+        [
+          "preset-dropdown",
+          "value"
+        ],
+        [
+          "submit-advanced-params-btn",
+          "n_clicks"
+        ],
+        [
+          "submit-physics-controls-btn",
+          "n_clicks"
+        ],
+        [
+          "save-preset-btn",
+          "n_clicks"
+        ],
+        [
+          "delete-preset-btn",
+          "n_clicks"
+        ]
+      ],
+      "states": [
+        [
+          "parameter-presets-store",
+          "data"
+        ],
+        [
+          "parameters-store",
+          "data"
+        ],
+        [
+          "floater-mass-slider",
+          "value"
+        ],
+        [
+          "floater-area-slider",
+          "value"
+        ],
+        [
+          "air-fill-time-slider",
+          "value"
+        ],
+        [
+          "air-flow-rate-slider",
+          "value"
+        ],
+        [
+          "jet-efficiency-slider",
+          "value"
+        ],
+        [
+          "sprocket-radius-slider",
+          "value"
+        ],
+        [
+          "flywheel-inertia-slider",
+          "value"
+        ],
+        [
+          "h1-enabled-switch",
+          "value"
+        ],
+        [
+          "nanobubble-fraction-slider",
+          "value"
+        ],
+        [
+          "h2-enabled-switch",
+          "value"
+        ],
+        [
+          "thermal-efficiency-slider",
+          "value"
+        ],
+        [
+          "water-temp-slider",
+          "value"
+        ],
+        [
+          "ambient-temp-slider",
+          "value"
+        ]
+      ]
+    },
+    {
+      "function_name": "handle_simulation_controls",
+      "outputs": [
+        [
+          "start-btn",
+          "disabled"
+        ],
+        [
+          "stop-btn",
+          "disabled"
+        ],
+        [
+          "pause-btn",
+          "disabled"
+        ],
+        [
+          "reset-btn",
+          "disabled"
+        ]
+      ],
+      "inputs": [
+        [
+          "start-btn",
+          "n_clicks"
+        ],
+        [
+          "stop-btn",
+          "n_clicks"
+        ],
+        [
+          "pause-btn",
+          "n_clicks"
+        ],
+        [
+          "reset-btn",
+          "n_clicks"
+        ],
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "states": []
+    },
+    {
+      "function_name": "handle_action_outputs",
+      "outputs": [
+        [
+          "output-step",
+          "children"
+        ],
+        [
+          "output-trigger-pulse",
+          "children"
+        ],
+        [
+          "output-set-load",
+          "children"
+        ],
+        [
+          "output-emergency-stop",
+          "children"
+        ],
+        [
+          "output-h1-nanobubbles",
+          "children"
+        ],
+        [
+          "output-set-control-mode",
+          "children"
+        ],
+        [
+          "output-show-input-data",
+          "children"
+        ],
+        [
+          "output-show-output-data",
+          "children"
+        ],
+        [
+          "output-show-energy-balance",
+          "children"
+        ],
+        [
+          "output-show-enhanced-performance",
+          "children"
+        ],
+        [
+          "output-show-fluid-properties",
+          "children"
+        ],
+        [
+          "output-show-thermal-properties",
+          "children"
+        ]
+      ],
+      "inputs": [
+        [
+          "btn-step",
+          "n_clicks"
+        ],
+        [
+          "btn-trigger-pulse",
+          "n_clicks"
+        ],
+        [
+          "btn-set-load",
+          "n_clicks"
+        ],
+        [
+          "btn-emergency-stop",
+          "n_clicks"
+        ],
+        [
+          "btn-h1-nanobubbles",
+          "n_clicks"
+        ],
+        [
+          "btn-set-control-mode",
+          "n_clicks"
+        ],
+        [
+          "btn-show-input-data",
+          "n_clicks"
+        ],
+        [
+          "btn-show-output-data",
+          "n_clicks"
+        ],
+        [
+          "btn-show-energy-balance",
+          "n_clicks"
+        ],
+        [
+          "btn-show-enhanced-performance",
+          "n_clicks"
+        ],
+        [
+          "btn-show-fluid-properties",
+          "n_clicks"
+        ],
+        [
+          "btn-show-thermal-properties",
+          "n_clicks"
+        ]
+      ],
+      "states": [
+        [
+          "input-set-load",
+          "value"
+        ],
+        [
+          "select-control-mode",
+          "value"
+        ],
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ]
+    },
+    {
+      "function_name": "validate_basic_parameters",
+      "outputs": [
+        [
+          "basic-floater-mass-error",
+          "children"
+        ],
+        [
+          "basic-floater-area-error",
+          "children"
+        ],
+        [
+          "basic-air-fill-time-error",
+          "children"
+        ],
+        [
+          "basic-air-flow-rate-error",
+          "children"
+        ]
+      ],
+      "inputs": [
+        [
+          "num-floaters-slider",
+          "value"
+        ],
+        [
+          "floater-volume-slider",
+          "value"
+        ],
+        [
+          "air-pressure-slider",
+          "value"
+        ],
+        [
+          "pulse-interval-slider",
+          "value"
+        ]
+      ],
+      "states": []
+    },
+    {
+      "function_name": "validate_advanced_parameters",
+      "outputs": [
+        [
+          "advanced-floater-mass-error",
+          "children"
+        ],
+        [
+          "advanced-floater-area-error",
+          "children"
+        ],
+        [
+          "advanced-air-fill-time-error",
+          "children"
+        ],
+        [
+          "advanced-air-flow-rate-error",
+          "children"
+        ],
+        [
+          "advanced-jet-efficiency-error",
+          "children"
+        ],
+        [
+          "advanced-sprocket-radius-error",
+          "children"
+        ],
+        [
+          "advanced-flywheel-inertia-error",
+          "children"
+        ]
+      ],
+      "inputs": [
+        [
+          "floater-mass-slider",
+          "value"
+        ],
+        [
+          "floater-area-slider",
+          "value"
+        ],
+        [
+          "air-fill-time-slider",
+          "value"
+        ],
+        [
+          "air-flow-rate-slider",
+          "value"
+        ],
+        [
+          "jet-efficiency-slider",
+          "value"
+        ],
+        [
+          "sprocket-radius-slider",
+          "value"
+        ],
+        [
+          "flywheel-inertia-slider",
+          "value"
+        ]
+      ],
+      "states": []
+    },
+    {
+      "function_name": "validate_physics_controls",
+      "outputs": [
+        [
+          "h1-switch-error",
+          "children"
+        ],
+        [
+          "nanobubble-fraction-error",
+          "children"
+        ],
+        [
+          "h2-switch-error",
+          "children"
+        ],
+        [
+          "thermal-efficiency-error",
+          "children"
+        ],
+        [
+          "water-temp-error",
+          "children"
+        ],
+        [
+          "ambient-temp-error",
+          "children"
+        ]
+      ],
+      "inputs": [
+        [
+          "h1-enabled-switch",
+          "value"
+        ],
+        [
+          "nanobubble-fraction-slider",
+          "value"
+        ],
+        [
+          "h2-enabled-switch",
+          "value"
+        ],
+        [
+          "thermal-efficiency-slider",
+          "value"
+        ],
+        [
+          "water-temp-slider",
+          "value"
+        ],
+        [
+          "ambient-temp-slider",
+          "value"
+        ]
+      ],
+      "states": []
+    },
+    {
+      "function_name": "fetch_realtime_data_DISABLED",
+      "outputs": [
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "inputs": [
+        [
+          "realtime-interval",
+          "n_intervals"
+        ]
+      ],
+      "states": []
+    },
+    {
+      "function_name": "update_metrics_cards",
+      "outputs": [
+        [
+          "power-value",
+          "children"
+        ],
+        [
+          "torque-value",
+          "children"
+        ],
+        [
+          "efficiency-value",
+          "children"
+        ],
+        [
+          "time-value",
+          "children"
+        ],
+        [
+          "grid-power",
+          "children"
+        ],
+        [
+          "flywheel-rpm",
+          "children"
+        ],
+        [
+          "electrical-eff",
+          "children"
+        ],
+        [
+          "pulse-count",
+          "children"
+        ]
+      ],
+      "inputs": [
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "states": []
+    },
+    {
+      "function_name": "update_status_indicators",
+      "outputs": [
+        [
+          "simulation-status",
+          "children"
+        ],
+        [
+          "connection-status",
+          "children"
+        ]
+      ],
+      "inputs": [
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "states": []
+    },
+    {
+      "function_name": "fetch_synchronized_data",
+      "outputs": [
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "inputs": [
+        [
+          "realtime-interval",
+          "n_intervals"
+        ]
+      ],
+      "states": []
+    }
+  ],
+  "value_mappings": {
+    "comparison_values": [
+      "frame_update",
+      "submit-advanced-params-btn.n_clicks",
+      "submit-physics-controls-btn.n_clicks",
+      "running",
+      "start-btn",
+      "stop-btn",
+      "pause-btn",
+      "reset-btn",
+      "running",
+      "btn-step",
+      "btn-trigger-pulse",
+      "btn-set-load",
+      "btn-emergency-stop",
+      "btn-h1-nanobubbles",
+      "btn-set-control-mode",
+      "btn-show-input-data",
+      "btn-show-output-data",
+      "btn-show-energy-balance",
+      "btn-show-enhanced-performance",
+      "btn-show-fluid-properties",
+      "btn-show-thermal-properties",
+      "btn-step",
+      "btn-trigger-pulse",
+      "btn-set-load",
+      "btn-emergency-stop",
+      "btn-h1-nanobubbles",
+      "btn-set-control-mode",
+      "btn-show-input-data",
+      "btn-show-output-data",
+      "btn-show-energy-balance",
+      "btn-show-enhanced-performance",
+      "btn-show-fluid-properties",
+      "btn-show-thermal-properties",
+      "running",
+      "running",
+      "stopped",
+      "error",
+      "running",
+      "no_connection",
+      "success",
+      "__main__",
+      "healthy",
+      "synchronized",
+      "fallback_websocket",
+      "error",
+      "timeout",
+      "unknown",
+      "stopped",
+      "stopped",
+      "unknown",
+      "unknown",
+      "unknown",
+      "unknown"
+    ],
+    "status_values": [
+      ": ",
+      ": frame.get(",
+      ", ",
+      ", className=",
+      ", className=",
+      ": ",
+      "status",
+      "running",
+      ")\n                return False, True, True, True   # Keep start enabled if failed\n        elif button_id == ",
+      "status",
+      "running",
+      ", timeout=2)\n        if response.status_code == 200:\n            status_data = response.json()\n            \n            # Get real-time data from the latest queue entry with shorter timeout\n            response2 = requests.get(f",
+      ": ",
+      "simulation_engine",
+      "status",
+      "components",
+      ": ",
+      ": ",
+      ": ",
+      ", ",
+      ", ",
+      "\n    if not simulation_data:\n        return (\n            html.Span(",
+      "),\n            html.Span(",
+      ")\n        )\n    \n    # Update simulation status\n    status = simulation_data.get(",
+      ", ",
+      "running",
+      ")\n    elif status == ",
+      ")\n    elif status == ",
+      ")\n    else:\n        sim_indicator = html.Span(",
+      ")\n    \n    # Update connection status\n    health = simulation_data.get(",
+      "running",
+      ")\n    elif health in [",
+      ")\n    elif health == ",
+      ")\n    else:\n        conn_indicator = html.Span(",
+      ")\n    \n    return sim_indicator, conn_indicator\n\n# REMOVED CONFLICTING CALLBACK - Button states are now controlled by handle_simulation_controls() only\n\n# WebSocket-based real-time data fetching - FIXED VERSION\n@app.callback(\n    Output(",
+      ") == ",
+      ": kpp_data.get(",
+      ", ",
+      ": ",
+      ": "
+    ],
+    "health_values": [
+      ": ",
+      ": ",
+      ", color=",
+      ": status_data.get(",
+      ": ",
+      ": ",
+      ": ",
+      "health",
+      "healthy",
+      "error",
+      "no_connection",
+      ": ",
+      ": ",
+      ": "
+    ]
+  },
+  "issues": []
+}

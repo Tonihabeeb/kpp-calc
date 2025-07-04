@@ -1,5 +1,73 @@
 {
-    "time_step": 0.1,
-    "total_time": 10.0,
-    "floater_count": 8
+    "simulation": {
+        "time_step": 0.2,
+        "max_time": 3600.0,
+        "enable_logging": true,
+        "log_level": "INFO"
+    },
+    "floater_system": {
+        "num_floaters": 8,
+        "floater_volume": 0.2,
+        "floater_mass_empty": 8.0,
+        "floater_area": 0.05,
+        "floater_Cd": 0.8,
+        "air_fill_time": 1.0,
+        "air_pressure": 280000,
+        "air_flow_rate": 0.8,
+        "jet_efficiency": 0.75
+    },
+    "tank_configuration": {
+        "tank_height": 15.0,
+        "water_density": 1000.0,
+        "water_temperature": 293.15,
+        "atmospheric_pressure": 101325.0
+    },
+    "mechanical_system": {
+        "sprocket_radius": 0.8,
+        "sprocket_teeth": 16,
+        "flywheel_inertia": 100.0,
+        "gear_ratio": 20.0,
+        "clutch_engagement_threshold": 0.2
+    },
+    "pneumatic_system": {
+        "target_pressure": 280000.0,
+        "compressor_power": 15000.0,
+        "pressure_recovery_enabled": false,
+        "pressure_recovery_efficiency": 0.15
+    },
+    "electrical_system": {
+        "target_power": 50000.0,
+        "rated_voltage": 480.0,
+        "rated_frequency": 50.0,
+        "generator_efficiency": 0.85,
+        "power_factor_target": 0.85,
+        "target_generator_speed": 200.0
+    },
+    "enhanced_physics": {
+        "h1_active": false,
+        "h1_bubble_fraction": 0.0,
+        "h1_drag_reduction": 0.0,
+        "h2_active": false,
+        "h2_efficiency": 1.0,
+        "h2_buoyancy_boost": 0.0,
+        "h3_active": false
+    },
+    "control_system": {
+        "foc_enabled": false,
+        "torque_controller_kp": 50.0,
+        "torque_controller_ki": 25.0,
+        "flux_controller_kp": 40.0,
+        "flux_controller_ki": 20.0,
+        "pulse_interval": 5.0
+    },
+    "safety_limits": {
+        "max_chain_tension": 50000.0,
+        "max_floater_speed": 5.0,
+        "emergency_stop_enabled": false
+    },
+    "monitoring": {
+        "enable_performance_tracking": false,
+        "enable_energy_analysis": false,
+        "enable_grid_services": false
+    }
 }

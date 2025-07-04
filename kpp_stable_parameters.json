@@ -1,0 +1,23 @@
+{
+  "num_floaters": 10,
+  "floater_volume": 0.3,
+  "floater_mass_empty": 12.0,
+  "floater_area": 0.05,
+  "floater_Cd": 0.6,
+  "sprocket_radius": 1.0,
+  "gear_ratio": 10.0,
+  "flywheel_inertia": 50.0,
+  "target_power": 50000.0,
+  "target_rpm": 500.0,
+  "generator_efficiency": 0.94,
+  "air_pressure": 250000.0,
+  "air_fill_time": 0.3,
+  "air_flow_rate": 1.0,
+  "pulse_interval": 1.5,
+  "time_step": 0.01,
+  "predicted_power": 50000.0,
+  "predicted_chain_speed": 5.0,
+  "predicted_efficiency": 70.0,
+  "force_differential": 2500.0,
+  "buoyancy_ratio": 25.0
+}

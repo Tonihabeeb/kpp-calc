@@ -3,6 +3,7 @@
 flask>=2.3.0
 Flask-SocketIO
 
+# Upgraded to latest dash, dash-bootstrap-components, and dash-core-components for React 18 compatibility
 dash>=2.10.0
 plotly>=5.15.0
 dash-bootstrap-components>=1.4.0

@@ -113,8 +113,8 @@ class Sprocket:
         self.torque = 0.0  # N·m
         self.chain_tension = 0.0  # N
 
-        # Create associated drive shaft
-        self.drive_shaft = DriveShaft()
+        # Create associated drive shaft with reduced inertia for better startup
+        self.drive_shaft = DriveShaft(inertia=10.0)  # Reduced from default 100.0
 
         # Mechanical properties
         self.efficiency = 0.95  # Sprocket efficiency
@@ -130,8 +130,12 @@ class Sprocket:
         Returns:
             float: Torque generated (N·m)
         """
+        # DIRECTION FIX: Use absolute value to ensure positive torque generation
+        # The direction of rotation is determined by the system dynamics, not the sign
+        abs_tension = abs(chain_tension)
+        
         # Basic torque calculation: T = F × r
-        base_torque = chain_tension * self.radius
+        base_torque = abs_tension * self.radius
 
         # Apply efficiency losses
         effective_torque = (
@@ -158,6 +162,12 @@ class Sprocket:
 
         # Synchronize angular velocity with drive shaft
         self.angular_velocity = self.drive_shaft.angular_velocity
+        
+        # SPEED LIMIT: Prevent unrealistic overspeed
+        max_angular_velocity = 50.0  # rad/s (about 477 RPM - realistic for large sprocket)
+        if abs(self.angular_velocity) > max_angular_velocity:
+            self.angular_velocity = max_angular_velocity * (1 if self.angular_velocity > 0 else -1)
+            self.drive_shaft.angular_velocity = self.angular_velocity
 
         logger.debug(
             f"Sprocket ({self.position}) - Chain Tension: {chain_tension:.2f} N, "

@@ -1,0 +1,792 @@
+{
+  "missing_components": [],
+  "suppressed_components": [],
+  "orphaned_components": [
+    {
+      "id": "floater-mass-help",
+      "lines": [
+        414
+      ]
+    },
+    {
+      "id": "floater-area-help",
+      "lines": [
+        431
+      ]
+    },
+    {
+      "id": "air-fill-time-help",
+      "lines": [
+        452
+      ]
+    },
+    {
+      "id": "air-flow-rate-help",
+      "lines": [
+        469
+      ]
+    },
+    {
+      "id": "jet-efficiency-help",
+      "lines": [
+        486
+      ]
+    },
+    {
+      "id": "sprocket-radius-help",
+      "lines": [
+        507
+      ]
+    },
+    {
+      "id": "flywheel-inertia-help",
+      "lines": [
+        524
+      ]
+    }
+  ],
+  "callback_summary": [
+    {
+      "function": "update_chart_data",
+      "outputs": [
+        [
+          "chart-data-store",
+          "data"
+        ]
+      ],
+      "inputs": [
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "states": [
+        [
+          "chart-data-store",
+          "data"
+        ]
+      ],
+      "issues": []
+    },
+    {
+      "function": "update_power_torque_chart",
+      "outputs": [
+        [
+          "power-torque-chart",
+          "figure"
+        ]
+      ],
+      "inputs": [
+        [
+          "chart-data-store",
+          "data"
+        ],
+        [
+          "metric-selector",
+          "value"
+        ]
+      ],
+      "states": [],
+      "issues": []
+    },
+    {
+      "function": "update_efficiency_chart",
+      "outputs": [
+        [
+          "efficiency-chart",
+          "figure"
+        ]
+      ],
+      "inputs": [
+        [
+          "chart-data-store",
+          "data"
+        ],
+        [
+          "metric-selector",
+          "value"
+        ]
+      ],
+      "states": [],
+      "issues": []
+    },
+    {
+      "function": "update_connection_status",
+      "outputs": [
+        [
+          "connection-status",
+          "children"
+        ]
+      ],
+      "inputs": [
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "states": [],
+      "issues": []
+    },
+    {
+      "function": "handle_simulation_controls",
+      "outputs": [
+        [
+          "start-btn",
+          "disabled"
+        ]
+      ],
+      "inputs": [
+        [
+          "start-btn",
+          "n_clicks"
+        ],
+        [
+          "stop-btn",
+          "n_clicks"
+        ],
+        [
+          "pause-btn",
+          "n_clicks"
+        ],
+        [
+          "reset-btn",
+          "n_clicks"
+        ]
+      ],
+      "states": [
+        [
+          "num-floaters-slider",
+          "value"
+        ],
+        [
+          "floater-volume-slider",
+          "value"
+        ],
+        [
+          "air-pressure-slider",
+          "value"
+        ],
+        [
+          "pulse-interval-slider",
+          "value"
+        ]
+      ],
+      "issues": []
+    },
+    {
+      "function": "display_notification",
+      "outputs": [
+        [
+          "notification-toast",
+          "is_open"
+        ],
+        [
+          "notification-toast",
+          "children"
+        ],
+        [
+          "notification-toast",
+          "icon"
+        ]
+      ],
+      "inputs": [
+        [
+          "notification-store",
+          "data"
+        ]
+      ],
+      "states": [],
+      "issues": []
+    },
+    {
+      "function": "unified_param_notification_preset_callback",
+      "outputs": [
+        [
+          "parameters-store",
+          "data"
+        ],
+        [
+          "last-parameters-store",
+          "data"
+        ],
+        [
+          "notification-store",
+          "data"
+        ],
+        [
+          "parameter-presets-store",
+          "data"
+        ],
+        [
+          "preset-dropdown",
+          "options"
+        ],
+        [
+          "preset-dropdown",
+          "value"
+        ],
+        [
+          "floater-mass-slider",
+          "style"
+        ],
+        [
+          "floater-mass-slider-error",
+          "children"
+        ],
+        [
+          "floater-area-slider",
+          "style"
+        ],
+        [
+          "floater-area-slider-error",
+          "children"
+        ],
+        [
+          "air-fill-time-slider",
+          "style"
+        ],
+        [
+          "air-fill-time-slider-error",
+          "children"
+        ],
+        [
+          "air-flow-rate-slider",
+          "style"
+        ],
+        [
+          "air-flow-rate-slider-error",
+          "children"
+        ],
+        [
+          "jet-efficiency-slider",
+          "style"
+        ],
+        [
+          "jet-efficiency-slider-error",
+          "children"
+        ],
+        [
+          "sprocket-radius-slider",
+          "style"
+        ],
+        [
+          "sprocket-radius-slider-error",
+          "children"
+        ],
+        [
+          "flywheel-inertia-slider",
+          "style"
+        ],
+        [
+          "flywheel-inertia-slider-error",
+          "children"
+        ],
+        [
+          "h1-enabled-switch",
+          "value"
+        ],
+        [
+          "nanobubble-fraction-slider",
+          "value"
+        ],
+        [
+          "h2-enabled-switch",
+          "value"
+        ],
+        [
+          "thermal-coeff-slider",
+          "value"
+        ],
+        [
+          "water-temp-slider",
+          "value"
+        ],
+        [
+          "ref-temp-slider",
+          "value"
+        ],
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "inputs": [
+        [
+          "interval-component",
+          "n_intervals"
+        ],
+        [
+          "preset-dropdown",
+          "value"
+        ],
+        [
+          "submit-advanced-params-btn",
+          "n_clicks"
+        ],
+        [
+          "btn-step",
+          "n_clicks"
+        ],
+        [
+          "btn-trigger-pulse",
+          "n_clicks"
+        ],
+        [
+          "btn-set-load",
+          "n_clicks"
+        ],
+        [
+          "btn-emergency-stop",
+          "n_clicks"
+        ],
+        [
+          "btn-h1-nanobubbles",
+          "n_clicks"
+        ],
+        [
+          "btn-set-control-mode",
+          "n_clicks"
+        ],
+        [
+          "btn-show-input-data",
+          "n_clicks"
+        ],
+        [
+          "btn-show-output-data",
+          "n_clicks"
+        ],
+        [
+          "btn-show-energy-balance",
+          "n_clicks"
+        ],
+        [
+          "btn-show-enhanced-performance",
+          "n_clicks"
+        ],
+        [
+          "btn-show-fluid-properties",
+          "n_clicks"
+        ],
+        [
+          "btn-show-thermal-properties",
+          "n_clicks"
+        ],
+        [
+          "submit-physics-controls-btn",
+          "n_clicks"
+        ],
+        [
+          "save-preset-btn",
+          "n_clicks"
+        ],
+        [
+          "delete-preset-btn",
+          "n_clicks"
+        ],
+        [
+          "ws",
+          "message"
+        ]
+      ],
+      "states": [
+        [
+          "parameter-presets-store",
+          "data"
+        ],
+        [
+          "parameters-store",
+          "data"
+        ],
+        [
+          "floater-mass-slider",
+          "value"
+        ],
+        [
+          "floater-area-slider",
+          "value"
+        ],
+        [
+          "air-fill-time-slider",
+          "value"
+        ],
+        [
+          "air-flow-rate-slider",
+          "value"
+        ],
+        [
+          "jet-efficiency-slider",
+          "value"
+        ],
+        [
+          "sprocket-radius-slider",
+          "value"
+        ],
+        [
+          "flywheel-inertia-slider",
+          "value"
+        ],
+        [
+          "input-set-load",
+          "value"
+        ],
+        [
+          "input-h1-active",
+          "value"
+        ],
+        [
+          "input-h1-fraction",
+          "value"
+        ],
+        [
+          "input-h1-drag",
+          "value"
+        ],
+        [
+          "select-control-mode",
+          "value"
+        ],
+        [
+          "h1-enabled-switch",
+          "value"
+        ],
+        [
+          "nanobubble-fraction-slider",
+          "value"
+        ],
+        [
+          "h2-enabled-switch",
+          "value"
+        ],
+        [
+          "thermal-coeff-slider",
+          "value"
+        ],
+        [
+          "water-temp-slider",
+          "value"
+        ],
+        [
+          "ref-temp-slider",
+          "value"
+        ]
+      ],
+      "issues": []
+    },
+    {
+      "function": "update_metrics_display",
+      "outputs": [
+        [
+          "power-value",
+          "children"
+        ],
+        [
+          "torque-value",
+          "children"
+        ],
+        [
+          "efficiency-value",
+          "children"
+        ],
+        [
+          "time-value",
+          "children"
+        ],
+        [
+          "grid-power",
+          "children"
+        ],
+        [
+          "flywheel-rpm",
+          "children"
+        ],
+        [
+          "electrical-eff",
+          "children"
+        ],
+        [
+          "pulse-count",
+          "children"
+        ],
+        [
+          "simulation-status",
+          "children"
+        ]
+      ],
+      "inputs": [
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "states": [],
+      "issues": []
+    },
+    {
+      "function": "update_system_overview",
+      "outputs": [
+        [
+          "drivetrain-overview",
+          "children"
+        ],
+        [
+          "electrical-overview",
+          "children"
+        ],
+        [
+          "control-overview",
+          "children"
+        ],
+        [
+          "physics-overview",
+          "children"
+        ]
+      ],
+      "inputs": [
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "states": [],
+      "issues": []
+    },
+    {
+      "function": "handle_action_outputs",
+      "outputs": [
+        [
+          "output-step",
+          "children"
+        ],
+        [
+          "output-trigger-pulse",
+          "children"
+        ],
+        [
+          "output-set-load",
+          "children"
+        ],
+        [
+          "output-emergency-stop",
+          "children"
+        ],
+        [
+          "output-h1-nanobubbles",
+          "children"
+        ],
+        [
+          "output-set-control-mode",
+          "children"
+        ],
+        [
+          "output-show-input-data",
+          "children"
+        ],
+        [
+          "output-show-output-data",
+          "children"
+        ],
+        [
+          "output-show-energy-balance",
+          "children"
+        ],
+        [
+          "output-show-enhanced-performance",
+          "children"
+        ],
+        [
+          "output-show-fluid-properties",
+          "children"
+        ],
+        [
+          "output-show-thermal-properties",
+          "children"
+        ]
+      ],
+      "inputs": [
+        [
+          "btn-step",
+          "n_clicks"
+        ],
+        [
+          "btn-trigger-pulse",
+          "n_clicks"
+        ],
+        [
+          "btn-set-load",
+          "n_clicks"
+        ],
+        [
+          "btn-emergency-stop",
+          "n_clicks"
+        ],
+        [
+          "btn-h1-nanobubbles",
+          "n_clicks"
+        ],
+        [
+          "btn-set-control-mode",
+          "n_clicks"
+        ],
+        [
+          "btn-show-input-data",
+          "n_clicks"
+        ],
+        [
+          "btn-show-output-data",
+          "n_clicks"
+        ],
+        [
+          "btn-show-energy-balance",
+          "n_clicks"
+        ],
+        [
+          "btn-show-enhanced-performance",
+          "n_clicks"
+        ],
+        [
+          "btn-show-fluid-properties",
+          "n_clicks"
+        ],
+        [
+          "btn-show-thermal-properties",
+          "n_clicks"
+        ]
+      ],
+      "states": [
+        [
+          "input-set-load",
+          "value"
+        ],
+        [
+          "select-control-mode",
+          "value"
+        ],
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "issues": []
+    },
+    {
+      "function": "update_alerts",
+      "outputs": [
+        [
+          "error-banner",
+          "children"
+        ],
+        [
+          "system-health-alert",
+          "is_open"
+        ]
+      ],
+      "inputs": [
+        [
+          "simulation-data-store",
+          "data"
+        ]
+      ],
+      "states": [],
+      "issues": []
+    }
+  ],
+  "conditional_summary": {
+    "connection-status": "create_header",
+    "start-btn": "create_control_panel",
+    "pause-btn": "create_control_panel",
+    "stop-btn": "create_control_panel",
+    "reset-btn": "create_control_panel",
+    "simulation-status": "create_control_panel",
+    "power-value": "create_metrics_cards",
+    "grid-power": "create_metrics_cards",
+    "torque-value": "create_metrics_cards",
+    "flywheel-rpm": "create_metrics_cards",
+    "efficiency-value": "create_metrics_cards",
+    "electrical-eff": "create_metrics_cards",
+    "time-value": "create_metrics_cards",
+    "pulse-count": "create_metrics_cards",
+    "metric-selector": "create_metric_selector",
+    "power-torque-chart": "create_charts_section",
+    "efficiency-chart": "create_charts_section",
+    "num-floaters-slider": "create_basic_parameters_panel",
+    "floater-mass-slider-error": "create_advanced_parameters_panel",
+    "floater-volume-slider": "create_basic_parameters_panel",
+    "floater-area-slider-error": "create_advanced_parameters_panel",
+    "air-pressure-slider": "create_basic_parameters_panel",
+    "air-fill-time-slider-error": "create_advanced_parameters_panel",
+    "pulse-interval-slider": "create_basic_parameters_panel",
+    "air-flow-rate-slider-error": "create_advanced_parameters_panel",
+    "btn-step": "create_advanced_controls_tab",
+    "output-step": "create_advanced_controls_tab",
+    "btn-trigger-pulse": "create_advanced_controls_tab",
+    "output-trigger-pulse": "create_advanced_controls_tab",
+    "input-set-load": "create_advanced_controls_tab",
+    "btn-set-load": "create_advanced_controls_tab",
+    "output-set-load": "create_advanced_controls_tab",
+    "btn-emergency-stop": "create_advanced_controls_tab",
+    "output-emergency-stop": "create_advanced_controls_tab",
+    "input-h1-active": "create_advanced_controls_tab",
+    "input-h1-fraction": "create_advanced_controls_tab",
+    "input-h1-drag": "create_advanced_controls_tab",
+    "btn-h1-nanobubbles": "create_advanced_controls_tab",
+    "output-h1-nanobubbles": "create_advanced_controls_tab",
+    "select-control-mode": "create_advanced_controls_tab",
+    "btn-set-control-mode": "create_advanced_controls_tab",
+    "output-set-control-mode": "create_advanced_controls_tab",
+    "btn-show-input-data": "create_advanced_controls_tab",
+    "output-show-input-data": "create_advanced_controls_tab",
+    "btn-show-output-data": "create_advanced_controls_tab",
+    "output-show-output-data": "create_advanced_controls_tab",
+    "btn-show-energy-balance": "create_advanced_controls_tab",
+    "output-show-energy-balance": "create_advanced_controls_tab",
+    "btn-show-enhanced-performance": "create_advanced_controls_tab",
+    "output-show-enhanced-performance": "create_advanced_controls_tab",
+    "btn-show-fluid-properties": "create_advanced_controls_tab",
+    "output-show-fluid-properties": "create_advanced_controls_tab",
+    "btn-show-thermal-properties": "create_advanced_controls_tab",
+    "output-show-thermal-properties": "create_advanced_controls_tab",
+    "simulation-data-store": "create_advanced_controls_tab",
+    "parameters-store": "create_advanced_controls_tab",
+    "last-parameters-store": "create_advanced_controls_tab",
+    "parameter-presets-store": "create_advanced_controls_tab",
+    "chart-data-store": "create_advanced_controls_tab",
+    "notification-store": "create_advanced_controls_tab",
+    "error-banner": "create_advanced_controls_tab",
+    "system-health-alert": "create_advanced_controls_tab",
+    "preset-dropdown": "create_advanced_controls_tab",
+    "save-preset-btn": "create_advanced_controls_tab",
+    "delete-preset-btn": "create_advanced_controls_tab",
+    "interval-component": "create_advanced_controls_tab",
+    "notification-toast": "create_advanced_controls_tab",
+    "ws": "create_advanced_controls_tab",
+    "floater-mass-help": "create_advanced_parameters_panel",
+    "floater-mass-slider": "create_advanced_parameters_panel",
+    "floater-area-help": "create_advanced_parameters_panel",
+    "floater-area-slider": "create_advanced_parameters_panel",
+    "air-fill-time-help": "create_advanced_parameters_panel",
+    "air-fill-time-slider": "create_advanced_parameters_panel",
+    "air-flow-rate-help": "create_advanced_parameters_panel",
+    "air-flow-rate-slider": "create_advanced_parameters_panel",
+    "jet-efficiency-help": "create_advanced_parameters_panel",
+    "jet-efficiency-slider": "create_advanced_parameters_panel",
+    "jet-efficiency-slider-error": "create_advanced_parameters_panel",
+    "sprocket-radius-help": "create_advanced_parameters_panel",
+    "sprocket-radius-slider": "create_advanced_parameters_panel",
+    "sprocket-radius-slider-error": "create_advanced_parameters_panel",
+    "flywheel-inertia-help": "create_advanced_parameters_panel",
+    "flywheel-inertia-slider": "create_advanced_parameters_panel",
+    "flywheel-inertia-slider-error": "create_advanced_parameters_panel",
+    "submit-advanced-params-btn": "create_advanced_parameters_panel",
+    "h1-enabled-switch": "create_physics_controls_panel",
+    "nanobubble-fraction-slider": "create_physics_controls_panel",
+    "h2-enabled-switch": "create_physics_controls_panel",
+    "thermal-coeff-slider": "create_physics_controls_panel",
+    "water-temp-slider": "create_physics_controls_panel",
+    "ref-temp-slider": "create_physics_controls_panel",
+    "submit-physics-controls-btn": "create_physics_controls_panel",
+    "drivetrain-overview": "create_system_overview_panel",
+    "electrical-overview": "create_system_overview_panel",
+    "control-overview": "create_system_overview_panel",
+    "physics-overview": "create_system_overview_panel"
+  }
+}

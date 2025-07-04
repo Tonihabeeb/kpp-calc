@@ -100,6 +100,20 @@ class IntegratedDrivetrain:
         # Step 1: Convert chain tension to rotational torque via sprocket
         self.top_sprocket.update(chain_tension, dt)
         sprocket_power = self.top_sprocket.get_power_output()
+        
+        # BOOTSTRAP FIX: Force initial rotation if we have substantial chain tension but no motion
+        abs_chain_tension = abs(chain_tension)
+        abs_sprocket_velocity = abs(self.top_sprocket.angular_velocity)
+        abs_sprocket_torque = abs(self.top_sprocket.torque)
+        
+        if (abs_chain_tension > 500.0 and  # Lower threshold for startup
+            abs_sprocket_velocity < 0.05 and  # More generous velocity threshold
+            abs_sprocket_torque > 25.0):  # Lower torque threshold
+            # Kick-start the sprocket with minimum angular velocity
+            startup_velocity = 0.2  # Higher initial kick
+            self.top_sprocket.drive_shaft.angular_velocity = startup_velocity
+            self.top_sprocket.angular_velocity = startup_velocity
+            logger.warning(f"Bootstrap: kick-starting sprocket with chain_tension={chain_tension:.0f}N, torque={abs_sprocket_torque:.1f}Nm")
 
         # Step 2: Speed and torque conversion through gearbox
         self.gearbox.update(

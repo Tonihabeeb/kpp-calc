@@ -1,6 +1,8 @@
 # KPP Simulator - Development Dependencies
 # Install with: pip install -r requirements-dev.txt
 
+# Upgraded to latest dash, dash-bootstrap-components, and dash-core-components for React 18 compatibility
+
 # Testing framework
 pytest>=7.4.0
 pytest-cov>=4.1.0

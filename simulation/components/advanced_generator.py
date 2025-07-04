@@ -77,6 +77,22 @@ class AdvancedGenerator:
             "power_factor", 0.92
         )  # Target power factor
 
+        # FOC (Field-Oriented Control) parameters
+        self.foc_enabled = config.get("foc_enabled", True)
+        self.d_axis_current = 0.0  # Direct axis current (flux control)
+        self.q_axis_current = 0.0  # Quadrature axis current (torque control)
+        self.flux_reference = config.get("flux_reference", 1.0)  # Per unit flux reference
+        self.torque_controller_kp = config.get("torque_kp", 100.0)  # Torque PI controller gains
+        self.torque_controller_ki = config.get("torque_ki", 50.0)
+        self.flux_controller_kp = config.get("flux_kp", 80.0)  # Flux PI controller gains
+        self.flux_controller_ki = config.get("flux_ki", 40.0)
+        
+        # FOC controller state
+        self.torque_error_integral = 0.0
+        self.flux_error_integral = 0.0
+        self.previous_torque_error = 0.0
+        self.previous_flux_error = 0.0
+
         # State variables
         self.angular_velocity = 0.0  # rad/s
         self.slip = 0.0  # Per unit slip
@@ -126,8 +142,12 @@ class AdvancedGenerator:
         self.slip = (self.synchronous_omega - shaft_speed) / self.synchronous_omega
         self.slip = max(min(self.slip, self.max_slip), -self.max_slip)  # Limit slip
 
-        # Calculate electromagnetic torque
-        self.torque = self._calculate_electromagnetic_torque(self.slip, load_factor)
+        # Apply FOC control if enabled
+        if self.foc_enabled:
+            self.torque = self._calculate_foc_torque(load_factor, dt)
+        else:
+            # Fall back to conventional electromagnetic torque calculation
+            self.torque = self._calculate_electromagnetic_torque(self.slip, load_factor)
 
         # Calculate mechanical power input
         self.mechanical_power = self.torque * shaft_speed
@@ -409,6 +429,138 @@ class AdvancedGenerator:
             float: Current user load torque in N⋅m
         """
         return getattr(self, "user_load_torque", 0.0)
+
+    def _calculate_foc_torque(self, torque_demand: float, dt: float) -> float:
+        """
+        Calculate electromagnetic torque using Field-Oriented Control (FOC).
+        
+        FOC decouples torque and flux control by regulating d-axis and q-axis currents.
+        This provides superior dynamic response and torque control accuracy.
+        
+        Args:
+            torque_demand (float): Desired torque as fraction of rated (0-1)
+            dt (float): Time step for PI controllers (s)
+            
+        Returns:
+            float: Controlled electromagnetic torque (N⋅m)
+        """
+        # Target torque
+        target_torque = torque_demand * self.rated_torque
+        
+        # Current torque feedback (simplified from actual measurements)
+        actual_torque = self.torque
+        
+        # Torque error for PI controller
+        torque_error = target_torque - actual_torque
+        
+        # PI control for q-axis current (torque producing current)
+        # P term
+        q_current_p = self.torque_controller_kp * torque_error
+        
+        # I term with anti-windup
+        self.torque_error_integral += torque_error * dt
+        # Anti-windup: limit integral term
+        max_integral = self.rated_torque / self.torque_controller_ki
+        self.torque_error_integral = max(-max_integral, min(max_integral, self.torque_error_integral))
+        q_current_i = self.torque_controller_ki * self.torque_error_integral
+        
+        # Calculate q-axis current command
+        self.q_axis_current = q_current_p + q_current_i
+        
+        # Limit q-axis current to rated values
+        max_q_current = self.rated_power / (math.sqrt(3) * self.rated_voltage)
+        self.q_axis_current = max(-max_q_current, min(max_q_current, self.q_axis_current))
+        
+        # D-axis current control for flux regulation
+        target_flux = self.flux_reference
+        # Simplified flux feedback (in real system would use flux observer)
+        actual_flux = self.field_excitation
+        
+        flux_error = target_flux - actual_flux
+        
+        # PI control for d-axis current (flux producing current)
+        d_current_p = self.flux_controller_kp * flux_error
+        
+        self.flux_error_integral += flux_error * dt
+        max_flux_integral = 1.0 / self.flux_controller_ki
+        self.flux_error_integral = max(-max_flux_integral, min(max_flux_integral, self.flux_error_integral))
+        d_current_i = self.flux_controller_ki * self.flux_error_integral
+        
+        self.d_axis_current = d_current_p + d_current_i
+        
+        # Limit d-axis current
+        max_d_current = max_q_current * 0.3  # Typically much smaller than q-axis
+        self.d_axis_current = max(-max_d_current, min(max_d_current, self.d_axis_current))
+        
+        # Calculate torque from FOC currents
+        # For PM synchronous motor: T = (3/2) * P * λ_pm * i_q
+        # Where P is pole pairs, λ_pm is PM flux linkage, i_q is q-axis current
+        torque_constant = (3.0 / 2.0) * self.pole_pairs * 0.5  # Simplified torque constant
+        foc_torque = torque_constant * self.q_axis_current * self.field_excitation
+        
+        # Apply current limits and saturation
+        total_current = math.sqrt(self.d_axis_current**2 + self.q_axis_current**2)
+        if total_current > max_q_current:
+            # Current limiting - reduce both currents proportionally
+            scale_factor = max_q_current / total_current
+            self.d_axis_current *= scale_factor
+            self.q_axis_current *= scale_factor
+            foc_torque *= scale_factor
+        
+        # Update field excitation based on d-axis current
+        self.field_excitation = max(self.min_excitation, 
+                                   min(1.2, 1.0 + self.d_axis_current * 0.2))
+        
+        logger.debug(f"FOC Control: target_T={target_torque:.1f}Nm, actual_T={foc_torque:.1f}Nm, "
+                    f"i_d={self.d_axis_current:.2f}A, i_q={self.q_axis_current:.2f}A, "
+                    f"flux={self.field_excitation:.3f}pu")
+        
+        return foc_torque
+    
+    def set_foc_parameters(self, torque_kp: float = None, torque_ki: float = None,
+                          flux_kp: float = None, flux_ki: float = None):
+        """
+        Set FOC controller parameters for tuning.
+        
+        Args:
+            torque_kp: Torque controller proportional gain
+            torque_ki: Torque controller integral gain  
+            flux_kp: Flux controller proportional gain
+            flux_ki: Flux controller integral gain
+        """
+        if torque_kp is not None:
+            self.torque_controller_kp = torque_kp
+        if torque_ki is not None:
+            self.torque_controller_ki = torque_ki
+        if flux_kp is not None:
+            self.flux_controller_kp = flux_kp
+        if flux_ki is not None:
+            self.flux_controller_ki = flux_ki
+            
+        logger.info(f"FOC parameters updated: torque_kp={self.torque_controller_kp}, "
+                   f"torque_ki={self.torque_controller_ki}, flux_kp={self.flux_controller_kp}, "
+                   f"flux_ki={self.flux_controller_ki}")
+    
+    def enable_foc(self, enabled: bool = True):
+        """Enable or disable Field-Oriented Control."""
+        self.foc_enabled = enabled
+        if enabled:
+            logger.info("Field-Oriented Control (FOC) enabled")
+        else:
+            logger.info("Field-Oriented Control (FOC) disabled - using conventional control")
+    
+    def get_foc_status(self) -> Dict[str, float]:
+        """Get FOC control status and measurements."""
+        return {
+            "foc_enabled": self.foc_enabled,
+            "d_axis_current": self.d_axis_current,
+            "q_axis_current": self.q_axis_current,
+            "total_current": math.sqrt(self.d_axis_current**2 + self.q_axis_current**2),
+            "flux_reference": self.flux_reference,
+            "field_excitation": self.field_excitation,
+            "torque_error_integral": self.torque_error_integral,
+            "flux_error_integral": self.flux_error_integral,
+        }
 
 
 def create_kmp_generator(config: Optional[Dict[str, Any]] = None) -> AdvancedGenerator:

@@ -1,0 +1,652 @@
+{
+  "timestamp": "2025-07-03T21:40:18.096125",
+  "summary": {
+    "total_extracted_endpoints": 160,
+    "total_tested_endpoints": 0,
+    "total_validated_endpoints": 52,
+    "services_running": 0,
+    "coverage_percentage": 0.0
+  },
+  "endpoint_categories": {
+    "flask_routes": {
+      "total_endpoints": 48,
+      "covered_endpoints": 0,
+      "uncovered_endpoints": 48,
+      "coverage_percentage": 0.0,
+      "endpoints_list": [
+        "GET /",
+        "GET /chart/<metric>.png",
+        "GET /data/chain_status",
+        "GET /data/control_status",
+        "GET /data/drivetrain_status",
+        "GET /data/electrical_status",
+        "GET /data/energy_balance",
+        "GET /data/enhanced_losses",
+        "GET /data/enhanced_performance",
+        "GET /data/enhancement_status",
+        "GET /data/fluid_properties",
+        "GET /data/grid_services_status",
+        "GET /data/history",
+        "GET /data/live",
+        "GET /data/optimization_recommendations",
+        "GET /data/physics_status",
+        "GET /data/pneumatic_status",
+        "GET /data/summary",
+        "GET /data/system_overview",
+        "GET /data/thermal_properties",
+        "GET /data/transient_status",
+        "GET /download_csv",
+        "GET /export_collected_data",
+        "GET /inspect/input_data",
+        "GET /inspect/output_data",
+        "GET /parameters",
+        "GET /status",
+        "GET /stream",
+        "POST /control/enhanced_physics",
+        "POST /control/foc_control",
+        "POST /control/h1_nanobubbles",
+        "POST /control/h2_thermal",
+        "POST /control/initiate_startup",
+        "POST /control/pressure_recovery",
+        "POST /control/set_control_mode",
+        "POST /control/system_scale",
+        "POST /control/trigger_emergency_stop",
+        "POST /control/water_jet_physics",
+        "POST /control/water_temperature",
+        "POST /parameters",
+        "POST /pause",
+        "POST /set_load",
+        "POST /set_params",
+        "POST /start",
+        "POST /step",
+        "POST /stop",
+        "POST /trigger_pulse",
+        "POST /update_params"
+      ],
+      "covered_list": [],
+      "uncovered_list": [
+        "GET /",
+        "GET /chart/<metric>.png",
+        "GET /data/chain_status",
+        "GET /data/control_status",
+        "GET /data/drivetrain_status",
+        "GET /data/electrical_status",
+        "GET /data/energy_balance",
+        "GET /data/enhanced_losses",
+        "GET /data/enhanced_performance",
+        "GET /data/enhancement_status",
+        "GET /data/fluid_properties",
+        "GET /data/grid_services_status",
+        "GET /data/history",
+        "GET /data/live",
+        "GET /data/optimization_recommendations",
+        "GET /data/physics_status",
+        "GET /data/pneumatic_status",
+        "GET /data/summary",
+        "GET /data/system_overview",
+        "GET /data/thermal_properties",
+        "GET /data/transient_status",
+        "GET /download_csv",
+        "GET /export_collected_data",
+        "GET /inspect/input_data",
+        "GET /inspect/output_data",
+        "GET /parameters",
+        "GET /status",
+        "GET /stream",
+        "POST /control/enhanced_physics",
+        "POST /control/foc_control",
+        "POST /control/h1_nanobubbles",
+        "POST /control/h2_thermal",
+        "POST /control/initiate_startup",
+        "POST /control/pressure_recovery",
+        "POST /control/set_control_mode",
+        "POST /control/system_scale",
+        "POST /control/trigger_emergency_stop",
+        "POST /control/water_jet_physics",
+        "POST /control/water_temperature",
+        "POST /parameters",
+        "POST /pause",
+        "POST /set_load",
+        "POST /set_params",
+        "POST /start",
+        "POST /step",
+        "POST /stop",
+        "POST /trigger_pulse",
+        "POST /update_params"
+      ]
+    },
+    "websocket_routes": {
+      "total_endpoints": 3,
+      "covered_endpoints": 0,
+      "uncovered_endpoints": 3,
+      "coverage_percentage": 0.0,
+      "endpoints_list": [
+        "GET /",
+        "GET /state",
+        "WEBSOCKET /ws"
+      ],
+      "covered_list": [],
+      "uncovered_list": [
+        "GET /",
+        "GET /state",
+        "WEBSOCKET /ws"
+      ]
+    },
+    "dash_callbacks": {
+      "total_endpoints": 106,
+      "covered_endpoints": 0,
+      "uncovered_endpoints": 106,
+      "coverage_percentage": 0.0,
+      "endpoints_list": [
+        "CALLBACK fetch_realtime_data_DISABLED",
+        "CALLBACK fetch_realtime_data_websocket",
+        "CALLBACK handle_action_outputs",
+        "CALLBACK handle_simulation_controls",
+        "CALLBACK unified_param_notification_preset_callback",
+        "CALLBACK update_chart_data",
+        "CALLBACK update_efficiency_chart",
+        "CALLBACK update_metrics_cards",
+        "CALLBACK update_power_torque_chart",
+        "CALLBACK update_status_indicators",
+        "CALLBACK validate_advanced_parameters",
+        "CALLBACK validate_basic_parameters",
+        "CALLBACK validate_physics_controls",
+        "COMPONENT advanced-air-fill-time-error.children",
+        "COMPONENT advanced-air-flow-rate-error.children",
+        "COMPONENT advanced-floater-area-error.children",
+        "COMPONENT advanced-floater-mass-error.children",
+        "COMPONENT advanced-flywheel-inertia-error.children",
+        "COMPONENT advanced-jet-efficiency-error.children",
+        "COMPONENT advanced-sprocket-radius-error.children",
+        "COMPONENT air-fill-time-slider.value",
+        "COMPONENT air-flow-rate-slider.value",
+        "COMPONENT air-pressure-slider.value",
+        "COMPONENT ambient-temp-error.children",
+        "COMPONENT ambient-temp-slider.value",
+        "COMPONENT basic-air-fill-time-error.children",
+        "COMPONENT basic-air-flow-rate-error.children",
+        "COMPONENT basic-floater-area-error.children",
+        "COMPONENT basic-floater-mass-error.children",
+        "COMPONENT btn-emergency-stop.n_clicks",
+        "COMPONENT btn-h1-nanobubbles.n_clicks",
+        "COMPONENT btn-set-control-mode.n_clicks",
+        "COMPONENT btn-set-load.n_clicks",
+        "COMPONENT btn-show-energy-balance.n_clicks",
+        "COMPONENT btn-show-enhanced-performance.n_clicks",
+        "COMPONENT btn-show-fluid-properties.n_clicks",
+        "COMPONENT btn-show-input-data.n_clicks",
+        "COMPONENT btn-show-output-data.n_clicks",
+        "COMPONENT btn-show-thermal-properties.n_clicks",
+        "COMPONENT btn-step.n_clicks",
+        "COMPONENT btn-trigger-pulse.n_clicks",
+        "COMPONENT chart-data-store.data",
+        "COMPONENT connection-status.children",
+        "COMPONENT delete-preset-btn.n_clicks",
+        "COMPONENT efficiency-chart.figure",
+        "COMPONENT efficiency-value.children",
+        "COMPONENT electrical-eff.children",
+        "COMPONENT floater-area-slider.value",
+        "COMPONENT floater-mass-slider.value",
+        "COMPONENT floater-volume-slider.value",
+        "COMPONENT flywheel-inertia-slider.value",
+        "COMPONENT flywheel-rpm.children",
+        "COMPONENT grid-power.children",
+        "COMPONENT h1-enabled-switch.value",
+        "COMPONENT h1-switch-error.children",
+        "COMPONENT h2-enabled-switch.value",
+        "COMPONENT h2-switch-error.children",
+        "COMPONENT interval-component.n_intervals",
+        "COMPONENT jet-efficiency-slider.value",
+        "COMPONENT last-parameters-store.data",
+        "COMPONENT metric-selector.value",
+        "COMPONENT nanobubble-fraction-error.children",
+        "COMPONENT nanobubble-fraction-slider.value",
+        "COMPONENT notification-store.data",
+        "COMPONENT num-floaters-slider.value",
+        "COMPONENT output-emergency-stop.children",
+        "COMPONENT output-h1-nanobubbles.children",
+        "COMPONENT output-set-control-mode.children",
+        "COMPONENT output-set-load.children",
+        "COMPONENT output-show-energy-balance.children",
+        "COMPONENT output-show-enhanced-performance.children",
+        "COMPONENT output-show-fluid-properties.children",
+        "COMPONENT output-show-input-data.children",
+        "COMPONENT output-show-output-data.children",
+        "COMPONENT output-show-thermal-properties.children",
+        "COMPONENT output-step.children",
+        "COMPONENT output-trigger-pulse.children",
+        "COMPONENT parameter-presets-store.data",
+        "COMPONENT parameters-store.data",
+        "COMPONENT pause-btn.disabled",
+        "COMPONENT pause-btn.n_clicks",
+        "COMPONENT power-torque-chart.figure",
+        "COMPONENT power-value.children",
+        "COMPONENT preset-dropdown.options",
+        "COMPONENT preset-dropdown.value",
+        "COMPONENT pulse-count.children",
+        "COMPONENT pulse-interval-slider.value",
+        "COMPONENT realtime-interval.n_intervals",
+        "COMPONENT reset-btn.disabled",
+        "COMPONENT reset-btn.n_clicks",
+        "COMPONENT save-preset-btn.n_clicks",
+        "COMPONENT simulation-data-store.data",
+        "COMPONENT simulation-status.children",
+        "COMPONENT sprocket-radius-slider.value",
+        "COMPONENT start-btn.disabled",
+        "COMPONENT start-btn.n_clicks",
+        "COMPONENT stop-btn.disabled",
+        "COMPONENT stop-btn.n_clicks",
+        "COMPONENT submit-advanced-params-btn.n_clicks",
+        "COMPONENT submit-physics-controls-btn.n_clicks",
+        "COMPONENT thermal-efficiency-error.children",
+        "COMPONENT thermal-efficiency-slider.value",
+        "COMPONENT time-value.children",
+        "COMPONENT torque-value.children",
+        "COMPONENT water-temp-error.children",
+        "COMPONENT water-temp-slider.value"
+      ],
+      "covered_list": [],
+      "uncovered_list": [
+        "CALLBACK fetch_realtime_data_DISABLED",
+        "CALLBACK fetch_realtime_data_websocket",
+        "CALLBACK handle_action_outputs",
+        "CALLBACK handle_simulation_controls",
+        "CALLBACK unified_param_notification_preset_callback",
+        "CALLBACK update_chart_data",
+        "CALLBACK update_efficiency_chart",
+        "CALLBACK update_metrics_cards",
+        "CALLBACK update_power_torque_chart",
+        "CALLBACK update_status_indicators",
+        "CALLBACK validate_advanced_parameters",
+        "CALLBACK validate_basic_parameters",
+        "CALLBACK validate_physics_controls",
+        "COMPONENT advanced-air-fill-time-error.children",
+        "COMPONENT advanced-air-flow-rate-error.children",
+        "COMPONENT advanced-floater-area-error.children",
+        "COMPONENT advanced-floater-mass-error.children",
+        "COMPONENT advanced-flywheel-inertia-error.children",
+        "COMPONENT advanced-jet-efficiency-error.children",
+        "COMPONENT advanced-sprocket-radius-error.children",
+        "COMPONENT air-fill-time-slider.value",
+        "COMPONENT air-flow-rate-slider.value",
+        "COMPONENT air-pressure-slider.value",
+        "COMPONENT ambient-temp-error.children",
+        "COMPONENT ambient-temp-slider.value",
+        "COMPONENT basic-air-fill-time-error.children",
+        "COMPONENT basic-air-flow-rate-error.children",
+        "COMPONENT basic-floater-area-error.children",
+        "COMPONENT basic-floater-mass-error.children",
+        "COMPONENT btn-emergency-stop.n_clicks",
+        "COMPONENT btn-h1-nanobubbles.n_clicks",
+        "COMPONENT btn-set-control-mode.n_clicks",
+        "COMPONENT btn-set-load.n_clicks",
+        "COMPONENT btn-show-energy-balance.n_clicks",
+        "COMPONENT btn-show-enhanced-performance.n_clicks",
+        "COMPONENT btn-show-fluid-properties.n_clicks",
+        "COMPONENT btn-show-input-data.n_clicks",
+        "COMPONENT btn-show-output-data.n_clicks",
+        "COMPONENT btn-show-thermal-properties.n_clicks",
+        "COMPONENT btn-step.n_clicks",
+        "COMPONENT btn-trigger-pulse.n_clicks",
+        "COMPONENT chart-data-store.data",
+        "COMPONENT connection-status.children",
+        "COMPONENT delete-preset-btn.n_clicks",
+        "COMPONENT efficiency-chart.figure",
+        "COMPONENT efficiency-value.children",
+        "COMPONENT electrical-eff.children",
+        "COMPONENT floater-area-slider.value",
+        "COMPONENT floater-mass-slider.value",
+        "COMPONENT floater-volume-slider.value",
+        "COMPONENT flywheel-inertia-slider.value",
+        "COMPONENT flywheel-rpm.children",
+        "COMPONENT grid-power.children",
+        "COMPONENT h1-enabled-switch.value",
+        "COMPONENT h1-switch-error.children",
+        "COMPONENT h2-enabled-switch.value",
+        "COMPONENT h2-switch-error.children",
+        "COMPONENT interval-component.n_intervals",
+        "COMPONENT jet-efficiency-slider.value",
+        "COMPONENT last-parameters-store.data",
+        "COMPONENT metric-selector.value",
+        "COMPONENT nanobubble-fraction-error.children",
+        "COMPONENT nanobubble-fraction-slider.value",
+        "COMPONENT notification-store.data",
+        "COMPONENT num-floaters-slider.value",
+        "COMPONENT output-emergency-stop.children",
+        "COMPONENT output-h1-nanobubbles.children",
+        "COMPONENT output-set-control-mode.children",
+        "COMPONENT output-set-load.children",
+        "COMPONENT output-show-energy-balance.children",
+        "COMPONENT output-show-enhanced-performance.children",
+        "COMPONENT output-show-fluid-properties.children",
+        "COMPONENT output-show-input-data.children",
+        "COMPONENT output-show-output-data.children",
+        "COMPONENT output-show-thermal-properties.children",
+        "COMPONENT output-step.children",
+        "COMPONENT output-trigger-pulse.children",
+        "COMPONENT parameter-presets-store.data",
+        "COMPONENT parameters-store.data",
+        "COMPONENT pause-btn.disabled",
+        "COMPONENT pause-btn.n_clicks",
+        "COMPONENT power-torque-chart.figure",
+        "COMPONENT power-value.children",
+        "COMPONENT preset-dropdown.options",
+        "COMPONENT preset-dropdown.value",
+        "COMPONENT pulse-count.children",
+        "COMPONENT pulse-interval-slider.value",
+        "COMPONENT realtime-interval.n_intervals",
+        "COMPONENT reset-btn.disabled",
+        "COMPONENT reset-btn.n_clicks",
+        "COMPONENT save-preset-btn.n_clicks",
+        "COMPONENT simulation-data-store.data",
+        "COMPONENT simulation-status.children",
+        "COMPONENT sprocket-radius-slider.value",
+        "COMPONENT start-btn.disabled",
+        "COMPONENT start-btn.n_clicks",
+        "COMPONENT stop-btn.disabled",
+        "COMPONENT stop-btn.n_clicks",
+        "COMPONENT submit-advanced-params-btn.n_clicks",
+        "COMPONENT submit-physics-controls-btn.n_clicks",
+        "COMPONENT thermal-efficiency-error.children",
+        "COMPONENT thermal-efficiency-slider.value",
+        "COMPONENT time-value.children",
+        "COMPONENT torque-value.children",
+        "COMPONENT water-temp-error.children",
+        "COMPONENT water-temp-slider.value"
+      ]
+    },
+    "observability_routes": {
+      "total_endpoints": 3,
+      "covered_endpoints": 0,
+      "uncovered_endpoints": 3,
+      "coverage_percentage": 0.0,
+      "endpoints_list": [
+        "GET /observability/health",
+        "GET /observability/traces",
+        "GET /observability/traces/<trace_id>"
+      ],
+      "covered_list": [],
+      "uncovered_list": [
+        "GET /observability/health",
+        "GET /observability/traces",
+        "GET /observability/traces/<trace_id>"
+      ]
+    }
+  },
+  "test_coverage": {},
+  "validation_results": {
+    "flask": {
+      "GET /download_csv": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "de5a22e7-92d5-4464-8200-1feb9ce7a0a3"
+      },
+      "GET /data/energy_balance": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "ed5ac690-af5a-4863-af6a-13221f5fe083"
+      },
+      "GET /data/pneumatic_status": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "a30a4cc8-45eb-4651-b7b9-24d689dfc3bc"
+      },
+      "POST /control/h2_thermal": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "fb6d27af-839e-4588-ace5-2caa067fb523"
+      },
+      "GET /data/enhanced_performance": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "18a27f45-0af5-4f56-a58e-8be69eaf02dc"
+      },
+      "POST /set_params": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "4e8db765-65f6-4016-8736-4de13c7d9b29"
+      },
+      "GET /data/summary": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "330ced2f-ea76-4161-baaa-9a624bcc7b8c"
+      },
+      "GET /data/system_overview": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "d55a0534-34bd-4619-80e5-2c355d4c8223"
+      },
+      "GET /data/thermal_properties": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "1b6eecb1-e856-4093-95e4-dc2a31f28edf"
+      },
+      "GET /data/grid_services_status": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "177e4fac-8a3d-4a94-8217-f9cf3e17a5dd"
+      },
+      "POST /control/water_jet_physics": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "57b83aed-1b63-4f89-8380-0fc280a5e6e2"
+      },
+      "GET /": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "410c1f20-29b1-4390-a859-016073261780"
+      },
+      "GET /parameters": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "69de1a00-253f-4b04-a493-75d7a25e6507"
+      },
+      "POST /control/h1_nanobubbles": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "d1e723e5-7ab5-4bed-85cb-20502bec2aa5"
+      },
+      "GET /chart/<metric>.png": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "dff08aef-98de-480c-a6a9-703c00fbd109"
+      },
+      "GET /data/live": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "6ede0577-3aff-4f1c-bb1b-f2ef6c1eba92"
+      },
+      "GET /data/history": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "5a5a5f14-40de-4319-94d0-9d079530b05c"
+      },
+      "POST /trigger_pulse": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "f8fa554c-e8b1-4f4d-8645-bedf5d979c5c"
+      },
+      "GET /data/control_status": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "00c27734-3cd3-46d1-b35b-7cacae814c7a"
+      },
+      "POST /control/pressure_recovery": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "76be4544-fcdb-4e88-9360-1c16f5352f0d"
+      },
+      "GET /data/fluid_properties": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "cee7a097-aa80-44ea-b742-07b7b0887efa"
+      },
+      "POST /control/set_control_mode": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "35d070d9-2b34-45b4-9e7a-bcccc62bd766"
+      },
+      "POST /control/trigger_emergency_stop": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "c37538e3-a0a3-4f9d-ae8b-9bf39dcc8540"
+      },
+      "POST /control/foc_control": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "dfb35acd-7a28-488d-8f25-211f1defdd70"
+      },
+      "GET /inspect/output_data": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "b975e4d7-75e4-4970-ac76-94abfc885490"
+      },
+      "GET /data/electrical_status": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "71bb0d07-2ed6-47d9-97e8-e698c887e19b"
+      },
+      "POST /stop": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "82ddf6c8-144c-4e38-9388-69008cb10a24"
+      },
+      "GET /data/drivetrain_status": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "e78fec68-cc25-48f1-ba85-52fb8c0d9a0b"
+      },
+      "POST /control/water_temperature": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "d2b29972-babc-4e88-8945-32ae662abcc8"
+      },
+      "POST /update_params": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "1de08af9-984f-4311-b243-e691deb89786"
+      },
+      "POST /pause": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "2d1f0712-4d4a-423b-b207-37caa9d72d8b"
+      },
+      "GET /inspect/input_data": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "c7441429-a042-4f5e-8119-cde6899c7e0b"
+      },
+      "GET /export_collected_data": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "370e4784-f2a1-4c17-91b4-3684b96acc4c"
+      },
+      "POST /control/initiate_startup": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "8b9e4832-12ac-455f-8eed-633be23c8f85"
+      },
+      "GET /data/physics_status": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "dda360d5-f618-4c14-a879-7b3a934e5976"
+      },
+      "POST /parameters": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "1c8005b2-96e5-4244-a4bb-076975272c51"
+      },
+      "POST /set_load": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "a6959b35-43e8-4778-97b0-f4e3f977aad9"
+      },
+      "POST /control/system_scale": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "c9ff78dd-2028-4a75-848b-b5601402878e"
+      },
+      "GET /data/enhancement_status": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "a9db9602-6966-4b58-8411-5f929a63d7a6"
+      },
+      "POST /control/enhanced_physics": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "1b8f88cc-4235-439e-bd31-2a0842e96ab7"
+      },
+      "POST /step": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "6fd71efd-9e98-435d-9803-41a459197dc8"
+      },
+      "GET /status": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "b7fe090b-3712-411b-b9b8-fcb24454c224"
+      },
+      "GET /data/transient_status": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "42bc8c4d-0a04-4aa4-aeda-77ddacbd5548"
+      },
+      "GET /stream": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "513737d3-752c-4064-a289-5fb8b4e2dfaf"
+      },
+      "GET /data/chain_status": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "f639c68f-6062-455e-afdf-efb69146f0f3"
+      },
+      "POST /start": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "31a9cd3b-569a-4069-bfd5-34a3ef2f6c1a"
+      },
+      "GET /data/enhanced_losses": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "1fec83fc-a637-451d-8a9b-56ff524ff8f8"
+      },
+      "GET /data/optimization_recommendations": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "66f9e571-e031-435a-9135-4dfe2e249434"
+      }
+    },
+    "websocket": {
+      "GET /": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "f5af729f-d989-48c5-873e-07fca4e64072"
+      },
+      "GET /state": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "e2e147c5-541e-48b4-a154-8e01d5708fba"
+      },
+      "WEBSOCKET /ws": {
+        "status": "skipped",
+        "reason": "WebSocket validation not implemented"
+      }
+    },
+    "dash": {
+      "GET /": {
+        "status": "connection_error",
+        "reason": "Service not running",
+        "trace_id": "a82b8c2c-2898-4b2b-902d-8a25035fbef8"
+      }
+    }
+  },
+  "recommendations": [
+    "Increase test coverage - aim for at least 80% endpoint coverage",
+    "Start all services for complete validation",
+    "Add tests for 48 uncovered flask_routes",
+    "Add tests for 3 uncovered websocket_routes",
+    "Add tests for 106 uncovered dash_callbacks",
+    "Add tests for 3 uncovered observability_routes"
+  ]
+}

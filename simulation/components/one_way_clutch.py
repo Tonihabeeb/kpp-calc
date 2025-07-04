@@ -74,7 +74,7 @@ class OneWayClutch:
         # Calculate speed difference (positive = input faster than output)
         speed_difference = input_speed - output_speed
 
-        # Determine engagement state based on speed difference
+        # Normal engagement logic
         target_engaged = self._should_engage(speed_difference)
 
         # Update engagement factor with smooth transition
@@ -130,8 +130,13 @@ class OneWayClutch:
             bool: True if clutch should engage
         """
         if not self.is_engaged:
-            # Engage if input is sufficiently faster than output
-            return speed_difference > self.engagement_threshold
+            # BOOTSTRAP FIX: Engage more aggressively at startup
+            # If output speed is zero (system startup), engage with lower threshold
+            if abs(self.output_speed) < 0.05:  # Essentially stopped - more generous
+                return speed_difference > 0.005  # Even lower threshold for startup
+            else:
+                # Normal operation - engage if input is sufficiently faster than output
+                return speed_difference > self.engagement_threshold
         else:
             # Disengage if output becomes faster than input (with hysteresis)
             return speed_difference > self.disengagement_threshold

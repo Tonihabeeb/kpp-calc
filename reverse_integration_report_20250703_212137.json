@@ -1,0 +1,25 @@
+{
+  "test_suite": "KPP Reverse Integration Tests",
+  "timestamp": "2025-07-03T21:21:37.695993",
+  "summary": {
+    "services_started": false,
+    "tests_run": false,
+    "tests_passed": false,
+    "duration_seconds": 200.251308
+  },
+  "results": {
+    "start_time": "2025-07-03T21:18:17.428011",
+    "end_time": "2025-07-03T21:21:37.679319",
+    "duration": 200.251308,
+    "services_started": false,
+    "tests_run": false,
+    "test_results": {},
+    "service_logs": {},
+    "system_status": {}
+  },
+  "recommendations": [
+    "Check service startup logs and port availability",
+    "Review test output for specific failures",
+    "Check service health and network connectivity"
+  ]
+}

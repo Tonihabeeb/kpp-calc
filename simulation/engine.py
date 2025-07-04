@@ -32,7 +32,7 @@ from config.config import G, RHO_WATER  # Add physics constants
 from simulation.components.chain import Chain
 from simulation.components.fluid import Fluid
 from simulation.components.thermal import ThermalModel
-from config.parameter_schema import get_default_parameters
+from config.parameter_schema import get_default_parameters, get_floater_distribution, validate_kpp_system_parameters
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -50,15 +50,83 @@ class SimulationEngine:
             params (dict): Simulation parameters.
             data_queue (queue.Queue): Queue for streaming simulation data.
         """
-        self.params = params
+        # Validate and scale parameters for full KPP system
+        validation_result = validate_kpp_system_parameters(params)
+        if not validation_result['valid']:
+            logger.error(f"Parameter validation failed: {validation_result['errors']}")
+            raise ValueError(f"Invalid parameters: {validation_result['errors']}")
+        
+        if validation_result['warnings']:
+            for warning in validation_result['warnings']:
+                logger.warning(warning)
+        
+        # Use validated parameters
+        self.params = validation_result['validated_params']
+        self.floater_distribution = validation_result['floater_distribution']
+        
+        logger.info(f"KPP System initialized with {self.floater_distribution['total_floaters']} floaters: "
+                   f"{self.floater_distribution['ascending_floaters']} ascending, "
+                   f"{self.floater_distribution['descending_floaters']} descending, "
+                   f"{self.floater_distribution['transition_floaters']} in transition")
+
         self.data_queue = data_queue
         self.running = False
         self.time = 0.0
         self.dt = params.get('time_step', 0.1)
-        self.last_pulse_time = -999 # Allow immediate first pulse        self.environment = Environment()
+        self.last_pulse_time = -999  # Allow immediate first pulse
+
+        # Environment with scaled parameters
+        self.environment = Environment()
+        
+        # Pneumatic system with basic configuration (pressure recovery added to air compression separately)
         self.pneumatics = PneumaticSystem(
-            target_pressure=params.get('target_pressure', 5.0)
+            target_pressure=self.params.get('target_pressure', 400000.0)
         )
+
+        # Floater initialization with proper distribution
+        self.floaters = []
+        num_floaters = self.floater_distribution['total_floaters']
+        tank_height = self.params.get('tank_height', 25.0)
+        
+        for i in range(num_floaters):
+            # Calculate initial position and state based on distribution
+            theta = i * self.floater_distribution['angular_spacing']
+            
+            # Determine if floater is initially ascending (air-filled) or descending (water-filled)
+            # First half are ascending, second half are descending
+            is_ascending = i < (num_floaters // 2)
+            
+            # Position floater along the chain path (elliptical approximation)
+            chain_radius = self.params.get('sprocket_radius', 1.2) + (tank_height / 2)
+            x = chain_radius * math.cos(theta)
+            y = (tank_height / 2) * (1 + math.sin(theta))  # 0 to tank_height
+            
+            floater = Floater(
+                volume=self.params.get('floater_volume', 0.4),
+                mass=self.params.get('floater_mass_empty', 16.0),
+                area=self.params.get('floater_area', 0.1),
+                drag_coefficient=self.params.get('floater_Cd', 0.6),
+                position=y,  # Vertical position
+                is_filled=is_ascending,  # Air-filled if ascending
+                air_fill_time=self.params.get('air_fill_time', 0.5),
+                air_pressure=self.params.get('air_pressure', 350000),
+                air_flow_rate=self.params.get('air_flow_rate', 1.2),
+                jet_efficiency=self.params.get('jet_efficiency', 0.85),
+                phase_offset=theta,
+                tank_height=tank_height,
+            )
+            
+            # Set initial chain parameters
+            floater.set_chain_params(
+                major_axis=chain_radius * 2,
+                minor_axis=tank_height,
+                chain_radius=chain_radius
+            )
+            floater.set_theta(theta)
+            
+            self.floaters.append(floater)
+
+        logger.info(f"Initialized {len(self.floaters)} floaters with proper distribution in {tank_height}m tank")
         
         # Initialize the new integrated drivetrain system
         drivetrain_config = {
@@ -87,6 +155,12 @@ class SimulationEngine:
                 'transformer_efficiency': params.get('pe_transformer_efficiency', 0.985)
             }        }
         self.integrated_electrical_system = create_standard_kmp_electrical_system(electrical_config)
+        
+        # CRITICAL FIX: Set initial electrical load engagement
+        # This ensures the electrical system creates proper load from the start
+        self.integrated_electrical_system.set_target_load_factor(0.8)  # 80% rated load
+        self.integrated_electrical_system.enable_load_management(True)
+        logger.info("Electrical system initialized with 80% target load factor and load management enabled")
         
         # Initialize the integrated control system (Phase 4)
         control_config = {
@@ -151,18 +225,6 @@ class SimulationEngine:
             target_power=params.get('target_power', 530000.0),
             target_rpm=params.get('target_rpm', 375.0)
         )
-        self.floaters = [
-            Floater(
-                volume=params.get('floater_volume', 0.3),
-                mass=params.get('floater_mass_empty', 18.0),
-                area=params.get('floater_area', 0.035),
-                drag_coefficient=params.get('floater_Cd', 0.8),
-                air_fill_time=params.get('air_fill_time', 0.5),
-                added_mass=params.get('floater_added_mass', 5.0),
-                phase_offset=2*math.pi*i/params.get('num_floaters',1)
-            )
-            for i in range(params.get('num_floaters', 1))
-        ]        
         self.control = Control(self)
         self.sensors = Sensors(self)
         self.clutch = OverrunningClutch(
@@ -438,7 +500,9 @@ class SimulationEngine:
             net_force += jet_force
             
             # Sum up forces
-            total_vertical_force += net_force
+            # DIRECTION FIX: Ensure proper chain tension direction
+            # Positive forces should create positive chain tension (pulling up)
+            total_vertical_force += abs(net_force)
             base_buoy_force += base_buoyancy
             enhanced_buoy_force += fluid_buoyancy
             thermal_enhanced_force += thermal_buoyancy
@@ -453,7 +517,9 @@ class SimulationEngine:
                         f"net_force={net_force:.1f}, is_filled={getattr(floater, 'is_filled', False)}")
         
         # Update chain kinematics using the Chain system with calculated force
-        chain_results = self.chain_system.advance(dt, total_vertical_force)
+        # DIRECTION FIX: Use absolute force and ensure positive tension direction
+        effective_force = abs(total_vertical_force) if total_vertical_force != 0 else 0
+        chain_results = self.chain_system.advance(dt, effective_force)
         
         # Update floater positions based on chain motion
         for i, floater in enumerate(self.floaters):
@@ -988,44 +1054,51 @@ class SimulationEngine:
         self.drivetrain.reset()
         self.integrated_drivetrain.reset()
         self.integrated_electrical_system.reset()
+        
+        # Re-engage electrical load after reset with higher target
+        self.integrated_electrical_system.set_target_load_factor(0.9)
+        self.integrated_electrical_system.enable_load_management(True)
+        logger.info("Electrical load re-engaged after reset: 80% target load factor")
+        
         self.integrated_control_system.reset()
         self.enhanced_loss_model.reset()
         self.transient_controller.reset()
         self.generator.reset()
         self.pneumatics.reset()
-        for i, floater in enumerate(self.floaters):
-            floater.reset()
-            # Set the first floater unfilled at the bottom to kickstart the cycle
-            if i == 0:
-                floater.is_filled = False
-                floater.fill_progress = 0.0
-                floater.set_theta(0.0)
-            else:
-                floater.is_filled = True
-                floater.fill_progress = 1.0
-                floater.set_theta(2 * math.pi * i / len(self.floaters))
-        # Set chain geometry and trigger a pulse for the first floater
+        # Set chain geometry first
         self.set_chain_geometry()
-        # --- Calibrated startup: set floaters for continuous movement ---
+        
+        # Initialize floaters properly for immediate power generation
         n = len(self.floaters)
         for i, floater in enumerate(self.floaters):
-            floater.set_theta(2 * math.pi * i / n)
+            floater.reset()
+            # Set position around the chain
+            theta = 2 * math.pi * i / n
+            floater.set_theta(theta)
             x, y = floater.get_cartesian_position()
+            
+            # Ascending side (y > 0): air-filled for buoyancy
             if y > 0:
                 floater.is_filled = True
                 floater.fill_progress = 1.0
                 floater.state = 'FILLED'
+                logger.debug(f"Floater {i}: ascending at theta={theta:.2f}, y={y:.2f}, air-filled")
+            # Descending side (y <= 0): water-filled for weight
             else:
                 floater.is_filled = False
                 floater.fill_progress = 0.0
                 floater.state = 'EMPTY'
-        # Ensure one floater at injection is ready to fill (simulate injection point at theta=0)
-        self.floaters[0].set_theta(0.0)
-        self.floaters[0].is_filled = True
-        self.floaters[0].fill_progress = 0.0
-        self.floaters[0].state = 'FILLING'
-        logger.info("Floaters initialized for calibrated startup: ascending side buoyant, descending side drawing, one ready for injection.")
-        self.pneumatics.trigger_injection(self.floaters[0])
+                logger.debug(f"Floater {i}: descending at theta={theta:.2f}, y={y:.2f}, water-filled")
+        
+        # Trigger initial air injection to get the system started
+        bottom_floaters = [f for f in self.floaters if f.get_cartesian_position()[1] <= 1.0]
+        if bottom_floaters:
+            start_floater = bottom_floaters[0]
+            if not start_floater.is_filled:
+                self.pneumatics.trigger_injection(start_floater)
+                logger.info(f"Initial air injection triggered for bottom floater")
+        
+        logger.info(f"Simulation reset: {n} floaters initialized with {sum(1 for f in self.floaters if f.is_filled)} ascending (air-filled) and {sum(1 for f in self.floaters if not f.is_filled)} descending (water-filled)")
         with self.data_queue.mutex:
             self.data_queue.queue.clear()
         logger.info("Simulation engine has been reset.")

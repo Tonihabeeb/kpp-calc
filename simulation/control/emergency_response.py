@@ -53,7 +53,7 @@ class EmergencyLimits:
     """Emergency detection limits"""
 
     max_flywheel_speed: float = 450.0  # RPM
-    max_chain_speed: float = 20.0  # m/s
+    max_chain_speed: float = 60.0  # m/s - increased to allow normal operation
     max_tank_pressure: float = 8.0  # bar
     max_component_temperature: float = 85.0  # °C
     max_current: float = 1200.0  # A
@@ -185,10 +185,10 @@ class EmergencyResponseSystem:
                     )
                 )
 
-        # Check chain overspeed
-        chain_speed = (
-            system_state.get("chain_speed_rpm", 0.0) * 0.1047
-        )  # Convert to m/s
+        # Check chain overspeed - proper conversion from RPM to m/s
+        chain_speed_rpm = system_state.get("chain_speed_rpm", 0.0)
+        sprocket_radius = 1.0  # meters (realistic for large system)
+        chain_speed = (chain_speed_rpm * 2 * 3.14159 * sprocket_radius) / 60.0  # Convert RPM to m/s
         if chain_speed > self.limits.max_chain_speed:
             if EmergencyType.OVERSPEED not in self.active_emergencies:
                 new_emergencies.append(

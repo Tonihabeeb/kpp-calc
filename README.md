@@ -3,6 +3,14 @@
 ## Overview
 This project is a modular, maintainable simulation of the KPP force calculation system, following the architecture and coding standards described in `guide-prestage.md`. The simulator models the physics of floaters, drivetrain, generator, fluid environment, pneumatic system, and control logic, and provides a real-time web interface for visualization and control.
 
+## Services and Ports
+The KPP simulator consists of multiple services running on different ports:
+
+- **Backend API (Flask)**: `http://localhost:9100` - Main simulation backend with REST API
+- **WebSocket Server (FastAPI)**: `ws://localhost:9101` - Real-time data streaming
+- **Main Dashboard (Dash)**: `http://localhost:9102` - Full-featured web interface
+- **Simple UI (Dash)**: `http://localhost:9103` - Lightweight control interface
+
 ## Architecture
 - **simulation/components/environment.py**: Water properties, H1/H2 logic (nanobubble, thermal boost)
 - **simulation/components/pneumatics.py**: Air injection, venting, compressor logic
@@ -16,15 +24,42 @@ This project is a modular, maintainable simulation of the KPP force calculation 
 - **tests/**: Unit tests for all main modules
 
 ## Running the App
+
+### Quick Start (All Services)
 1. Install requirements:
    ```sh
    pip install -r requirements.txt
    ```
-2. Start the Flask app:
+2. Start all services at once:
+   ```sh
+   start_all.bat
+   ```
+   Or manually start each service:
+
+### Manual Startup
+1. **Backend API**:
    ```sh
    python app.py
    ```
-3. Open your browser to `http://localhost:5000` to use the web interface.
+   Access at: `http://localhost:9100`
+
+2. **WebSocket Server**:
+   ```sh
+   python main.py
+   ```
+   Runs on: `ws://localhost:9101`
+
+3. **Main Dashboard**:
+   ```sh
+   python dash_app.py
+   ```
+   Access at: `http://localhost:9102`
+
+4. **Simple UI** (Optional):
+   ```sh
+   python simple_ui.py
+   ```
+   Access at: `http://localhost:9103`
 
 ## Running the Tests
 1. From the project root, run:

@@ -1,0 +1,250 @@
+{
+  "health_analysis": {
+    "assignments": [
+      {
+        "type": "dict_key",
+        "value": "synchronized",
+        "line": 128
+      },
+      {
+        "type": "dict_key",
+        "value": "initializing",
+        "line": 924
+      },
+      {
+        "type": "dict_key",
+        "value": "unknown",
+        "line": 1607
+      },
+      {
+        "type": "dict_key",
+        "value": "timeout",
+        "line": 1619
+      },
+      {
+        "type": "dict_key",
+        "value": "error",
+        "line": 1630
+      },
+      {
+        "type": "dict_key",
+        "value": "fallback_websocket",
+        "line": 1779
+      },
+      {
+        "type": "dict_key",
+        "value": "no_connection",
+        "line": 1798
+      },
+      {
+        "type": "dict_key",
+        "value": "error",
+        "line": 1816
+      }
+    ],
+    "comparisons": [
+      {
+        "value": "running",
+        "line": 1710
+      },
+      {
+        "value": "initializing",
+        "line": 1716
+      },
+      {
+        "value": "running",
+        "line": 1718
+      },
+      {
+        "value": "healthy",
+        "line": 1710
+      },
+      {
+        "value": "synchronized",
+        "line": 1710
+      },
+      {
+        "value": "fallback_websocket",
+        "line": 1710
+      },
+      {
+        "value": "error",
+        "line": 1712
+      },
+      {
+        "value": "timeout",
+        "line": 1712
+      },
+      {
+        "value": "no_connection",
+        "line": 1714
+      },
+      {
+        "value": "unknown",
+        "line": 1714
+      }
+    ],
+    "assigned_values": [
+      "timeout",
+      "no_connection",
+      "error",
+      "synchronized",
+      "unknown",
+      "fallback_websocket",
+      "initializing"
+    ],
+    "compared_values": [
+      "timeout",
+      "running",
+      "no_connection",
+      "error",
+      "synchronized",
+      "unknown",
+      "fallback_websocket",
+      "initializing",
+      "healthy"
+    ],
+    "missing_in_comparison": [],
+    "missing_in_assignment": [
+      "healthy",
+      "running"
+    ]
+  },
+  "status_analysis": {
+    "assignments": [
+      {
+        "type": "dict_key",
+        "value": "initializing",
+        "line": 79
+      },
+      {
+        "type": "dict_key",
+        "value": "stopped",
+        "line": 923
+      },
+      {
+        "type": "dict_key",
+        "value": "running",
+        "line": 1591
+      },
+      {
+        "type": "dict_key",
+        "value": "disconnected",
+        "line": 1606
+      },
+      {
+        "type": "dict_key",
+        "value": "timeout",
+        "line": 1618
+      },
+      {
+        "type": "dict_key",
+        "value": "error",
+        "line": 1629
+      },
+      {
+        "type": "dict_key",
+        "value": "disconnected",
+        "line": 1797
+      },
+      {
+        "type": "dict_key",
+        "value": "error",
+        "line": 1815
+      }
+    ],
+    "comparisons": [
+      {
+        "value": "running",
+        "line": 1265
+      },
+      {
+        "value": "running",
+        "line": 1304
+      },
+      {
+        "value": "running",
+        "line": 1591
+      },
+      {
+        "value": "running",
+        "line": 1691
+      },
+      {
+        "value": "stopped",
+        "line": 1693
+      },
+      {
+        "value": "error",
+        "line": 1695
+      },
+      {
+        "value": "disconnected",
+        "line": 1697
+      },
+      {
+        "value": "timeout",
+        "line": 1699
+      },
+      {
+        "value": "initializing",
+        "line": 1701
+      },
+      {
+        "value": "success",
+        "line": 1703
+      },
+      {
+        "value": "running",
+        "line": 1710
+      },
+      {
+        "value": "success",
+        "line": 1760
+      }
+    ],
+    "assigned_values": [
+      "timeout",
+      "running",
+      "disconnected",
+      "stopped",
+      "error",
+      "initializing"
+    ],
+    "compared_values": [
+      "timeout",
+      "running",
+      "success",
+      "disconnected",
+      "stopped",
+      "error",
+      "initializing"
+    ],
+    "missing_in_comparison": [],
+    "missing_in_assignment": [
+      "success"
+    ]
+  },
+  "structure_analysis": {
+    "expected_keys": [
+      "status",
+      "power_output",
+      "health",
+      "power",
+      "time",
+      "torque",
+      "overall_efficiency"
+    ],
+    "accessed_keys": [],
+    "missing_keys": [
+      "status",
+      "power_output",
+      "health",
+      "time",
+      "power",
+      "torque",
+      "overall_efficiency"
+    ],
+    "unexpected_keys": []
+  }
+}

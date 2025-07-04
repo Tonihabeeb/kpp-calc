@@ -426,6 +426,17 @@ class AutomaticVentingSystem:
 
         state = self.active_venting_floaters[floater_id]
 
+        # Calculate energy that could be recovered from vented air
+        total_vented_volume = state['total_air_released']
+        average_vented_pressure = (state['initial_air_pressure'] + self.air_physics.P_atm) / 2
+        
+        # Store venting results for pressure recovery system integration
+        state['vented_air_volume'] = total_vented_volume
+        state['average_vented_pressure'] = average_vented_pressure
+        state['recoverable_energy'] = self._calculate_recoverable_energy(
+            total_vented_volume, average_vented_pressure
+        )
+
         # Finalize state
         state["current_air_volume"] = 0.0
         state["water_volume"] = state["floater_total_volume"]
@@ -437,10 +448,62 @@ class AutomaticVentingSystem:
 
         logger.info(
             f"Venting completed for floater {floater_id} in {venting_duration:.2f}s: "
-            f"{state['total_air_released']*1000:.1f}L released"
+            f"{state['total_air_released']*1000:.1f}L released, "
+            f"recoverable energy: {state['recoverable_energy']/1000:.2f}kJ"
         )
 
         return state
+    
+    def _calculate_recoverable_energy(self, vented_volume: float, vented_pressure: float) -> float:
+        """
+        Calculate the energy that could be recovered from vented air.
+        
+        Args:
+            vented_volume: Volume of vented air (m³)
+            vented_pressure: Average pressure of vented air (Pa)
+            
+        Returns:
+            float: Recoverable energy (J)
+        """
+        if vented_pressure <= self.air_physics.P_atm * 1.5:  # Must be >1.5 atm to be worthwhile
+            return 0.0
+            
+        # Energy recoverable from pressure difference
+        pressure_ratio = vented_pressure / self.air_physics.P_atm
+        recoverable_energy = (
+            self.air_physics.P_atm * vented_volume * 
+            math.log(pressure_ratio) * 0.25  # 25% recovery efficiency
+        )
+        
+        return max(0.0, recoverable_energy)
+    
+    def get_total_vented_air_for_recovery(self) -> Tuple[float, float]:
+        """
+        Get total vented air available for pressure recovery.
+        
+        Returns:
+            Tuple[float, float]: (total_volume_m3, average_pressure_pa)
+        """
+        completed_states = [
+            state for state in self.active_venting_floaters.values() 
+            if state.get('venting_complete', False) and 'vented_air_volume' in state
+        ]
+        
+        if not completed_states:
+            return 0.0, 0.0
+            
+        total_volume = sum(state['vented_air_volume'] for state in completed_states)
+        
+        # Weighted average pressure
+        if total_volume > 0:
+            weighted_pressure = sum(
+                state['vented_air_volume'] * state['average_vented_pressure'] 
+                for state in completed_states
+            ) / total_volume
+        else:
+            weighted_pressure = 0.0
+            
+        return total_volume, weighted_pressure
 
     def get_venting_status(self, floater_id: str) -> Optional[Dict]:
         """
