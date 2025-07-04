@@ -64,7 +64,7 @@ class ImprovedServiceManager:
             ),
             'dash_frontend': ServiceConfig(
                 name="Dash Frontend",
-                script="simple_ui.py",
+                script="dash_app.py",
                 port=9103,
                 health_url="http://localhost:9103/",
                 startup_delay=3,
