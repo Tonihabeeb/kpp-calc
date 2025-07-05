@@ -6,7 +6,7 @@ Provides standardized interface, error handling, and performance monitoring.
 import time
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Union
 from enum import Enum
 
 from simulation.schemas import (
@@ -298,6 +298,107 @@ class BaseManager(ABC):
         """Perform cleanup operations before shutdown."""
         logger.info(f"{self.manager_type.value.title()}Manager shutting down")
         self.status = ComponentStatus.OFFLINE
+
+    def get_config_param(self, param_name: str, default_value: Any = None, 
+                        config_section: Optional[str] = None) -> Any:
+        """
+        Get configuration parameter with support for both legacy and new config systems.
+        
+        Args:
+            param_name: Name of the parameter to retrieve
+            default_value: Default value if parameter not found
+            config_section: Optional config section (e.g., 'floater', 'electrical')
+            
+        Returns:
+            Configuration parameter value
+        """
+        # Try new config system first
+        if hasattr(self.engine, 'use_new_config') and self.engine.use_new_config:
+            try:
+                if config_section and hasattr(self.engine, 'config_manager'):
+                    # Get from specific config section
+                    config = self.engine.config_manager.get_config(config_section)
+                    if config and hasattr(config, param_name):
+                        return getattr(config, param_name)
+                elif hasattr(self.engine, 'config_manager'):
+                    # Try to find parameter across all configs
+                    all_params = self.engine.config_manager.get_all_parameters()
+                    for section, section_params in all_params.items():
+                        if param_name in section_params:
+                            return section_params[param_name]
+            except Exception as e:
+                logger.debug(f"New config access failed for {param_name}: {e}")
+        
+        # Fall back to legacy config system
+        if hasattr(self.engine, 'params') and self.engine.params is not None and param_name in self.engine.params:
+            return self.engine.params[param_name]
+        
+        return default_value
+
+    def get_config_section(self, section_name: str) -> Optional[Dict[str, Any]]:
+        """
+        Get entire configuration section with support for both legacy and new config systems.
+        
+        Args:
+            section_name: Name of the configuration section
+            
+        Returns:
+            Configuration section as dictionary, or None if not found
+        """
+        # Try new config system first
+        if hasattr(self.engine, 'use_new_config') and self.engine.use_new_config:
+            try:
+                if hasattr(self.engine, 'config_manager'):
+                    config = self.engine.config_manager.get_config(section_name)
+                    if config and hasattr(config, 'to_dict'):
+                        return config.to_dict()
+            except Exception as e:
+                logger.debug(f"New config section access failed for {section_name}: {e}")
+        
+        # Fall back to legacy config system - return relevant subset
+        if hasattr(self.engine, 'params'):
+            # For legacy system, return all params (no sectioning)
+            return self.engine.params
+        
+        return None
+
+    def validate_config_param(self, param_name: str, param_value: Any, 
+                            min_value: Optional[float] = None, 
+                            max_value: Optional[float] = None,
+                            param_type: Optional[type] = None) -> bool:
+        """
+        Validate a configuration parameter.
+        
+        Args:
+            param_name: Name of the parameter
+            param_value: Value to validate
+            min_value: Minimum allowed value (for numeric types)
+            max_value: Maximum allowed value (for numeric types)
+            param_type: Expected type
+            
+        Returns:
+            True if valid, False otherwise
+        """
+        try:
+            # Type validation
+            if param_type and not isinstance(param_value, param_type):
+                logger.warning(f"Config parameter {param_name} has wrong type: expected {param_type}, got {type(param_value)}")
+                return False
+            
+            # Range validation for numeric types
+            if isinstance(param_value, (int, float)):
+                if min_value is not None and param_value < min_value:
+                    logger.warning(f"Config parameter {param_name} below minimum: {param_value} < {min_value}")
+                    return False
+                if max_value is not None and param_value > max_value:
+                    logger.warning(f"Config parameter {param_name} above maximum: {param_value} > {max_value}")
+                    return False
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error validating config parameter {param_name}: {e}")
+            return False
 
 
 class ManagerCoordinator:

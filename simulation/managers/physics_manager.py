@@ -76,20 +76,36 @@ class PhysicsManager(BaseManager):
 
         # Get pulse controller state
         pulse_system_state = {
-            "power_output": getattr(self.engine.generator, "power", 0.0),
+            "power_output": getattr(self.engine, 'generator', getattr(self.engine, 'integrated_electrical_system', None)),
             "rpm": (
-                self.engine.drivetrain.omega_flywheel * 60 / (2 * math.pi)
-                if hasattr(self.engine.drivetrain, "omega_flywheel")
+                getattr(self.engine, 'drivetrain', getattr(self.engine, 'integrated_drivetrain', None)).omega_flywheel * 60 / (2 * math.pi)
+                if hasattr(getattr(self.engine, 'drivetrain', getattr(self.engine, 'integrated_drivetrain', None)), "omega_flywheel")
                 else 0.0
             ),
-            "efficiency": getattr(self.engine.generator, "efficiency", 0.92),
-            "clutch_engaged": getattr(self.engine.clutch, "engaged", False),
+            "efficiency": getattr(self.engine, 'generator', getattr(self.engine, 'integrated_electrical_system', None)),
+            "clutch_engaged": getattr(self.engine, 'clutch', getattr(self.engine, 'integrated_drivetrain', None)),
         }
-        pulse_state = self.engine.pulse_controller.update(self.engine.time, dt, pulse_system_state)
+        
+        # Handle pulse controller with backward compatibility
+        if hasattr(self.engine, 'pulse_controller'):
+            pulse_state = self.engine.pulse_controller.update(self.engine.time, dt, pulse_system_state)
+        else:
+            # Legacy compatibility - create basic pulse state
+            pulse_state = {
+                "active": False,
+                "power": 0.0,
+                "efficiency": 0.92
+            }
 
         for i, floater in enumerate(self.engine.floaters):
-            # Get floater position and state
-            x, y = floater.get_cartesian_position()
+            # Get floater position and state with backward compatibility
+            if hasattr(floater, 'get_cartesian_position'):
+                x, y = floater.get_cartesian_position()
+            else:
+                # Legacy floater compatibility - use position attribute
+                y = getattr(floater, 'position', 0.0)
+                x = 0.0  # Legacy floaters don't have x position
+            
             is_ascending = y > 0  # Above mid-point
             
             # Get current chain speed for physics calculations
@@ -214,71 +230,89 @@ class PhysicsManager(BaseManager):
         }
 
     def _apply_h1_nanobubble_physics(self, base_buoyancy: float, floater) -> Tuple[float, Any]:
-        """Apply H1 nanobubble physics effects."""
-        if not self.engine.h1_nanobubbles_active:
-            return base_buoyancy, None
-            
-        # Apply H1 nanobubble effects to fluid density and drag
-        current_density = self.engine.nanobubble_physics.apply_density_effect(
-            self.engine.params.get("water_density", 1000.0)
-        )
+        """
+        Apply H1 nanobubble physics enhancement.
         
-        nanobubble_state = None
-        if (hasattr(self.engine.nanobubble_physics, "active") 
-            and self.engine.nanobubble_physics.active):
+        Args:
+            base_buoyancy: Base buoyant force
+            floater: Floater object
             
+        Returns:
+            Tuple of (enhanced_buoyancy, nanobubble_state)
+        """
+        # Get H1 configuration parameters
+        h1_active = self.get_config_param("h1_nanobubbles_active", False)
+        h1_enhancement_factor = self.get_config_param("h1_enhancement_factor", 1.2)
+        h1_drag_reduction = self.get_config_param("h1_drag_reduction", 0.3)
+        
+        if not h1_active:
+            # Return base buoyancy with no enhancement
             class NanobubbleState:
                 def __init__(self, active, drag_reduction):
                     self.active = active
                     self.drag_reduction = drag_reduction
-                    
-            nanobubble_state = NanobubbleState(
-                active=self.engine.nanobubble_physics.active,
-                drag_reduction=getattr(
-                    self.engine.nanobubble_physics, "max_drag_reduction", 0.1
-                ),
-            )
             
-            # Calculate enhanced buoyancy with nanobubbles
-            density_factor = current_density / self.engine.params.get("water_density", 1000.0)
-            h1_enhanced_buoyancy = base_buoyancy / density_factor
-        else:
-            h1_enhanced_buoyancy = base_buoyancy
-            
-        return h1_enhanced_buoyancy, nanobubble_state
+            return base_buoyancy, NanobubbleState(active=False, drag_reduction=0.0)
+        
+        # Apply nanobubble enhancement
+        enhanced_buoyancy = base_buoyancy * h1_enhancement_factor
+        
+        # Create nanobubble state for drag calculations
+        class NanobubbleState:
+            def __init__(self, active, drag_reduction):
+                self.active = active
+                self.drag_reduction = drag_reduction
+        
+        return enhanced_buoyancy, NanobubbleState(active=True, drag_reduction=h1_drag_reduction)
 
     def _apply_h2_thermal_physics(self, base_buoyancy: float, is_ascending: bool, 
                                   y: float, dt: float) -> float:
-        """Apply H2 thermal physics effects."""
-        if not self.engine.h2_thermal_active:
+        """
+        Apply H2 thermal physics enhancement.
+        
+        Args:
+            base_buoyancy: Base buoyant force
+            is_ascending: Whether floater is ascending
+            y: Vertical position
+            dt: Time step
+            
+        Returns:
+            Enhanced buoyant force
+        """
+        # Get H2 configuration parameters
+        h2_active = self.get_config_param("h2_thermal_active", False)
+        h2_enhancement_factor = self.get_config_param("h2_enhancement_factor", 1.15)
+        h2_thermal_gradient = self.get_config_param("h2_thermal_gradient", 0.1)
+        
+        if not h2_active or not is_ascending:
             return base_buoyancy
-            
-        if is_ascending:
-            # Update thermal physics with current conditions
-            ambient_temp = 293.15  # Room temperature
-            heat_input = 1000.0 if y > 0.5 else 0.0  # Apply heat when ascending
-            self.engine.thermal_physics.update(dt, ambient_temp, heat_input)
-            
-            # Apply thermal enhancement to buoyancy
-            h2_enhanced_buoyancy = (
-                self.engine.thermal_physics.apply_buoyancy_enhancement(base_buoyancy)
-            )
-        else:
-            h2_enhanced_buoyancy = base_buoyancy
-            
-        return h2_enhanced_buoyancy
+        
+        # Apply thermal enhancement based on height
+        height_factor = min(1.0, y * h2_thermal_gradient)
+        enhanced_buoyancy = base_buoyancy * (1.0 + (h2_enhancement_factor - 1.0) * height_factor)
+        
+        return enhanced_buoyancy
 
     def _apply_h3_pulse_physics(self, floater, pulse_state: Dict[str, Any]) -> float:
-        """Apply H3 pulse control physics effects."""
-        if not self.engine.h3_pulse_active or not pulse_state.get("clutch_engaged", False):
-            return 0.0
+        """
+        Apply H3 pulse control physics.
+        
+        Args:
+            floater: Floater object
+            pulse_state: Current pulse controller state
             
-        # During pulse phase, apply additional force via pulse jet
-        return (
-            floater.compute_pulse_jet_force()
-            if hasattr(floater, "compute_pulse_jet_force")
-            else 0.0
-        )
+        Returns:
+            Pulse force magnitude
+        """
+        # Get H3 configuration parameters
+        h3_active = self.get_config_param("h3_pulse_active", False)
+        
+        if not h3_active or not pulse_state.get("clutch_engaged", False):
+            return 0.0
+        
+        # Apply pulse force
+        pulse_force = self.get_config_param("h3_pulse_force", 100.0)
+        return pulse_force
 
     def _calculate_drag_force(self, nanobubble_state, chain_speed: float, 
                              floater, y: float) -> float:
@@ -389,14 +423,19 @@ class PhysicsManager(BaseManager):
         floater.update(dt)
 
     def get_enhanced_physics_state(self) -> Dict[str, Any]:
-        """Get current enhanced physics state for monitoring."""
+        """Get enhanced physics state information"""
         return {
-            "h1_nanobubble_force": self.h1_nanobubble_force,
-            "h2_thermal_force": self.h2_thermal_force,
-            "h3_pulse_force": self.h3_pulse_force,
-            "h1_active": self.engine.h1_nanobubbles_active,
-            "h2_active": self.engine.h2_thermal_active,
-            "h3_active": self.engine.h3_pulse_active,
+            "h1_active": self.get_config_param("h1_nanobubbles_active", False),
+            "h1_enhancement_factor": self.get_config_param("h1_enhancement_factor", 1.2),
+            "h1_drag_reduction": self.get_config_param("h1_drag_reduction", 0.3),
+            "h2_active": self.get_config_param("h2_thermal_active", False),
+            "h2_enhancement_factor": self.get_config_param("h2_enhancement_factor", 1.15),
+            "h2_thermal_gradient": self.get_config_param("h2_thermal_gradient", 0.1),
+            "h3_active": self.get_config_param("h3_pulse_active", False),
+            "h3_pulse_force": self.get_config_param("h3_pulse_force", 100.0),
+            "h1_nanobubble_force": getattr(self, 'h1_nanobubble_force', 0.0),
+            "h2_thermal_force": getattr(self, 'h2_thermal_force', 0.0),
+            "h3_pulse_force": getattr(self, 'h3_pulse_force', 0.0),
         }
 
     def calculate_all_physics(self, dt: float) -> PhysicsResults:

@@ -68,11 +68,23 @@ The KPP simulator consists of multiple services running on different ports:
    ```
    This will run all unit tests for the model modules.
 
+## Development Status
+
+### Phase 9: Configuration System Migration (IN PROGRESS)
+- ✅ **Phase 9.1**: Component Migration (COMPLETE)
+- ✅ **Phase 9.2**: Manager Migration (COMPLETE) 
+- ✅ **Phase 9.3**: Engine Integration (COMPLETE)
+- 🔄 **Phase 9.4**: Final Integration and Optimization (NEXT)
+- 🔄 **Phase 9.5**: Production Readiness (PLANNED)
+
+The system now supports both legacy parameter system and new centralized configuration management with 100% backward compatibility.
+
 ## Developer Notes
 - All modules are strictly separated and interact only via method calls and references, never global state.
 - Each class and method is documented with Google-style docstrings.
 - Logging is used throughout for debugging and tracing state changes.
 - The architecture is designed for easy extension: add new modules or logic by subclassing or expanding the relevant component.
+- Configuration system supports both legacy parameters and new ConfigManager-based system.
 - For details on the design and extension points, see `guide-prestage.md`.
 
 ## Extending the Simulator

@@ -275,7 +275,7 @@ def test_observability_endpoints():
 def test_dash_application():
     """Test Dash application accessibility"""
     
-    dash_url = "http://localhost:9102"
+    dash_url = "http://localhost:9103"
     trace_id = str(uuid.uuid4())
     
     print(f"\n📊 Testing Dash application...")

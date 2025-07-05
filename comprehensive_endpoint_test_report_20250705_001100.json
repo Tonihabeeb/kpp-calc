@@ -1,0 +1,252 @@
+{
+  "timestamp": "2025-07-05 00:11:00",
+  "summary": {
+    "total_endpoints_tested": 54,
+    "successful_responses": 0,
+    "connection_errors": 54,
+    "trace_correlations": 0,
+    "success_rate": "0.0%",
+    "services_running": 0
+  },
+  "category_results": {
+    "flask_backend": {
+      "total_tested": 48,
+      "successful_responses": 0,
+      "connection_errors": 48,
+      "trace_correlations": 0,
+      "endpoints_details": {
+        "GET /": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-0"
+        },
+        "GET /status": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-1"
+        },
+        "GET /parameters": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-2"
+        },
+        "GET /data/summary": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-3"
+        },
+        "GET /data/live": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-4"
+        },
+        "GET /data/drivetrain_status": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-5"
+        },
+        "GET /data/electrical_status": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-6"
+        },
+        "GET /data/control_status": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-7"
+        },
+        "GET /data/pneumatic_status": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-8"
+        },
+        "GET /data/energy_balance": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-9"
+        },
+        "GET /data/enhanced_performance": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-10"
+        },
+        "GET /data/system_overview": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-11"
+        },
+        "GET /data/physics_status": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-12"
+        },
+        "GET /data/transient_status": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-13"
+        },
+        "GET /data/grid_services_status": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-14"
+        },
+        "GET /data/enhanced_losses": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-15"
+        },
+        "GET /data/fluid_properties": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-16"
+        },
+        "GET /data/thermal_properties": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-17"
+        },
+        "GET /data/chain_status": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-18"
+        },
+        "GET /data/enhancement_status": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-19"
+        },
+        "GET /data/optimization_recommendations": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-20"
+        },
+        "GET /data/history": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-21"
+        },
+        "GET /download_csv": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-22"
+        },
+        "GET /export_collected_data": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-23"
+        },
+        "GET /inspect/input_data": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-24"
+        },
+        "GET /inspect/output_data": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-25"
+        },
+        "GET /stream": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-26"
+        },
+        "GET /chart/power.png": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-27"
+        },
+        "POST /start": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-28"
+        },
+        "POST /stop": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-29"
+        },
+        "POST /pause": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-30"
+        },
+        "POST /step": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-31"
+        },
+        "POST /trigger_pulse": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-32"
+        },
+        "POST /parameters": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-33"
+        },
+        "POST /set_params": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-34"
+        },
+        "POST /update_params": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-35"
+        },
+        "POST /set_load": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-36"
+        },
+        "POST /control/set_control_mode": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-37"
+        },
+        "POST /control/trigger_emergency_stop": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-38"
+        },
+        "POST /control/initiate_startup": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-39"
+        },
+        "POST /control/h1_nanobubbles": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-40"
+        },
+        "POST /control/h2_thermal": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-41"
+        },
+        "POST /control/enhanced_physics": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-42"
+        },
+        "POST /control/water_temperature": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-43"
+        },
+        "POST /control/pressure_recovery": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-44"
+        },
+        "POST /control/water_jet_physics": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-45"
+        },
+        "POST /control/foc_control": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-46"
+        },
+        "POST /control/system_scale": {
+          "error": "Service not running",
+          "trace_id": "6396b27b-e60a-4061-83b0-9d816b0cd18e-flask-47"
+        }
+      }
+    },
+    "websocket_server": {
+      "total_tested": 2,
+      "successful_responses": 0,
+      "connection_errors": 2,
+      "endpoints_details": {
+        "GET /": {
+          "error": "Service not running",
+          "trace_id": "2d543f33-2823-4de7-9f62-8d65ef789c28-ws-0"
+        },
+        "GET /state": {
+          "error": "Service not running",
+          "trace_id": "2d543f33-2823-4de7-9f62-8d65ef789c28-ws-1"
+        }
+      }
+    },
+    "observability_system": {
+      "total_tested": 3,
+      "successful_responses": 0,
+      "connection_errors": 3,
+      "trace_correlations": 0,
+      "endpoints_details": {
+        "GET /observability/health": {
+          "error": "Service not running",
+          "trace_id": "c51bbaba-e6b1-49f5-ad55-6d7c9f879a31-obs-0"
+        },
+        "GET /observability/traces": {
+          "error": "Service not running",
+          "trace_id": "c51bbaba-e6b1-49f5-ad55-6d7c9f879a31-obs-1"
+        },
+        "GET /observability/traces/c51bbaba-e6b1-49f5-ad55-6d7c9f879a31": {
+          "error": "Service not running",
+          "trace_id": "c51bbaba-e6b1-49f5-ad55-6d7c9f879a31-obs-2"
+        }
+      }
+    },
+    "dash_frontend": {
+      "error": "Service not running",
+      "trace_id": "de79e46a-7113-4030-b12a-b480ee8d8d07"
+    }
+  }
+}

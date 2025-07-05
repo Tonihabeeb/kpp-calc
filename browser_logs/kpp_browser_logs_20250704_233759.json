@@ -1,0 +1,3292 @@
+{
+  "export_timestamp": "2025-07-04T23:37:59.797758",
+  "console_logs": [
+    {
+      "timestamp": "2025-07-04T20:37:27.721Z",
+      "data": {
+        "level": "log",
+        "message": "KPP Browser monitoring started"
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:27.722Z",
+      "data": {
+        "level": "info",
+        "message": "KPP Browser monitoring initialized"
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:28.648Z",
+      "data": {
+        "level": "warn",
+        "message": "Warning: componentWillMount has been renamed, and is not recommended for use. See https://reactjs.org/link/unsafe-component-lifecycles for details.\n\n* Move code with side effects to componentDidMount, and set initial state in the constructor.\n* Rename componentWillMount to UNSAFE_componentWillMount to suppress this warning in non-strict mode. In React 18.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.\n\nPlease update the following components: %s t"
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:28.649Z",
+      "data": {
+        "level": "warn",
+        "message": "Warning: componentWillReceiveProps has been renamed, and is not recommended for use. See https://reactjs.org/link/unsafe-component-lifecycles for details.\n\n* Move data fetching code or side effects to componentDidUpdate.\n* If you're updating state whenever props change, refactor your code to use memoization techniques or move it to static getDerivedStateFromProps. Learn more at: https://reactjs.org/link/derived-state\n* Rename componentWillReceiveProps to UNSAFE_componentWillReceiveProps to suppress this warning in non-strict mode. In React 18.x, only the UNSAFE_ name will work. To rename all deprecated lifecycles to their new names, you can run `npx react-codemod rename-unsafe-lifecycles` in your project source folder.\n\nPlease update the following components: %s t"
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:28.952Z",
+      "data": {
+        "level": "error",
+        "message": "Warning: findDOMNode is deprecated and will be removed in the next major release. Instead, add a ref directly to the element you want to reference. Learn more about using refs safely here: https://reactjs.org/link/strict-mode-find-node%s \n    at http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:43788\n    at n (http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:91971)\n    at yr (http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:105146)\n    at http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:106474\n    at div\n    at n (http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:26627)\n    at r (http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:106837)\n    at div\n    at d (http://localhost:9103/_dash-component-suites/dash/dcc/dash_core_components.v3_1_0m1751646453.js:2:26017)\n    at w (http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:123586)\n    at Suspense\n    at C (http://localhost:9103/_dash-component-suites/dash/dcc/dash_core_components.v3_1_0m1751646453.js:2:5302)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:75874\n    at xs (http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:76409)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:202900\n    at xp (http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:203651)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:55206\n    at Or (http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:58626)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:56983\n    at vr (http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:58041)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:77736\n    at Ps (http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:78026)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at div\n    at DebugMenu (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:80825:21)\n    at div\n    at UnconnectedGlobalErrorContainer (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:80385:5)\n    at ConnectFunction (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:71260:68)\n    at UnconnectedContainer (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:74463:28)\n    at ConnectFunction (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:71260:68)\n    at UnconnectedAppContainer (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:74690:5)\n    at ConnectFunction (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:71260:68)\n    at Provider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:70975:20)\n    at AppProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:74780:25)"
+      }
+    }
+  ],
+  "network_requests": [
+    {
+      "timestamp": "2025-07-04T20:37:28.068Z",
+      "data": {
+        "method": "GET",
+        "url": "/_dash-layout",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:28.069Z",
+      "data": {
+        "method": "GET",
+        "url": "/_dash-dependencies",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:28.444Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:28.490Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:28.492Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:28.491Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:28.745Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:28.774Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:31.714Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:31.724Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:31.845Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:31.848Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:31.912Z",
+      "data": {
+        "method": "GET",
+        "url": "/_reload-hash",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.024Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.029Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.029Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.031Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.162Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.352Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.165Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.356Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.361Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.362Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.482Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.664Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.480Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.667Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.670Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.793Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.790Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.671Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.986Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.987Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.993Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:32.994Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.098Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.299Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.101Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.301Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.304Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.305Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.411Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.658Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.414Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.659Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.659Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.660Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.754Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.770Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.773Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.946Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.966Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.966Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.043Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:33.967Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.045Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.159Z",
+      "data": {
+        "method": "GET",
+        "url": "/_reload-hash",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.259Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.265Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.265Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.266Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.347Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.352Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.577Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.581Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.582Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.661Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.582Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.663Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.887Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.891Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.892Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.977Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.891Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:34.978Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.011Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.192Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.203Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.204Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.200Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.292Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.294Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.355Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.356Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.378Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.379Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.513Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.516Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.518Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.519Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.604Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.608Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.615Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.714Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.828Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.832Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.831Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.835Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.910Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:35.912Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.143Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.146Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.148Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.149Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.227Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.231Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.461Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.466Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.465Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.467Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.541Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.543Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.764Z",
+      "data": {
+        "method": "GET",
+        "url": "/_reload-hash",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.776Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.781Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:38.042Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.782Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.782Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.858Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:36.861Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.099Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.096Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.102Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.103Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:38.561Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.175Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.177Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.414Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.418Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.417Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.419Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.483Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.731Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.485Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.734Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.734Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.740Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.794Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.792Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.315Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.342Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.344Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.571Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.627Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.626Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.631Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.632Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.654Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.657Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.915Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.931Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.932Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.965Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.966Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.966Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.995Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.967Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.996Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.222Z",
+      "data": {
+        "method": "GET",
+        "url": "/_reload-hash",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.259Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.263Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.265Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.264Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.293Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.296Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.314Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.346Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.566Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.570Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.574Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.575Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.613Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.879Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.615Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.885Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.886Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.889Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.924Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.192Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.921Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.197Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.198Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.202Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.231Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.235Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.505Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.507Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.508Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.510Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.542Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.545Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.826Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.829Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.853Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.854Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.860Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.863Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.146Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.149Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.154Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.155Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.175Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.178Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.458Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.463Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.464Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.465Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.485Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.488Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.778Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.775Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.780Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.803Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.806Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.054Z",
+      "data": {
+        "method": "GET",
+        "url": "/_reload-hash",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:42.782Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.093Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.096Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.097Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.097Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.119Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.121Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.398Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.403Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.407Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.409Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.436Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.439Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.556Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.723Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.743Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.745Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.744Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.746Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:43.749Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.038Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.041Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.043Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.044Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.051Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.051Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.355Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.363Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.365Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.358Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.367Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.359Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.569Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.678Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:46.918Z",
+      "data": {
+        "method": "GET",
+        "url": "/_reload-hash",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.680Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.685Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.685Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.686Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.686Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.997Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.908Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.999Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:44.920Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.000Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.005Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.008Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.007Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.238Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.225Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.317Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.319Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.323Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.324Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.327Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.328Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.553Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.591Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.661Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.661Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.662Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.662Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.663Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.664Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.977Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.973Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.979Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.980Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.980Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:45.982Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:46.290Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:46.277Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:46.296Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:46.297Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:46.292Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:48.940Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.119Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.123Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:46.298Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.124Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.125Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.127Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.380Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.434Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.436Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.439Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.439Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.442Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.751Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.754Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.696Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.755Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.912Z",
+      "data": {
+        "method": "GET",
+        "url": "/_reload-hash",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.947Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.758Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:49.757Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.014Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.085Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.086Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.086Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.087Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.088Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.284Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.295Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.331Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.384Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.386Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.388Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.393Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.394Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.612Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.649Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.701Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.626Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.704Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.706Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.707Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.945Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.709Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.979Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:50.979Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.017Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.020Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.021Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.023Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.020Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.261Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.332Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.336Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.337Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.340Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.578Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.338Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.650Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.652Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.654Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.657Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.656Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.894Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.966Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.968Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.972Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.974Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:51.973Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.198Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.282Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.285Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.288Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.289Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.288Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.502Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.606Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.610Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.611Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.614Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.616Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.811Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.912Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.915Z",
+      "data": {
+        "method": "GET",
+        "url": "/_reload-hash",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.916Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.920Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.924Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:52.926Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.126Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.228Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.231Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.235Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.233Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.237Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.442Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.547Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.550Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.552Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.554Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.555Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.760Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.778Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.876Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.881Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.880Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.884Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.884Z",
+      "data": {
+        "method": "POST",
+        "url": "http://localhost:9104/api/events",
+        "status": 200
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:53.931Z",
+      "data": {
+        "method": "POST",
+        "url": "/_dash-update-component",
+        "status": 200
+      }
+    }
+  ],
+  "user_interactions": [
+    {
+      "timestamp": "2025-07-04T20:37:35.523Z",
+      "data": {
+        "type": "click",
+        "element": "BUTTON#start-btn.px-4",
+        "value": null
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:37.345Z",
+      "data": {
+        "type": "click",
+        "element": "BUTTON#start-btn.px-4",
+        "value": null
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:38.961Z",
+      "data": {
+        "type": "click",
+        "element": "DIV.btn-group",
+        "value": null
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.465Z",
+      "data": {
+        "type": "click",
+        "element": "BUTTON#start-btn.px-4",
+        "value": null
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:39.990Z",
+      "data": {
+        "type": "click",
+        "element": "DIV.btn-group",
+        "value": null
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:40.451Z",
+      "data": {
+        "type": "click",
+        "element": "DIV.btn-group",
+        "value": null
+      }
+    },
+    {
+      "timestamp": "2025-07-04T20:37:41.953Z",
+      "data": {
+        "type": "click",
+        "element": "BUTTON#start-btn.px-4",
+        "value": null
+      }
+    }
+  ],
+  "errors": [
+    {
+      "timestamp": "2025-07-04T20:37:28.953Z",
+      "data": {
+        "message": "Warning: findDOMNode is deprecated and will be removed in the next major release. Instead, add a ref directly to the element you want to reference. Learn more about using refs safely here: https://reactjs.org/link/strict-mode-find-node%s \n    at http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:43788\n    at n (http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:91971)\n    at yr (http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:105146)\n    at http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:106474\n    at div\n    at n (http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:26627)\n    at r (http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:106837)\n    at div\n    at d (http://localhost:9103/_dash-component-suites/dash/dcc/dash_core_components.v3_1_0m1751646453.js:2:26017)\n    at w (http://localhost:9103/_dash-component-suites/dash/dcc/async-slider.js:2:123586)\n    at Suspense\n    at C (http://localhost:9103/_dash-component-suites/dash/dcc/dash_core_components.v3_1_0m1751646453.js:2:5302)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:75874\n    at xs (http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:76409)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:202900\n    at xp (http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:203651)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:55206\n    at Or (http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:58626)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:56983\n    at vr (http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:58041)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:77736\n    at Ps (http://localhost:9103/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v2_0_3m1751220047.min.js:2:78026)\n    at CheckedComponent (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84188:19)\n    at DashContextProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84225:24)\n    at ComponentErrorBoundary (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:79946:5)\n    at DashWrapper (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:84357:28)\n    at div\n    at div\n    at DebugMenu (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:80825:21)\n    at div\n    at UnconnectedGlobalErrorContainer (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:80385:5)\n    at ConnectFunction (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:71260:68)\n    at UnconnectedContainer (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:74463:28)\n    at ConnectFunction (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:71260:68)\n    at UnconnectedAppContainer (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:74690:5)\n    at ConnectFunction (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:71260:68)\n    at Provider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:70975:20)\n    at AppProvider (http://localhost:9103/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v3_1_1m1751646451.dev.js:74780:25)"
+      }
+    }
+  ]
+}

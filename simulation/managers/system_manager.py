@@ -72,7 +72,7 @@ class SystemManager(BaseManager):
         electrical_config_updates = {
             "target_load_factor": load_commands.get("target_load_factor", 0.8),
             "power_setpoint": load_commands.get(
-                "power_setpoint", self.engine.params.get("target_power", 530000.0)
+                "power_setpoint", self.get_config_param("target_power", 530000.0)
             ),
             "voltage_setpoint": grid_commands.get("voltage_setpoint", 480.0),
             "frequency_setpoint": grid_commands.get("frequency_setpoint", 60.0),

@@ -1,0 +1,70 @@
+{
+  "simulation": {
+    "time_step": 0.1,
+    "max_time": 60.0,
+    "gravity": 9.81,
+    "water_density": 1000.0,
+    "air_density": 1.225,
+    "tank_height": 5.0,
+    "tank_diameter": 1.0
+  },
+  "floater": {
+    "volume": 0.1,
+    "mass": 4.0,
+    "drag_coefficient": 0.8,
+    "air_fill_time": 1.0,
+    "air_pressure": 200000.0,
+    "air_flow_rate": 0.2,
+    "jet_efficiency": 0.7,
+    "heat_transfer_coefficient": 100.0,
+    "specific_heat_air": 1005.0,
+    "specific_heat_water": 4186.0,
+    "fill_state": "empty",
+    "air_fill_level": 0.0,
+    "max_velocity": 10.0,
+    "max_position": 5.0
+  },
+  "electrical": {
+    "generator_efficiency": 0.8,
+    "max_power": 10000.0,
+    "voltage": 200.0,
+    "frequency": 50.0,
+    "inverter_efficiency": 0.9,
+    "power_factor": 0.8,
+    "grid_voltage": 200.0,
+    "grid_frequency": 50.0,
+    "min_engagement_power": 1000.0,
+    "max_engagement_power": 10000.0,
+    "overvoltage_threshold": 220.0,
+    "undervoltage_threshold": 180.0,
+    "overcurrent_threshold": 50.0
+  },
+  "drivetrain": {
+    "chain_length": 10.0,
+    "sprocket_ratio": 0.8,
+    "chain_efficiency": 0.9,
+    "gear_ratio": 5.0,
+    "gearbox_efficiency": 0.85,
+    "flywheel_mass": 50.0,
+    "flywheel_radius": 0.3,
+    "clutch_torque_capacity": 500.0,
+    "clutch_engagement_time": 0.2,
+    "one_way_clutch_enabled": true,
+    "one_way_clutch_torque_capacity": 250.0
+  },
+  "control": {
+    "kp": 50.0,
+    "ki": 5.0,
+    "kd": 2.0,
+    "max_velocity": 5.0,
+    "max_acceleration": 10.0,
+    "emergency_stop_velocity": 8.0,
+    "position_tolerance": 0.2,
+    "control_update_rate": 50.0,
+    "safety_check_interval": 0.02,
+    "min_engagement_velocity": 1.0,
+    "max_position_error": 2.0,
+    "emergency_stop_enabled": true,
+    "emergency_stop_deceleration": 25.0
+  }
+} 

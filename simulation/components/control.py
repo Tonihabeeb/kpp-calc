@@ -168,3 +168,9 @@ class Control:
         logger.debug(
             f"PID: rpm={rpm:.2f}, error={error:.2f}, torque_cmd={torque_cmd:.2f}, clutch={clutch_engaged}"
         )
+
+    def reset(self):
+        """Reset the control system state."""
+        self.prev_error = 0.0
+        self.int_error = 0.0
+        logger.info("Control system reset.")

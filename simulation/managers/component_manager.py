@@ -84,14 +84,22 @@ class ComponentManager(BaseManager):
         Returns:
             True if pulse was triggered
         """
-        pulse_interval = self.engine.params.get("pulse_interval", 2.0)
+        pulse_interval = self.get_config_param("pulse_interval", 2.0)
         
         if self.engine.time - self.engine.last_pulse_time >= pulse_interval:
             # Find a floater ready for pulsing
             for i, floater in enumerate(self.engine.floaters):
-                x, y = floater.get_cartesian_position()
+                # Get floater position with backward compatibility
+                if hasattr(floater, 'get_cartesian_position'):
+                    x, y = floater.get_cartesian_position()
+                else:
+                    # Legacy floater compatibility - use position attribute
+                    y = getattr(floater, 'position', 0.0)
+                    x = 0.0  # Legacy floaters don't have x position
+                
                 # Trigger pulse if floater is near bottom and ready to fill
-                if y <= 0.1 and not floater.is_filled:
+                is_filled = getattr(floater, 'is_filled', False)
+                if y <= 0.1 and not is_filled:
                     self.engine.pneumatics.trigger_injection(floater)
                     self.engine.last_pulse_time = self.engine.time
                     self.engine.pulse_count += 1
@@ -155,53 +163,33 @@ class ComponentManager(BaseManager):
         logger.debug("Legacy drivetrain compatibility updated")
 
     def get_component_status(self) -> Dict[str, Any]:
-        """
-        Get comprehensive component status for monitoring.
-        
-        Returns:
-            Dictionary containing component status information
-        """
+        """Get component status information"""
         return {
-            "pneumatics": {
-                "tank_pressure": self.engine.pneumatics.tank_pressure,
-                "compressor_running": getattr(self.engine.pneumatics, "compressor_running", False),
-                "target_pressure": getattr(self.engine.pneumatics, "target_pressure", 5.0),
-            },
-            "floaters": {
-                "count": len(self.engine.floaters),
-                "filled_count": sum(1 for f in self.engine.floaters if getattr(f, "is_filled", False)),
-                "average_velocity": (
-                    sum(abs(getattr(f, "velocity", 0.0)) for f in self.engine.floaters) / len(self.engine.floaters)
-                    if self.engine.floaters else 0.0
-                ),
-            },
-            "chain": {
-                "tension": getattr(self.engine, "chain_tension", 0.0),
-                "angular_speed": (
-                    self.engine.chain_system.get_angular_speed()
-                    if hasattr(self.engine, "chain_system")
-                    else 0.0
-                ),
-                "chain_speed": (
-                    self.engine.chain_system.get_chain_speed()
-                    if hasattr(self.engine, "chain_system")
-                    else 0.0
-                ),
+            "pulse_system": {
+                "active": self.get_config_param("pulse_interval", 2.0) > 0,
+                "interval": self.get_config_param("pulse_interval", 2.0),
+                "last_pulse": getattr(self.engine, 'last_pulse_time', 0.0),
+                "pulse_count": getattr(self.engine, 'pulse_count', 0)
             },
             "enhanced_physics": {
                 "h1_nanobubbles": {
-                    "active": self.engine.h1_nanobubbles_active,
-                    "force_contribution": getattr(self.engine, "h1_nanobubble_force", 0.0),
+                    "active": self.get_config_param("h1_nanobubbles_active", False),
+                    "enhancement_factor": self.get_config_param("h1_enhancement_factor", 1.2),
+                    "drag_reduction": self.get_config_param("h1_drag_reduction", 0.3)
                 },
                 "h2_thermal": {
-                    "active": self.engine.h2_thermal_active,
-                    "force_contribution": getattr(self.engine, "h2_thermal_force", 0.0),
+                    "active": self.get_config_param("h2_thermal_active", False),
+                    "enhancement_factor": self.get_config_param("h2_enhancement_factor", 1.15),
+                    "thermal_gradient": self.get_config_param("h2_thermal_gradient", 0.1)
                 },
                 "h3_pulse": {
-                    "active": self.engine.h3_pulse_active,
-                    "force_contribution": getattr(self.engine, "h3_pulse_force", 0.0),
-                },
+                    "active": self.get_config_param("h3_pulse_active", False),
+                    "pulse_force": self.get_config_param("h3_pulse_force", 100.0)
+                }
             },
+            "floater_count": len(self.engine.floaters) if hasattr(self.engine, 'floaters') else 0,
+            "tank_height": self.get_config_param("tank_height", 25.0),
+            "time_step": self.get_config_param("time_step", 0.1)
         }
 
     def validate_component_states(self) -> List[str]:

@@ -43,7 +43,7 @@ class KPPServiceManager:
         self.ports = {
             'flask': 9100,       # Flask backend (app.py)
             'websocket': 9101,   # WebSocket server (main.py)
-            'dash': 9102         # Dash frontend (dash_app.py)
+            'dash': 9103         # Dash frontend (dash_app.py)
         }
         self.startup_wait = {
             'flask': 5,
@@ -179,18 +179,18 @@ class KPPServiceManager:
             try:
                 response = requests.get(check_url, timeout=5)
                 if response.status_code in [200, 404, 500]:  # Any response is good
-                    logger.info(f"✅ {service_name} service is healthy at {check_url}")
+                    logger.info(f"[OK] {service_name} service is healthy at {check_url}")
                     return True
             except requests.exceptions.RequestException:
                 logger.info(f"Waiting for {service_name} service... (attempt {i+1}/{max_retries})")
                 time.sleep(2)
         
-        logger.error(f"❌ {service_name} service failed to start at {check_url}")
+        logger.error(f"[FAIL] {service_name} service failed to start at {check_url}")
         return False
     
     def start_all_services(self):
         """Start all required services"""
-        logger.info("🚀 Starting all KPP services...")
+        logger.info("[START] Starting all KPP services...")
         
         # Kill existing services first
         self.kill_existing_services()
@@ -209,24 +209,24 @@ class KPPServiceManager:
         services_status['dash'] = self.start_dash_frontend()
         
         # Report status
-        logger.info("📊 Service startup status:")
+        logger.info("[STATUS] Service startup status:")
         for service, status in services_status.items():
-            status_icon = "✅" if status else "❌"
+            status_icon = "[OK]" if status else "[FAIL]"
             logger.info(f"  {status_icon} {service}: {'Running' if status else 'Failed'}")
         
         # Check if all services are running
         all_healthy = all(services_status.values())
         
         if all_healthy:
-            logger.info("🎉 All services started successfully!")
+            logger.info("[SUCCESS] All services started successfully!")
             return True
         else:
-            logger.error("💥 Some services failed to start")
+            logger.error("[ERROR] Some services failed to start")
             return False
     
     def stop_all_services(self):
         """Stop all running services"""
-        logger.info("🛑 Stopping all KPP services...")
+        logger.info("[STOP] Stopping all KPP services...")
         
         for service_name, process in self.services.items():
             if process:
@@ -237,18 +237,18 @@ class KPPServiceManager:
                     # Wait for graceful shutdown
                     try:
                         process.wait(timeout=5)
-                        logger.info(f"✅ {service_name} service stopped gracefully")
+                        logger.info(f"[OK] {service_name} service stopped gracefully")
                     except subprocess.TimeoutExpired:
-                        logger.warning(f"⚠️ {service_name} service didn't stop gracefully, forcing kill...")
+                        logger.warning(f"[WARN] {service_name} service didn't stop gracefully, forcing kill...")
                         process.kill()
                         process.wait()
-                        logger.info(f"✅ {service_name} service killed")
+                        logger.info(f"[OK] {service_name} service killed")
                         
                 except Exception as e:
                     logger.error(f"Error stopping {service_name}: {e}")
         
         self.services.clear()
-        logger.info("🏁 All services stopped")
+        logger.info("[DONE] All services stopped")
     
     def get_service_logs(self, service_name):
         """Get logs from a service"""
@@ -320,7 +320,7 @@ class ReverseIntegrationTestRunner:
     
     def run_tests_with_live_services(self):
         """Run tests with live services"""
-        logger.info("🧪 Running reverse integration tests with live services...")
+        logger.info("[TEST] Running reverse integration tests with live services...")
         
         try:
             # Run pytest with the reverse integration tests
@@ -373,33 +373,33 @@ class ReverseIntegrationTestRunner:
     
     def run_complete_test_suite(self):
         """Run the complete reverse integration test suite"""
-        logger.info("🎯 Starting Complete Reverse Integration Test Suite")
+        logger.info("[TARGET] Starting Complete Reverse Integration Test Suite")
         logger.info("=" * 80)
         
         self.test_results['start_time'] = datetime.now().isoformat()
         
         try:
             # Phase 1: Start all services
-            logger.info("📋 Phase 1: Starting all services...")
+            logger.info("[PHASE1] Phase 1: Starting all services...")
             services_started = self.service_manager.start_all_services()
             self.test_results['services_started'] = services_started
             
             if not services_started:
-                logger.error("💥 Failed to start services - aborting tests")
+                logger.error("[ERROR] Failed to start services - aborting tests")
                 return False
             
             # Phase 2: Run tests
-            logger.info("📋 Phase 2: Running reverse integration tests...")
+            logger.info("[PHASE2] Phase 2: Running reverse integration tests...")
             tests_passed = self.run_tests_with_live_services()
             self.test_results['tests_run'] = True
             
             # Phase 3: Collect service logs
-            logger.info("📋 Phase 3: Collecting service logs...")
+            logger.info("[PHASE3] Phase 3: Collecting service logs...")
             for service_name in self.service_manager.services:
                 self.test_results['service_logs'][service_name] = self.service_manager.get_service_logs(service_name)
             
             # Phase 4: Get system status
-            logger.info("📋 Phase 4: Collecting system status...")
+            logger.info("[PHASE4] Phase 4: Collecting system status...")
             self.test_results['system_status'] = self.service_manager.get_system_status()
             
             return tests_passed
@@ -422,7 +422,7 @@ class ReverseIntegrationTestRunner:
     
     def generate_report(self):
         """Generate comprehensive test report"""
-        logger.info("📊 Generating comprehensive test report...")
+        logger.info("[REPORT] Generating comprehensive test report...")
         
         report = {
             'test_suite': 'KPP Reverse Integration Tests',
@@ -453,19 +453,19 @@ class ReverseIntegrationTestRunner:
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
         
-        logger.info(f"📋 Test report saved to: {report_file}")
+        logger.info(f"[SAVE] Test report saved to: {report_file}")
         
         # Print summary
         logger.info("=" * 80)
-        logger.info("🎯 REVERSE INTEGRATION TEST SUMMARY")
+        logger.info("[TARGET] REVERSE INTEGRATION TEST SUMMARY")
         logger.info("=" * 80)
-        logger.info(f"✅ Services Started: {report['summary']['services_started']}")
-        logger.info(f"✅ Tests Run: {report['summary']['tests_run']}")
-        logger.info(f"✅ Tests Passed: {report['summary']['tests_passed']}")
-        logger.info(f"⏱️ Duration: {report['summary']['duration_seconds']:.2f} seconds")
+        logger.info(f"[OK] Services Started: {report['summary']['services_started']}")
+        logger.info(f"[OK] Tests Run: {report['summary']['tests_run']}")
+        logger.info(f"[OK] Tests Passed: {report['summary']['tests_passed']}")
+        logger.info(f"[TIME] Duration: {report['summary']['duration_seconds']:.2f} seconds")
         
         if report['recommendations']:
-            logger.info("💡 Recommendations:")
+            logger.info("[IDEA] Recommendations:")
             for rec in report['recommendations']:
                 logger.info(f"  • {rec}")
         
@@ -473,12 +473,12 @@ class ReverseIntegrationTestRunner:
 
 def main():
     """Main test runner function"""
-    logger.info("🚀 KPP Reverse Integration Test Runner")
+    logger.info("[START] KPP Reverse Integration Test Runner")
     logger.info("=" * 80)
     
     # Setup signal handlers for graceful shutdown
     def signal_handler(signum, frame):
-        logger.info("🛑 Received shutdown signal")
+        logger.info("[STOP] Received shutdown signal")
         if 'test_runner' in globals():
             test_runner.service_manager.stop_all_services()
         sys.exit(1)
@@ -498,14 +498,14 @@ def main():
         
         # Exit with appropriate code
         if success:
-            logger.info("🎉 Reverse integration tests completed successfully!")
+            logger.info("[SUCCESS] Reverse integration tests completed successfully!")
             sys.exit(0)
         else:
-            logger.error("💥 Reverse integration tests failed!")
+            logger.error("[ERROR] Reverse integration tests failed!")
             sys.exit(1)
             
     except Exception as e:
-        logger.error(f"💥 Critical error: {e}")
+        logger.error(f"[ERROR] Critical error: {e}")
         test_runner.service_manager.stop_all_services()
         sys.exit(1)
 

@@ -5,15 +5,25 @@ This represents the complete mechanical power transmission system for the KPP.
 
 import logging
 import math
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from .flywheel import Flywheel, FlywheelController
 from .gearbox import Gearbox, create_kpp_gearbox
 from .one_way_clutch import OneWayClutch, PulseCoastController
 from .sprocket import Sprocket
 
+# PHASE 2: Import new configuration system
+try:
+    from config.components.drivetrain_config import DrivetrainConfig as NewDrivetrainConfig
+    NEW_CONFIG_AVAILABLE = True
+except ImportError:
+    NEW_CONFIG_AVAILABLE = False
+    NewDrivetrainConfig = None
+
 logger = logging.getLogger(__name__)
 
+# Type alias for backward compatibility
+DrivetrainConfigType = Union[NewDrivetrainConfig, Dict[str, Any]] if NEW_CONFIG_AVAILABLE else Dict[str, Any]
 
 class IntegratedDrivetrain:
     """
@@ -21,48 +31,55 @@ class IntegratedDrivetrain:
     from chain tension input to generator output.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[DrivetrainConfigType] = None):
         """
         Initialize the integrated drivetrain system.
 
         Args:
-            config (dict): Configuration parameters for all components
+            config (dict or DrivetrainConfig): Configuration parameters for all components
         """
+        self.using_new_config = NEW_CONFIG_AVAILABLE and hasattr(config, 'to_dict')
         if config is None:
             config = {}
+        if self.using_new_config:
+            logger.info("Using new configuration system for drivetrain")
+            config_dict = config.to_dict()
+        else:
+            logger.info("Using legacy configuration system for drivetrain")
+            config_dict = dict(config)
 
         # Initialize all drivetrain components
         self.top_sprocket = Sprocket(
-            radius=config.get("sprocket_radius", 1.0),
-            tooth_count=config.get("sprocket_teeth", 20),
+            radius=config_dict.get("sprocket_radius", 1.0),
+            tooth_count=config_dict.get("sprocket_teeth", 20),
             position="top",
         )
 
         self.bottom_sprocket = Sprocket(
-            radius=config.get("sprocket_radius", 1.0),
-            tooth_count=config.get("sprocket_teeth", 20),
+            radius=config_dict.get("sprocket_radius", 1.0),
+            tooth_count=config_dict.get("sprocket_teeth", 20),
             position="bottom",
         )
 
         self.gearbox = create_kpp_gearbox()
 
         self.one_way_clutch = OneWayClutch(
-            engagement_threshold=config.get("clutch_engagement_threshold", 0.1),
-            disengagement_threshold=config.get("clutch_disengagement_threshold", -0.05),
-            max_torque=config.get("clutch_max_torque", 10000.0),
+            engagement_threshold=config_dict.get("clutch_engagement_threshold", 0.1),
+            disengagement_threshold=config_dict.get("clutch_disengagement_threshold", -0.05),
+            max_torque=config_dict.get("clutch_max_torque", 10000.0),
         )
 
         self.flywheel = Flywheel(
-            moment_of_inertia=config.get("flywheel_inertia", 500.0),
-            max_speed=config.get("flywheel_max_speed", 400.0),
-            mass=config.get("flywheel_mass", 1000.0),
+            moment_of_inertia=config_dict.get("flywheel_inertia", 500.0),
+            max_speed=config_dict.get("flywheel_max_speed", 400.0),
+            mass=config_dict.get("flywheel_mass", 1000.0),
         )
 
         # Controllers
         self.pulse_coast_controller = PulseCoastController(self.one_way_clutch)
         self.flywheel_controller = FlywheelController(
             self.flywheel,
-            target_speed=config.get("target_generator_speed", 375.0)
+            target_speed=config_dict.get("target_generator_speed", 375.0)
             * 2
             * math.pi
             / 60,  # Convert RPM to rad/s
@@ -326,39 +343,39 @@ class IntegratedDrivetrain:
 
 
 def create_standard_kpp_drivetrain(
-    config: Optional[Dict[str, Any]] = None,
+    config: Optional[DrivetrainConfigType] = None,
 ) -> IntegratedDrivetrain:
     """
     Create a standard KPP drivetrain configuration based on the technical specifications.
 
     Args:
-        config (dict): Optional configuration overrides
+        config (dict or DrivetrainConfig): Optional configuration overrides
 
     Returns:
         IntegratedDrivetrain: Configured drivetrain system
     """
-    standard_config = {
-        "sprocket_radius": 1.0,  # m
-        "sprocket_teeth": 20,
-        "flywheel_inertia": 500.0,  # kg·m²
-        "flywheel_max_speed": 400.0,  # rad/s (~3800 RPM)
-        "flywheel_mass": 1000.0,  # kg
-        "target_generator_speed": 375.0,  # RPM
-        "clutch_engagement_threshold": 0.1,  # rad/s
-        "clutch_disengagement_threshold": -0.05,  # rad/s
-        "clutch_max_torque": 15000.0,  # N·m
-    }
-
-    if config:
-        standard_config.update(config)
-
-    drivetrain = IntegratedDrivetrain(standard_config)
-
-    logger.info(
-        f"Created standard KPP drivetrain: "
-        f"gear_ratio={drivetrain.gearbox.overall_ratio:.1f}:1, "
-        f"flywheel_inertia={drivetrain.flywheel.moment_of_inertia:.0f}kg·m², "
-        f"target_speed={standard_config['target_generator_speed']:.0f}RPM"
-    )
-
-    return drivetrain
+    if config is not None and NEW_CONFIG_AVAILABLE and hasattr(config, 'to_dict'):
+        drivetrain = IntegratedDrivetrain(config)
+        logger.info(
+            f"Created standard KPP drivetrain (new config): flywheel_inertia={getattr(config, 'flywheel_mass', 1000.0):.0f}kg, target_speed={getattr(config, 'target_generator_speed', 375.0):.0f}RPM"
+        )
+        return drivetrain
+    else:
+        standard_config = {
+            "sprocket_radius": 1.0,  # m
+            "sprocket_teeth": 20,
+            "flywheel_inertia": 500.0,  # kg·m²
+            "flywheel_max_speed": 400.0,  # rad/s (~3800 RPM)
+            "flywheel_mass": 1000.0,  # kg
+            "target_generator_speed": 375.0,  # RPM
+            "clutch_engagement_threshold": 0.1,  # rad/s
+            "clutch_disengagement_threshold": -0.05,  # rad/s
+            "clutch_max_torque": 15000.0,  # N·m
+        }
+        if config:
+            standard_config.update(config)
+        drivetrain = IntegratedDrivetrain(standard_config)
+        logger.info(
+            f"Created standard KPP drivetrain: gear_ratio={drivetrain.gearbox.overall_ratio:.1f}:1, flywheel_inertia={drivetrain.flywheel.moment_of_inertia:.0f}kg·m², target_speed={standard_config['target_generator_speed']:.0f}RPM"
+        )
+        return drivetrain

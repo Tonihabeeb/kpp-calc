@@ -5,7 +5,7 @@ Provides type safety and validation for all data structures used in the simulati
 
 from typing import Dict, List, Optional, Any, Union
 from enum import Enum
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, validator, root_validator
 import math
 
 
@@ -49,7 +49,7 @@ class FloaterPhysicsData(BaseModel):
     fill_progress: float = Field(default=0.0, ge=0.0, le=1.0, description="Fill progress (0-1)")
     is_filled: bool = Field(default=False, description="Whether floater is filled")
     
-    @field_validator('position')
+    @validator('position')
     @classmethod
     def validate_position(cls, v):
         """Normalize position to [0, 2π]."""
@@ -267,7 +267,7 @@ class SimulationParams(BaseModel):
     drag_reduction_factor: float = Field(default=0.12, ge=0.0, le=0.5, description="Drag reduction factor")
     thermal_efficiency: float = Field(default=0.75, ge=0.0, le=1.0, description="Thermal efficiency")
     
-    @field_validator('target_rpm')
+    @validator('target_rpm')
     @classmethod
     def validate_rpm_range(cls, v):
         """Validate RPM is within reasonable range."""
@@ -275,7 +275,7 @@ class SimulationParams(BaseModel):
             raise ValueError("target_rpm must be between 50 and 1000 RPM")
         return v
     
-    @field_validator('num_floaters')
+    @validator('num_floaters')
     @classmethod
     def validate_floater_count(cls, v):
         """Validate floater count is even for balanced operation."""
@@ -283,16 +283,15 @@ class SimulationParams(BaseModel):
             raise ValueError("num_floaters should be even for balanced operation")
         return v
     
-    @model_validator(mode='after')
-    def validate_enhanced_physics(self):
+    @root_validator
+    @classmethod
+    def validate_enhanced_physics(cls, values):
         """Validate enhanced physics parameter consistency."""
-        if self.h1_enabled and self.nanobubble_frac <= 0.0:
+        if values.get('h1_enabled') and values.get('nanobubble_frac', 0.0) <= 0.0:
             raise ValueError("nanobubble_frac must be > 0 when h1_enabled is True")
-        
-        if self.h2_enabled and self.thermal_efficiency <= 0.0:
+        if values.get('h2_enabled') and values.get('thermal_efficiency', 0.0) <= 0.0:
             raise ValueError("thermal_efficiency must be > 0 when h2_enabled is True")
-            
-        return self
+        return values
 
 
 class ManagerInterface(BaseModel):

@@ -22,11 +22,11 @@ def start_server():
         print("✓ App module imported successfully")
         
         # Start the server
-        print("Starting server on http://127.0.0.1:5000")
+        print("Starting server on http://127.0.0.1:9100")
         print("Press Ctrl+C to stop the server")
         print("=" * 50)
         
-        app.app.run(debug=True, threaded=True, host='127.0.0.1', port=5000)
+        app.app.run(debug=True, threaded=True, host='127.0.0.1', port=9100)
         
     except KeyboardInterrupt:
         print("\nServer stopped by user.")
@@ -54,17 +54,17 @@ if __name__ == "__main__":
         from app import app
 
         print("\n✅ Flask app loaded successfully!")
-        print("🚀 Starting server on http://localhost:5000")
+        print("🚀 Starting server on http://localhost:9100")
         print("📊 All Phase 8 advanced systems integrated and ready!")
         print("\n🔗 Available endpoints:")
-        print("   - Web UI: http://localhost:5000")
-        print("   - API Status: http://localhost:5000/status")
+        print("   - Web UI: http://localhost:9100")
+        print("   - API Status: http://localhost:9100/status")
         print(
             "   - Advanced Systems: /data/drivetrain_status, /data/electrical_status, etc."
         )
         print("\n" + "=" * 60)
 
-        app.run(host="0.0.0.0", port=5000, debug=True, threaded=True)
+        app.run(host="0.0.0.0", port=9100, debug=True, threaded=True)
 
     except Exception as e:
         print(f"❌ Error starting server: {e}")

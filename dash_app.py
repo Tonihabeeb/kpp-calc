@@ -1923,6 +1923,17 @@ def fetch_synchronized_data(n_intervals):
             'grid_power_output': 0.0
         }
 
+from simple_browser_monitor import init_simple_browser_monitor
+
+# Initialize browser monitoring (runs on port 9104 by default)
+browser_monitor = init_simple_browser_monitor(port=9104)
+
+# Inject the monitoring script into the Dash app's HTML template
+app.index_string = app.index_string.replace(
+    '</head>',
+    f'<script>{browser_monitor.get_monitoring_script()}</script></head>'
+)
+
 if __name__ == "__main__":
     import logging
     logging.info("Starting Dash app on http://localhost:9103 ...")

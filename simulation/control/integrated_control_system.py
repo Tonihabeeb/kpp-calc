@@ -6,7 +6,7 @@ Combines all Phase 4 advanced control components into a unified system.
 import logging
 from collections import deque
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -15,12 +15,19 @@ from .grid_stability_controller import GridStabilityController, GridStabilityMod
 from .load_manager import LoadManager, LoadProfile
 from .timing_controller import TimingController
 
+# Import new config system with backward compatibility
+try:
+    from config import ControlSystemConfig
+    NEW_CONFIG_AVAILABLE = True
+except ImportError:
+    NEW_CONFIG_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class ControlSystemConfig:
-    """Configuration for integrated control system"""
+class LegacyControlSystemConfig:
+    """Legacy configuration for integrated control system (for backward compatibility)"""
 
     # Timing controller config
     num_floaters: int = 8
@@ -28,7 +35,7 @@ class ControlSystemConfig:
     optimization_window: float = 2.0
 
     # Load manager config
-    target_power: float = 500000.0  # 500 kW
+    target_power: float = 530000.0  # 530 kW (aligned with modular config)
     power_tolerance: float = 0.05  # 5%
     max_ramp_rate: float = 50000.0  # 50 kW/s
 
@@ -63,15 +70,57 @@ class IntegratedControlSystem:
     coordinated response to system conditions.
     """
 
-    def __init__(self, config: ControlSystemConfig):
+    def __init__(self, config: Union[ControlSystemConfig, "LegacyControlSystemConfig"]):
         """
         Initialize integrated control system.
 
         Args:
-            config: Control system configuration
+            config: Control system configuration (new or legacy format)
         """
         self.config = config
+        
+        # Handle both new and legacy config formats
+        if NEW_CONFIG_AVAILABLE and isinstance(config, ControlSystemConfig):
+            # New config format
+            self._init_with_new_config(config)
+        else:
+            # Legacy config format
+            self._init_with_legacy_config(config)
 
+    def _init_with_new_config(self, config: ControlSystemConfig):
+        """Initialize with new config format"""
+        # Initialize control components
+        self.timing_controller = TimingController(
+            num_floaters=config.timing.num_floaters,
+            prediction_horizon=config.timing.prediction_horizon,
+            optimization_window=config.timing.optimization_window,
+        )
+
+        self.load_manager = LoadManager(
+            target_power=config.load_manager.target_power,
+            power_tolerance=config.load_manager.power_tolerance,
+            max_ramp_rate=config.load_manager.max_ramp_rate,
+        )
+
+        self.grid_stability_controller = GridStabilityController(
+            rated_power=config.load_manager.target_power,
+            nominal_voltage=config.grid_stability.nominal_voltage,
+            nominal_frequency=config.grid_stability.nominal_frequency,
+            voltage_regulation_band=config.grid_stability.voltage_regulation_band,
+            frequency_regulation_band=config.grid_stability.frequency_regulation_band,
+        )
+
+        self.fault_detector = FaultDetector(
+            monitoring_interval=config.fault_detector.monitoring_interval,
+            auto_recovery_enabled=config.fault_detector.auto_recovery_enabled,
+            predictive_maintenance_enabled=config.fault_detector.predictive_maintenance_enabled,
+        )
+
+        # Initialize common components
+        self._init_common_components(config)
+
+    def _init_with_legacy_config(self, config: "LegacyControlSystemConfig"):
+        """Initialize with legacy config format"""
         # Initialize control components
         self.timing_controller = TimingController(
             num_floaters=config.num_floaters,
@@ -99,6 +148,11 @@ class IntegratedControlSystem:
             predictive_maintenance_enabled=config.predictive_maintenance_enabled,
         )
 
+        # Initialize common components
+        self._init_common_components(config)
+
+    def _init_common_components(self, config):
+        """Initialize components common to both config formats"""
         # Control coordination
         self.control_priorities = config.control_priority_weights or {
             "safety": 1.0,
@@ -416,7 +470,7 @@ class IntegratedControlSystem:
         # Check load management
         load_output = control_outputs.get("load_manager", {})
         power_error = load_output.get("power_error", 0.0)
-        if power_error > self.config.target_power * 0.2:  # >20% power error
+        if power_error > self._get_target_power() * 0.2:  # >20% power error
             return False
 
         return True
@@ -425,7 +479,7 @@ class IntegratedControlSystem:
         """Update control performance tracking"""
 
         # Calculate control performance metrics
-        power_error = abs(system_state.get("power", 0.0) - self.config.target_power)
+        power_error = abs(system_state.get("power", 0.0) - self._get_target_power())
         efficiency = system_state.get("overall_efficiency", 0.0)
         stability_index = system_state.get("stability_index", 1.0)
 
@@ -600,7 +654,11 @@ class IntegratedControlSystem:
 
     def adjust_target_power(self, new_target: float):
         """Adjust target power for all relevant controllers"""
-        self.config.target_power = new_target
+        # Update config based on format
+        if NEW_CONFIG_AVAILABLE and hasattr(self.config, 'load_manager'):
+            self.config.load_manager.target_power = new_target
+        else:
+            self.config.target_power = new_target
         self.load_manager.adjust_target_power(new_target)
         logger.info(f"Target power adjusted to {new_target/1000:.1f}kW")
 
@@ -666,6 +724,12 @@ class IntegratedControlSystem:
                 "uptime": getattr(self, "uptime_hours", 0.0),
             },
         }
+
+    def _get_target_power(self):
+        """Get target power from config, supporting both legacy and modular config."""
+        if NEW_CONFIG_AVAILABLE and hasattr(self.config, 'load_manager'):
+            return self.config.load_manager.target_power
+        return self.config.target_power
 
 
 class ControlDecisionArbitrator:
@@ -757,40 +821,61 @@ class AdaptiveControlTuner:
 
 def create_standard_kpp_control_system(
     config_overrides: Optional[Dict] = None,
+    use_new_config: bool = True,
 ) -> IntegratedControlSystem:
     """
     Create a standard KPP integrated control system with default configuration.
 
     Args:
         config_overrides: Optional configuration overrides
+        use_new_config: Whether to use new config system (default: True)
 
     Returns:
         Configured IntegratedControlSystem
     """
 
-    # Default configuration
-    config = ControlSystemConfig(
-        num_floaters=8,
-        prediction_horizon=5.0,
-        optimization_window=2.0,
-        target_power=530000.0,  # 530 kW to match Phase 3
-        power_tolerance=0.05,
-        max_ramp_rate=50000.0,
-        nominal_voltage=480.0,
-        nominal_frequency=50.0,
-        voltage_regulation_band=0.05,
-        frequency_regulation_band=0.1,
-        monitoring_interval=0.1,
-        auto_recovery_enabled=True,
-        predictive_maintenance_enabled=True,
-        emergency_response_enabled=True,
-        adaptive_control_enabled=True,
-    )
+    if NEW_CONFIG_AVAILABLE and use_new_config:
+        # Use new config system
+        config = ControlSystemConfig()
+        
+        # Apply overrides to new config structure
+        if config_overrides:
+            # Handle nested overrides
+            for key, value in config_overrides.items():
+                if hasattr(config, key):
+                    if isinstance(value, dict) and hasattr(getattr(config, key), 'to_dict'):
+                        # Nested config override
+                        current_config = getattr(config, key)
+                        for subkey, subvalue in value.items():
+                            if hasattr(current_config, subkey):
+                                setattr(current_config, subkey, subvalue)
+                    else:
+                        # Direct attribute override
+                        setattr(config, key, value)
+    else:
+        # Use legacy config system
+        config = LegacyControlSystemConfig(
+            num_floaters=8,
+            prediction_horizon=5.0,
+            optimization_window=2.0,
+            target_power=530000.0,  # 530 kW to match Phase 3
+            power_tolerance=0.05,
+            max_ramp_rate=50000.0,
+            nominal_voltage=480.0,
+            nominal_frequency=50.0,
+            voltage_regulation_band=0.05,
+            frequency_regulation_band=0.1,
+            monitoring_interval=0.1,
+            auto_recovery_enabled=True,
+            predictive_maintenance_enabled=True,
+            emergency_response_enabled=True,
+            adaptive_control_enabled=True,
+        )
 
-    # Apply overrides
-    if config_overrides:
-        for key, value in config_overrides.items():
-            if hasattr(config, key):
-                setattr(config, key, value)
+        # Apply overrides
+        if config_overrides:
+            for key, value in config_overrides.items():
+                if hasattr(config, key):
+                    setattr(config, key, value)
 
     return IntegratedControlSystem(config)

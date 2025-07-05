@@ -5,7 +5,7 @@ Combines advanced generator, power electronics, and grid interface into unified 
 
 import logging
 import math
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 from .advanced_generator import AdvancedGenerator, create_kmp_generator
 from .power_electronics import (
@@ -14,8 +14,18 @@ from .power_electronics import (
     create_kmp_power_electronics,
 )
 
+# PHASE 2: Import new configuration system
+try:
+    from config.components.electrical_config import ElectricalConfig as NewElectricalConfig
+    NEW_CONFIG_AVAILABLE = True
+except ImportError:
+    NEW_CONFIG_AVAILABLE = False
+    NewElectricalConfig = None
+
 logger = logging.getLogger(__name__)
 
+# Type alias for backward compatibility
+ElectricalConfigType = Union[NewElectricalConfig, Dict[str, Any]] if NEW_CONFIG_AVAILABLE else Dict[str, Any]
 
 class IntegratedElectricalSystem:
     """
@@ -29,34 +39,41 @@ class IntegratedElectricalSystem:
     - System protection and monitoring
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[ElectricalConfigType] = None):
         """
         Initialize integrated electrical system.
 
         Args:
-            config (dict): System configuration parameters
+            config (dict or ElectricalConfig): System configuration parameters
         """
+        self.using_new_config = NEW_CONFIG_AVAILABLE and hasattr(config, 'to_dict')
         if config is None:
             config = {}
+        if self.using_new_config:
+            logger.info("Using new configuration system for electrical system")
+            config_dict = config.to_dict()
+        else:
+            logger.info("Using legacy configuration system for electrical system")
+            config_dict = dict(config)
 
         # Create subsystems
-        self.generator = create_kmp_generator(config.get("generator", {}))
-        pe_config = config.get("power_electronics", {})
-        grid_config = config.get("grid", {})
+        self.generator = create_kmp_generator(config_dict.get("generator", {}))
+        pe_config = config_dict.get("power_electronics", {})
+        grid_config = config_dict.get("grid", {})
 
         self.power_electronics, self.grid_interface = create_kmp_power_electronics(
             {"power_electronics": pe_config, "grid": grid_config}
         )
 
         # System parameters
-        self.rated_power = config.get("rated_power", 530000.0)  # W
-        self.target_power_factor = config.get("target_power_factor", 0.92)
-        self.load_management_enabled = config.get("load_management", True)
+        self.rated_power = config_dict.get("max_power", config_dict.get("rated_power", 530000.0))  # W
+        self.target_power_factor = config_dict.get("power_factor", config_dict.get("target_power_factor", 0.92))
+        self.load_management_enabled = config_dict.get("load_management", True)
 
         # Control parameters
-        self.power_controller_kp = config.get("power_controller_kp", 0.1)
-        self.power_controller_ki = config.get("power_controller_ki", 0.05)
-        self.power_controller_kd = config.get("power_controller_kd", 0.01)
+        self.power_controller_kp = config_dict.get("power_controller_kp", 0.1)
+        self.power_controller_ki = config_dict.get("power_controller_ki", 0.05)
+        self.power_controller_kd = config_dict.get("power_controller_kd", 0.01)
 
         # State variables
         self.mechanical_power_input = 0.0  # W
@@ -507,50 +524,59 @@ class IntegratedElectricalSystem:
 
 
 def create_standard_kmp_electrical_system(
-    config: Optional[Dict[str, Any]] = None,
+    config: Optional[ElectricalConfigType] = None,
 ) -> IntegratedElectricalSystem:
     """
     Create standard KMP electrical system with realistic parameters.
 
     Args:
-        config (dict): Optional configuration overrides
+        config (dict or ElectricalConfig): Optional configuration overrides
 
     Returns:
         IntegratedElectricalSystem: Configured electrical system
     """
-    default_config = {
-        "rated_power": 530000.0,  # 530 kW
-        "target_power_factor": 0.92,
-        "load_management": True,
-        "generator": {
-            "rated_power": 530000.0,
-            "rated_speed": 375.0,  # RPM (matches flywheel target)
-            "efficiency_at_rated": 0.94,
-        },
-        "power_electronics": {
-            "rectifier_efficiency": 0.97,
-            "inverter_efficiency": 0.96,
-            "transformer_efficiency": 0.985,
-        },
-        "grid": {"nominal_voltage": 13800.0, "nominal_frequency": 50.0},  # 13.8 kV
-    }
+    if config is not None and NEW_CONFIG_AVAILABLE and hasattr(config, 'to_dict'):
+        # If new config object, pass directly
+        electrical_system = IntegratedElectricalSystem(config)
+        logger.info(
+            f"Created standard KMP electrical system (new config): {getattr(config, 'max_power', 530000.0)/1000:.0f}kW"
+        )
+        return electrical_system
+    else:
+        # Legacy dict config (deep merge as before)
+        default_config = {
+            "rated_power": 530000.0,  # 530 kW
+            "target_power_factor": 0.92,
+            "load_management": True,
+            "generator": {
+                "rated_power": 530000.0,
+                "rated_speed": 375.0,  # RPM (matches flywheel target)
+                "efficiency_at_rated": 0.94,
+            },
+            "power_electronics": {
+                "rectifier_efficiency": 0.97,
+                "inverter_efficiency": 0.96,
+                "transformer_efficiency": 0.985,
+            },
+            "grid": {"nominal_voltage": 13800.0, "nominal_frequency": 50.0},  # 13.8 kV
+        }
 
-    if config:
-        # Deep merge configuration
-        for key, value in config.items():
-            if (
-                key in default_config
-                and isinstance(default_config[key], dict)
-                and isinstance(value, dict)
-            ):
-                default_config[key].update(value)
-            else:
-                default_config[key] = value
+        if config:
+            # Deep merge configuration
+            for key, value in config.items():
+                if (
+                    key in default_config
+                    and isinstance(default_config[key], dict)
+                    and isinstance(value, dict)
+                ):
+                    default_config[key].update(value)
+                else:
+                    default_config[key] = value
 
-    electrical_system = IntegratedElectricalSystem(default_config)
+        electrical_system = IntegratedElectricalSystem(default_config)
 
-    logger.info(
-        f"Created standard KMP electrical system: {default_config['rated_power']/1000:.0f}kW"
-    )
+        logger.info(
+            f"Created standard KMP electrical system: {default_config['rated_power']/1000:.0f}kW"
+        )
 
-    return electrical_system
+        return electrical_system

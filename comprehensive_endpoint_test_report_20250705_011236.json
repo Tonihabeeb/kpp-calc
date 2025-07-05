@@ -1,0 +1,261 @@
+{
+  "timestamp": "2025-07-05 01:12:36",
+  "summary": {
+    "total_endpoints_tested": 54,
+    "successful_responses": 10,
+    "connection_errors": 1,
+    "trace_correlations": 0,
+    "success_rate": "18.5%",
+    "services_running": 2
+  },
+  "category_results": {
+    "flask_backend": {
+      "total_tested": 48,
+      "successful_responses": 9,
+      "connection_errors": 0,
+      "trace_correlations": 0,
+      "endpoints_details": {
+        "GET /": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-0"
+        },
+        "GET /status": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-1"
+        },
+        "GET /parameters": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-2"
+        },
+        "GET /data/summary": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-3"
+        },
+        "GET /data/live": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-4"
+        },
+        "GET /data/drivetrain_status": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-5"
+        },
+        "GET /data/electrical_status": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-6"
+        },
+        "GET /data/control_status": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-7"
+        },
+        "GET /data/pneumatic_status": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-8"
+        },
+        "GET /data/energy_balance": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-9"
+        },
+        "GET /data/enhanced_performance": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-10"
+        },
+        "GET /data/system_overview": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-11"
+        },
+        "GET /data/physics_status": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-12"
+        },
+        "GET /data/transient_status": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-13"
+        },
+        "GET /data/grid_services_status": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-14"
+        },
+        "GET /data/enhanced_losses": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-15"
+        },
+        "GET /data/fluid_properties": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-16"
+        },
+        "GET /data/thermal_properties": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-17"
+        },
+        "GET /data/chain_status": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-18"
+        },
+        "GET /data/enhancement_status": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-19"
+        },
+        "GET /data/optimization_recommendations": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-20"
+        },
+        "GET /data/history": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-21"
+        },
+        "GET /download_csv": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-22"
+        },
+        "GET /export_collected_data": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-23"
+        },
+        "GET /inspect/input_data": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-24"
+        },
+        "GET /inspect/output_data": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-25"
+        },
+        "GET /stream": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-26"
+        },
+        "GET /chart/power.png": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-27"
+        },
+        "POST /start": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-28"
+        },
+        "POST /stop": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-29"
+        },
+        "POST /pause": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-30"
+        },
+        "POST /step": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-31"
+        },
+        "POST /trigger_pulse": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-32"
+        },
+        "POST /parameters": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-33"
+        },
+        "POST /set_params": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-34"
+        },
+        "POST /update_params": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-35"
+        },
+        "POST /set_load": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-36"
+        },
+        "POST /control/set_control_mode": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-37"
+        },
+        "POST /control/trigger_emergency_stop": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-38"
+        },
+        "POST /control/initiate_startup": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-39"
+        },
+        "POST /control/h1_nanobubbles": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-40"
+        },
+        "POST /control/h2_thermal": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-41"
+        },
+        "POST /control/enhanced_physics": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-42"
+        },
+        "POST /control/water_temperature": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-43"
+        },
+        "POST /control/pressure_recovery": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-44"
+        },
+        "POST /control/water_jet_physics": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-45"
+        },
+        "POST /control/foc_control": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-46"
+        },
+        "POST /control/system_scale": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "f5275565-e878-442b-8d05-45a2fba29879-flask-47"
+        }
+      }
+    },
+    "websocket_server": {
+      "total_tested": 2,
+      "successful_responses": 1,
+      "connection_errors": 0,
+      "endpoints_details": {
+        "GET /": {
+          "status_code": 200,
+          "trace_id": "74fb698b-7bf4-412b-838f-b19d5c6efc01-ws-0"
+        },
+        "GET /state": {
+          "error": "HTTPConnectionPool(host='localhost', port=9101): Read timed out. (read timeout=5)",
+          "trace_id": "74fb698b-7bf4-412b-838f-b19d5c6efc01-ws-1"
+        }
+      }
+    },
+    "observability_system": {
+      "total_tested": 3,
+      "successful_responses": 0,
+      "connection_errors": 0,
+      "trace_correlations": 0,
+      "endpoints_details": {
+        "GET /observability/health": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "a717f41c-c370-4524-a500-fa0ec236a65c-obs-0"
+        },
+        "GET /observability/traces": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "a717f41c-c370-4524-a500-fa0ec236a65c-obs-1"
+        },
+        "GET /observability/traces/a717f41c-c370-4524-a500-fa0ec236a65c": {
+          "error": "HTTPConnectionPool(host='localhost', port=9100): Read timed out. (read timeout=5)",
+          "trace_id": "a717f41c-c370-4524-a500-fa0ec236a65c-obs-2"
+        }
+      }
+    },
+    "dash_frontend": {
+      "error": "Service not running",
+      "trace_id": "4034adf7-81ea-432e-b682-7ce31b7134d6"
+    }
+  }
+}
