@@ -1,0 +1,85 @@
+version = 1
+
+[[analyzers]]
+name = "python"
+enabled = true
+
+[[analyzers]]
+name = "test-coverage"
+enabled = true
+
+[python]
+# Enable all Python analyzers
+python_version = ["3.11"]
+include_patterns = [
+    "*.py",
+    "simulation/**/*.py",
+    "config/**/*.py",
+    "utils/**/*.py",
+    "app.py",
+    "main.py"
+]
+
+exclude_patterns = [
+    "**/__pycache__/**",
+    "**/.venv/**",
+    "**/.venv_new/**",
+    "**/venv/**",
+    "**/env/**",
+    "**/node_modules/**",
+    "**/*.log",
+    "**/*.json",
+    "**/*.csv",
+    "**/*.whl",
+    "**/browser_logs/**",
+    "**/logs/**",
+    "**/tests/**",
+    "**/test_*.py",
+    "**/validation/**",
+    "**/archive/**",
+    "**/backup/**",
+    "**/done-upgrades_files/**"
+]
+
+# Framework-specific settings
+[python.frameworks]
+flask = true
+dash = true
+pydantic = true
+numpy = true
+pandas = true
+scipy = true
+
+# Custom rules for KPP simulator
+[python.rules]
+# Enable specific rules for physics simulation
+"python/security/audit/use-of-eval" = "error"
+"python/security/audit/use-of-pickle" = "error"
+"python/security/audit/use-of-marshal" = "error"
+"python/security/audit/use-of-yaml-load" = "error"
+
+# Performance rules
+"python/performance/audit/use-of-list-comprehension" = "warn"
+"python/performance/audit/use-of-generator" = "warn"
+"python/performance/audit/use-of-dict-comprehension" = "warn"
+
+# Bug risk rules
+"python/bug-risk/audit/use-of-assert" = "warn"
+"python/bug-risk/audit/use-of-except-pass" = "error"
+"python/bug-risk/audit/use-of-except-broad" = "warn"
+"python/bug-risk/audit/use-of-except-return" = "warn"
+
+# Anti-pattern rules
+"python/anti-pattern/audit/use-of-global" = "warn"
+"python/anti-pattern/audit/use-of-magic-numbers" = "warn"
+"python/anti-pattern/audit/use-of-hardcoded-passwords" = "error"
+
+# Style rules
+"python/style/audit/use-of-f-string" = "warn"
+"python/style/audit/use-of-type-annotations" = "warn"
+"python/style/audit/use-of-docstrings" = "warn"
+
+[test-coverage]
+# Test coverage settings
+coverage_threshold = 80
+coverage_report_path = "coverage.xml" 
