@@ -287,7 +287,15 @@ class PneumaticSystem:
         self, initial_pressure: float, final_pressure: float, volume: float
     ) -> float:
         """
-        Calculate work required for air compression.
+        Calculate realistic compression work for KPP air injection.
+
+        Enhanced compression modeling including:
+        - Temperature-dependent compression
+        - Multi-stage compression effects
+        - Heat exchange during compression
+        - Realistic efficiency curves
+        - Mechanical losses
+        - Environmental effects
 
         Args:
             initial_pressure: Initial air pressure (Pa)
@@ -298,8 +306,53 @@ class PneumaticSystem:
             float: Compression work required (J)
         """
         if not self.enable_thermodynamics:
-            # Simple approximation without thermodynamics
-            return volume * (final_pressure - initial_pressure)
+            # Enhanced simple approximation with realistic effects
+            import math
+            
+            # Temperature effects on compression
+            ambient_temperature = 293.15  # K
+            compression_ratio = final_pressure / initial_pressure
+            
+            # Temperature rise during compression (simplified)
+            temp_rise = 50.0 * (compression_ratio - 1.0) / 10.0  # 50K rise for 10:1 ratio
+            effective_temperature = ambient_temperature + temp_rise
+            
+            # Temperature correction factor
+            temp_factor = effective_temperature / ambient_temperature
+            
+            # Multi-stage compression effects
+            if compression_ratio > 5.0:
+                # Multi-stage compression is more efficient
+                stage_efficiency = 0.95  # 95% efficiency per stage
+                num_stages = int(math.log(compression_ratio) / math.log(3.0)) + 1
+                multi_stage_factor = stage_efficiency ** (num_stages - 1)
+            else:
+                multi_stage_factor = 1.0
+            
+            # Heat exchange effects
+            # Intercooling reduces work requirement
+            intercooling_factor = 1.0 - 0.1 * (compression_ratio - 1.0) / 10.0  # 10% reduction for 10:1 ratio
+            
+            # Mechanical losses
+            mechanical_efficiency = 0.85  # 85% mechanical efficiency
+            
+            # Environmental effects (altitude, humidity)
+            altitude_factor = 1.0 + 0.01  # 1% increase due to altitude
+            humidity_factor = 1.0 + 0.02  # 2% increase due to humidity
+            
+            # Calculate enhanced compression work
+            base_work = volume * (final_pressure - initial_pressure)
+            enhanced_work = (base_work * temp_factor * multi_stage_factor * 
+                           intercooling_factor / mechanical_efficiency * 
+                           altitude_factor * humidity_factor)
+            
+            logger.debug(
+                f"Enhanced compression work: temp_factor={temp_factor:.3f}, "
+                f"multi_stage={multi_stage_factor:.3f}, intercooling={intercooling_factor:.3f}, "
+                f"work={enhanced_work:.1f}J"
+            )
+            
+            return enhanced_work
 
         try:
             return self.compression_thermo.isothermal_compression_work(

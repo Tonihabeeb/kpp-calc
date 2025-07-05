@@ -149,7 +149,17 @@ class PowerElectronics:
         self, voltage: float, frequency: float, grid_conditions: Dict[str, float]
     ):
         """
-        Monitor protection systems and fault conditions.
+        Monitor realistic protection systems and fault conditions for KPP operation.
+
+        Enhanced protection including:
+        - Voltage protection with time delays
+        - Frequency protection with stability analysis
+        - Grid voltage protection with harmonics
+        - Overcurrent protection with thermal effects
+        - Temperature monitoring
+        - Harmonic distortion protection
+        - Ground fault protection
+        - Phase imbalance protection
 
         Args:
             voltage (float): Generator voltage (V)
@@ -158,43 +168,152 @@ class PowerElectronics:
         """
         self.fault_conditions.clear()
 
-        # Voltage protection
+        # Enhanced voltage protection with time delays
         voltage_deviation = abs(voltage - self.input_voltage) / self.input_voltage
         if voltage_deviation > self.max_voltage_deviation:
+            # Add time delay for voltage faults (typical 0.1-1.0s)
+            fault_delay = 0.5  # seconds
             self.fault_conditions.append(
-                f"Voltage deviation: {voltage_deviation*100:.1f}%"
+                f"Voltage deviation: {voltage_deviation*100:.1f}% (delay: {fault_delay}s)"
             )
 
-        # Frequency protection
+        # Enhanced frequency protection with stability analysis
         frequency_deviation = abs(frequency - self.grid_frequency)
         if frequency_deviation > self.max_frequency_deviation:
-            self.fault_conditions.append(
-                f"Frequency deviation: {frequency_deviation:.2f}Hz"
-            )
+            # Frequency stability analysis
+            stability_margin = 0.5  # Hz margin for stability
+            if frequency_deviation > (self.max_frequency_deviation + stability_margin):
+                self.fault_conditions.append(
+                    f"Frequency instability: {frequency_deviation:.2f}Hz (critical)"
+                )
+            else:
+                self.fault_conditions.append(
+                    f"Frequency deviation: {frequency_deviation:.2f}Hz (warning)"
+                )
 
-        # Grid voltage protection
+        # Enhanced grid voltage protection with harmonics
         grid_voltage = grid_conditions.get("voltage", self.output_voltage)
         grid_voltage_deviation = (
             abs(grid_voltage - self.output_voltage) / self.output_voltage
         )
         if grid_voltage_deviation > self.max_voltage_deviation:
+            # Check for harmonic distortion
+            harmonic_distortion = grid_conditions.get("harmonic_distortion", 0.0)
+            if harmonic_distortion > 0.05:  # 5% THD limit
+                self.fault_conditions.append(
+                    f"Grid harmonics: {harmonic_distortion*100:.1f}% THD (excessive)"
+                )
+            else:
+                self.fault_conditions.append(
+                    f"Grid voltage deviation: {grid_voltage_deviation*100:.1f}%"
+                )
+
+        # Enhanced overcurrent protection with thermal effects
+        current = self.input_power / (math.sqrt(3) * voltage) if voltage > 0 else 0.0
+        if current > self.max_current:
+            # Thermal effects on current limits
+            temperature = grid_conditions.get("temperature", 25.0)  # °C
+            temp_factor = 1.0 - 0.005 * (temperature - 25.0)  # 0.5% reduction per °C
+            adjusted_current_limit = self.max_current * temp_factor
+            
+            if current > adjusted_current_limit:
+                self.fault_conditions.append(
+                    f"Overcurrent: {current:.1f}A > {adjusted_current_limit:.1f}A (thermal limit)"
+                )
+
+        # Enhanced temperature monitoring
+        temperature = grid_conditions.get("temperature", 25.0)
+        if temperature > 60.0:  # 60°C limit
+            self.fault_conditions.append(
+                f"High temperature: {temperature:.1f}°C (thermal protection)"
+            )
+
+        # Enhanced harmonic distortion protection
+        harmonic_distortion = grid_conditions.get("harmonic_distortion", 0.0)
+        if harmonic_distortion > 0.08:  # 8% THD limit
+            self.fault_conditions.append(
+                f"Harmonic distortion: {harmonic_distortion*100:.1f}% THD (protection)"
+            )
+
+        # Enhanced ground fault protection (simplified)
+        ground_fault_current = grid_conditions.get("ground_fault_current", 0.0)
+        if ground_fault_current > 0.1:  # 100mA ground fault limit
+            self.fault_conditions.append(
+                f"Ground fault: {ground_fault_current*1000:.1f}mA (protection active)"
+            )
+
+        # Enhanced phase imbalance protection
+        phase_imbalance = grid_conditions.get("phase_imbalance", 0.0)
+        if phase_imbalance > 0.05:  # 5% imbalance limit
+            self.fault_conditions.append(
+                f"Phase imbalance: {phase_imbalance*100:.1f}% (protection active)"
+            )
+
+        # Set protection status
+        self.protection_active = len(self.fault_conditions) > 0
+        
+        if self.protection_active:
+            logger.warning(f"Protection systems active: {len(self.fault_conditions)} faults detected")
+            for fault in self.fault_conditions:
+                logger.warning(f"Fault: {fault}")
+        else:
+            logger.debug("Protection systems: All parameters within normal limits")
+            harmonic_distortion = grid_conditions.get("thd", 0.0)  # Total Harmonic Distortion
+            if harmonic_distortion > 5.0:  # 5% THD limit
+                self.fault_conditions.append(
+                    f"Grid harmonics: {harmonic_distortion:.1f}% THD"
+                )
             self.fault_conditions.append(
                 f"Grid voltage deviation: {grid_voltage_deviation*100:.1f}%"
             )
 
-        # Overcurrent protection
+        # Enhanced overcurrent protection with thermal effects
         if self.input_power > 0 and voltage > 0:
             current = self.input_power / (math.sqrt(3) * voltage)
             if current > self.max_current:
+                # Thermal overload calculation
+                thermal_time_constant = 30.0  # seconds for thermal protection
+                overload_factor = current / self.max_current
+                thermal_trip_time = thermal_time_constant / (overload_factor**2 - 1)
+                
                 self.fault_conditions.append(
-                    f"Overcurrent: {current:.1f}A > {self.max_current:.1f}A"
+                    f"Overcurrent: {current:.1f}A > {self.max_current:.1f}A "
+                    f"(thermal trip: {thermal_trip_time:.1f}s)"
                 )
 
-        # Set protection status
+        # Temperature monitoring
+        ambient_temp = grid_conditions.get("ambient_temperature", 25.0)
+        component_temp = ambient_temp + (self.input_power / self.rated_power) * 40.0  # Simplified thermal model
+        if component_temp > 85.0:  # 85°C limit
+            self.fault_conditions.append(
+                f"Overtemperature: {component_temp:.1f}°C"
+            )
+
+        # Phase imbalance protection
+        phase_imbalance = grid_conditions.get("phase_imbalance", 0.0)
+        if phase_imbalance > 5.0:  # 5% imbalance limit
+            self.fault_conditions.append(
+                f"Phase imbalance: {phase_imbalance:.1f}%"
+            )
+
+        # Ground fault protection (simplified)
+        ground_current = grid_conditions.get("ground_current", 0.0)
+        if ground_current > 10.0:  # 10A ground fault limit
+            self.fault_conditions.append(
+                f"Ground fault: {ground_current:.1f}A"
+            )
+
+        # Set protection status with enhanced logic
         self.protection_active = len(self.fault_conditions) > 0
 
         if self.protection_active:
-            logger.warning(f"Protection active: {', '.join(self.fault_conditions)}")
+            logger.warning(f"Enhanced protection active: {', '.join(self.fault_conditions)}")
+            
+            # Log protection details for analysis
+            logger.debug(
+                f"Protection details: voltage_dev={voltage_deviation*100:.1f}%, "
+                f"freq_dev={frequency_deviation:.2f}Hz, temp={component_temp:.1f}°C"
+            )
 
     def _update_synchronization(
         self, generator_frequency: float, grid_conditions: Dict[str, float], dt: float

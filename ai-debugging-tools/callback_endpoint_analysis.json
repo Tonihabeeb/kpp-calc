@@ -1,0 +1,17 @@
+{
+  "callbacks": [],
+  "endpoints": [],
+  "issues": [],
+  "dependency_graph": {},
+  "recommendations": [],
+  "summary": {
+    "total_callbacks": 0,
+    "total_endpoints": 0,
+    "total_issues": 0,
+    "callback_types": {},
+    "endpoint_methods": {},
+    "issue_severities": {},
+    "most_complex_callbacks": [],
+    "most_dependent_callbacks": []
+  }
+}

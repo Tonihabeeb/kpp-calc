@@ -10,6 +10,7 @@ import json
 import threading
 import logging
 import math
+from typing import Dict, Any
 from simulation.components.floater import Floater, FloaterConfig
 from simulation.components.environment import Environment
 from simulation.components.pneumatics import PneumaticSystem
@@ -895,7 +896,7 @@ class SimulationEngine:
     
     def trigger_emergency_stop(self, reason: str):
         """
-        Trigger emergency stop sequence.
+        Trigger emergency stop sequence for realistic KPP operation.
         
         Args:
             reason: Reason for emergency stop
@@ -903,8 +904,49 @@ class SimulationEngine:
         Returns:
             Emergency stop response dictionary
         """
-        logger.warning(f"Emergency stop triggered: {reason}")
-        return {"status": "emergency_stop_triggered", "reason": reason}
+        logger.critical(f"EMERGENCY STOP TRIGGERED: {reason}")
+        
+        # Stop all simulation activity
+        self.running = False
+        
+        # Emergency shutdown sequence
+        emergency_response = {
+            "status": "emergency_stop_triggered",
+            "reason": reason,
+            "timestamp": time.time(),
+            "actions_taken": []
+        }
+        
+        try:
+            # Stop electrical system
+            if hasattr(self, 'electrical_system') and self.electrical_system:
+                self.electrical_system.emergency_shutdown()
+                emergency_response["actions_taken"].append("electrical_system_shutdown")
+            
+            # Stop pneumatic systems
+            if hasattr(self, 'pneumatic_system') and self.pneumatic_system:
+                self.pneumatic_system.emergency_vent_all()
+                emergency_response["actions_taken"].append("pneumatic_system_vented")
+            
+            # Stop drivetrain
+            if hasattr(self, 'drivetrain') and self.drivetrain:
+                self.drivetrain.emergency_stop()
+                emergency_response["actions_taken"].append("drivetrain_stopped")
+            
+            # Reset all floaters to safe state
+            if hasattr(self, 'floaters'):
+                for floater in self.floaters:
+                    floater.emergency_vent()
+                emergency_response["actions_taken"].append("floaters_vented")
+            
+            # Log emergency event
+            emergency_response["actions_taken"].append("emergency_logged")
+            
+        except Exception as e:
+            logger.error(f"Error during emergency stop: {e}")
+            emergency_response["error"] = str(e)
+        
+        return emergency_response
     
     def get_transient_status(self):
         """Get comprehensive transient event status"""

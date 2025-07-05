@@ -30,11 +30,11 @@
       "called_by": [],
       "calls": [
         "error",
+        "validate_all_configs",
         "get_warnings",
         "get_available_configs",
-        "jsonify",
         "str",
-        "validate_all_configs",
+        "jsonify",
         "route"
       ]
     },
@@ -54,10 +54,10 @@
       "called_by": [],
       "calls": [
         "error",
-        "jsonify",
+        "load_config_from_file",
         "str",
-        "route",
-        "load_config_from_file"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -75,8 +75,8 @@
       "calls": [
         "error",
         "get_combined_config",
-        "jsonify",
         "str",
+        "jsonify",
         "route"
       ]
     },
@@ -92,17 +92,17 @@
       ],
       "dependencies": [],
       "called_by": [
-        "_update_new_config",
-        "update_config"
+        "update_config",
+        "_update_new_config"
       ],
       "calls": [
-        "error",
-        "get_json",
-        "jsonify",
-        "str",
         "get",
-        "route",
-        "update_config"
+        "error",
+        "update_config",
+        "get_json",
+        "str",
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -118,20 +118,20 @@
         "route"
       ],
       "dependencies": [
-        "flask",
-        "os"
+        "os",
+        "flask"
       ],
       "called_by": [],
       "calls": [
+        "str",
         "error",
+        "send_from_directory",
         "exists",
-        "abspath",
+        "join",
         "info",
         "dirname",
-        "str",
-        "route",
-        "send_from_directory",
-        "join"
+        "abspath",
+        "route"
       ]
     },
     {
@@ -147,17 +147,17 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "error",
-        "get_state",
-        "jsonify",
-        "warning",
-        "str",
-        "get_stats",
-        "len",
         "get",
+        "error",
+        "get_stats",
         "time",
-        "route",
-        "is_initialized"
+        "is_initialized",
+        "warning",
+        "get_state",
+        "str",
+        "len",
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -175,24 +175,24 @@
       ],
       "called_by": [],
       "calls": [
-        "error",
-        "get_combined_config",
-        "open",
-        "load",
-        "reset",
-        "update_params",
-        "jsonify",
-        "warning",
-        "info",
-        "initialize",
-        "start",
-        "engine_context",
-        "str",
-        "get_stats",
-        "get",
         "RuntimeError",
-        "route",
-        "is_initialized"
+        "get",
+        "error",
+        "get_stats",
+        "start",
+        "initialize",
+        "is_initialized",
+        "update_params",
+        "info",
+        "reset",
+        "warning",
+        "engine_context",
+        "open",
+        "get_combined_config",
+        "load",
+        "str",
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -209,13 +209,13 @@
       "called_by": [],
       "calls": [
         "error",
-        "jsonify",
+        "get_stats",
+        "is_initialized",
         "info",
         "engine_context",
         "str",
-        "get_stats",
-        "route",
-        "is_initialized"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -232,9 +232,9 @@
       "called_by": [],
       "calls": [
         "error",
-        "jsonify",
         "info",
         "str",
+        "jsonify",
         "route"
       ]
     },
@@ -252,14 +252,14 @@
       "called_by": [],
       "calls": [
         "error",
-        "reset",
-        "jsonify",
-        "warning",
-        "info",
-        "str",
         "get_stats",
-        "route",
-        "is_initialized"
+        "reset",
+        "is_initialized",
+        "info",
+        "warning",
+        "str",
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -275,22 +275,22 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
+        "get",
         "error",
-        "jsonify",
+        "get_stats",
+        "is_initialized",
         "info",
         "engine_context",
+        "step",
         "str",
-        "get_stats",
-        "get",
-        "route",
-        "is_initialized",
-        "step"
+        "jsonify",
+        "route"
       ]
     },
     {
       "name": "trigger_pulse",
       "file_path": "simulation\\engine.py",
-      "line_number": 216,
+      "line_number": 217,
       "function_type": "event_trigger",
       "parameters": [
         "self"
@@ -320,20 +320,20 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "error",
-        "get_json",
-        "jsonify",
-        "hasattr",
-        "info",
-        "str",
         "get",
+        "error",
+        "info",
+        "hasattr",
+        "get_json",
+        "str",
+        "jsonify",
         "route"
       ]
     },
     {
       "name": "update_params",
       "file_path": "simulation\\engine.py",
-      "line_number": 129,
+      "line_number": 130,
       "function_type": "state_update",
       "parameters": [
         "self",
@@ -343,8 +343,8 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "set_parameters",
-        "start_simulation"
+        "start_simulation",
+        "set_parameters"
       ],
       "calls": [
         "_update_legacy_params",
@@ -354,7 +354,7 @@
     {
       "name": "trigger_emergency_stop",
       "file_path": "simulation\\engine.py",
-      "line_number": 896,
+      "line_number": 897,
       "function_type": "event_trigger",
       "parameters": [
         "self",
@@ -381,14 +381,14 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
+        "get",
         "error",
-        "get_json",
-        "jsonify",
+        "info",
         "set_h1_nanobubbles",
         "hasattr",
-        "info",
+        "get_json",
         "str",
-        "get",
+        "jsonify",
         "route"
       ]
     },
@@ -405,12 +405,12 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "error",
-        "get_json",
-        "jsonify",
-        "info",
-        "str",
         "get",
+        "error",
+        "info",
+        "get_json",
+        "str",
+        "jsonify",
         "route"
       ]
     },
@@ -427,14 +427,14 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "error",
-        "enable_enhanced_physics",
-        "get_json",
-        "jsonify",
-        "hasattr",
-        "info",
-        "str",
         "get",
+        "error",
+        "info",
+        "hasattr",
+        "get_json",
+        "str",
+        "jsonify",
+        "enable_enhanced_physics",
         "route"
       ]
     },
@@ -451,8 +451,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -468,8 +468,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -487,15 +487,15 @@
       "calls": [
         "error",
         "qsize",
-        "jsonify",
-        "warning",
         "get_nowait",
-        "str",
-        "range",
-        "len",
         "min",
-        "route",
-        "append"
+        "warning",
+        "range",
+        "str",
+        "len",
+        "jsonify",
+        "append",
+        "route"
       ]
     },
     {
@@ -511,8 +511,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -528,8 +528,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -545,8 +545,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -562,8 +562,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -579,8 +579,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -596,8 +596,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -613,8 +613,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -630,8 +630,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -647,8 +647,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -664,9 +664,9 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
         "jsonify",
-        "time"
+        "time",
+        "route"
       ]
     },
     {
@@ -682,8 +682,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -699,8 +699,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -716,9 +716,9 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
+        "len",
         "jsonify",
-        "len"
+        "route"
       ]
     },
     {
@@ -736,11 +736,11 @@
       ],
       "called_by": [],
       "calls": [
-        "jsonify",
-        "range",
-        "len",
         "time",
         "route",
+        "range",
+        "len",
+        "jsonify",
         "append"
       ]
     },
@@ -756,19 +756,19 @@
       ],
       "dependencies": [
         "io",
-        "time",
-        "csv"
+        "csv",
+        "time"
       ],
       "called_by": [],
       "calls": [
-        "Response",
-        "close",
-        "getvalue",
-        "range",
-        "writerow",
-        "StringIO",
         "writer",
+        "Response",
         "time",
+        "getvalue",
+        "close",
+        "range",
+        "StringIO",
+        "writerow",
         "route"
       ]
     },
@@ -785,10 +785,10 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "jsonify",
+        "time",
         "str",
         "len",
-        "time",
+        "jsonify",
         "route"
       ]
     },
@@ -805,8 +805,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "route",
-        "jsonify"
+        "jsonify",
+        "route"
       ]
     },
     {
@@ -826,23 +826,23 @@
       ],
       "called_by": [],
       "calls": [
-        "ylim",
-        "sin",
-        "title",
-        "Response",
-        "close",
-        "figure",
-        "plot",
-        "savefig",
-        "normal",
-        "linspace",
-        "getvalue",
         "BytesIO",
         "ylabel",
         "seek",
-        "route",
+        "Response",
+        "normal",
+        "ylim",
+        "linspace",
+        "title",
+        "savefig",
+        "xlabel",
+        "getvalue",
+        "close",
+        "sin",
+        "figure",
         "grid",
-        "xlabel"
+        "plot",
+        "route"
       ]
     },
     {
@@ -859,25 +859,25 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "to_dict",
-        "FloaterStateMachine",
-        "isinstance",
-        "FloaterValidator",
-        "warning",
-        "info",
-        "validate_parameters",
-        "ThermalState",
-        "BuoyancyCalculator",
-        "get",
-        "ValueError",
         "PneumaticSystem",
-        "ThermalModel"
+        "get",
+        "ThermalModel",
+        "ThermalState",
+        "FloaterStateMachine",
+        "info",
+        "to_dict",
+        "FloaterValidator",
+        "validate_parameters",
+        "ValueError",
+        "isinstance",
+        "warning",
+        "BuoyancyCalculator"
       ]
     },
     {
       "name": "_init_with_new_config",
       "file_path": "simulation\\engine.py",
-      "line_number": 75,
+      "line_number": 76,
       "function_type": "method",
       "parameters": [
         "self",
@@ -888,15 +888,15 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
+        "get_config",
         "_init_components_with_new_config",
-        "ConfigManager",
-        "get_config"
+        "ConfigManager"
       ]
     },
     {
       "name": "_init_with_legacy_params",
       "file_path": "simulation\\engine.py",
-      "line_number": 94,
+      "line_number": 95,
       "function_type": "method",
       "parameters": [
         "self",
@@ -908,17 +908,17 @@
       "called_by": [],
       "calls": [
         "error",
-        "_init_components_with_legacy_params",
-        "warning",
         "info",
         "ValueError",
-        "validate_kpp_system_parameters"
+        "validate_kpp_system_parameters",
+        "warning",
+        "_init_components_with_legacy_params"
       ]
     },
     {
       "name": "_get_time_step",
       "file_path": "simulation\\engine.py",
-      "line_number": 118,
+      "line_number": 119,
       "function_type": "simulation_step",
       "parameters": [
         "self"
@@ -928,15 +928,15 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "hasattr",
+        "get",
         "getattr",
-        "get"
+        "hasattr"
       ]
     },
     {
       "name": "_update_new_config",
       "file_path": "simulation\\engine.py",
-      "line_number": 141,
+      "line_number": 142,
       "function_type": "state_update",
       "parameters": [
         "self",
@@ -949,22 +949,22 @@
         "update_params"
       ],
       "calls": [
-        "split",
-        "items",
-        "_update_floater_config",
-        "hasattr",
+        "_update_drivetrain_config",
         "setattr",
-        "_update_electrical_config",
         "_update_control_config",
         "update_config",
-        "_update_drivetrain_config",
-        "get_config"
+        "split",
+        "hasattr",
+        "get_config",
+        "items",
+        "_update_floater_config",
+        "_update_electrical_config"
       ]
     },
     {
       "name": "_update_legacy_params",
       "file_path": "simulation\\engine.py",
-      "line_number": 167,
+      "line_number": 168,
       "function_type": "state_update",
       "parameters": [
         "self",
@@ -978,14 +978,14 @@
       ],
       "calls": [
         "get",
-        "info",
-        "update"
+        "update",
+        "info"
       ]
     },
     {
       "name": "_update_floater_config",
       "file_path": "simulation\\engine.py",
-      "line_number": 182,
+      "line_number": 183,
       "function_type": "state_update",
       "parameters": [
         "self",
@@ -998,15 +998,15 @@
         "_update_new_config"
       ],
       "calls": [
-        "setattr",
+        "items",
         "hasattr",
-        "items"
+        "setattr"
       ]
     },
     {
       "name": "_update_electrical_config",
       "file_path": "simulation\\engine.py",
-      "line_number": 195,
+      "line_number": 196,
       "function_type": "state_update",
       "parameters": [
         "self",
@@ -1019,15 +1019,15 @@
         "_update_new_config"
       ],
       "calls": [
-        "setattr",
+        "items",
         "hasattr",
-        "items"
+        "setattr"
       ]
     },
     {
       "name": "_update_drivetrain_config",
       "file_path": "simulation\\engine.py",
-      "line_number": 202,
+      "line_number": 203,
       "function_type": "state_update",
       "parameters": [
         "self",
@@ -1040,15 +1040,15 @@
         "_update_new_config"
       ],
       "calls": [
-        "setattr",
+        "items",
         "hasattr",
-        "items"
+        "setattr"
       ]
     },
     {
       "name": "_update_control_config",
       "file_path": "simulation\\engine.py",
-      "line_number": 209,
+      "line_number": 210,
       "function_type": "state_update",
       "parameters": [
         "self",
@@ -1061,15 +1061,15 @@
         "_update_new_config"
       ],
       "calls": [
-        "setattr",
+        "items",
         "hasattr",
-        "items"
+        "setattr"
       ]
     },
     {
       "name": "run",
       "file_path": "simulation\\engine.py",
-      "line_number": 229,
+      "line_number": 230,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1079,23 +1079,23 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "qsize",
-        "trigger_pulse",
-        "hasattr",
-        "get_comprehensive_state",
-        "info",
         "enumerate",
-        "sleep",
         "getattr",
+        "get_comprehensive_state",
+        "trigger_pulse",
+        "info",
         "get_cartesian_position",
+        "step",
         "debug",
-        "step"
+        "hasattr",
+        "qsize",
+        "sleep"
       ]
     },
     {
       "name": "stop",
       "file_path": "simulation\\engine.py",
-      "line_number": 257,
+      "line_number": 258,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1111,7 +1111,7 @@
     {
       "name": "set_chain_geometry",
       "file_path": "simulation\\engine.py",
-      "line_number": 261,
+      "line_number": 262,
       "function_type": "method",
       "parameters": [
         "self",
@@ -1132,7 +1132,7 @@
     {
       "name": "step",
       "file_path": "simulation\\engine.py",
-      "line_number": 273,
+      "line_number": 274,
       "function_type": "simulation_step",
       "parameters": [
         "self",
@@ -1142,26 +1142,26 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "step_simulation",
-        "run"
+        "run",
+        "step_simulation"
       ],
       "calls": [
-        "error",
         "_handle_step_failure",
-        "debug",
-        "_validate_system_state",
-        "_execute_physics_step",
-        "str",
-        "_update_electrical_system",
+        "error",
         "time",
         "_log_state_safely",
-        "ValueError"
+        "_validate_system_state",
+        "ValueError",
+        "_update_electrical_system",
+        "_execute_physics_step",
+        "debug",
+        "str"
       ]
     },
     {
       "name": "_validate_system_state",
       "file_path": "simulation\\engine.py",
-      "line_number": 334,
+      "line_number": 335,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1173,14 +1173,14 @@
         "step"
       ],
       "calls": [
-        "hasattr",
-        "RuntimeError"
+        "RuntimeError",
+        "hasattr"
       ]
     },
     {
       "name": "_execute_physics_step",
       "file_path": "simulation\\engine.py",
-      "line_number": 345,
+      "line_number": 346,
       "function_type": "simulation_step",
       "parameters": [
         "self",
@@ -1193,44 +1193,44 @@
         "step"
       ],
       "calls": [
-        "pivot",
-        "GridConditions",
-        "abs",
-        "advance",
-        "record_performance_snapshot",
-        "get_comprehensive_state",
-        "max",
-        "update_state",
-        "get_angular_speed",
-        "compute_pulse_jet_force",
-        "drain_water",
-        "set_theta",
-        "get_fluid_properties",
-        "len",
-        "time",
-        "trigger_injection",
         "sum",
+        "GridConditions",
+        "get_comprehensive_state",
         "to_dict",
-        "get_thermal_properties",
-        "calculate_drag_force",
-        "enumerate",
+        "advance",
+        "max",
         "get_tension",
-        "compute_buoyant_force",
+        "update_state",
         "calculate_thermal_buoyancy_enhancement",
+        "getattr",
+        "trigger_pulse",
+        "get_fluid_properties",
+        "calculate_drag_force",
+        "compute_pulse_jet_force",
+        "abs",
+        "record_performance_snapshot",
+        "pivot",
+        "len",
+        "get",
+        "enumerate",
+        "time",
+        "update",
         "get_cartesian_position",
         "debug",
-        "get_state",
-        "trigger_pulse",
         "hasattr",
-        "getattr",
-        "update",
-        "get"
+        "get_angular_speed",
+        "compute_buoyant_force",
+        "drain_water",
+        "trigger_injection",
+        "set_theta",
+        "get_thermal_properties",
+        "get_state"
       ]
     },
     {
       "name": "_update_electrical_system",
       "file_path": "simulation\\engine.py",
-      "line_number": 569,
+      "line_number": 570,
       "function_type": "state_update",
       "parameters": [
         "self",
@@ -1243,15 +1243,15 @@
         "step"
       ],
       "calls": [
-        "error",
         "str",
-        "get"
+        "get",
+        "error"
       ]
     },
     {
       "name": "_log_state_safely",
       "file_path": "simulation\\engine.py",
-      "line_number": 578,
+      "line_number": 579,
       "function_type": "method",
       "parameters": [
         "self",
@@ -1265,17 +1265,17 @@
         "step"
       ],
       "calls": [
-        "error",
-        "str",
-        "time",
         "get",
-        "log_state"
+        "error",
+        "time",
+        "log_state",
+        "str"
       ]
     },
     {
       "name": "_handle_step_failure",
       "file_path": "simulation\\engine.py",
-      "line_number": 611,
+      "line_number": 612,
       "function_type": "simulation_step",
       "parameters": [
         "self",
@@ -1289,16 +1289,16 @@
       ],
       "calls": [
         "error",
-        "hasattr",
-        "str",
         "time",
-        "type"
+        "type",
+        "hasattr",
+        "str"
       ]
     },
     {
       "name": "log_state",
       "file_path": "simulation\\engine.py",
-      "line_number": 626,
+      "line_number": 627,
       "function_type": "method",
       "parameters": [
         "self",
@@ -1319,31 +1319,31 @@
         "_log_state_safely"
       ],
       "calls": [
-        "abs",
-        "get_comprehensive_state",
-        "safe_get_nested",
-        "len",
-        "print",
         "sum",
-        "to_dict",
+        "get_comprehensive_state",
         "_calculate_system_outputs",
-        "copy",
-        "get_performance_metrics",
-        "debug",
-        "put",
-        "hasattr",
+        "to_dict",
         "getattr",
-        "update",
-        "get_performance_summary",
+        "abs",
+        "len",
         "get",
-        "isinstance",
-        "append"
+        "print",
+        "update",
+        "put",
+        "debug",
+        "hasattr",
+        "get_performance_summary",
+        "copy",
+        "append",
+        "get_performance_metrics",
+        "safe_get_nested",
+        "isinstance"
       ]
     },
     {
       "name": "collect_state",
       "file_path": "simulation\\engine.py",
-      "line_number": 800,
+      "line_number": 801,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1359,7 +1359,7 @@
     {
       "name": "start",
       "file_path": "simulation\\engine.py",
-      "line_number": 808,
+      "line_number": 809,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1373,10 +1373,10 @@
       ],
       "calls": [
         "is_alive",
+        "start",
         "Thread",
-        "hasattr",
         "info",
-        "start"
+        "hasattr"
       ]
     },
     {
@@ -1391,8 +1391,8 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "reset_simulation",
         "start_simulation",
+        "reset_simulation",
         "reset"
       ],
       "calls": [
@@ -1403,7 +1403,7 @@
     {
       "name": "initiate_startup",
       "file_path": "simulation\\engine.py",
-      "line_number": 883,
+      "line_number": 884,
       "function_type": "method",
       "parameters": [
         "self",
@@ -1420,7 +1420,7 @@
     {
       "name": "get_transient_status",
       "file_path": "simulation\\engine.py",
-      "line_number": 909,
+      "line_number": 910,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1434,7 +1434,7 @@
     {
       "name": "acknowledge_transient_event",
       "file_path": "simulation\\engine.py",
-      "line_number": 913,
+      "line_number": 914,
       "function_type": "method",
       "parameters": [
         "self",
@@ -1452,7 +1452,7 @@
     {
       "name": "set_h1_nanobubbles",
       "file_path": "simulation\\engine.py",
-      "line_number": 929,
+      "line_number": 930,
       "function_type": "method",
       "parameters": [
         "self",
@@ -1464,9 +1464,9 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "disable_enhanced_physics",
+        "h1_nanobubbles",
         "enable_enhanced_physics",
-        "h1_nanobubbles"
+        "disable_enhanced_physics"
       ],
       "calls": [
         "set_h1_active",
@@ -1476,7 +1476,7 @@
     {
       "name": "set_h2_thermal",
       "file_path": "simulation\\engine.py",
-      "line_number": 943,
+      "line_number": 944,
       "function_type": "method",
       "parameters": [
         "self",
@@ -1489,8 +1489,8 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "disable_enhanced_physics",
-        "enable_enhanced_physics"
+        "enable_enhanced_physics",
+        "disable_enhanced_physics"
       ],
       "calls": [
         "set_h2_active",
@@ -1512,15 +1512,15 @@
       "called_by": [],
       "calls": [
         "update_state",
-        "info",
+        "min",
         "max",
-        "min"
+        "info"
       ]
     },
     {
       "name": "get_physics_status",
       "file_path": "simulation\\engine.py",
-      "line_number": 971,
+      "line_number": 972,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1530,15 +1530,15 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "get_fluid_properties",
         "get_thermal_properties",
+        "get_fluid_properties",
         "get_state"
       ]
     },
     {
       "name": "enable_enhanced_physics",
       "file_path": "simulation\\engine.py",
-      "line_number": 996,
+      "line_number": 997,
       "function_type": "method",
       "parameters": [
         "self",
@@ -1552,15 +1552,15 @@
         "enhanced_physics"
       ],
       "calls": [
-        "set_h2_thermal",
         "set_h1_nanobubbles",
+        "set_h2_thermal",
         "info"
       ]
     },
     {
       "name": "disable_enhanced_physics",
       "file_path": "simulation\\engine.py",
-      "line_number": 1011,
+      "line_number": 1012,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1571,14 +1571,14 @@
       "called_by": [],
       "calls": [
         "set_h2_thermal",
-        "set_h1_nanobubbles",
-        "info"
+        "info",
+        "set_h1_nanobubbles"
       ]
     },
     {
       "name": "get_enhanced_performance_metrics",
       "file_path": "simulation\\engine.py",
-      "line_number": 1017,
+      "line_number": 1018,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1588,16 +1588,16 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "max",
-        "get_fluid_properties",
         "get",
-        "get_thermal_properties"
+        "get_fluid_properties",
+        "get_thermal_properties",
+        "max"
       ]
     },
     {
       "name": "get_latest_state",
       "file_path": "simulation\\engine.py",
-      "line_number": 1045,
+      "line_number": 1046,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1615,7 +1615,7 @@
     {
       "name": "get_parameters",
       "file_path": "simulation\\engine.py",
-      "line_number": 1049,
+      "line_number": 1050,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1625,14 +1625,14 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "_get_new_config_parameters",
-        "_get_legacy_parameters"
+        "_get_legacy_parameters",
+        "_get_new_config_parameters"
       ]
     },
     {
       "name": "_get_new_config_parameters",
       "file_path": "simulation\\engine.py",
-      "line_number": 1059,
+      "line_number": 1060,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1644,16 +1644,16 @@
         "get_parameters"
       ],
       "calls": [
-        "to_dict",
         "get_all_parameters",
+        "update",
         "hasattr",
-        "update"
+        "to_dict"
       ]
     },
     {
       "name": "_get_legacy_parameters",
       "file_path": "simulation\\engine.py",
-      "line_number": 1079,
+      "line_number": 1080,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1673,7 +1673,7 @@
     {
       "name": "set_parameters",
       "file_path": "simulation\\engine.py",
-      "line_number": 1085,
+      "line_number": 1086,
       "function_type": "method",
       "parameters": [
         "self",
@@ -1690,7 +1690,7 @@
     {
       "name": "get_summary",
       "file_path": "simulation\\engine.py",
-      "line_number": 1092,
+      "line_number": 1093,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1700,17 +1700,17 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "collect_state",
-        "hasattr",
-        "getattr",
+        "get_latest_state",
         "get",
-        "get_latest_state"
+        "collect_state",
+        "getattr",
+        "hasattr"
       ]
     },
     {
       "name": "_init_components_with_new_config",
       "file_path": "simulation\\engine.py",
-      "line_number": 1120,
+      "line_number": 1121,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1722,34 +1722,34 @@
         "_init_with_new_config"
       ],
       "calls": [
-        "create_standard_grid_services_coordinator",
-        "range",
-        "cos",
-        "Fluid",
-        "sin",
-        "set_theta",
-        "create_standard_kpp_drivetrain",
+        "PneumaticSystem",
+        "ThermalModel",
         "Control",
         "set_chain_params",
-        "len",
-        "PneumaticSystem",
+        "create_standard_kpp_drivetrain",
         "to_dict",
-        "Floater",
-        "Chain",
-        "create_standard_kmp_electrical_system",
-        "info",
-        "Lock",
-        "ThermalModel",
         "Environment",
-        "hasattr",
         "getattr",
-        "append"
+        "cos",
+        "create_standard_kmp_electrical_system",
+        "len",
+        "Fluid",
+        "create_standard_grid_services_coordinator",
+        "info",
+        "range",
+        "hasattr",
+        "Chain",
+        "append",
+        "set_theta",
+        "Lock",
+        "sin",
+        "Floater"
       ]
     },
     {
       "name": "_init_components_with_legacy_params",
       "file_path": "simulation\\engine.py",
-      "line_number": 1195,
+      "line_number": 1196,
       "function_type": "method",
       "parameters": [
         "self"
@@ -1761,36 +1761,36 @@
         "_init_with_legacy_params"
       ],
       "calls": [
-        "create_standard_grid_services_coordinator",
-        "set_target_load_factor",
-        "range",
-        "cos",
-        "Fluid",
-        "sin",
-        "FloaterConfig",
-        "set_theta",
-        "create_standard_kpp_drivetrain",
+        "PneumaticSystem",
+        "ThermalModel",
         "Control",
         "set_chain_params",
-        "len",
-        "PneumaticSystem",
-        "Floater",
-        "Chain",
-        "create_standard_kmp_electrical_system",
-        "info",
-        "Lock",
-        "ThermalModel",
+        "create_standard_kpp_drivetrain",
         "enable_load_management",
         "Environment",
-        "hasattr",
+        "cos",
+        "create_standard_kmp_electrical_system",
+        "len",
+        "set_target_load_factor",
         "get",
-        "append"
+        "FloaterConfig",
+        "Fluid",
+        "create_standard_grid_services_coordinator",
+        "info",
+        "range",
+        "hasattr",
+        "Chain",
+        "append",
+        "set_theta",
+        "Lock",
+        "sin",
+        "Floater"
       ]
     },
     {
       "name": "safe_get_nested",
       "file_path": "simulation\\engine.py",
-      "line_number": 648,
+      "line_number": 649,
       "function_type": "method",
       "parameters": [
         "data"
@@ -1836,10 +1836,10 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "set_chain_position",
         "len",
-        "info",
-        "enumerate"
+        "set_chain_position",
+        "enumerate",
+        "info"
       ]
     },
     {
@@ -1859,12 +1859,12 @@
         "_execute_physics_step"
       ],
       "calls": [
-        "_calculate_chain_tension",
+        "_update_chain_velocity",
+        "_advance_floaters",
         "abs",
         "get_state",
-        "_update_chain_velocity",
-        "max",
-        "_advance_floaters"
+        "_calculate_chain_tension",
+        "max"
       ]
     },
     {
@@ -1885,8 +1885,8 @@
       "calls": [
         "sum",
         "len",
-        "get_total_mass",
-        "max"
+        "max",
+        "get_total_mass"
       ]
     },
     {
@@ -1908,8 +1908,8 @@
       "calls": [
         "sum",
         "len",
-        "get_total_mass",
-        "max"
+        "max",
+        "get_total_mass"
       ]
     },
     {
@@ -1929,9 +1929,9 @@
       ],
       "calls": [
         "set_chain_position",
-        "set_vertical_position",
         "_chain_position_to_vertical",
-        "get_chain_position"
+        "get_chain_position",
+        "set_vertical_position"
       ]
     },
     {
@@ -1966,12 +1966,12 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "set_chain_position",
         "set_vertical_position",
-        "info",
         "enumerate",
-        "len",
-        "_chain_position_to_vertical"
+        "_chain_position_to_vertical",
+        "info",
+        "set_chain_position",
+        "len"
       ]
     },
     {
@@ -2035,12 +2035,12 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "advance",
-        "get_state",
         "get_physics_status",
-        "_execute_physics_step",
         "get_comprehensive_state",
-        "status"
+        "_execute_physics_step",
+        "get_state",
+        "status",
+        "advance"
       ],
       "calls": [
         "update",
@@ -2062,9 +2062,9 @@
         "set_h1_active",
         "set_h2_active",
         "set_water_temperature",
-        "_execute_physics_step",
         "set_temperature",
-        "set_ambient_temperature"
+        "set_ambient_temperature",
+        "_execute_physics_step"
       ],
       "calls": []
     },
@@ -2139,11 +2139,11 @@
         "calculate_drag_force"
       ],
       "calls": [
-        "sqrt",
-        "max",
-        "calculate_reynolds_number",
         "min",
-        "debug"
+        "debug",
+        "calculate_reynolds_number",
+        "sqrt",
+        "max"
       ]
     },
     {
@@ -2163,10 +2163,10 @@
         "_execute_physics_step"
       ],
       "calls": [
+        "sqrt",
         "calculate_drag_coefficient",
         "debug",
-        "abs",
-        "sqrt"
+        "abs"
       ]
     },
     {
@@ -2184,8 +2184,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "debug",
-        "min"
+        "min",
+        "debug"
       ]
     },
     {
@@ -2200,8 +2200,8 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "get_enhanced_performance_metrics",
         "get_physics_status",
+        "get_enhanced_performance_metrics",
         "_execute_physics_step"
       ],
       "calls": []
@@ -2225,9 +2225,9 @@
       ],
       "calls": [
         "update_state",
-        "info",
+        "min",
         "max",
-        "min"
+        "info"
       ]
     },
     {
@@ -2245,9 +2245,9 @@
       "called_by": [],
       "calls": [
         "update_state",
-        "info",
+        "min",
         "max",
-        "min"
+        "info"
       ]
     },
     {
@@ -2267,8 +2267,8 @@
         "_execute_physics_step"
       ],
       "calls": [
-        "debug",
-        "min"
+        "min",
+        "debug"
       ]
     },
     {
@@ -2288,8 +2288,8 @@
       "called_by": [],
       "calls": [
         "log",
-        "max",
-        "debug"
+        "debug",
+        "max"
       ]
     },
     {
@@ -2346,10 +2346,10 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
+        "min",
         "abs",
         "debug",
-        "max",
-        "min"
+        "max"
       ]
     },
     {
@@ -2384,8 +2384,8 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "get_enhanced_performance_metrics",
         "get_physics_status",
+        "get_enhanced_performance_metrics",
         "_execute_physics_step"
       ],
       "calls": []
@@ -2410,9 +2410,9 @@
       ],
       "calls": [
         "update_state",
-        "info",
+        "min",
         "max",
-        "min"
+        "info"
       ]
     },
     {
@@ -2430,9 +2430,9 @@
       "called_by": [],
       "calls": [
         "update_state",
-        "info",
+        "min",
         "max",
-        "min"
+        "info"
       ]
     },
     {
@@ -2449,28 +2449,28 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "create_kmp_generator",
-        "get_state",
-        "create_standard_kmp_electrical_system",
-        "_update_legacy_params",
         "_get_legacy_parameters",
-        "create_kmp_power_electronics",
-        "_execute_physics_step",
-        "update",
         "_get_new_config_parameters",
-        "create_standard_kpp_drivetrain",
         "create_standard_kpp_chain",
-        "log_state"
+        "update",
+        "create_kmp_generator",
+        "log_state",
+        "_update_legacy_params",
+        "_execute_physics_step",
+        "get_state",
+        "create_standard_kpp_drivetrain",
+        "create_standard_kmp_electrical_system",
+        "create_kmp_power_electronics"
       ],
       "calls": [
-        "_calculate_drag",
-        "_apply_constraints",
-        "update",
-        "_validate_state",
-        "_calculate_buoyancy",
         "_build_context",
+        "_calculate_buoyancy",
+        "update",
+        "_calculate_drag",
+        "_update_pneumatic",
         "_update_thermal",
-        "_update_pneumatic"
+        "_validate_state",
+        "_apply_constraints"
       ]
     },
     {
@@ -2517,8 +2517,8 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "trigger_pulse",
-        "_execute_physics_step"
+        "_execute_physics_step",
+        "trigger_pulse"
       ],
       "calls": [
         "warning",
@@ -2543,8 +2543,8 @@
       "called_by": [],
       "calls": [
         "set_filled",
-        "info",
-        "max"
+        "max",
+        "info"
       ]
     },
     {
@@ -2585,8 +2585,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "warning",
-        "complete_thermodynamic_cycle"
+        "complete_thermodynamic_cycle",
+        "warning"
       ]
     },
     {
@@ -2605,9 +2605,9 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "info",
+        "min",
         "max",
-        "min"
+        "info"
       ]
     },
     {
@@ -2626,9 +2626,9 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "calculate_thermal_buoyancy_boost",
+        "MockFloater",
         "warning",
-        "MockFloater"
+        "calculate_thermal_buoyancy_boost"
       ]
     },
     {
@@ -2648,9 +2648,9 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "warning",
         "complete_thermodynamic_cycle",
-        "get"
+        "get",
+        "warning"
       ]
     },
     {
@@ -2769,9 +2769,9 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "info",
         "Gearbox",
-        "add_stage"
+        "add_stage",
+        "info"
       ]
     },
     {
@@ -2907,8 +2907,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "abs",
-        "min"
+        "min",
+        "abs"
       ]
     },
     {
@@ -2996,8 +2996,8 @@
       "calls": [
         "sum",
         "len",
-        "abs",
-        "sqrt"
+        "sqrt",
+        "abs"
       ]
     },
     {
@@ -3047,9 +3047,9 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
+        "min",
         "abs",
-        "max",
-        "min"
+        "max"
       ]
     },
     {
@@ -3068,11 +3068,11 @@
         "_init_components_with_legacy_params"
       ],
       "calls": [
-        "IntegratedDrivetrain",
-        "hasattr",
+        "update",
         "getattr",
         "info",
-        "update"
+        "hasattr",
+        "IntegratedDrivetrain"
       ]
     },
     {
@@ -3091,10 +3091,10 @@
         "log_state"
       ],
       "calls": [
-        "get_chain_speed",
-        "get_output_rpm",
         "get_speed_stability",
         "get_input_rpm",
+        "get_chain_speed",
+        "get_output_rpm",
         "get_rpm"
       ]
     },
@@ -3125,17 +3125,17 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "log_state",
         "run",
+        "log_state",
         "_execute_physics_step"
       ],
       "calls": [
-        "get_state",
+        "get_power_output",
+        "get_input_rpm",
         "get_chain_speed",
         "get_output_rpm",
-        "get_input_rpm",
-        "get_rpm",
-        "get_power_output"
+        "get_state",
+        "get_rpm"
       ]
     },
     {
@@ -3168,8 +3168,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "get_rpm",
-        "_calculate_system_outputs"
+        "_calculate_system_outputs",
+        "get_rpm"
       ]
     },
     {
@@ -3187,8 +3187,8 @@
         "get_status"
       ],
       "calls": [
-        "get_state_info",
-        "get_status"
+        "get_status",
+        "get_state_info"
       ]
     },
     {
@@ -3205,8 +3205,8 @@
       "called_by": [],
       "calls": [
         "AdvancedGenerator",
-        "info",
-        "update"
+        "update",
+        "info"
       ]
     },
     {
@@ -3224,10 +3224,10 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "_calculate_saturation_factor",
-        "abs",
+        "min",
         "sqrt",
-        "min"
+        "_calculate_saturation_factor",
+        "abs"
       ]
     },
     {
@@ -3347,9 +3347,9 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
+        "min",
         "debug",
-        "max",
-        "min"
+        "max"
       ]
     },
     {
@@ -3400,10 +3400,10 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
+        "min",
         "sqrt",
         "debug",
-        "max",
-        "min"
+        "max"
       ]
     },
     {
@@ -3472,10 +3472,10 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "PowerElectronics",
         "GridInterface",
-        "info",
-        "update"
+        "PowerElectronics",
+        "update",
+        "info"
       ]
     },
     {
@@ -3494,13 +3494,13 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "clear",
-        "abs",
-        "sqrt",
-        "warning",
-        "len",
         "get",
+        "clear",
+        "sqrt",
         "join",
+        "abs",
+        "len",
+        "warning",
         "append"
       ]
     },
@@ -3520,11 +3520,11 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "abs",
-        "max",
         "get",
         "min",
-        "debug"
+        "debug",
+        "abs",
+        "max"
       ]
     },
     {
@@ -3658,13 +3658,13 @@
         "_init_components_with_legacy_params"
       ],
       "calls": [
-        "items",
-        "hasattr",
-        "info",
         "update",
         "getattr",
+        "info",
+        "hasattr",
+        "isinstance",
         "IntegratedElectricalSystem",
-        "isinstance"
+        "items"
       ]
     },
     {
@@ -3682,8 +3682,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "max",
-        "min"
+        "min",
+        "max"
       ]
     },
     {
@@ -3700,8 +3700,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "max",
-        "min"
+        "min",
+        "max"
       ]
     },
     {
@@ -3717,8 +3717,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "abs",
-        "get"
+        "get",
+        "abs"
       ]
     },
     {
@@ -3737,9 +3737,9 @@
         "_init_components_with_legacy_params"
       ],
       "calls": [
-        "info",
+        "min",
         "max",
-        "min"
+        "info"
       ]
     },
     {
@@ -3798,8 +3798,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "complete_injection",
-        "min"
+        "min",
+        "complete_injection"
       ]
     },
     {
@@ -3853,8 +3853,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "complete_venting",
-        "max"
+        "max",
+        "complete_venting"
       ]
     },
     {
@@ -3971,8 +3971,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "StateTransition",
-        "get"
+        "get",
+        "StateTransition"
       ]
     },
     {
@@ -4170,10 +4170,10 @@
       ],
       "calls": [
         "extend",
-        "items",
-        "ValidationResult",
         "_validate_cross_parameters",
+        "ValidationResult",
         "len",
+        "items",
         "append"
       ]
     },
@@ -4212,12 +4212,12 @@
         "_validate_state"
       ],
       "calls": [
-        "abs",
-        "ValidationResult",
-        "max",
-        "len",
         "get",
         "min",
+        "abs",
+        "ValidationResult",
+        "len",
+        "max",
         "append"
       ]
     },
@@ -4266,9 +4266,9 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
+        "update",
         "compute_buoyant_force",
-        "get_force",
-        "update"
+        "get_force"
       ],
       "calls": [
         "calculate_enhanced_buoyancy",
@@ -4288,8 +4288,8 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "get_force",
-        "update"
+        "update",
+        "get_force"
       ],
       "calls": [
         "hasattr",
@@ -4311,10 +4311,10 @@
         "update"
       ],
       "calls": [
-        "hasattr",
+        "min",
         "getattr",
-        "max",
-        "min"
+        "hasattr",
+        "max"
       ]
     },
     {
@@ -4334,8 +4334,8 @@
       ],
       "calls": [
         "update_temperatures",
-        "hasattr",
-        "calculate_heat_transfer"
+        "calculate_heat_transfer",
+        "hasattr"
       ]
     },
     {
@@ -4353,9 +4353,9 @@
         "update"
       ],
       "calls": [
-        "error",
-        "warning",
         "validate_state",
+        "warning",
+        "error",
         "hasattr"
       ]
     },
@@ -4373,8 +4373,8 @@
       "called_by": [],
       "calls": [
         "_calculate_buoyancy",
-        "hasattr",
-        "_calculate_drag"
+        "_calculate_drag",
+        "hasattr"
       ]
     },
     {
@@ -4389,10 +4389,10 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "_execute_physics_step",
         "_get_new_config_parameters",
-        "__init__",
         "log_state",
+        "_execute_physics_step",
+        "__init__",
         "_init_components_with_new_config"
       ],
       "calls": [
@@ -4415,9 +4415,9 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
+        "set_chain_geometry",
         "_init_components_with_new_config",
-        "_init_components_with_legacy_params",
-        "set_chain_geometry"
+        "_init_components_with_legacy_params"
       ],
       "calls": []
     },
@@ -4434,10 +4434,10 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "_init_components_with_new_config",
-        "_init_components_with_legacy_params",
         "set_chain_geometry",
-        "_execute_physics_step"
+        "_init_components_with_new_config",
+        "_execute_physics_step",
+        "_init_components_with_legacy_params"
       ],
       "calls": []
     },
@@ -4458,8 +4458,8 @@
       ],
       "calls": [
         "start_filling",
-        "hasattr",
-        "debug"
+        "debug",
+        "hasattr"
       ]
     },
     {
@@ -4474,8 +4474,8 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "to_dict",
-        "_execute_physics_step"
+        "_execute_physics_step",
+        "to_dict"
       ],
       "calls": [
         "_calculate_buoyancy"
@@ -4493,13 +4493,13 @@
       "decorators": [],
       "dependencies": [],
       "called_by": [
-        "to_dict",
-        "_execute_physics_step"
+        "_execute_physics_step",
+        "to_dict"
       ],
       "calls": [
-        "hasattr",
         "getattr",
-        "debug"
+        "debug",
+        "hasattr"
       ]
     },
     {
@@ -4533,8 +4533,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "hasattr",
-        "debug"
+        "debug",
+        "hasattr"
       ]
     },
     {
@@ -4600,9 +4600,9 @@
       "called_by": [],
       "calls": [
         "min",
+        "debug",
         "hasattr",
-        "max",
-        "debug"
+        "max"
       ]
     },
     {
@@ -4620,8 +4620,8 @@
       "called_by": [],
       "calls": [
         "upper",
-        "hasattr",
-        "debug"
+        "debug",
+        "hasattr"
       ]
     },
     {
@@ -4653,8 +4653,8 @@
       "dependencies": [],
       "called_by": [],
       "calls": [
-        "start_injection",
-        "PneumaticSystem"
+        "PneumaticSystem",
+        "start_injection"
       ]
     }
   ],
@@ -4752,8 +4752,8 @@
       "authentication": false,
       "rate_limiting": false,
       "dependencies": [
-        "flask",
-        "os"
+        "os",
+        "flask"
       ]
     },
     {
@@ -5225,8 +5225,8 @@
       "rate_limiting": false,
       "dependencies": [
         "io",
-        "time",
-        "csv"
+        "csv",
+        "time"
       ]
     },
     {
@@ -5284,7 +5284,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 896,
+      "line_number": 897,
       "message": "Callback 'trigger_emergency_stop' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5306,7 +5306,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 75,
+      "line_number": 76,
       "message": "Callback '_init_with_new_config' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5317,7 +5317,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 94,
+      "line_number": 95,
       "message": "Callback '_init_with_legacy_params' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5328,7 +5328,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 118,
+      "line_number": 119,
       "message": "Callback '_get_time_step' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5339,7 +5339,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 229,
+      "line_number": 230,
       "message": "Callback 'run' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5350,7 +5350,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 257,
+      "line_number": 258,
       "message": "Callback 'stop' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5361,7 +5361,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 261,
+      "line_number": 262,
       "message": "Callback 'set_chain_geometry' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5372,7 +5372,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 883,
+      "line_number": 884,
       "message": "Callback 'initiate_startup' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5383,7 +5383,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 909,
+      "line_number": 910,
       "message": "Callback 'get_transient_status' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5394,7 +5394,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 913,
+      "line_number": 914,
       "message": "Callback 'acknowledge_transient_event' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5416,7 +5416,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 971,
+      "line_number": 972,
       "message": "Callback 'get_physics_status' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5427,7 +5427,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 1011,
+      "line_number": 1012,
       "message": "Callback 'disable_enhanced_physics' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5438,7 +5438,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 1017,
+      "line_number": 1018,
       "message": "Callback 'get_enhanced_performance_metrics' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5449,7 +5449,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 1049,
+      "line_number": 1050,
       "message": "Callback 'get_parameters' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5460,7 +5460,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 1085,
+      "line_number": 1086,
       "message": "Callback 'set_parameters' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -5471,7 +5471,7 @@
       "issue_type": "orphaned_callback",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 1092,
+      "line_number": 1093,
       "message": "Callback 'get_summary' is not called by any other function",
       "recommendation": "Consider removing if unused or add proper integration",
       "affected_components": [
@@ -6450,7 +6450,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 216,
+      "line_number": 217,
       "message": "Circular dependency detected involving 'trigger_pulse'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6461,7 +6461,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 129,
+      "line_number": 130,
       "message": "Circular dependency detected involving 'update_params'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6472,7 +6472,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 75,
+      "line_number": 76,
       "message": "Circular dependency detected involving '_init_with_new_config'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6483,7 +6483,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 94,
+      "line_number": 95,
       "message": "Circular dependency detected involving '_init_with_legacy_params'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6494,7 +6494,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 141,
+      "line_number": 142,
       "message": "Circular dependency detected involving '_update_new_config'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6505,7 +6505,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 167,
+      "line_number": 168,
       "message": "Circular dependency detected involving '_update_legacy_params'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6516,7 +6516,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 229,
+      "line_number": 230,
       "message": "Circular dependency detected involving 'run'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6527,7 +6527,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 273,
+      "line_number": 274,
       "message": "Circular dependency detected involving 'step'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6538,7 +6538,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 345,
+      "line_number": 346,
       "message": "Circular dependency detected involving '_execute_physics_step'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6549,7 +6549,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 578,
+      "line_number": 579,
       "message": "Circular dependency detected involving '_log_state_safely'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6560,7 +6560,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 626,
+      "line_number": 627,
       "message": "Circular dependency detected involving 'log_state'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6571,7 +6571,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 808,
+      "line_number": 809,
       "message": "Circular dependency detected involving 'start'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6593,7 +6593,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 971,
+      "line_number": 972,
       "message": "Circular dependency detected involving 'get_physics_status'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6604,7 +6604,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 1049,
+      "line_number": 1050,
       "message": "Circular dependency detected involving 'get_parameters'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6615,7 +6615,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 1059,
+      "line_number": 1060,
       "message": "Circular dependency detected involving '_get_new_config_parameters'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6626,7 +6626,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 1079,
+      "line_number": 1080,
       "message": "Circular dependency detected involving '_get_legacy_parameters'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6637,7 +6637,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 1085,
+      "line_number": 1086,
       "message": "Circular dependency detected involving 'set_parameters'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6648,7 +6648,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 1120,
+      "line_number": 1121,
       "message": "Circular dependency detected involving '_init_components_with_new_config'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -6659,7 +6659,7 @@
       "issue_type": "circular_dependency",
       "severity": "high",
       "file_path": "simulation\\engine.py",
-      "line_number": 1195,
+      "line_number": 1196,
       "message": "Circular dependency detected involving '_init_components_with_legacy_params'",
       "recommendation": "Refactor to break circular dependency",
       "affected_components": [
@@ -7099,7 +7099,7 @@
       "issue_type": "performance_issue",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 229,
+      "line_number": 230,
       "message": "Callback 'run' makes many function calls (11)",
       "recommendation": "Consider optimizing or breaking into smaller functions",
       "affected_components": [
@@ -7110,7 +7110,7 @@
       "issue_type": "performance_issue",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 345,
+      "line_number": 346,
       "message": "Callback '_execute_physics_step' makes many function calls (32)",
       "recommendation": "Consider optimizing or breaking into smaller functions",
       "affected_components": [
@@ -7121,7 +7121,7 @@
       "issue_type": "performance_issue",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 626,
+      "line_number": 627,
       "message": "Callback 'log_state' makes many function calls (19)",
       "recommendation": "Consider optimizing or breaking into smaller functions",
       "affected_components": [
@@ -7132,7 +7132,7 @@
       "issue_type": "performance_issue",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 1120,
+      "line_number": 1121,
       "message": "Callback '_init_components_with_new_config' makes many function calls (22)",
       "recommendation": "Consider optimizing or breaking into smaller functions",
       "affected_components": [
@@ -7143,7 +7143,7 @@
       "issue_type": "performance_issue",
       "severity": "medium",
       "file_path": "simulation\\engine.py",
-      "line_number": 1195,
+      "line_number": 1196,
       "message": "Callback '_init_components_with_legacy_params' makes many function calls (24)",
       "recommendation": "Consider optimizing or breaking into smaller functions",
       "affected_components": [
@@ -7159,8 +7159,8 @@
       "get_state"
     ],
     "start_simulation": [
-      "start",
       "reset",
+      "start",
       "update_params"
     ],
     "reset_simulation": [
@@ -7183,8 +7183,8 @@
       "enable_enhanced_physics"
     ],
     "__init__": [
-      "to_dict",
-      "validate_parameters"
+      "validate_parameters",
+      "to_dict"
     ],
     "_init_with_new_config": [
       "_init_components_with_new_config"
@@ -7193,61 +7193,61 @@
       "_init_components_with_legacy_params"
     ],
     "_update_new_config": [
-      "_update_floater_config",
-      "_update_electrical_config",
-      "_update_control_config",
       "_update_drivetrain_config",
-      "update_config"
+      "update_config",
+      "_update_control_config",
+      "_update_floater_config",
+      "_update_electrical_config"
     ],
     "_update_legacy_params": [
       "update"
     ],
     "run": [
-      "trigger_pulse",
       "get_cartesian_position",
+      "step",
       "get_comprehensive_state",
-      "step"
+      "trigger_pulse"
     ],
     "set_chain_geometry": [
       "set_chain_params",
       "set_theta"
     ],
     "step": [
-      "_validate_system_state",
-      "_execute_physics_step",
-      "_update_electrical_system",
+      "_handle_step_failure",
       "_log_state_safely",
-      "_handle_step_failure"
+      "_validate_system_state",
+      "_update_electrical_system",
+      "_execute_physics_step"
     ],
     "_execute_physics_step": [
+      "get_tension",
+      "trigger_injection",
+      "update_state",
+      "update",
+      "calculate_thermal_buoyancy_enhancement",
+      "set_theta",
+      "get_comprehensive_state",
+      "trigger_pulse",
+      "get_cartesian_position",
+      "get_thermal_properties",
+      "get_fluid_properties",
+      "calculate_drag_force",
+      "compute_pulse_jet_force",
       "to_dict",
       "get_angular_speed",
-      "compute_pulse_jet_force",
-      "advance",
-      "get_thermal_properties",
       "get_state",
-      "trigger_pulse",
-      "get_comprehensive_state",
-      "set_theta",
-      "calculate_drag_force",
-      "get_tension",
-      "update",
-      "get_fluid_properties",
-      "update_state",
-      "compute_buoyant_force",
-      "calculate_thermal_buoyancy_enhancement",
-      "get_cartesian_position",
-      "trigger_injection"
+      "advance",
+      "compute_buoyant_force"
     ],
     "_log_state_safely": [
       "log_state"
     ],
     "log_state": [
-      "safe_get_nested",
-      "to_dict",
-      "_calculate_system_outputs",
+      "update",
       "get_comprehensive_state",
-      "update"
+      "_calculate_system_outputs",
+      "safe_get_nested",
+      "to_dict"
     ],
     "start": [
       "start"
@@ -7265,9 +7265,9 @@
       "update_state"
     ],
     "get_physics_status": [
+      "get_thermal_properties",
       "get_fluid_properties",
-      "get_state",
-      "get_thermal_properties"
+      "get_state"
     ],
     "enable_enhanced_physics": [
       "set_h2_thermal",
@@ -7278,16 +7278,16 @@
       "set_h1_nanobubbles"
     ],
     "get_enhanced_performance_metrics": [
-      "get_fluid_properties",
-      "get_thermal_properties"
+      "get_thermal_properties",
+      "get_fluid_properties"
     ],
     "get_parameters": [
-      "_get_new_config_parameters",
-      "_get_legacy_parameters"
+      "_get_legacy_parameters",
+      "_get_new_config_parameters"
     ],
     "_get_new_config_parameters": [
-      "to_dict",
-      "update"
+      "update",
+      "to_dict"
     ],
     "_get_legacy_parameters": [
       "update"
@@ -7300,26 +7300,26 @@
       "collect_state"
     ],
     "_init_components_with_new_config": [
-      "to_dict",
-      "create_standard_kmp_electrical_system",
       "set_theta",
+      "create_standard_kmp_electrical_system",
+      "set_chain_params",
       "create_standard_kpp_drivetrain",
-      "set_chain_params"
+      "to_dict"
     ],
     "_init_components_with_legacy_params": [
-      "enable_load_management",
-      "set_target_load_factor",
-      "create_standard_kmp_electrical_system",
       "set_theta",
+      "set_chain_params",
+      "create_standard_kmp_electrical_system",
       "create_standard_kpp_drivetrain",
-      "set_chain_params"
+      "enable_load_management",
+      "set_target_load_factor"
     ],
     "create_standard_kpp_chain": [
       "update"
     ],
     "advance": [
-      "_calculate_chain_tension",
       "_update_chain_velocity",
+      "_calculate_chain_tension",
       "_advance_floaters",
       "get_state"
     ],
@@ -7352,14 +7352,14 @@
       "update_state"
     ],
     "update": [
-      "_calculate_drag",
-      "_apply_constraints",
-      "_validate_state",
-      "update",
-      "_calculate_buoyancy",
       "_build_context",
+      "_calculate_buoyancy",
+      "update",
+      "_calculate_drag",
+      "_update_pneumatic",
       "_update_thermal",
-      "_update_pneumatic"
+      "_validate_state",
+      "_apply_constraints"
     ],
     "trigger_injection": [
       "start_filling"
@@ -7380,30 +7380,30 @@
       "update"
     ],
     "_calculate_system_outputs": [
-      "get_chain_speed",
-      "get_output_rpm",
       "get_speed_stability",
       "get_input_rpm",
+      "get_chain_speed",
+      "get_output_rpm",
       "get_rpm"
     ],
     "get_comprehensive_state": [
-      "get_state",
+      "get_power_output",
+      "get_input_rpm",
       "get_chain_speed",
       "get_output_rpm",
-      "get_input_rpm",
-      "get_rpm",
-      "get_power_output"
+      "get_state",
+      "get_rpm"
     ],
     "apply_emergency_stop": [
       "apply_braking_torque"
     ],
     "get_power_flow_summary": [
-      "get_rpm",
-      "_calculate_system_outputs"
+      "_calculate_system_outputs",
+      "get_rpm"
     ],
     "get_status": [
-      "get_state_info",
-      "get_status"
+      "get_status",
+      "get_state_info"
     ],
     "create_kmp_generator": [
       "update"
@@ -7427,8 +7427,8 @@
       "complete_venting"
     ],
     "calculate_enhanced_buoyancy": [
-      "_calculate_thermal_effect",
       "_calculate_pressure_effect",
+      "_calculate_thermal_effect",
       "calculate_basic_buoyancy"
     ],
     "validate_parameters": [
@@ -7466,20 +7466,13 @@
     "load_config": [],
     "get_current_config": [],
     "serve_static": [],
-    "_calculate_drag": [],
-    "_apply_constraints": [],
-    "validate_state": [],
+    "_build_context": [],
+    "_calculate_pressure_effect": [],
+    "_calculate_thermal_effect": [],
+    "calculate_basic_buoyancy": [],
     "stop_simulation": [],
     "pause_simulation": [],
-    "_validate_system_state": [],
-    "_calculate_thermal_effect": [],
-    "_calculate_pressure_effect": [],
-    "calculate_basic_buoyancy": [],
-    "compute_pulse_jet_force": [],
-    "get_angular_speed": [],
-    "_calculate_chain_tension": [],
-    "_update_chain_velocity": [],
-    "_chain_position_to_vertical": [],
+    "_handle_step_failure": [],
     "set_load": [],
     "trigger_emergency_stop": [],
     "update_state": [],
@@ -7506,33 +7499,33 @@
     "stream": [],
     "chart_power": [],
     "_validate_cross_parameters": [],
-    "enable_load_management": [],
-    "set_target_load_factor": [],
+    "compute_pulse_jet_force": [],
+    "set_theta": [],
+    "set_chain_params": [],
     "_get_time_step": [],
+    "_update_drivetrain_config": [],
     "_update_floater_config": [],
     "_update_electrical_config": [],
     "_update_control_config": [],
-    "_update_drivetrain_config": [],
+    "get_cartesian_position": [],
     "stop": [],
-    "set_chain_params": [],
-    "set_theta": [],
+    "_validate_system_state": [],
+    "get_tension": [],
     "_update_electrical_system": [],
-    "safe_get_nested": [],
-    "get_chain_speed": [],
-    "get_output_rpm": [],
-    "get_speed_stability": [],
-    "get_input_rpm": [],
-    "get_rpm": [],
-    "_handle_step_failure": [],
     "collect_state": [],
     "initiate_startup": [],
     "get_transient_status": [],
     "acknowledge_transient_event": [],
-    "get_fluid_properties": [],
     "get_thermal_properties": [],
+    "get_fluid_properties": [],
     "get_latest_state": [],
+    "safe_get_nested": [],
     "add_floaters": [],
-    "get_tension": [],
+    "_update_chain_velocity": [],
+    "_calculate_chain_tension": [],
+    "_chain_position_to_vertical": [],
+    "get_chain_speed": [],
+    "get_angular_speed": [],
     "calculate_density": [],
     "apply_nanobubble_effects": [],
     "calculate_reynolds_number": [],
@@ -7552,9 +7545,12 @@
     "analyze_thermodynamic_cycle": [],
     "register": [],
     "check": [],
+    "get_rpm": [],
     "calculate_torque_from_chain_tension": [],
     "get_power_output": [],
     "_update_overall_properties": [],
+    "get_input_rpm": [],
+    "get_output_rpm": [],
     "get_input_power": [],
     "get_output_power": [],
     "_should_engage": [],
@@ -7563,11 +7559,11 @@
     "_calculate_friction_losses": [],
     "_calculate_windage_losses": [],
     "_track_energy_flow": [],
+    "get_speed_stability": [],
     "get_energy_efficiency": [],
     "apply_braking_torque": [],
     "calculate_pid_correction": [],
     "_update_performance_metrics": [],
-    "get_state_info": [],
     "_calculate_saturation_factor": [],
     "_calculate_losses": [],
     "_calculate_power_factor": [],
@@ -7592,6 +7588,8 @@
     "_calculate_load_management": [],
     "_calculate_generator_frequency": [],
     "_get_comprehensive_state": [],
+    "set_target_load_factor": [],
+    "enable_load_management": [],
     "start_injection": [],
     "complete_injection": [],
     "start_venting": [],
@@ -7601,14 +7599,16 @@
     "_on_filling_complete": [],
     "_on_start_venting": [],
     "_on_venting_complete": [],
+    "get_state_info": [],
     "calculate_heat_transfer": [],
     "update_temperatures": [],
     "calculate_thermal_expansion": [],
     "calculate_expansion_work": [],
     "_define_constraints": [],
-    "_build_context": [],
+    "validate_state": [],
     "_update_pneumatic": [],
-    "get_cartesian_position": [],
+    "_calculate_drag": [],
+    "_apply_constraints": [],
     "is_filled": [],
     "volume": [],
     "area": [],
@@ -7629,27 +7629,27 @@
         "Consider adding unit tests for important callbacks"
       ],
       "affected_files": [
-        "simulation\\components\\pneumatics.py",
-        "simulation\\components\\thermal.py",
-        "simulation\\components\\sprocket.py",
-        "simulation\\components\\floater\\state_machine.py",
-        "simulation\\components\\floater\\pneumatic.py",
-        "simulation\\components\\floater\\thermal.py",
-        "simulation\\components\\chain.py",
         "simulation\\components\\gearbox.py",
-        "simulation\\components\\sensors.py",
-        "simulation\\components\\power_electronics.py",
-        "simulation\\components\\floater\\core.py",
-        "simulation\\components\\fluid.py",
-        "simulation\\components\\environment.py",
-        "simulation\\components\\integrated_electrical_system.py",
+        "simulation\\components\\chain.py",
+        "simulation\\components\\sprocket.py",
+        "simulation\\components\\thermal.py",
         "simulation\\components\\floater\\validation.py",
         "simulation\\components\\advanced_generator.py",
-        "simulation\\components\\one_way_clutch.py",
-        "simulation\\engine.py",
         "simulation\\components\\integrated_drivetrain.py",
+        "simulation\\components\\floater\\thermal.py",
+        "simulation\\components\\sensors.py",
+        "simulation\\components\\environment.py",
+        "simulation\\components\\integrated_electrical_system.py",
+        "simulation\\components\\one_way_clutch.py",
+        "simulation\\components\\pneumatics.py",
+        "simulation\\components\\power_electronics.py",
+        "simulation\\components\\fluid.py",
+        "simulation\\components\\floater\\pneumatic.py",
+        "simulation\\components\\floater\\state_machine.py",
         "simulation\\components\\flywheel.py",
-        "simulation\\components\\floater\\tests\\test_pneumatic.py"
+        "simulation\\engine.py",
+        "simulation\\components\\floater\\tests\\test_pneumatic.py",
+        "simulation\\components\\floater\\core.py"
       ]
     },
     {
@@ -7664,15 +7664,15 @@
       ],
       "affected_files": [
         "simulation\\components\\advanced_generator.py",
-        "simulation\\components\\chain.py",
         "simulation\\components\\pneumatics.py",
-        "simulation\\components\\integrated_electrical_system.py",
-        "simulation\\components\\power_electronics.py",
+        "simulation\\components\\flywheel.py",
         "simulation\\engine.py",
+        "simulation\\components\\integrated_electrical_system.py",
+        "simulation\\components\\chain.py",
+        "simulation\\components\\power_electronics.py",
         "simulation\\components\\floater\\core.py",
-        "simulation\\components\\integrated_drivetrain.py",
         "app.py",
-        "simulation\\components\\flywheel.py"
+        "simulation\\components\\integrated_drivetrain.py"
       ]
     },
     {
@@ -7701,8 +7701,8 @@
       ],
       "affected_files": [
         "simulation\\engine.py",
-        "app.py",
-        "simulation\\components\\floater\\core.py"
+        "simulation\\components\\floater\\core.py",
+        "app.py"
       ]
     }
   ],

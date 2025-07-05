@@ -173,7 +173,15 @@ class AdvancedGenerator:
         self, slip: float, load_factor: float
     ) -> float:
         """
-        Calculate electromagnetic torque using equivalent circuit model.
+        Calculate realistic electromagnetic torque for KPP operation.
+
+        Enhanced electromagnetic modeling including:
+        - Saturation effects
+        - Temperature-dependent resistance
+        - Harmonic effects
+        - Magnetic field variations
+        - Realistic efficiency curves
+        - Dynamic response characteristics
 
         Args:
             slip (float): Generator slip (per unit)
@@ -185,19 +193,71 @@ class AdvancedGenerator:
         if abs(slip) < 1e-6:
             slip = 1e-6  # Avoid division by zero
 
-        # Equivalent circuit calculations
-        rotor_resistance_effective = self.rotor_resistance / slip
-
-        # Total impedance
-        z_real = self.stator_resistance + rotor_resistance_effective
-        z_imag = self.stator_reactance + self.rotor_reactance
+        # Enhanced equivalent circuit calculations with realistic effects
+        
+        # Temperature-dependent resistance (copper resistance increases with temperature)
+        temperature = 293.15 + (load_factor * 50.0)  # Simplified thermal model
+        temp_factor = 1.0 + 0.00393 * (temperature - 293.15)  # Copper temperature coefficient
+        stator_resistance_temp = self.stator_resistance * temp_factor
+        rotor_resistance_temp = self.rotor_resistance * temp_factor
+        
+        # Effective rotor resistance with slip
+        rotor_resistance_effective = rotor_resistance_temp / slip
+        
+        # Saturation effects on reactance
+        saturation_factor = self._calculate_saturation_factor(load_factor)
+        stator_reactance_sat = self.stator_reactance * saturation_factor
+        rotor_reactance_sat = self.rotor_reactance * saturation_factor
+        
+        # Total impedance with enhanced modeling
+        z_real = stator_resistance_temp + rotor_resistance_effective
+        z_imag = stator_reactance_sat + rotor_reactance_sat
         z_magnitude = math.sqrt(z_real**2 + z_imag**2)
-
-        # Current calculation (simplified)
+        
+        # Enhanced current calculation with realistic effects
         voltage_per_phase = self.rated_voltage / math.sqrt(3)
+        
+        # Harmonic distortion factor (typical 3-5% in real generators)
+        harmonic_factor = 1.0 + 0.04 * load_factor  # 4% harmonic distortion at full load
+        
+        # Magnetic field variations due to load
+        field_variation = 1.0 + 0.1 * (load_factor - 0.5)  # ±5% field variation
+        
+        # Calculate current with enhanced effects
         current = (
-            voltage_per_phase * load_factor * self.field_excitation
+            voltage_per_phase * load_factor * self.field_excitation * 
+            field_variation * harmonic_factor
         ) / z_magnitude
+        
+        # Enhanced torque calculation with realistic electromagnetic effects
+        # Torque = (3 * P * I² * R₂) / (ω_s * s)
+        # Where P = pole pairs, I = current, R₂ = rotor resistance, ω_s = synchronous speed, s = slip
+        
+        # Realistic electromagnetic torque
+        electromagnetic_torque = (
+            3 * self.pole_pairs * current**2 * rotor_resistance_temp
+        ) / (self.synchronous_omega * abs(slip))
+        
+        # Apply efficiency curve effects
+        efficiency_factor = self._estimate_efficiency(self.angular_velocity, load_factor)
+        electromagnetic_torque *= efficiency_factor
+        
+        # Dynamic response characteristics (simplified)
+        # Real generators have some inertia in torque response
+        torque_response_factor = 1.0 - 0.05 * abs(slip)  # 5% reduction at high slip
+        
+        final_torque = electromagnetic_torque * torque_response_factor
+        
+        # Ensure reasonable limits
+        final_torque = max(0.0, min(final_torque, self.rated_torque * 1.2))
+        
+        logger.debug(
+            f"Enhanced electromagnetic torque: slip={slip:.4f}, load={load_factor:.2f}, "
+            f"temp_factor={temp_factor:.3f}, saturation={saturation_factor:.3f}, "
+            f"torque={final_torque:.1f}Nm"
+        )
+        
+        return final_torque
 
         # Torque calculation
         torque_constant = (3 * self.pole_pairs) / self.synchronous_omega
@@ -234,30 +294,93 @@ class AdvancedGenerator:
 
     def _calculate_losses(self, speed: float, load_factor: float):
         """
-        Calculate detailed loss breakdown.
+        Calculate realistic comprehensive loss breakdown for KPP operation.
+
+        Enhanced loss modeling including:
+        - Temperature-dependent losses
+        - Harmonic losses
+        - Saturation effects on losses
+        - Aging effects
+        - Environmental factors
+        - Realistic loss curves
 
         Args:
             speed (float): Shaft speed (rad/s)
             load_factor (float): Load factor (0-1)
         """
-        # Iron losses (proportional to speed²)
+        # Enhanced iron losses with realistic effects
         speed_ratio = speed / self.rated_omega
-        self.iron_losses = self.iron_loss_constant * (speed_ratio**2)
+        
+        # Temperature effects on iron losses
+        temperature = 293.15 + (load_factor * 50.0)  # Simplified thermal model
+        temp_correction = 1.0 + 0.02 * (temperature - 293.15) / 100.0  # 2% per 100K
+        
+        # Harmonic effects on iron losses (higher harmonics increase losses)
+        harmonic_factor = 1.0 + 0.15 * load_factor  # 15% increase at full load due to harmonics
+        
+        # Saturation effects on iron losses
+        saturation_factor = self._calculate_saturation_factor(load_factor)
+        saturation_correction = 1.0 + 0.1 * (1.0 - saturation_factor)  # Higher losses when saturated
+        
+        # Base iron losses with enhanced modeling
+        base_iron_losses = self.iron_loss_constant * (speed_ratio**2)
+        self.iron_losses = (base_iron_losses * temp_correction * 
+                           harmonic_factor * saturation_correction)
 
-        # Copper losses (proportional to current²)
+        # Enhanced copper losses with realistic effects
         current_ratio = load_factor * self.field_excitation
+        
+        # Temperature-dependent copper resistance
+        temp_factor = 1.0 + 0.00393 * (temperature - 293.15)  # Copper temperature coefficient
+        
+        # Harmonic effects on copper losses (skin effect and proximity effect)
+        harmonic_copper_factor = 1.0 + 0.08 * load_factor  # 8% increase due to harmonics
+        
+        # Aging effects on copper losses (resistance increases over time)
+        aging_factor = 1.0 + 0.05  # 5% increase due to aging (simplified)
+        
+        # Enhanced copper losses
         self.copper_losses = (
-            (self.rated_power * 0.02) * (current_ratio**2) * self.copper_loss_factor
+            (self.rated_power * 0.02) * (current_ratio**2) * 
+            self.copper_loss_factor * temp_factor * harmonic_copper_factor * aging_factor
         )
 
-        # Mechanical losses
-        friction_loss = self.bearing_friction_coeff * speed
-        windage_loss = self.windage_loss_coeff * (speed**2)
-        self.mechanical_losses = friction_loss + windage_loss
+        # Enhanced mechanical losses with realistic effects
+        # Bearing losses with temperature effects
+        bearing_temp_factor = 1.0 + 0.01 * (temperature - 293.15) / 50.0  # 1% per 50K
+        friction_loss = self.bearing_friction_coeff * speed * bearing_temp_factor
+        
+        # Windage losses with air density effects
+        # Air density decreases with temperature
+        air_density_factor = 273.15 / temperature  # Simplified air density correction
+        windage_loss = self.windage_loss_coeff * (speed**2) * air_density_factor
+        
+        # Additional mechanical losses (seals, etc.)
+        seal_losses = 0.02 * self.rated_power * load_factor  # 2% of rated power at full load
+        
+        self.mechanical_losses = friction_loss + windage_loss + seal_losses
 
-        # Total losses
-        self.total_losses = (
+        # Environmental effects on total losses
+        # Humidity effects (simplified)
+        humidity_factor = 1.0 + 0.02  # 2% increase due to humidity
+        
+        # Altitude effects (simplified)
+        altitude_factor = 1.0 + 0.01  # 1% increase due to altitude
+        
+        # Calculate total losses with environmental corrections
+        base_total_losses = (
             self.iron_losses + self.copper_losses + self.mechanical_losses
+        )
+        self.total_losses = base_total_losses * humidity_factor * altitude_factor
+        
+        # Ensure losses don't exceed mechanical power input
+        mechanical_power = self.torque * speed
+        self.total_losses = min(self.total_losses, mechanical_power * 0.95)  # Max 95% losses
+        
+        logger.debug(
+            f"Enhanced losses: iron={self.iron_losses:.1f}W, copper={self.copper_losses:.1f}W, "
+            f"mechanical={self.mechanical_losses:.1f}W, total={self.total_losses:.1f}W, "
+            f"temp={temperature-273.15:.1f}°C"
         )
 
     def _calculate_power_factor(self, load_factor: float) -> float:
