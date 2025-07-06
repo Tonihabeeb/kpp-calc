@@ -20,7 +20,7 @@ import math
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 
 class StabilizationMode(Enum):
@@ -113,9 +113,7 @@ class GridStabilizationController:
         self.grid_forming_active = False
         self.virtual_impedance = complex(0.1, 0.2)  # Virtual impedance for grid forming
 
-    def update(
-        self, dt: float, grid_conditions: Dict[str, Any], battery_status: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def update(self, dt: float, grid_conditions: Dict[str, Any], battery_status: Dict[str, Any]) -> Dict[str, Any]:
         """
         Update grid stabilization control
 
@@ -140,9 +138,7 @@ class GridStabilizationController:
         self._determine_stabilization_mode(conditions, battery_status)
 
         # Execute stabilization control
-        control_commands = self._execute_stabilization_control(
-            conditions, battery_status, dt
-        )
+        control_commands = self._execute_stabilization_control(conditions, battery_status, dt)
 
         # Update performance metrics
         self._update_performance_metrics(dt, conditions, control_commands)
@@ -207,30 +203,18 @@ class GridStabilizationController:
 
         return event_detected
 
-    def _determine_stabilization_mode(
-        self, conditions: GridConditions, battery_status: Dict[str, Any]
-    ):
+    def _determine_stabilization_mode(self, conditions: GridConditions, battery_status: Dict[str, Any]):
         """Determine optimal stabilization mode"""
 
-        battery_available = (
-            battery_status.get("active", False) and battery_status.get("soc", 0) > 0.1
-        )
+        battery_available = battery_status.get("active", False) and battery_status.get("soc", 0) > 0.1
 
         # Priority 1: Black start mode
-        if (
-            not conditions.grid_connected
-            and self.specs.black_start_capability
-            and battery_available
-        ):
+        if not conditions.grid_connected and self.specs.black_start_capability and battery_available:
             self.mode = StabilizationMode.BLACK_START
             return
 
         # Priority 2: Grid forming mode (islanded operation)
-        if (
-            not conditions.grid_connected
-            and self.specs.grid_forming_capability
-            and battery_available
-        ):
+        if not conditions.grid_connected and self.specs.grid_forming_capability and battery_available:
             self.mode = StabilizationMode.GRID_FORMING
             return
 
@@ -244,10 +228,7 @@ class GridStabilizationController:
             return
 
         # Priority 4: Frequency support
-        if (
-            abs(conditions.frequency - 50.0) > self.specs.frequency_deadband
-            and battery_available
-        ):
+        if abs(conditions.frequency - 50.0) > self.specs.frequency_deadband and battery_available:
             self.mode = StabilizationMode.FREQUENCY_SUPPORT
             return
 
@@ -279,41 +260,29 @@ class GridStabilizationController:
         }
 
         if self.mode == StabilizationMode.BLACK_START:
-            control_commands.update(
-                self._black_start_control(conditions, battery_status)
-            )
+            control_commands.update(self._black_start_control(conditions, battery_status))
 
         elif self.mode == StabilizationMode.GRID_FORMING:
-            control_commands.update(
-                self._grid_forming_control(conditions, battery_status, dt)
-            )
+            control_commands.update(self._grid_forming_control(conditions, battery_status, dt))
 
         elif self.mode == StabilizationMode.FREQUENCY_SUPPORT:
-            control_commands.update(
-                self._frequency_support_control(conditions, battery_status, dt)
-            )
+            control_commands.update(self._frequency_support_control(conditions, battery_status, dt))
 
         elif self.mode == StabilizationMode.VOLTAGE_SUPPORT:
-            control_commands.update(
-                self._voltage_support_control(conditions, battery_status, dt)
-            )
+            control_commands.update(self._voltage_support_control(conditions, battery_status, dt))
 
         elif self.mode == StabilizationMode.EMERGENCY:
             control_commands.update(self._emergency_control(conditions, battery_status))
 
         elif self.mode == StabilizationMode.POWER_QUALITY:
-            control_commands.update(
-                self._power_quality_control(conditions, battery_status)
-            )
+            control_commands.update(self._power_quality_control(conditions, battery_status))
 
         # Apply power limits
         control_commands = self._apply_power_limits(control_commands, battery_status)
 
         return control_commands
 
-    def _black_start_control(
-        self, conditions: GridConditions, battery_status: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _black_start_control(self, conditions: GridConditions, battery_status: Dict[str, Any]) -> Dict[str, Any]:
         """Black start control sequence"""
 
         self.black_start_events += 1
@@ -340,16 +309,11 @@ class GridStabilizationController:
 
         # PI control for voltage
         self.voltage_integrator += voltage_error * dt
-        voltage_control = (
-            self.kp_voltage * voltage_error + self.ki_voltage * self.voltage_integrator
-        )
+        voltage_control = self.kp_voltage * voltage_error + self.ki_voltage * self.voltage_integrator
 
         # PI control for frequency
         self.frequency_integrator += frequency_error * dt
-        frequency_control = (
-            self.kp_frequency * frequency_error
-            + self.ki_frequency * self.frequency_integrator
-        )
+        frequency_control = self.kp_frequency * frequency_error + self.ki_frequency * self.frequency_integrator
 
         return {
             "active_power_kw": frequency_control * 10.0,  # Scale to power
@@ -368,9 +332,7 @@ class GridStabilizationController:
         frequency_error = conditions.frequency - 50.0
 
         # Droop control
-        power_response = (
-            -frequency_error / self.specs.droop_frequency * self.specs.max_power_kw
-        )
+        power_response = -frequency_error / self.specs.droop_frequency * self.specs.max_power_kw
 
         # Add derivative control for ROCOF response
         rocof_response = -conditions.rocof * 50.0  # Fast response to ROCOF
@@ -399,9 +361,7 @@ class GridStabilizationController:
         voltage_error = conditions.voltage - 1.0
 
         # Droop control for reactive power
-        reactive_power = (
-            -voltage_error / self.specs.droop_voltage * self.specs.max_reactive_power
-        )
+        reactive_power = -voltage_error / self.specs.droop_voltage * self.specs.max_reactive_power
 
         # Apply deadband
         if abs(voltage_error) < self.specs.voltage_deadband:
@@ -416,9 +376,7 @@ class GridStabilizationController:
             "black_start": False,
         }
 
-    def _emergency_control(
-        self, conditions: GridConditions, battery_status: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _emergency_control(self, conditions: GridConditions, battery_status: Dict[str, Any]) -> Dict[str, Any]:
         """Emergency control for severe grid disturbances"""
 
         # Maximum response for emergency conditions
@@ -428,16 +386,12 @@ class GridStabilizationController:
         # Maximum power response
         power_response = 0.0
         if abs(frequency_error) > 0.5:
-            power_response = -math.copysign(
-                self.specs.max_power_kw * 0.8, frequency_error
-            )
+            power_response = -math.copysign(self.specs.max_power_kw * 0.8, frequency_error)
 
         # Maximum reactive power response
         reactive_response = 0.0
         if abs(voltage_error) > 0.1:
-            reactive_response = -math.copysign(
-                self.specs.max_reactive_power * 0.8, voltage_error
-            )
+            reactive_response = -math.copysign(self.specs.max_reactive_power * 0.8, voltage_error)
 
         return {
             "active_power_kw": power_response,
@@ -448,9 +402,7 @@ class GridStabilizationController:
             "black_start": False,
         }
 
-    def _power_quality_control(
-        self, conditions: GridConditions, battery_status: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _power_quality_control(self, conditions: GridConditions, battery_status: Dict[str, Any]) -> Dict[str, Any]:
         """Power quality improvement control"""
 
         # Simple power quality control - could be expanded with harmonic filtering
@@ -470,9 +422,7 @@ class GridStabilizationController:
             "black_start": False,
         }
 
-    def _apply_power_limits(
-        self, commands: Dict[str, Any], battery_status: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _apply_power_limits(self, commands: Dict[str, Any], battery_status: Dict[str, Any]) -> Dict[str, Any]:
         """Apply power and battery limits to control commands"""
 
         # Get battery constraints
@@ -489,9 +439,7 @@ class GridStabilizationController:
                 commands["active_power_kw"] *= 0.1  # Reduced discharging near empty
 
         # Apply absolute power limits
-        commands["active_power_kw"] = max(
-            -available_power, min(available_power, commands["active_power_kw"])
-        )
+        commands["active_power_kw"] = max(-available_power, min(available_power, commands["active_power_kw"]))
 
         commands["reactive_power_kvar"] = max(
             -self.specs.max_reactive_power,
@@ -500,9 +448,7 @@ class GridStabilizationController:
 
         return commands
 
-    def _update_performance_metrics(
-        self, dt: float, conditions: GridConditions, commands: Dict[str, Any]
-    ):
+    def _update_performance_metrics(self, dt: float, conditions: GridConditions, commands: Dict[str, Any]):
         """Update performance tracking metrics"""
 
         # Track energy provided
@@ -522,9 +468,7 @@ class GridStabilizationController:
         """Get current grid stabilization status"""
 
         avg_response_time = (
-            sum(self.response_times[-10:]) / len(self.response_times[-10:])
-            if self.response_times
-            else 0.0
+            sum(self.response_times[-10:]) / len(self.response_times[-10:]) if self.response_times else 0.0
         )
 
         return {
@@ -638,7 +582,5 @@ def create_grid_stabilization_controller(
     Returns:
         Configured GridStabilizationController instance
     """
-    specs = StabilizationSpecs(
-        max_power_kw=max_power_kw, response_time_ms=response_time_ms
-    )
+    specs = StabilizationSpecs(max_power_kw=max_power_kw, response_time_ms=response_time_ms)
     return GridStabilizationController(specs)

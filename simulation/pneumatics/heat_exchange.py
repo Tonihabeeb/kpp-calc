@@ -11,10 +11,9 @@ Phase 5.2 of pneumatics upgrade implementation.
 """
 
 import logging
-import math
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
-from config.config import RHO_WATER, G
+from config.config import RHO_WATER
 
 logger = logging.getLogger(__name__)
 
@@ -67,11 +66,7 @@ class HeatTransferCoefficients:
         Returns:
             Overall heat transfer coefficient (W/(m²·K))
         """
-        thermal_resistance = (
-            1 / inner_coefficient
-            + wall_thickness / wall_conductivity
-            + 1 / outer_coefficient
-        )
+        thermal_resistance = 1 / inner_coefficient + wall_thickness / wall_conductivity + 1 / outer_coefficient
 
         overall_coefficient = 1 / thermal_resistance if thermal_resistance > 0 else 0.0
 
@@ -79,9 +74,7 @@ class HeatTransferCoefficients:
 
         return overall_coefficient
 
-    def reynolds_number(
-        self, velocity: float, length: float, kinematic_viscosity: float
-    ) -> float:
+    def reynolds_number(self, velocity: float, length: float, kinematic_viscosity: float) -> float:
         """
         Calculate Reynolds number for flow characterization.
 
@@ -119,9 +112,7 @@ class HeatTransferCoefficients:
         # Churchill-Bernstein correlation
         re_factor = (1 + (reynolds / 282000) ** (5 / 8)) ** (4 / 5)
         nusselt = (
-            0.3
-            + (0.62 * reynolds**0.5 * prandtl ** (1 / 3) * re_factor)
-            / (1 + (0.4 / prandtl) ** (2 / 3)) ** 0.25
+            0.3 + (0.62 * reynolds**0.5 * prandtl ** (1 / 3) * re_factor) / (1 + (0.4 / prandtl) ** (2 / 3)) ** 0.25
         )
 
         return max(2.0, nusselt)
@@ -158,13 +149,9 @@ class WaterThermalReservoir:
         self.water_prandtl = 7.0  # Prandtl number for water
 
         # Calculate temperature gradient
-        self.temperature_gradient = (
-            surface_temperature - bottom_temperature
-        ) / tank_height
+        self.temperature_gradient = (surface_temperature - bottom_temperature) / tank_height
 
-        logger.info(
-            f"Water thermal reservoir: {bottom_temperature:.1f}K -> {surface_temperature:.1f}K"
-        )
+        logger.info(f"Water thermal reservoir: {bottom_temperature:.1f}K -> {surface_temperature:.1f}K")
 
     def water_temperature_at_depth(self, depth: float) -> float:
         """
@@ -180,9 +167,7 @@ class WaterThermalReservoir:
         temperature = self.surface_temperature - self.temperature_gradient * depth
 
         # Clamp to reasonable bounds
-        temperature = max(
-            self.bottom_temperature, min(self.surface_temperature, temperature)
-        )
+        temperature = max(self.bottom_temperature, min(self.surface_temperature, temperature))
 
         return temperature
 
@@ -199,9 +184,7 @@ class WaterThermalReservoir:
         depth_from_surface = self.tank_height - position
         return self.water_temperature_at_depth(depth_from_surface)
 
-    def thermal_stratification_effect(
-        self, position_initial: float, position_final: float
-    ) -> Dict:
+    def thermal_stratification_effect(self, position_initial: float, position_final: float) -> Dict:
         """
         Calculate thermal effects of moving through stratified water.
 
@@ -231,8 +214,7 @@ class WaterThermalReservoir:
         }
 
         logger.debug(
-            f"Thermal stratification: {temp_initial:.1f}K -> {temp_final:.1f}K "
-            f"(Δpos: {position_change:.1f}m)"
+            f"Thermal stratification: {temp_initial:.1f}K -> {temp_final:.1f}K " f"(Δpos: {position_change:.1f}m)"
         )
 
         return results
@@ -266,9 +248,7 @@ class AirWaterHeatExchange:
         # Heat transfer area (internal surface exposed to air)
         self.heat_transfer_area = floater_geometry["surface_area"]
 
-        logger.info(
-            f"Air-water heat exchange initialized (area: {self.heat_transfer_area:.2f} m²)"
-        )
+        logger.info(f"Air-water heat exchange initialized (area: {self.heat_transfer_area:.2f} m²)")
 
     def convective_heat_transfer_coefficient(
         self, air_velocity: float = 0.0, water_velocity: float = 0.5
@@ -299,28 +279,18 @@ class AirWaterHeatExchange:
             )
 
             # Calculate Nusselt number
-            nu_water = self.heat_coeffs.nusselt_number_cylinder(
-                re_water, 7.0
-            )  # Prandtl = 7 for water
+            nu_water = self.heat_coeffs.nusselt_number_cylinder(re_water, 7.0)  # Prandtl = 7 for water
 
             # Heat transfer coefficient
-            h_water = (
-                nu_water
-                * self.heat_coeffs.thermal_conductivity_water
-                / self.geometry["diameter"]
-            )
+            h_water = nu_water * self.heat_coeffs.thermal_conductivity_water / self.geometry["diameter"]
         else:
             h_water = self.heat_coeffs.natural_convection_water
 
-        logger.debug(
-            f"Heat transfer coefficients: air {h_air:.1f}, water {h_water:.1f} W/(m²·K)"
-        )
+        logger.debug(f"Heat transfer coefficients: air {h_air:.1f}, water {h_water:.1f} W/(m²·K)")
 
         return h_air, h_water
 
-    def overall_heat_transfer_coefficient(
-        self, air_velocity: float = 0.0, water_velocity: float = 0.5
-    ) -> float:
+    def overall_heat_transfer_coefficient(self, air_velocity: float = 0.0, water_velocity: float = 0.5) -> float:
         """
         Calculate overall heat transfer coefficient from air to water.
 
@@ -331,9 +301,7 @@ class AirWaterHeatExchange:
         Returns:
             Overall heat transfer coefficient (W/(m²·K))
         """
-        h_air, h_water = self.convective_heat_transfer_coefficient(
-            air_velocity, water_velocity
-        )
+        h_air, h_water = self.convective_heat_transfer_coefficient(air_velocity, water_velocity)
 
         # Overall coefficient through floater wall
         U_overall = self.heat_coeffs.overall_heat_transfer_coefficient(
@@ -369,10 +337,7 @@ class AirWaterHeatExchange:
 
         heat_rate = U * self.heat_transfer_area * temperature_difference
 
-        logger.debug(
-            f"Heat transfer rate: {heat_rate:.1f} W "
-            f"(ΔT: {temperature_difference:.1f}K)"
-        )
+        logger.debug(f"Heat transfer rate: {heat_rate:.1f} W " f"(ΔT: {temperature_difference:.1f}K)")
 
         return heat_rate
 
@@ -415,9 +380,7 @@ class AirWaterHeatExchange:
 
         while time <= time_duration:
             # Calculate current heat transfer rate
-            heat_rate = self.heat_transfer_rate(
-                current_air_temp, water_temperature, air_velocity, water_velocity
-            )
+            heat_rate = self.heat_transfer_rate(current_air_temp, water_temperature, air_velocity, water_velocity)
 
             # Update air temperature
             if air_mass > 0:
@@ -435,9 +398,7 @@ class AirWaterHeatExchange:
         # Calculate final metrics
         final_temperature = current_air_temp
         temperature_change = final_temperature - initial_air_temperature
-        average_heat_rate = (
-            cumulative_heat / time_duration if time_duration > 0 else 0.0
-        )
+        average_heat_rate = cumulative_heat / time_duration if time_duration > 0 else 0.0
 
         results = {
             "initial_air_temperature": initial_air_temperature,
@@ -483,9 +444,7 @@ class CompressionHeatRecovery:
 
         logger.info("Compression heat recovery initialized")
 
-    def recoverable_heat_from_compression(
-        self, compression_work: float, compression_efficiency: float = 0.85
-    ) -> float:
+    def recoverable_heat_from_compression(self, compression_work: float, compression_efficiency: float = 0.85) -> float:
         """
         Calculate heat available for recovery from compression.
 
@@ -546,9 +505,9 @@ class CompressionHeatRecovery:
 
         # Temperature rise in water
         if water_mass_affected > 0:
-            water_temperature_rise = (
-                recoverable_heat * self.heat_exchanger_effectiveness
-            ) / (water_mass_affected * water_specific_heat)
+            water_temperature_rise = (recoverable_heat * self.heat_exchanger_effectiveness) / (
+                water_mass_affected * water_specific_heat
+            )
         else:
             water_temperature_rise = 0.0
 
@@ -570,8 +529,7 @@ class CompressionHeatRecovery:
         }
 
         logger.debug(
-            f"Heat recovery: {actual_heat_transferred/1000:.1f} kJ -> "
-            f"water temp rise {water_temperature_rise:.2f}K"
+            f"Heat recovery: {actual_heat_transferred/1000:.1f} kJ -> " f"water temp rise {water_temperature_rise:.2f}K"
         )
 
         return results
@@ -598,9 +556,7 @@ class IntegratedHeatExchange:
             bottom_temperature: Bottom water temperature (K)
             floater_geometry: Floater geometry dictionary
         """
-        self.water_reservoir = WaterThermalReservoir(
-            tank_height, surface_temperature, bottom_temperature
-        )
+        self.water_reservoir = WaterThermalReservoir(tank_height, surface_temperature, bottom_temperature)
         self.air_water_exchange = AirWaterHeatExchange(floater_geometry)
         self.heat_recovery = CompressionHeatRecovery()
 
@@ -634,12 +590,8 @@ class IntegratedHeatExchange:
             Complete heat exchange analysis results
         """
         # 1. Water thermal stratification
-        final_position = min(
-            self.tank_height, floater_position + ascent_velocity * ascent_time
-        )
-        stratification = self.water_reservoir.thermal_stratification_effect(
-            floater_position, final_position
-        )
+        final_position = min(self.tank_height, floater_position + ascent_velocity * ascent_time)
+        stratification = self.water_reservoir.thermal_stratification_effect(floater_position, final_position)
 
         # 2. Air-water heat exchange during ascent
         water_temp_average = stratification["average_water_temperature"]
@@ -664,9 +616,7 @@ class IntegratedHeatExchange:
         # 3. Compression heat recovery (if applicable)
         heat_recovery_results = None
         if compression_work > 0:
-            recoverable_heat = self.heat_recovery.recoverable_heat_from_compression(
-                compression_work
-            )
+            recoverable_heat = self.heat_recovery.recoverable_heat_from_compression(compression_work)
             heat_recovery_results = self.heat_recovery.heat_recovery_to_water(
                 recoverable_heat,
                 stratification["initial_water_temperature"],

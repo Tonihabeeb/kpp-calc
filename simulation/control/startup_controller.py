@@ -4,10 +4,9 @@ Manages safe and efficient system startup procedures.
 """
 
 import logging
-import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -85,12 +84,8 @@ class StartupController:
         }
 
         # Startup parameters
-        self.target_startup_speed = self.config.get(
-            "target_startup_speed", 100.0
-        )  # RPM
-        self.target_operational_speed = self.config.get(
-            "target_operational_speed", 375.0
-        )  # RPM
+        self.target_startup_speed = self.config.get("target_startup_speed", 100.0)  # RPM
+        self.target_operational_speed = self.config.get("target_operational_speed", 375.0)  # RPM
         self.acceleration_rate = self.config.get("acceleration_rate", 10.0)  # RPM/s
         self.sync_retry_limit = self.config.get("sync_retry_limit", 3)
 
@@ -143,9 +138,7 @@ class StartupController:
         # Check for timeout
         phase_duration = current_time - self.phase_start_time
         if phase_duration > self.phase_timeouts.get(self.current_phase, 60.0):
-            logger.error(
-                f"Startup phase {self.current_phase.value} timed out after {phase_duration:.1f}s"
-            )
+            logger.error(f"Startup phase {self.current_phase.value} timed out after {phase_duration:.1f}s")
             return self._handle_startup_failure("Phase timeout")
 
         # Process current phase
@@ -186,9 +179,7 @@ class StartupController:
         else:
             return self._handle_startup_failure("Unknown startup phase")
 
-    def _process_initialization_phase(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _process_initialization_phase(self, system_state: Dict, current_time: float) -> Dict:
         """Process initialization phase"""
         logger.info("Startup Phase: Initialization")
 
@@ -206,9 +197,7 @@ class StartupController:
 
         return commands
 
-    def _process_system_checks_phase(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _process_system_checks_phase(self, system_state: Dict, current_time: float) -> Dict:
         """Process system checks phase"""
         logger.info("Startup Phase: System Checks")
 
@@ -232,9 +221,7 @@ class StartupController:
 
         return commands
 
-    def _process_pressure_build_phase(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _process_pressure_build_phase(self, system_state: Dict, current_time: float) -> Dict:
         """Process pressure build phase"""
         logger.info("Startup Phase: Pressure Build")
 
@@ -245,23 +232,18 @@ class StartupController:
             "current_phase": self.current_phase.value,
             "pneumatic_commands": {
                 "compressor_enabled": True,
-                "pressure_setpoint": self.conditions.min_tank_pressure
-                + 1.0,  # Build extra pressure
+                "pressure_setpoint": self.conditions.min_tank_pressure + 1.0,  # Build extra pressure
             },
         }
 
         # Check if sufficient pressure is available
         if tank_pressure >= self.conditions.min_tank_pressure:
             self._advance_to_next_phase(StartupPhase.FIRST_INJECTION, current_time)
-            logger.info(
-                f"Pressure build complete ({tank_pressure:.1f} bar), advancing to first injection"
-            )
+            logger.info(f"Pressure build complete ({tank_pressure:.1f} bar), advancing to first injection")
 
         return commands
 
-    def _process_first_injection_phase(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _process_first_injection_phase(self, system_state: Dict, current_time: float) -> Dict:
         """Process first injection phase"""
         logger.info("Startup Phase: First Injection")
 
@@ -270,8 +252,7 @@ class StartupController:
             "current_phase": self.current_phase.value,
             "pneumatic_commands": {
                 "injection_enabled": True,
-                "injection_pressure": self.conditions.min_tank_pressure
-                * 0.8,  # Gentle first injection
+                "injection_pressure": self.conditions.min_tank_pressure * 0.8,  # Gentle first injection
                 "target_floater": 0,  # Start with first floater
             },
             "control_commands": {
@@ -289,18 +270,14 @@ class StartupController:
 
         return commands
 
-    def _process_acceleration_phase(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _process_acceleration_phase(self, system_state: Dict, current_time: float) -> Dict:
         """Process acceleration phase"""
         logger.info("Startup Phase: Acceleration")
 
         current_speed = system_state.get("flywheel_speed_rpm", 0.0)
         target_speed = min(
             self.target_startup_speed,
-            self.target_operational_speed
-            * (current_time - self.phase_start_time)
-            / 30.0,
+            self.target_operational_speed * (current_time - self.phase_start_time) / 30.0,
         )
 
         commands = {
@@ -309,9 +286,7 @@ class StartupController:
             "pneumatic_commands": {
                 "injection_enabled": True,
                 "injection_pressure": self.conditions.min_tank_pressure,
-                "injection_frequency": min(
-                    2.0, target_speed / 50.0
-                ),  # Gradual frequency increase
+                "injection_frequency": min(2.0, target_speed / 50.0),  # Gradual frequency increase
             },
             "control_commands": {
                 "timing_mode": "acceleration",
@@ -330,15 +305,11 @@ class StartupController:
         # Check if ready for synchronization
         if current_speed >= self.target_startup_speed:
             self._advance_to_next_phase(StartupPhase.SYNCHRONIZATION, current_time)
-            logger.info(
-                f"Acceleration complete ({current_speed:.1f} RPM), advancing to synchronization"
-            )
+            logger.info(f"Acceleration complete ({current_speed:.1f} RPM), advancing to synchronization")
 
         return commands
 
-    def _process_synchronization_phase(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _process_synchronization_phase(self, system_state: Dict, current_time: float) -> Dict:
         """Process synchronization phase"""
         logger.info("Startup Phase: Synchronization")
 
@@ -368,29 +339,21 @@ class StartupController:
         elif frequency_error > self.conditions.frequency_tolerance * 2:
             self.sync_attempt_count += 1
             if self.sync_attempt_count >= self.sync_retry_limit:
-                return self._handle_startup_failure(
-                    "Synchronization failed after multiple attempts"
-                )
-            logger.warning(
-                f"Synchronization attempt {self.sync_attempt_count} failed, retrying"
-            )
+                return self._handle_startup_failure("Synchronization failed after multiple attempts")
+            logger.warning(f"Synchronization attempt {self.sync_attempt_count} failed, retrying")
 
         self.metrics.sync_attempts = self.sync_attempt_count
 
         return commands
 
-    def _process_operational_phase(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _process_operational_phase(self, system_state: Dict, current_time: float) -> Dict:
         """Process operational phase - startup complete"""
         logger.info("Startup Phase: Operational - Startup Complete")
 
         self.is_startup_active = False
         self.metrics.startup_time = current_time - self.startup_start_time
 
-        logger.info(
-            f"Startup sequence completed successfully in {self.metrics.startup_time:.1f}s"
-        )
+        logger.info(f"Startup sequence completed successfully in {self.metrics.startup_time:.1f}s")
 
         return {
             "startup_active": False,
@@ -407,18 +370,18 @@ class StartupController:
     def _perform_system_checks(self, system_state: Dict) -> Dict:
         """Perform comprehensive system checks"""
         checks = {
-            "pneumatic_system": True,
-            "electrical_system": True,
-            "mechanical_system": True,
+            "pneumatics": True,
+            "integrated_electrical_system": True,
+            "integrated_drivetrain": True,
             "thermal_system": True,
-            "control_system": True,
+            "integrated_control_system": True,
             "all_passed": True,
         }
 
         # Check pneumatic system
         pneumatics = system_state.get("pneumatics", {})
         if pneumatics.get("tank_pressure", 0.0) < 2.0:  # Minimum pressure for checks
-            checks["pneumatic_system"] = False
+            checks["pneumatics"] = False
             self.fault_conditions.append("Insufficient pneumatic pressure for startup")
 
         # Check electrical system
@@ -426,7 +389,7 @@ class StartupController:
             system_state.get("component_temperatures", {}).get("generator", 100.0)
             > self.conditions.max_component_temperature
         ):
-            checks["electrical_system"] = False
+            checks["integrated_electrical_system"] = False
             self.fault_conditions.append("Generator temperature too high for startup")
 
         # Check mechanical system
@@ -442,9 +405,7 @@ class StartupController:
         max_temp = max(component_temps.values()) if component_temps else 0.0
         if max_temp > self.conditions.max_component_temperature:
             checks["thermal_system"] = False
-            self.fault_conditions.append(
-                f"Component temperature too high for startup ({max_temp:.1f}°C)"
-            )
+            self.fault_conditions.append(f"Component temperature too high for startup ({max_temp:.1f}°C)")
 
         # Overall check
         checks["all_passed"] = all(checks[key] for key in checks if key != "all_passed")

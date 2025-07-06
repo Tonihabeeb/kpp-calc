@@ -74,7 +74,7 @@ def test_all_flask_endpoints():
         ("POST", "/control/system_scale")
     ]
     
-    print(f"\n🧪 Testing {len(endpoints)} Flask endpoints...")
+    print(f"\nTesting {len(endpoints)} Flask endpoints...")
     
     results = {
         'total_tested': 0,
@@ -133,7 +133,7 @@ def test_all_flask_endpoints():
                 'error': str(e),
                 'trace_id': trace_id
             }
-            print(f"❌ {method} {path}: {e}")
+            print(f"FAIL {method} {path}: {e}")
     
     return results
 
@@ -191,7 +191,7 @@ def test_websocket_endpoints():
                 'error': str(e),
                 'trace_id': trace_id
             }
-            print(f"❌ WebSocket {method} {path}: {e}")
+            print(f"FAIL WebSocket {method} {path}: {e}")
     
     return results
 
@@ -268,7 +268,7 @@ def test_observability_endpoints():
                 'error': str(e),
                 'trace_id': trace_id
             }
-            print(f"❌ Observability {method} {path}: {e}")
+            print(f"FAIL Observability {method} {path}: {e}")
     
     return results
 
@@ -310,7 +310,7 @@ def test_dash_application():
         return {'error': 'Service not running', 'trace_id': trace_id}
         
     except Exception as e:
-        print(f"❌ Dash Application: {e}")
+        print(f"FAIL Dash Application: {e}")
         return {'error': str(e), 'trace_id': trace_id}
 
 def get_test_payload(path: str) -> dict:
@@ -393,7 +393,7 @@ def generate_comprehensive_report(flask_results, websocket_results, observabilit
 
 def main():
     """Main test execution"""
-    print("🚀 KPP Simulator Comprehensive Endpoint Testing")
+    print("KPP Simulator Comprehensive Endpoint Testing")
     print("=" * 80)
     
     # Test all endpoint categories
@@ -416,24 +416,24 @@ def main():
     
     # Print summary
     print("\n" + "=" * 80)
-    print("📊 COMPREHENSIVE ENDPOINT TEST SUMMARY")
+    print("COMPREHENSIVE ENDPOINT TEST SUMMARY")
     print("=" * 80)
     
     summary = report['summary']
-    print(f"📈 Total Endpoints Tested: {summary['total_endpoints_tested']}")
-    print(f"✅ Successful Responses: {summary['successful_responses']}")
-    print(f"⚠️ Connection Errors: {summary['connection_errors']}")
-    print(f"🔗 Trace Correlations: {summary['trace_correlations']}")
-    print(f"📊 Success Rate: {summary['success_rate']}")
-    print(f"🏃 Services Running: {summary['services_running']}/3")
+    print(f"Total Endpoints Tested: {summary['total_endpoints_tested']}")
+    print(f"Successful Responses: {summary['successful_responses']}")
+    print(f"Connection Errors: {summary['connection_errors']}")
+    print(f"Trace Correlations: {summary['trace_correlations']}")
+    print(f"Success Rate: {summary['success_rate']}")
+    print(f"Services Running: {summary['services_running']}/3")
     
-    print(f"\n📁 Category Breakdown:")
+    print(f"\nCategory Breakdown:")
     print(f"  • Flask Backend: {flask_results['successful_responses']}/{flask_results['total_tested']} endpoints")
     print(f"  • WebSocket Server: {websocket_results['successful_responses']}/{websocket_results['total_tested']} endpoints")
     print(f"  • Observability: {observability_results['successful_responses']}/{observability_results['total_tested']} endpoints")
-    print(f"  • Dash Frontend: {'✅' if dash_result.get('success', False) else '❌'}")
+    print(f"  • Dash Frontend: {'PASS' if dash_result.get('success', False) else 'FAIL'}")
     
-    print(f"\n📋 Report saved to: {report_filename}")
+    print(f"\nReport saved to: {report_filename}")
     print("=" * 80)
     
     return report

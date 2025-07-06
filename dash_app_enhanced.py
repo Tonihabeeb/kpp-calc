@@ -400,10 +400,10 @@ def create_system_overview_panel():
         dbc.CardHeader(html.H5("System Overview", className="mb-0")),
         dbc.CardBody([
             dbc.Row([
-                # Drivetrain Status
+                # IntegratedDrivetrain Status
                 dbc.Col([
-                    html.H6("Drivetrain", className="text-primary"),
-                    html.Div(id="drivetrain-overview")
+                    html.H6("IntegratedDrivetrain", className="text-primary"),
+                    html.Div(id="integrated_drivetrain-overview")
                 ], width=3),
                 # Electrical Status  
                 dbc.Col([
@@ -776,11 +776,11 @@ def handle_simulation_controls(start_clicks, stop_clicks, pause_clicks, reset_cl
 
 # Status Display Functions
 def create_drivetrain_status_display(data):
-    """Create drivetrain status card with RPM, torque, clutch state"""
+    """Create integrated_drivetrain status card with RPM, torque, clutch state"""
     if not data:
-        return dbc.Alert("No drivetrain data", color="warning")
+        return dbc.Alert("No integrated_drivetrain data", color="warning")
     return dbc.Card([
-        dbc.CardHeader("Drivetrain Status"),
+        dbc.CardHeader("IntegratedDrivetrain Status"),
         dbc.CardBody([
             html.P(f"Output RPM: {data.get('output_rpm', 'N/A')}", className="mb-1"),
             html.P(f"Torque: {data.get('torque', 'N/A')} Nm", className="mb-1"),
@@ -790,7 +790,7 @@ def create_drivetrain_status_display(data):
 
 # System Overview Callbacks
 @app.callback(
-    [Output("drivetrain-overview", "children"),
+    [Output("integrated_drivetrain-overview", "children"),
      Output("electrical-overview", "children"),
      Output("control-overview", "children"),
      Output("physics-overview", "children")],
@@ -802,8 +802,8 @@ def update_system_overview(data):
     if not data:
         return empty_status, empty_status, empty_status, empty_status
 
-    # Drivetrain Overview (new card)
-    drivetrain = create_drivetrain_status_display(data.get('drivetrain_status', {}))
+    # IntegratedDrivetrain Overview (new card)
+    integrated_drivetrain = create_drivetrain_status_display(data.get('drivetrain_status', {}))
 
     # Electrical Overview (placeholder, to be improved)
     electrical = dbc.Card([
@@ -837,7 +837,7 @@ def update_system_overview(data):
         ])
     ], color="info", inverse=True)
 
-    return drivetrain, electrical, control, physics
+    return integrated_drivetrain, electrical, control, physics
 
 if __name__ == "__main__":
     print("=" * 60)

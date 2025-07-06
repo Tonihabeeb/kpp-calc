@@ -22,7 +22,7 @@ import time
 from collections import deque
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
@@ -102,9 +102,7 @@ class PriceForecaster:
         # Initialize with typical patterns
         self._initialize_patterns()
 
-    def update(
-        self, current_price: float, timestamp: Optional[float] = None
-    ) -> Dict[str, Any]:
+    def update(self, current_price: float, timestamp: Optional[float] = None) -> Dict[str, Any]:
         """
         Update price forecaster with new price data
 
@@ -133,9 +131,7 @@ class PriceForecaster:
 
         return self._get_status()
 
-    def get_forecast(
-        self, horizon: ForecastHorizon, timestamp: Optional[float] = None
-    ) -> Dict[str, Any]:
+    def get_forecast(self, horizon: ForecastHorizon, timestamp: Optional[float] = None) -> Dict[str, Any]:
         """
         Get price forecast for specified horizon
 
@@ -268,15 +264,11 @@ class PriceForecaster:
 
             if day_of_week < 5:  # Weekday
                 if len(weekday_prices) <= hour:
-                    weekday_prices.extend(
-                        [[] for _ in range(hour + 1 - len(weekday_prices))]
-                    )
+                    weekday_prices.extend([[] for _ in range(hour + 1 - len(weekday_prices))])
                 weekday_prices[hour].append(price)
             else:  # Weekend
                 if len(weekend_prices) <= hour:
-                    weekend_prices.extend(
-                        [[] for _ in range(hour + 1 - len(weekend_prices))]
-                    )
+                    weekend_prices.extend([[] for _ in range(hour + 1 - len(weekend_prices))])
                 weekend_prices[hour].append(price)
 
         # Update patterns with moving averages
@@ -287,21 +279,17 @@ class PriceForecaster:
                 avg_price = statistics.mean(weekday_prices[hour])
                 if hour < len(self.daily_patterns["weekday"]):
                     self.daily_patterns["weekday"][hour] = (
-                        alpha * avg_price
-                        + (1 - alpha) * self.daily_patterns["weekday"][hour]
+                        alpha * avg_price + (1 - alpha) * self.daily_patterns["weekday"][hour]
                     )
 
             if hour < len(weekend_prices) and weekend_prices[hour]:
                 avg_price = statistics.mean(weekend_prices[hour])
                 if hour < len(self.daily_patterns["weekend"]):
                     self.daily_patterns["weekend"][hour] = (
-                        alpha * avg_price
-                        + (1 - alpha) * self.daily_patterns["weekend"][hour]
+                        alpha * avg_price + (1 - alpha) * self.daily_patterns["weekend"][hour]
                     )
 
-    def _generate_forecast(
-        self, horizon: ForecastHorizon, timestamp: float
-    ) -> Dict[str, Any]:
+    def _generate_forecast(self, horizon: ForecastHorizon, timestamp: float) -> Dict[str, Any]:
         """Generate price forecast for specified horizon"""
 
         if horizon == ForecastHorizon.HOUR_AHEAD:
@@ -400,9 +388,7 @@ class PriceForecaster:
         # Calculate aggregate metrics
         all_prices = []
         for day_forecast in daily_forecasts:
-            all_prices.extend(
-                [f["forecasted_price"] for f in day_forecast["hourly_forecasts"]]
-            )
+            all_prices.extend([f["forecasted_price"] for f in day_forecast["hourly_forecasts"]])
 
         avg_confidence = total_confidence / len(daily_forecasts)
 
@@ -416,12 +402,8 @@ class PriceForecaster:
             "max_price": max(all_prices),
             "price_range": max(all_prices) - min(all_prices),
             "confidence": avg_confidence * 0.8,  # Lower for week-ahead
-            "volatility_estimate": (
-                statistics.stdev(all_prices) if len(all_prices) > 1 else 0.0
-            ),
-            "weekly_average": statistics.mean(
-                [d["average_price"] for d in daily_forecasts]
-            ),
+            "volatility_estimate": (statistics.stdev(all_prices) if len(all_prices) > 1 else 0.0),
+            "weekly_average": statistics.mean([d["average_price"] for d in daily_forecasts]),
             "method": "daily_aggregation",
         }
 
@@ -459,11 +441,7 @@ class PriceForecaster:
             if errors and actual_prices:
                 mae = statistics.mean(errors)
                 mape = statistics.mean(
-                    [
-                        abs(a - f) / abs(a) * 100
-                        for a, f in zip(actual_prices, forecasted_prices)
-                        if abs(a) > 0.1
-                    ]
+                    [abs(a - f) / abs(a) * 100 for a, f in zip(actual_prices, forecasted_prices) if abs(a) > 0.1]
                 )
                 rmse = math.sqrt(statistics.mean([e**2 for e in errors]))
                 accuracy_score = max(0.0, 1.0 - (mape / 100.0))
@@ -511,9 +489,7 @@ class PriceForecaster:
             "min_price": min(recent_prices),
             "max_price": max(recent_prices),
             "median_price": statistics.median(recent_prices),
-            "std_deviation": (
-                statistics.stdev(recent_prices) if len(recent_prices) > 1 else 0.0
-            ),
+            "std_deviation": (statistics.stdev(recent_prices) if len(recent_prices) > 1 else 0.0),
             "price_range": max(recent_prices) - min(recent_prices),
             "sample_count": len(recent_prices),
         }
@@ -549,15 +525,11 @@ class PriceForecaster:
 
     def _get_status(self) -> Dict[str, Any]:
         """Get current price forecaster status"""
-        current_price = (
-            self.price_history[-1][1] if self.price_history else self.base_price
-        )
+        current_price = self.price_history[-1][1] if self.price_history else self.base_price
 
         # Generate forecast prices for current conditions
         current_time = time.time()
-        forecast_data = self._generate_simple_forecast(
-            current_time, 24
-        )  # 24-hour forecast
+        forecast_data = self._generate_simple_forecast(current_time, 24)  # 24-hour forecast
 
         return {
             "active": True,
@@ -615,20 +587,12 @@ class PriceForecaster:
         recent_prices = [price for _, price in list(self.price_history)[-24:]]
 
         # Calculate volatility
-        volatility = (
-            statistics.stdev(recent_prices) / statistics.mean(recent_prices)
-            if recent_prices
-            else 0.0
-        )
+        volatility = statistics.stdev(recent_prices) / statistics.mean(recent_prices) if recent_prices else 0.0
 
         # Find peak and off-peak hours (simplified)
         avg_price = statistics.mean(recent_prices)
-        peak_hours = [
-            i for i, price in enumerate(recent_prices) if price > avg_price * 1.2
-        ]
-        off_peak_hours = [
-            i for i, price in enumerate(recent_prices) if price < avg_price * 0.8
-        ]
+        peak_hours = [i for i, price in enumerate(recent_prices) if price > avg_price * 1.2]
+        off_peak_hours = [i for i, price in enumerate(recent_prices) if price < avg_price * 0.8]
 
         # Calculate trend
         if len(recent_prices) >= 12:
@@ -644,9 +608,7 @@ class PriceForecaster:
             trend = "neutral"
 
         # Create hourly pattern from recent data
-        hourly_pattern = (
-            recent_prices[:24] if len(recent_prices) >= 24 else recent_prices
-        )
+        hourly_pattern = recent_prices[:24] if len(recent_prices) >= 24 else recent_prices
 
         return {
             "hourly_pattern": hourly_pattern,
@@ -661,9 +623,7 @@ class PriceForecaster:
     def _generate_simple_forecast(self, timestamp: float, hours: int) -> List[float]:
         """Generate simple price forecast for specified hours"""
         forecasts = []
-        current_price = (
-            self.price_history[-1][1] if self.price_history else self.base_price
-        )
+        current_price = self.price_history[-1][1] if self.price_history else self.base_price
 
         for i in range(hours):
             future_time = timestamp + (i * 3600)  # Each hour
@@ -682,20 +642,13 @@ class PriceForecaster:
                 forecast_price = current_price
 
             # Add some variation based on volatility
-            variation = (
-                (hash(str(future_time)) % 1000 - 500)
-                / 1000
-                * self.pattern.volatility
-                * forecast_price
-            )
+            variation = (hash(str(future_time)) % 1000 - 500) / 1000 * self.pattern.volatility * forecast_price
             forecasts.append(max(0.1, forecast_price + variation))
 
         return forecasts
 
 
-def create_price_forecaster(
-    base_price: float = 60.0, volatility: float = 0.20
-) -> PriceForecaster:
+def create_price_forecaster(base_price: float = 60.0, volatility: float = 0.20) -> PriceForecaster:
     """
     Factory function to create a price forecaster
 

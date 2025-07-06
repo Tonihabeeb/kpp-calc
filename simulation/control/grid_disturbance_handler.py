@@ -6,7 +6,7 @@ Handles grid frequency and voltage disturbances with appropriate responses.
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -126,16 +126,12 @@ class GridDisturbanceHandler:
         # Frequency response parameters
         self.frequency_droop = self.config.get("frequency_droop", 0.05)  # 5% droop
         self.frequency_deadband = self.config.get("frequency_deadband", 0.05)  # Hz
-        self.max_frequency_response = self.config.get(
-            "max_frequency_response", 0.2
-        )  # 20% power
+        self.max_frequency_response = self.config.get("max_frequency_response", 0.2)  # 20% power
 
         # Voltage support parameters
         self.voltage_droop = self.config.get("voltage_droop", 0.02)  # 2% droop
         self.voltage_deadband = self.config.get("voltage_deadband", 12.0)  # V
-        self.max_reactive_power = self.config.get(
-            "max_reactive_power", 0.3
-        )  # 30% of rated
+        self.max_reactive_power = self.config.get("max_reactive_power", 0.3)  # 30% of rated
 
         logger.info("GridDisturbanceHandler initialized")
 
@@ -151,16 +147,12 @@ class GridDisturbanceHandler:
             Dict: Grid disturbance status and response commands
         """
         # Update grid measurements
-        self.grid_frequency = system_state.get(
-            "grid_frequency", self.limits.nominal_frequency
-        )
-        self.grid_voltage = system_state.get(
-            "grid_voltage", self.limits.nominal_voltage
-        )
+        self.grid_frequency = system_state.get("grid_frequency", self.limits.nominal_frequency)
+        self.grid_voltage = system_state.get("grid_voltage", self.limits.nominal_voltage)
         self.grid_connected = system_state.get("grid_connected", True)
 
         # Detect new disturbances
-        new_disturbances = self._detect_grid_disturbances(current_time)
+        self._detect_grid_disturbances(current_time)
 
         # Process active disturbances
         response_commands = self._process_disturbances(system_state, current_time)
@@ -187,10 +179,7 @@ class GridDisturbanceHandler:
             )
 
             # Check if this is a new disturbance
-            if not any(
-                d.disturbance_type == disturbance_type and not d.resolved
-                for d in self.active_disturbances
-            ):
+            if not any(d.disturbance_type == disturbance_type and not d.resolved for d in self.active_disturbances):
                 new_disturbances.append(
                     DisturbanceEvent(
                         disturbance_type=disturbance_type,
@@ -209,10 +198,7 @@ class GridDisturbanceHandler:
             )
 
             # Check if this is a new disturbance
-            if not any(
-                d.disturbance_type == disturbance_type and not d.resolved
-                for d in self.active_disturbances
-            ):
+            if not any(d.disturbance_type == disturbance_type and not d.resolved for d in self.active_disturbances):
                 new_disturbances.append(
                     DisturbanceEvent(
                         disturbance_type=disturbance_type,
@@ -224,8 +210,7 @@ class GridDisturbanceHandler:
         # Check for grid outage
         if not self.grid_connected:
             if not any(
-                d.disturbance_type == DisturbanceType.GRID_OUTAGE and not d.resolved
-                for d in self.active_disturbances
+                d.disturbance_type == DisturbanceType.GRID_OUTAGE and not d.resolved for d in self.active_disturbances
             ):
                 new_disturbances.append(
                     DisturbanceEvent(
@@ -285,15 +270,13 @@ class GridDisturbanceHandler:
                     return ResponseMode.DISCONNECT
 
                 if (
-                    disturbance.disturbance_type
-                    in [DisturbanceType.FREQUENCY_HIGH, DisturbanceType.FREQUENCY_LOW]
+                    disturbance.disturbance_type in [DisturbanceType.FREQUENCY_HIGH, DisturbanceType.FREQUENCY_LOW]
                     and disturbance.magnitude > self.limits.frequency_emergency
                 ):
                     return ResponseMode.DISCONNECT
 
                 if (
-                    disturbance.disturbance_type
-                    in [DisturbanceType.VOLTAGE_HIGH, DisturbanceType.VOLTAGE_LOW]
+                    disturbance.disturbance_type in [DisturbanceType.VOLTAGE_HIGH, DisturbanceType.VOLTAGE_LOW]
                     and disturbance.magnitude > self.limits.voltage_emergency
                 ):
                     return ResponseMode.DISCONNECT
@@ -302,15 +285,13 @@ class GridDisturbanceHandler:
         for disturbance in self.active_disturbances:
             if not disturbance.resolved:
                 if (
-                    disturbance.disturbance_type
-                    in [DisturbanceType.FREQUENCY_HIGH, DisturbanceType.FREQUENCY_LOW]
+                    disturbance.disturbance_type in [DisturbanceType.FREQUENCY_HIGH, DisturbanceType.FREQUENCY_LOW]
                     and disturbance.magnitude > self.limits.frequency_critical
                 ):
                     return ResponseMode.LOAD_SHEDDING
 
                 if (
-                    disturbance.disturbance_type
-                    in [DisturbanceType.VOLTAGE_HIGH, DisturbanceType.VOLTAGE_LOW]
+                    disturbance.disturbance_type in [DisturbanceType.VOLTAGE_HIGH, DisturbanceType.VOLTAGE_LOW]
                     and disturbance.magnitude > self.limits.voltage_critical
                 ):
                     return ResponseMode.LOAD_SHEDDING
@@ -319,15 +300,13 @@ class GridDisturbanceHandler:
         for disturbance in self.active_disturbances:
             if not disturbance.resolved:
                 if (
-                    disturbance.disturbance_type
-                    in [DisturbanceType.FREQUENCY_HIGH, DisturbanceType.FREQUENCY_LOW]
+                    disturbance.disturbance_type in [DisturbanceType.FREQUENCY_HIGH, DisturbanceType.FREQUENCY_LOW]
                     and disturbance.magnitude > self.limits.frequency_warning
                 ):
                     return ResponseMode.FREQUENCY_SUPPORT
 
                 if (
-                    disturbance.disturbance_type
-                    in [DisturbanceType.VOLTAGE_HIGH, DisturbanceType.VOLTAGE_LOW]
+                    disturbance.disturbance_type in [DisturbanceType.VOLTAGE_HIGH, DisturbanceType.VOLTAGE_LOW]
                     and disturbance.magnitude > self.limits.voltage_warning
                 ):
                     return ResponseMode.VOLTAGE_SUPPORT
@@ -346,9 +325,7 @@ class GridDisturbanceHandler:
             "grid_disconnect_required": False,
         }
 
-    def _generate_ride_through_commands(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _generate_ride_through_commands(self, system_state: Dict, current_time: float) -> Dict:
         """Generate ride-through commands for minor disturbances"""
         self.ride_through_active = True
         self.response_metrics["successful_ride_throughs"] += 1
@@ -365,9 +342,7 @@ class GridDisturbanceHandler:
             },
         }
 
-    def _generate_frequency_support_commands(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _generate_frequency_support_commands(self, system_state: Dict, current_time: float) -> Dict:
         """Generate frequency support commands"""
         self.frequency_support_active = True
         self.response_metrics["frequency_support_events"] += 1
@@ -398,9 +373,7 @@ class GridDisturbanceHandler:
             },
         }
 
-    def _generate_voltage_support_commands(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _generate_voltage_support_commands(self, system_state: Dict, current_time: float) -> Dict:
         """Generate voltage support commands"""
         self.voltage_support_active = True
         self.response_metrics["voltage_support_events"] += 1
@@ -412,9 +385,7 @@ class GridDisturbanceHandler:
         if abs(voltage_error) > self.voltage_deadband:
             # Reactive power support: inject reactive power for low voltage, absorb for high voltage
             voltage_response = -voltage_error * self.voltage_droop
-            voltage_response = np.clip(
-                voltage_response, -self.max_reactive_power, self.max_reactive_power
-            )
+            voltage_response = np.clip(voltage_response, -self.max_reactive_power, self.max_reactive_power)
 
         return {
             "grid_disturbance_active": True,
@@ -429,9 +400,7 @@ class GridDisturbanceHandler:
             },
         }
 
-    def _generate_load_shedding_commands(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _generate_load_shedding_commands(self, system_state: Dict, current_time: float) -> Dict:
         """Generate load shedding commands for severe disturbances"""
         self.load_shedding_active = True
         self.response_metrics["load_shedding_events"] += 1
@@ -446,18 +415,14 @@ class GridDisturbanceHandler:
                     DisturbanceType.FREQUENCY_LOW,
                 ]:
                     if disturbance.magnitude > self.limits.frequency_critical:
-                        load_shed_percentage = max(
-                            load_shed_percentage, min(75.0, disturbance.magnitude * 100)
-                        )
+                        load_shed_percentage = max(load_shed_percentage, min(75.0, disturbance.magnitude * 100))
 
                 elif disturbance.disturbance_type in [
                     DisturbanceType.VOLTAGE_HIGH,
                     DisturbanceType.VOLTAGE_LOW,
                 ]:
                     if disturbance.magnitude > self.limits.voltage_critical:
-                        load_shed_percentage = max(
-                            load_shed_percentage, min(50.0, disturbance.magnitude / 10)
-                        )
+                        load_shed_percentage = max(load_shed_percentage, min(50.0, disturbance.magnitude / 10))
 
         return {
             "grid_disturbance_active": True,
@@ -471,9 +436,7 @@ class GridDisturbanceHandler:
             },
         }
 
-    def _generate_disconnect_commands(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _generate_disconnect_commands(self, system_state: Dict, current_time: float) -> Dict:
         """Generate grid disconnect commands for emergency conditions"""
         self.response_metrics["disconnection_events"] += 1
 
@@ -505,9 +468,7 @@ class GridDisturbanceHandler:
                 )
 
         # Remove resolved disturbances from active list
-        self.active_disturbances = [
-            d for d in self.active_disturbances if not d.resolved
-        ]
+        self.active_disturbances = [d for d in self.active_disturbances if not d.resolved]
 
         # Reset response modes if no active disturbances
         if not self.active_disturbances:
@@ -521,28 +482,16 @@ class GridDisturbanceHandler:
         """Check if a disturbance has been resolved"""
 
         if disturbance.disturbance_type == DisturbanceType.FREQUENCY_HIGH:
-            return (
-                self.grid_frequency
-                <= self.limits.nominal_frequency + self.limits.frequency_deadband
-            )
+            return self.grid_frequency <= self.limits.nominal_frequency + self.limits.frequency_deadband
 
         elif disturbance.disturbance_type == DisturbanceType.FREQUENCY_LOW:
-            return (
-                self.grid_frequency
-                >= self.limits.nominal_frequency - self.limits.frequency_deadband
-            )
+            return self.grid_frequency >= self.limits.nominal_frequency - self.limits.frequency_deadband
 
         elif disturbance.disturbance_type == DisturbanceType.VOLTAGE_HIGH:
-            return (
-                self.grid_voltage
-                <= self.limits.nominal_voltage + self.limits.voltage_deadband
-            )
+            return self.grid_voltage <= self.limits.nominal_voltage + self.limits.voltage_deadband
 
         elif disturbance.disturbance_type == DisturbanceType.VOLTAGE_LOW:
-            return (
-                self.grid_voltage
-                >= self.limits.nominal_voltage - self.limits.voltage_deadband
-            )
+            return self.grid_voltage >= self.limits.nominal_voltage - self.limits.voltage_deadband
 
         elif disturbance.disturbance_type == DisturbanceType.GRID_OUTAGE:
             return self.grid_connected
@@ -553,15 +502,9 @@ class GridDisturbanceHandler:
         """Update response performance metrics"""
         if self.active_disturbances:
             # Calculate average response time for resolved disturbances
-            resolved_disturbances = [
-                d
-                for d in self.disturbance_history
-                if d.resolved and d.response_time > 0
-            ]
+            resolved_disturbances = [d for d in self.disturbance_history if d.resolved and d.response_time > 0]
             if resolved_disturbances:
-                avg_response = sum(
-                    d.response_time for d in resolved_disturbances
-                ) / len(resolved_disturbances)
+                avg_response = sum(d.response_time for d in resolved_disturbances) / len(resolved_disturbances)
                 self.response_metrics["average_response_time"] = avg_response
 
     def get_disturbance_status(self) -> Dict:

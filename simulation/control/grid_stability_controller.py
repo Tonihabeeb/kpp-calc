@@ -4,11 +4,10 @@ Implements advanced grid interaction and stability maintenance.
 """
 
 import logging
-import math
 from collections import deque
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
 import numpy as np
 
@@ -128,12 +127,8 @@ class GridStabilityController:
         self.grid_events: deque = deque(maxlen=50)
 
         # Control algorithms
-        self.voltage_controller = VoltageController(
-            nominal_voltage, voltage_regulation_band
-        )
-        self.frequency_controller = FrequencyController(
-            nominal_frequency, frequency_regulation_band
-        )
+        self.voltage_controller = VoltageController(nominal_voltage, voltage_regulation_band)
+        self.frequency_controller = FrequencyController(nominal_frequency, frequency_regulation_band)
         self.power_quality_controller = PowerQualityController()
 
         # Grid code parameters
@@ -192,22 +187,16 @@ class GridStabilityController:
 
         # Update basic measurements
         self.grid_voltage = electrical_output.get("grid_voltage", self.nominal_voltage)
-        self.grid_frequency = electrical_output.get(
-            "grid_frequency", self.nominal_frequency
-        )
+        self.grid_frequency = electrical_output.get("grid_frequency", self.nominal_frequency)
         self.grid_power_factor = electrical_output.get("power_factor", 0.95)
 
         # Calculate voltage THD (simplified)
-        voltage_deviation = (
-            abs(self.grid_voltage - self.nominal_voltage) / self.nominal_voltage
-        )
+        voltage_deviation = abs(self.grid_voltage - self.nominal_voltage) / self.nominal_voltage
         self.voltage_thd = min(0.1, voltage_deviation * 2)
 
         # Calculate frequency rate of change
         if hasattr(self, "_last_frequency"):
-            self.frequency_rate_of_change = (
-                self.grid_frequency - self._last_frequency
-            ) / 0.1
+            self.frequency_rate_of_change = (self.grid_frequency - self._last_frequency) / 0.1
         else:
             self.frequency_rate_of_change = 0.0
         self._last_frequency = self.grid_frequency
@@ -220,27 +209,19 @@ class GridStabilityController:
         """Assess overall grid stability"""
 
         # Voltage stability assessment
-        voltage_deviation = (
-            abs(self.grid_voltage - self.nominal_voltage) / self.nominal_voltage
-        )
-        self.voltage_stability_index = max(
-            0.0, 1.0 - voltage_deviation / 0.2
-        )  # 20% tolerance
+        voltage_deviation = abs(self.grid_voltage - self.nominal_voltage) / self.nominal_voltage
+        self.voltage_stability_index = max(0.0, 1.0 - voltage_deviation / 0.2)  # 20% tolerance
 
         # Frequency stability assessment
         frequency_deviation = abs(self.grid_frequency - self.nominal_frequency)
-        self.frequency_stability_index = max(
-            0.0, 1.0 - frequency_deviation / 2.0
-        )  # 2 Hz tolerance
+        self.frequency_stability_index = max(0.0, 1.0 - frequency_deviation / 2.0)  # 2 Hz tolerance
 
         # Power quality assessment
         thd_factor = max(0.0, 1.0 - self.voltage_thd / 0.1)  # 10% THD tolerance
         pf_factor = max(0.0, (self.grid_power_factor - 0.8) / 0.2)  # 80-100% PF range
 
         # Rate of change assessment
-        rocof_factor = max(
-            0.0, 1.0 - abs(self.frequency_rate_of_change) / 5.0
-        )  # 5 Hz/s tolerance
+        rocof_factor = max(0.0, 1.0 - abs(self.frequency_rate_of_change) / 5.0)  # 5 Hz/s tolerance
 
         # Overall stability index
         self.overall_stability_index = min(
@@ -258,24 +239,15 @@ class GridStabilityController:
         """Detect and manage grid faults"""
 
         # Voltage fault detection
-        if (
-            self.grid_voltage < self.limits.voltage_min
-            or self.grid_voltage > self.limits.voltage_max
-        ):
+        if self.grid_voltage < self.limits.voltage_min or self.grid_voltage > self.limits.voltage_max:
             self._handle_voltage_fault(dt)
 
         # Frequency fault detection
-        if (
-            self.grid_frequency < self.limits.frequency_min
-            or self.grid_frequency > self.limits.frequency_max
-        ):
+        if self.grid_frequency < self.limits.frequency_min or self.grid_frequency > self.limits.frequency_max:
             self._handle_frequency_fault(dt)
 
         # Power quality fault detection
-        if (
-            self.grid_power_factor < self.limits.power_factor_min
-            or self.voltage_thd > self.limits.voltage_thd_max
-        ):
+        if self.grid_power_factor < self.limits.power_factor_min or self.voltage_thd > self.limits.voltage_thd_max:
             self._handle_power_quality_fault(dt)
 
         # Update existing faults
@@ -288,14 +260,11 @@ class GridStabilityController:
         """Handle voltage-related faults"""
         severity = min(
             1.0,
-            abs(self.grid_voltage - self.nominal_voltage)
-            / (self.nominal_voltage * 0.3),
+            abs(self.grid_voltage - self.nominal_voltage) / (self.nominal_voltage * 0.3),
         )
 
         # Check if this is a new fault
-        existing_fault = next(
-            (f for f in self.active_faults if f.fault_type == "voltage"), None
-        )
+        existing_fault = next((f for f in self.active_faults if f.fault_type == "voltage"), None)
 
         if not existing_fault:
             fault = GridFault(
@@ -307,17 +276,13 @@ class GridStabilityController:
                 location="grid_connection",
             )
             self.active_faults.append(fault)
-            logger.warning(
-                f"Voltage fault detected: {self.grid_voltage:.1f}V (severity: {severity:.2f})"
-            )
+            logger.warning(f"Voltage fault detected: {self.grid_voltage:.1f}V (severity: {severity:.2f})")
 
     def _handle_frequency_fault(self, dt: float):
         """Handle frequency-related faults"""
         severity = min(1.0, abs(self.grid_frequency - self.nominal_frequency) / 3.0)
 
-        existing_fault = next(
-            (f for f in self.active_faults if f.fault_type == "frequency"), None
-        )
+        existing_fault = next((f for f in self.active_faults if f.fault_type == "frequency"), None)
 
         if not existing_fault:
             fault = GridFault(
@@ -329,21 +294,15 @@ class GridStabilityController:
                 location="grid_connection",
             )
             self.active_faults.append(fault)
-            logger.warning(
-                f"Frequency fault detected: {self.grid_frequency:.2f}Hz (severity: {severity:.2f})"
-            )
+            logger.warning(f"Frequency fault detected: {self.grid_frequency:.2f}Hz (severity: {severity:.2f})")
 
     def _handle_power_quality_fault(self, dt: float):
         """Handle power quality faults"""
-        pf_severity = max(
-            0.0, (self.limits.power_factor_min - self.grid_power_factor) / 0.2
-        )
+        pf_severity = max(0.0, (self.limits.power_factor_min - self.grid_power_factor) / 0.2)
         thd_severity = max(0.0, (self.voltage_thd - self.limits.voltage_thd_max) / 0.1)
         severity = max(pf_severity, thd_severity)
 
-        existing_fault = next(
-            (f for f in self.active_faults if f.fault_type == "power_quality"), None
-        )
+        existing_fault = next((f for f in self.active_faults if f.fault_type == "power_quality"), None)
 
         if not existing_fault and severity > 0.1:
             fault = GridFault(
@@ -370,17 +329,9 @@ class GridStabilityController:
             fault_cleared = False
 
             if fault.fault_type == "voltage":
-                fault_cleared = (
-                    self.limits.voltage_min
-                    <= self.grid_voltage
-                    <= self.limits.voltage_max
-                )
+                fault_cleared = self.limits.voltage_min <= self.grid_voltage <= self.limits.voltage_max
             elif fault.fault_type == "frequency":
-                fault_cleared = (
-                    self.limits.frequency_min
-                    <= self.grid_frequency
-                    <= self.limits.frequency_max
-                )
+                fault_cleared = self.limits.frequency_min <= self.grid_frequency <= self.limits.frequency_max
             elif fault.fault_type == "power_quality":
                 fault_cleared = (
                     self.grid_power_factor >= self.limits.power_factor_min
@@ -390,9 +341,7 @@ class GridStabilityController:
             if fault_cleared:
                 cleared_faults.append(fault)
                 self.fault_history.append(fault)
-                logger.info(
-                    f"Fault cleared: {fault.fault_type} (duration: {fault.duration:.1f}s)"
-                )
+                logger.info(f"Fault cleared: {fault.fault_type} (duration: {fault.duration:.1f}s)")
 
         # Remove cleared faults
         for fault in cleared_faults:
@@ -419,9 +368,7 @@ class GridStabilityController:
             self.fault_ride_through_active = False
 
         # Determine support mode needed
-        voltage_deviation = (
-            abs(self.grid_voltage - self.nominal_voltage) / self.nominal_voltage
-        )
+        voltage_deviation = abs(self.grid_voltage - self.nominal_voltage) / self.nominal_voltage
         frequency_deviation = abs(self.grid_frequency - self.nominal_frequency)
 
         if voltage_deviation > 0.05:  # 5% voltage deviation
@@ -446,9 +393,7 @@ class GridStabilityController:
         }
 
         if self.current_mode == GridStabilityMode.EMERGENCY_DISCONNECT:
-            commands.update(
-                {"grid_connection_enable": False, "active_power_limit": 0.0}
-            )
+            commands.update({"grid_connection_enable": False, "active_power_limit": 0.0})
 
         elif self.current_mode == GridStabilityMode.RIDE_THROUGH:
             ride_through_commands = self._execute_fault_ride_through(system_state, dt)
@@ -503,9 +448,7 @@ class GridStabilityController:
                 freq_error = self.grid_frequency - self.nominal_frequency
                 if freq_error < 0:
                     # Low frequency - increase active power
-                    commands["active_power_limit"] = min(
-                        1.0, 1.0 + abs(freq_error) * 0.1
-                    )
+                    commands["active_power_limit"] = min(1.0, 1.0 + abs(freq_error) * 0.1)
                 else:
                     # High frequency - decrease active power
                     commands["active_power_limit"] = max(0.5, 1.0 - freq_error * 0.2)
@@ -554,9 +497,7 @@ class GridStabilityController:
         # Calculate average stability
         avg_stability = 1.0
         if self.stability_history:
-            recent_stability = [
-                s["overall_stability"] for s in list(self.stability_history)[-20:]
-            ]
+            recent_stability = [s["overall_stability"] for s in list(self.stability_history)[-20:]]
             avg_stability = np.mean(recent_stability) if recent_stability else 1.0
 
         return {
@@ -565,14 +506,10 @@ class GridStabilityController:
             "operating_mode": self.current_mode.value,
             "average_stability": avg_stability,
             "fault_count_24h": len(self.fault_history),
-            "ride_through_events": len(
-                [e for e in self.grid_events if "ride_through" in e.get("mode", "")]
-            ),
+            "ride_through_events": len([e for e in self.grid_events if "ride_through" in e.get("mode", "")]),
             "grid_code_compliance": self.grid_code.get_compliance_status(),
-            "voltage_regulation_active": self.current_mode
-            == GridStabilityMode.VOLTAGE_SUPPORT,
-            "frequency_regulation_active": self.current_mode
-            == GridStabilityMode.FREQUENCY_REGULATION,
+            "voltage_regulation_active": self.current_mode == GridStabilityMode.VOLTAGE_SUPPORT,
+            "frequency_regulation_active": self.current_mode == GridStabilityMode.FREQUENCY_REGULATION,
         }
 
     def reset(self):
@@ -601,9 +538,7 @@ class VoltageController:
         self.regulation_band = regulation_band
         self.kp = 2.0  # Proportional gain for voltage control
 
-    def calculate_support(
-        self, measured_voltage: float, target_voltage: float, system_state: Dict
-    ) -> Dict:
+    def calculate_support(self, measured_voltage: float, target_voltage: float, system_state: Dict) -> Dict:
         """Calculate voltage support commands"""
         voltage_error = target_voltage - measured_voltage
 
@@ -613,9 +548,7 @@ class VoltageController:
         return {
             "voltage_reference": target_voltage,
             "reactive_power_command": reactive_power_command,
-            "voltage_support_gain": min(
-                1.0, abs(voltage_error) / (self.nominal_voltage * 0.1)
-            ),
+            "voltage_support_gain": min(1.0, abs(voltage_error) / (self.nominal_voltage * 0.1)),
         }
 
 
@@ -627,9 +560,7 @@ class FrequencyController:
         self.regulation_band = regulation_band
         self.droop = 0.05  # 5% droop
 
-    def calculate_regulation(
-        self, measured_frequency: float, target_frequency: float, system_state: Dict
-    ) -> Dict:
+    def calculate_regulation(self, measured_frequency: float, target_frequency: float, system_state: Dict) -> Dict:
         """Calculate frequency regulation commands"""
         frequency_error = measured_frequency - target_frequency
 

@@ -23,8 +23,8 @@ import logging
 # Import simulation components for analysis
 from simulation.engine import SimulationEngine
 from simulation.components.floater import Floater
-from simulation.components.generator import Generator
-from simulation.components.drivetrain import Drivetrain
+# Legacy generator import removed - using integrated electrical system instead
+from simulation.components.integrated_drivetrain import IntegratedDrivetrain
 from config.parameter_schema import get_default_parameters
 from config.config import G, RHO_WATER, RHO_AIR
 import queue
@@ -234,7 +234,7 @@ class KPPPhysicsAnalyzer:
         # Calculate system mass
         total_floater_mass = num_floaters * (floater_mass_empty + 0.5 * RHO_WATER * floater_volume)
         chain_mass = 200.0  # Estimated chain mass
-        drivetrain_mass = 500.0  # Estimated drivetrain mass
+        drivetrain_mass = 500.0  # Estimated integrated_drivetrain mass
         total_system_mass = total_floater_mass + chain_mass + drivetrain_mass
         
         # Analyze chain dynamics
@@ -283,7 +283,7 @@ class KPPPhysicsAnalyzer:
             'floater_area': 0.05,  # m² (optimized cross-sectional area)
             'floater_Cd': drag_coefficient,
             
-            # Drivetrain parameters
+            # IntegratedDrivetrain parameters
             'sprocket_radius': sprocket_radius,
             'gear_ratio': gear_ratio,
             'flywheel_inertia': 100.0,  # kg⋅m² (increased for stability)

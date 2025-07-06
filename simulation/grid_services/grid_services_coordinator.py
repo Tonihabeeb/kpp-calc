@@ -6,70 +6,57 @@ demand response, and energy storage services. Manages service prioritization,
 resource allocation, and revenue optimization.
 """
 
-import math
 import time
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 # Import demand response services
 from .demand_response.load_curtailment_controller import (
-    LoadCurtailmentController,
     create_standard_load_curtailment_controller,
 )
 from .demand_response.load_forecaster import (
-    LoadForecaster,
     create_standard_load_forecaster,
 )
 from .demand_response.peak_shaving_controller import (
-    PeakShavingController,
     create_standard_peak_shaving_controller,
 )
 from .economic.bidding_strategy import (
-    BiddingStrategyController,
     create_bidding_strategy,
 )
 
 # Import economic optimization services
-from .economic.economic_optimizer import EconomicOptimizer, create_economic_optimizer
-from .economic.market_interface import MarketInterface, create_market_interface
-from .economic.price_forecaster import PriceForecaster, create_price_forecaster
+from .economic.economic_optimizer import create_economic_optimizer
+from .economic.market_interface import create_market_interface
+from .economic.price_forecaster import create_price_forecaster
 
 # Import frequency response services
 from .frequency.primary_frequency_controller import (
-    PrimaryFrequencyController,
     create_standard_primary_frequency_controller,
 )
 from .frequency.secondary_frequency_controller import (
-    SecondaryFrequencyController,
     create_standard_secondary_frequency_controller,
 )
 from .frequency.synthetic_inertia_controller import (
-    SyntheticInertiaController,
     create_standard_synthetic_inertia_controller,
 )
 
 # Import energy storage services
 from .storage.battery_storage_system import (
-    BatteryStorageSystem,
     create_battery_storage_system,
 )
 from .storage.grid_stabilization_controller import (
-    GridStabilizationController,
     create_grid_stabilization_controller,
 )
 from .voltage.dynamic_voltage_support import (
-    DynamicVoltageSupport,
     create_standard_dynamic_voltage_support,
 )
 from .voltage.power_factor_controller import (
-    PowerFactorController,
     create_standard_power_factor_controller,
 )
 
 # Import voltage support services
 from .voltage.voltage_regulator import (
-    VoltageRegulator,
     create_standard_voltage_regulator,
 )
 
@@ -118,11 +105,7 @@ class GridServicesConfig:
 
     def validate(self):
         """Validate configuration parameters"""
-        total_allocation = (
-            self.max_frequency_response
-            + self.max_voltage_response
-            + self.max_storage_response
-        )
+        total_allocation = self.max_frequency_response + self.max_voltage_response + self.max_storage_response
         assert total_allocation <= 1.0, "Total resource allocation cannot exceed 100%"
 
 
@@ -161,15 +144,9 @@ class GridServicesCoordinator:
         self.config.validate()
 
         # Initialize frequency response services
-        self.primary_frequency_controller = (
-            create_standard_primary_frequency_controller()
-        )
-        self.secondary_frequency_controller = (
-            create_standard_secondary_frequency_controller()
-        )
-        self.synthetic_inertia_controller = (
-            create_standard_synthetic_inertia_controller()
-        )
+        self.primary_frequency_controller = create_standard_primary_frequency_controller()
+        self.secondary_frequency_controller = create_standard_secondary_frequency_controller()
+        self.synthetic_inertia_controller = create_standard_synthetic_inertia_controller()
         # Initialize voltage support services
         self.voltage_regulator = create_standard_voltage_regulator()
         self.power_factor_controller = create_standard_power_factor_controller()
@@ -204,9 +181,7 @@ class GridServicesCoordinator:
         self.available_capacity = 1.0  # Available capacity for services (p.u.)
         self.allocated_capacity = {}  # Capacity allocated by service
 
-    def update(
-        self, grid_conditions: GridConditions, dt: float, rated_power: float
-    ) -> Dict[str, Any]:
+    def update(self, grid_conditions: GridConditions, dt: float, rated_power: float) -> Dict[str, Any]:
         """
         Update all grid services and coordinate responses.
 
@@ -251,16 +226,12 @@ class GridServicesCoordinator:
 
         return coordinated_response
 
-    def _update_frequency_services(
-        self, grid_conditions: GridConditions, dt: float, rated_power: float
-    ):
+    def _update_frequency_services(self, grid_conditions: GridConditions, dt: float, rated_power: float):
         """Update all frequency response services"""
 
         # Primary frequency control
         if abs(grid_conditions.frequency - 60.0) > 0.02:  # Outside dead band
-            pfc_response = self.primary_frequency_controller.update(
-                grid_conditions.frequency, dt, rated_power
-            )
+            pfc_response = self.primary_frequency_controller.update(grid_conditions.frequency, dt, rated_power)
 
             if abs(pfc_response["response_pu"]) > 0.001:
                 command = ServiceCommand(
@@ -273,9 +244,7 @@ class GridServicesCoordinator:
 
         # Secondary frequency control (AGC)
         if abs(grid_conditions.agc_signal) > 0.001:
-            sfc_response = self.secondary_frequency_controller.update(
-                grid_conditions.agc_signal, dt, rated_power
-            )
+            sfc_response = self.secondary_frequency_controller.update(grid_conditions.agc_signal, dt, rated_power)
 
             if abs(sfc_response["response_pu"]) > 0.001:
                 command = ServiceCommand(
@@ -287,9 +256,7 @@ class GridServicesCoordinator:
                 self.service_commands.append(command)
 
         # Synthetic inertia
-        inertia_response = self.synthetic_inertia_controller.update(
-            grid_conditions.frequency, dt, rated_power
-        )
+        inertia_response = self.synthetic_inertia_controller.update(grid_conditions.frequency, dt, rated_power)
 
         if abs(inertia_response["response_pu"]) > 0.001:
             command = ServiceCommand(
@@ -301,9 +268,7 @@ class GridServicesCoordinator:
             )
             self.service_commands.append(command)
 
-    def _update_voltage_services(
-        self, grid_conditions: GridConditions, dt: float, rated_power: float
-    ):
+    def _update_voltage_services(self, grid_conditions: GridConditions, dt: float, rated_power: float):
         """Update all voltage support services"""
 
         # Convert voltage from V to p.u. (assuming 480V nominal)
@@ -315,9 +280,7 @@ class GridServicesCoordinator:
         if dvs_response["support_active"]:
             command = ServiceCommand(
                 service_type="dynamic_voltage_support",
-                power_command=dvs_response[
-                    "reactive_power_mvar"
-                ],  # Use reactive power in MVAR
+                power_command=dvs_response["reactive_power_mvar"],  # Use reactive power in MVAR
                 priority=ServicePriority.EMERGENCY,
                 confidence=0.98,
             )
@@ -330,9 +293,7 @@ class GridServicesCoordinator:
             if vr_response["regulation_active"]:
                 command = ServiceCommand(
                     service_type="voltage_regulation",
-                    power_command=vr_response[
-                        "reactive_power_mvar"
-                    ],  # Use reactive power in MVAR
+                    power_command=vr_response["reactive_power_mvar"],  # Use reactive power in MVAR
                     priority=ServicePriority.VOLTAGE_SUPPORT,
                     confidence=0.95,
                 )
@@ -340,8 +301,7 @@ class GridServicesCoordinator:
 
         # Power factor controller (lowest priority - only if voltage services not active)
         if not any(
-            cmd.service_type in ["dynamic_voltage_support", "voltage_regulation"]
-            for cmd in self.service_commands
+            cmd.service_type in ["dynamic_voltage_support", "voltage_regulation"] for cmd in self.service_commands
         ):
 
             # Calculate current power factor
@@ -349,10 +309,7 @@ class GridServicesCoordinator:
             reactive_power_pu = grid_conditions.reactive_power / rated_power
 
             # Check if voltage regulation is active (for coordination)
-            voltage_regulation_active = any(
-                cmd.service_type == "voltage_regulation"
-                for cmd in self.service_commands
-            )
+            voltage_regulation_active = any(cmd.service_type == "voltage_regulation" for cmd in self.service_commands)
 
             pfc_response = self.power_factor_controller.update(
                 active_power_pu,
@@ -365,17 +322,13 @@ class GridServicesCoordinator:
             if pfc_response["control_active"]:
                 command = ServiceCommand(
                     service_type="power_factor_control",
-                    power_command=pfc_response[
-                        "reactive_power_mvar"
-                    ],  # Use reactive power in MVAR
+                    power_command=pfc_response["reactive_power_mvar"],  # Use reactive power in MVAR
                     priority=ServicePriority.OPTIMIZATION,
                     confidence=0.85,
                 )
                 self.service_commands.append(command)
 
-    def _update_demand_response_services(
-        self, grid_conditions: GridConditions, dt: float, rated_power: float
-    ):
+    def _update_demand_response_services(self, grid_conditions: GridConditions, dt: float, rated_power: float):
         """Update all demand response services"""
         # Update load forecaster (always runs for planning)
         current_load = abs(grid_conditions.active_power)  # Current load in MW
@@ -392,23 +345,17 @@ class GridServicesCoordinator:
 
         # Update peak shaving controller
         current_demand = abs(grid_conditions.active_power)
-        current_generation = (
-            grid_conditions.active_power if grid_conditions.active_power > 0 else 0.0
-        )
+        current_generation = grid_conditions.active_power if grid_conditions.active_power > 0 else 0.0
 
         # Convert forecast to simple list of floats if needed
         forecast_values = []
         if forecast:
             forecast_values = [point.get("predicted_load", 0.0) for point in forecast]
 
-        ps_response = self.peak_shaving_controller.update(
-            current_demand, current_generation, dt, forecast_values
-        )
+        ps_response = self.peak_shaving_controller.update(current_demand, current_generation, dt, forecast_values)
         # Generate peak shaving command if active
         if ps_response["shaving_active"]:
-            total_response = (
-                ps_response["generation_boost_mw"] - ps_response["load_reduction_mw"]
-            )
+            total_response = ps_response["generation_boost_mw"] - ps_response["load_reduction_mw"]
             if abs(total_response) > 0.001:  # Only if significant response
                 command = ServiceCommand(
                     service_type="peak_shaving",
@@ -435,9 +382,7 @@ class GridServicesCoordinator:
             "timestamp": grid_conditions.timestamp or time.time(),
         }
 
-        lc_response = self.load_curtailment_controller.update(
-            current_load, dt, grid_condition_data
-        )
+        lc_response = self.load_curtailment_controller.update(current_load, dt, grid_condition_data)
 
         # Generate curtailment command if active
         if lc_response["curtailment_active"]:
@@ -459,9 +404,7 @@ class GridServicesCoordinator:
                 )
                 self.service_commands.append(command)
 
-    def _update_energy_storage_services(
-        self, grid_conditions: GridConditions, dt: float, rated_power: float
-    ):
+    def _update_energy_storage_services(self, grid_conditions: GridConditions, dt: float, rated_power: float):
         """Update all energy storage services"""
 
         # Prepare grid conditions for storage services
@@ -481,8 +424,7 @@ class GridServicesCoordinator:
         if bss_response["active"] and abs(bss_response["power_output_kw"]) > 1.0:
             command = ServiceCommand(
                 service_type="battery_storage",
-                power_command=bss_response["power_output_kw"]
-                / 1000.0,  # Convert kW to MW
+                power_command=bss_response["power_output_kw"] / 1000.0,  # Convert kW to MW
                 priority=ServicePriority.ENERGY_ARBITRAGE,
                 confidence=0.85,
             )
@@ -497,9 +439,7 @@ class GridServicesCoordinator:
             "available_capacity_kwh": bss_response["available_capacity_kwh"],
         }
 
-        gsc_response = self.grid_stabilization_controller.update(
-            dt, storage_grid_conditions, battery_status
-        )
+        gsc_response = self.grid_stabilization_controller.update(dt, storage_grid_conditions, battery_status)
 
         if gsc_response["active"] and "control_commands" in gsc_response:
             active_power = gsc_response["control_commands"].get("active_power_kw", 0.0)
@@ -512,24 +452,16 @@ class GridServicesCoordinator:
                 )
                 self.service_commands.append(command)
 
-    def _update_economic_services(
-        self, grid_conditions: GridConditions, dt: float, rated_power: float
-    ):
+    def _update_economic_services(self, grid_conditions: GridConditions, dt: float, rated_power: float):
         """Update all economic optimization services"""
         # Update price forecasting
-        current_price = getattr(
-            grid_conditions, "electricity_price", 60.0
-        )  # Default if not available
-        price_update = self.price_forecaster.update(
-            current_price, grid_conditions.timestamp
-        )
+        current_price = getattr(grid_conditions, "electricity_price", 60.0)  # Default if not available
+        price_update = self.price_forecaster.update(current_price, grid_conditions.timestamp)
 
         # Prepare economic conditions
         economic_conditions = {
             "current_price": current_price,
-            "forecast_prices": price_update.get(
-                "forecast_prices", [current_price] * 24
-            ),
+            "forecast_prices": price_update.get("forecast_prices", [current_price] * 24),
             "grid_frequency": grid_conditions.frequency,
             "grid_voltage": grid_conditions.voltage,
             "active_power": grid_conditions.active_power,
@@ -555,8 +487,7 @@ class GridServicesCoordinator:
                         power_command=allocation["power_mw"],
                         priority=ServicePriority.OPTIMIZATION,
                         confidence=allocation.get("confidence", 0.7),
-                        duration=allocation.get("duration_hours", 1.0)
-                        * 3600,  # Convert to seconds
+                        duration=allocation.get("duration_hours", 1.0) * 3600,  # Convert to seconds
                     )
                     self.service_commands.append(command)
 
@@ -581,9 +512,7 @@ class GridServicesCoordinator:
 
         # Aggregate current service commands by type
         for command in self.service_commands:
-            service_category = command.service_type.split("_")[
-                0
-            ]  # Get base service type
+            service_category = command.service_type.split("_")[0]  # Get base service type
             if service_category not in portfolio:
                 portfolio[service_category] = {
                     "total_power": 0.0,
@@ -641,8 +570,7 @@ class GridServicesCoordinator:
                     # Same priority - average weighted by confidence
                     total_confidence = cmd1.confidence + cmd2.confidence
                     coordinated_power = (
-                        cmd1.power_command * cmd1.confidence
-                        + cmd2.power_command * cmd2.confidence
+                        cmd1.power_command * cmd1.confidence + cmd2.power_command * cmd2.confidence
                     ) / total_confidence
                     coordination_method = "weighted_average"
                 else:
@@ -659,8 +587,8 @@ class GridServicesCoordinator:
 
         else:
             # Multiple services - complex coordination
-            coordinated_power, active_service_types, coordination_method = (
-                self._coordinate_multiple_services(sorted_commands)
+            coordinated_power, active_service_types, coordination_method = self._coordinate_multiple_services(
+                sorted_commands
             )
 
         # Apply resource limits
@@ -688,9 +616,7 @@ class GridServicesCoordinator:
         status = f"{coordination_method}: {len(active_service_types)} services active"
         return self._create_coordination_response(coordinated_power, status)
 
-    def _are_services_compatible(
-        self, cmd1: ServiceCommand, cmd2: ServiceCommand
-    ) -> bool:
+    def _are_services_compatible(self, cmd1: ServiceCommand, cmd2: ServiceCommand) -> bool:
         """Check if two service commands are compatible for coordination"""
 
         # Services of the same type are always compatible
@@ -703,10 +629,7 @@ class GridServicesCoordinator:
             "secondary_frequency_control",
             "synthetic_inertia",
         }
-        if (
-            cmd1.service_type in frequency_services
-            and cmd2.service_type in frequency_services
-        ):
+        if cmd1.service_type in frequency_services and cmd2.service_type in frequency_services:
             return True
 
         # Voltage services are generally compatible
@@ -715,10 +638,7 @@ class GridServicesCoordinator:
             "power_factor_correction",
             "dynamic_voltage_support",
         }
-        if (
-            cmd1.service_type in voltage_services
-            and cmd2.service_type in voltage_services
-        ):
+        if cmd1.service_type in voltage_services and cmd2.service_type in voltage_services:
             return True
 
         # Check if commands are in same direction (both positive or both negative)
@@ -748,10 +668,7 @@ class GridServicesCoordinator:
 
         # Calculate weighted average within priority group
         total_weight = sum(cmd.confidence for cmd in primary_group)
-        coordinated_power = (
-            sum(cmd.power_command * cmd.confidence for cmd in primary_group)
-            / total_weight
-        )
+        coordinated_power = sum(cmd.power_command * cmd.confidence for cmd in primary_group) / total_weight
 
         active_service_types = [cmd.service_type for cmd in primary_group]
 
@@ -768,24 +685,18 @@ class GridServicesCoordinator:
                     weight_factor = 0.5  # Reduce influence of lower priority services
                     total_weight += cmd.confidence * weight_factor
                     coordinated_power = (
-                        coordinated_power
-                        * (total_weight - cmd.confidence * weight_factor)
+                        coordinated_power * (total_weight - cmd.confidence * weight_factor)
                         + cmd.power_command * cmd.confidence * weight_factor
                     ) / total_weight
                     active_service_types.append(cmd.service_type)
 
-                    if (
-                        len(active_service_types)
-                        >= self.config.max_simultaneous_services
-                    ):
+                    if len(active_service_types) >= self.config.max_simultaneous_services:
                         break
 
         coordination_method = f"multi_service_{len(active_service_types)}"
         return coordinated_power, active_service_types, coordination_method
 
-    def _is_command_compatible_with_average(
-        self, cmd: ServiceCommand, avg_power: float
-    ) -> bool:
+    def _is_command_compatible_with_average(self, cmd: ServiceCommand, avg_power: float) -> bool:
         """Check if a command is compatible with the current average"""
         # Commands are compatible if they don't oppose each other too strongly
         if avg_power == 0:
@@ -795,9 +706,7 @@ class GridServicesCoordinator:
         opposition_ratio = -cmd.power_command / avg_power if avg_power != 0 else 0
         return opposition_ratio < 0.5
 
-    def _create_coordination_response(
-        self, power_command: float, status: str
-    ) -> Dict[str, Any]:
+    def _create_coordination_response(self, power_command: float, status: str) -> Dict[str, Any]:
         """Create standardized coordination response"""
         return {
             "total_power_command_mw": power_command,
@@ -823,7 +732,7 @@ class GridServicesCoordinator:
 
     def _update_performance_tracking(self, dt: float):
         """Update performance tracking metrics"""
-        current_time = time.time()
+        time.time()
 
         # Track service activations and durations
         for service_type in self.active_services:

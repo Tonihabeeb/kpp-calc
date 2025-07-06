@@ -5,7 +5,7 @@ Combines mechanical, electrical, and thermal loss models for comprehensive syste
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict
 
 import numpy as np
 
@@ -76,9 +76,7 @@ class IntegratedLossModel:
         self.efficiency_warning_threshold = 0.70  # 70% efficiency warning
         self.temperature_warning_threshold = 80.0  # 80°C temperature warning
 
-        logger.info(
-            "IntegratedLossModel initialized with comprehensive loss and thermal modeling"
-        )
+        logger.info("IntegratedLossModel initialized with comprehensive loss and thermal modeling")
 
     def initialize_system_components(self, config: Dict):
         """
@@ -136,9 +134,7 @@ class IntegratedLossModel:
 
         logger.info(f"Initialized {len(thermal_components)} thermal components")
 
-    def update_system_losses(
-        self, system_state: Dict, dt: float
-    ) -> EnhancedSystemState:
+    def update_system_losses(self, system_state: Dict, dt: float) -> EnhancedSystemState:
         """
         Update comprehensive system losses including thermal effects.
 
@@ -157,31 +153,21 @@ class IntegratedLossModel:
 
         # Calculate electrical losses
         electrical_state = system_state.get("electrical", {})
-        electrical_losses_value = (
-            self.electrical_losses.calculate_total_electrical_losses(electrical_state)
-        )
+        electrical_losses_value = self.electrical_losses.calculate_total_electrical_losses(electrical_state)
 
         # Calculate heat generation from losses
-        heat_sources = self._calculate_heat_generation(
-            mechanical_losses, electrical_losses_value, component_states
-        )
+        heat_sources = self._calculate_heat_generation(mechanical_losses, electrical_losses_value, component_states)
 
         # Update thermal model
         self.thermal_model.update_all_temperatures(heat_sources, dt)
 
         # Calculate thermal effects on efficiency
-        thermal_efficiency_factors = self._calculate_thermal_efficiency_effects(
-            component_states
-        )
+        self._calculate_thermal_efficiency_effects(component_states)
 
         # Calculate total system losses
         total_losses = mechanical_losses.total_losses + electrical_losses_value
         input_power = system_state.get("input_power", 1.0)
-        system_efficiency = (
-            max(0.0, (input_power - total_losses) / input_power)
-            if input_power > 0
-            else 0.0
-        )
+        system_efficiency = max(0.0, (input_power - total_losses) / input_power) if input_power > 0 else 0.0
 
         # Create system losses summary
         system_losses = SystemLosses(
@@ -196,9 +182,7 @@ class IntegratedLossModel:
         thermal_states = self.thermal_model.get_system_thermal_state()
 
         # Calculate performance metrics
-        performance_metrics = self._calculate_performance_metrics(
-            system_losses, thermal_states, system_state
-        )
+        performance_metrics = self._calculate_performance_metrics(system_losses, thermal_states, system_state)
         # Create enhanced system state
         enhanced_state = EnhancedSystemState(
             component_states=component_states,
@@ -216,9 +200,7 @@ class IntegratedLossModel:
 
         return enhanced_state
 
-    def _extract_component_states(
-        self, system_state: Dict
-    ) -> Dict[str, ComponentState]:
+    def _extract_component_states(self, system_state: Dict) -> Dict[str, ComponentState]:
         """Extract component states from system state dictionary"""
         component_states = {}
 
@@ -231,9 +213,7 @@ class IntegratedLossModel:
             # Get thermal state
             thermal_temp = 20.0
             if component in self.thermal_model.component_states:
-                thermal_temp = self.thermal_model.component_states[
-                    component
-                ].temperature
+                thermal_temp = self.thermal_model.component_states[component].temperature
 
             component_states[component] = ComponentState(
                 torque=component_data.get("torque", 0.0),
@@ -245,18 +225,12 @@ class IntegratedLossModel:
 
         return component_states
 
-    def _calculate_enhanced_mechanical_losses(
-        self, component_states: Dict[str, ComponentState]
-    ) -> LossComponents:
+    def _calculate_enhanced_mechanical_losses(self, component_states: Dict[str, ComponentState]) -> LossComponents:
         """Calculate mechanical losses with thermal coupling"""
         # Apply thermal effects to component states
         enhanced_states = {}
         for name, state in component_states.items():
-            enhanced_efficiency = (
-                self.thermal_model.calculate_temperature_effects_on_efficiency(
-                    name, state.efficiency
-                )
-            )
+            enhanced_efficiency = self.thermal_model.calculate_temperature_effects_on_efficiency(name, state.efficiency)
 
             enhanced_state = ComponentState(
                 torque=state.torque,
@@ -268,9 +242,7 @@ class IntegratedLossModel:
             enhanced_states[name] = enhanced_state
 
         # Calculate losses with thermal effects
-        losses = self.drivetrain_losses.calculate_total_losses(
-            enhanced_states, self.system_config
-        )
+        losses = self.drivetrain_losses.calculate_total_losses(enhanced_states, self.system_config)
 
         return losses
 
@@ -284,9 +256,7 @@ class IntegratedLossModel:
         heat_sources = {}
 
         # Distribute mechanical losses to components
-        total_mechanical_power = sum(
-            abs(state.torque * state.speed) for state in component_states.values()
-        )
+        total_mechanical_power = sum(abs(state.torque * state.speed) for state in component_states.values())
 
         if total_mechanical_power > 0:
             for component_name, state in component_states.items():
@@ -297,15 +267,11 @@ class IntegratedLossModel:
                 component_heat = 0.0
 
                 if "bearing" in component_name or "sprocket" in component_name:
-                    component_heat += (
-                        mechanical_losses.bearing_friction * power_fraction
-                    )
+                    component_heat += mechanical_losses.bearing_friction * power_fraction
                     component_heat += mechanical_losses.seal_friction * power_fraction
 
                 if "gear" in component_name or "gearbox" in component_name:
-                    component_heat += (
-                        mechanical_losses.gear_mesh_losses * power_fraction
-                    )
+                    component_heat += mechanical_losses.gear_mesh_losses * power_fraction
                     component_heat += mechanical_losses.windage_losses * power_fraction
 
                 if "clutch" in component_name:
@@ -321,17 +287,13 @@ class IntegratedLossModel:
 
         return heat_sources
 
-    def _calculate_thermal_efficiency_effects(
-        self, component_states: Dict[str, ComponentState]
-    ) -> Dict[str, float]:
+    def _calculate_thermal_efficiency_effects(self, component_states: Dict[str, ComponentState]) -> Dict[str, float]:
         """Calculate how thermal effects modify component efficiency"""
         thermal_factors = {}
 
         for component_name, state in component_states.items():
-            thermal_factor = (
-                self.thermal_model.calculate_temperature_effects_on_efficiency(
-                    component_name, 1.0  # Base efficiency of 1.0 to get the factor
-                )
+            thermal_factor = self.thermal_model.calculate_temperature_effects_on_efficiency(
+                component_name, 1.0  # Base efficiency of 1.0 to get the factor
             )
             thermal_factors[component_name] = thermal_factor
 
@@ -346,21 +308,15 @@ class IntegratedLossModel:
         # Efficiency metrics
         metrics["system_efficiency"] = system_losses.system_efficiency
         metrics["mechanical_efficiency"] = 1.0 - (
-            system_losses.mechanical_losses.total_losses
-            / max(1.0, system_state.get("input_power", 1.0))
+            system_losses.mechanical_losses.total_losses / max(1.0, system_state.get("input_power", 1.0))
         )
         metrics["electrical_efficiency"] = 1.0 - (
-            system_losses.electrical_losses
-            / max(1.0, system_state.get("electrical_power", 1.0))
+            system_losses.electrical_losses / max(1.0, system_state.get("electrical_power", 1.0))
         )
 
         # Thermal metrics
-        avg_temperature = np.mean(
-            [state["temperature"] for state in thermal_states.values()]
-        )
-        max_temperature = max(
-            [state["temperature"] for state in thermal_states.values()]
-        )
+        avg_temperature = np.mean([state["temperature"] for state in thermal_states.values()])
+        max_temperature = max([state["temperature"] for state in thermal_states.values()])
 
         metrics["average_temperature"] = avg_temperature
         metrics["max_temperature"] = max_temperature
@@ -369,12 +325,10 @@ class IntegratedLossModel:
         # Loss breakdown percentages
         if system_losses.total_system_losses > 0:
             metrics["bearing_loss_percent"] = (
-                system_losses.mechanical_losses.bearing_friction
-                / system_losses.total_system_losses
+                system_losses.mechanical_losses.bearing_friction / system_losses.total_system_losses
             ) * 100
             metrics["gear_loss_percent"] = (
-                system_losses.mechanical_losses.gear_mesh_losses
-                / system_losses.total_system_losses
+                system_losses.mechanical_losses.gear_mesh_losses / system_losses.total_system_losses
             ) * 100
             metrics["electrical_loss_percent"] = (
                 system_losses.electrical_losses / system_losses.total_system_losses
@@ -384,12 +338,8 @@ class IntegratedLossModel:
             metrics["gear_loss_percent"] = 0.0
             metrics["electrical_loss_percent"] = 0.0
         # Performance indices
-        metrics["power_density"] = system_state.get("output_power", 0.0) / max(
-            1.0, float(avg_temperature - 20.0)
-        )
-        metrics["thermal_efficiency_index"] = system_losses.system_efficiency * (
-            100.0 / max(50.0, max_temperature)
-        )
+        metrics["power_density"] = system_state.get("output_power", 0.0) / max(1.0, float(avg_temperature - 20.0))
+        metrics["thermal_efficiency_index"] = system_losses.system_efficiency * (100.0 / max(50.0, max_temperature))
 
         return metrics
 
@@ -412,10 +362,7 @@ class IntegratedLossModel:
     def _check_system_warnings(self, enhanced_state: EnhancedSystemState):
         """Check for system warnings and log them"""
         # Efficiency warnings
-        if (
-            enhanced_state.system_losses.system_efficiency
-            < self.efficiency_warning_threshold
-        ):
+        if enhanced_state.system_losses.system_efficiency < self.efficiency_warning_threshold:
             logger.warning(
                 f"System efficiency below threshold: {enhanced_state.system_losses.system_efficiency:.3f} < {self.efficiency_warning_threshold}"
             )
@@ -440,17 +387,13 @@ class IntegratedLossModel:
             return {"status": "No data available"}
 
         summary = {
-            "current_efficiency": (
-                self.efficiency_history[-1] if self.efficiency_history else 0.0
-            ),
+            "current_efficiency": (self.efficiency_history[-1] if self.efficiency_history else 0.0),
             "average_efficiency": np.mean(self.efficiency_history),
             "min_efficiency": np.min(self.efficiency_history),
             "max_efficiency": np.max(self.efficiency_history),
             "current_losses": self.loss_history[-1] if self.loss_history else 0.0,
             "average_losses": np.mean(self.loss_history),
-            "current_temperature": (
-                self.thermal_history[-1] if self.thermal_history else 20.0
-            ),
+            "current_temperature": (self.thermal_history[-1] if self.thermal_history else 20.0),
             "max_temperature": np.max(self.thermal_history),
             "thermal_model_components": len(self.thermal_model.component_states),
             "data_points": len(self.efficiency_history),
@@ -469,7 +412,8 @@ class IntegratedLossModel:
         logger.info("IntegratedLossModel reset")
 
 
-from typing import Union, Dict, Any
+from typing import Any, Dict, Union
+
 
 def create_standard_kpp_enhanced_loss_model(
     config_or_temp: Union[float, Dict[str, Any]] = 20.0,
@@ -490,9 +434,7 @@ def create_standard_kpp_enhanced_loss_model(
         ambient_temp = config.get("ambient_temperature", 20.0)
         model = IntegratedLossModel(ambient_temp)
         model.initialize_system_components(config)
-        logger.info(
-            f"Created KPP enhanced loss model from config dict (ambient_temperature={ambient_temp}°C)"
-        )
+        logger.info(f"Created KPP enhanced loss model from config dict (ambient_temperature={ambient_temp}°C)")
         return model
     else:
         ambient_temp = float(config_or_temp)
@@ -519,7 +461,5 @@ def create_standard_kpp_enhanced_loss_model(
             },
         }
         model.initialize_system_components(config)
-        logger.info(
-            f"Created standard KPP enhanced loss model with ambient temperature {ambient_temp}°C"
-        )
+        logger.info(f"Created standard KPP enhanced loss model with ambient temperature {ambient_temp}°C")
         return model

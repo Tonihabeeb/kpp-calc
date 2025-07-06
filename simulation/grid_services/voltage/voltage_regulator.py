@@ -15,7 +15,7 @@ import math
 import time
 from collections import deque
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 @dataclass
@@ -33,14 +33,10 @@ class VoltageRegulatorConfig:
 
     def validate(self):
         """Validate configuration parameters"""
-        assert (
-            0.20 <= self.reactive_capacity <= 0.50
-        ), "Reactive capacity must be 20-50%"
+        assert 0.20 <= self.reactive_capacity <= 0.50, "Reactive capacity must be 20-50%"
         assert 0.005 <= self.voltage_deadband <= 0.02, "Voltage deadband must be 0.5-2%"
         assert 0.02 <= self.droop_setting <= 0.06, "Droop setting must be 2-6%"
-        assert (
-            100.0 <= self.response_time_ms <= 1000.0
-        ), "Response time must be 100-1000ms"
+        assert 100.0 <= self.response_time_ms <= 1000.0, "Response time must be 100-1000ms"
 
 
 class VoltageRegulator:
@@ -66,9 +62,7 @@ class VoltageRegulator:
 
         # Filtering for voltage measurement
         self.voltage_filter = 1.0
-        self.alpha = 1.0 - math.exp(
-            -1.0 / (self.config.filter_time_constant * 60.0)
-        )  # Filter coefficient
+        self.alpha = 1.0 - math.exp(-1.0 / (self.config.filter_time_constant * 60.0))  # Filter coefficient
 
         # Voltage history for performance tracking
         self.voltage_history = deque(maxlen=1000)  # Store ~16 minutes at 1Hz
@@ -80,9 +74,7 @@ class VoltageRegulator:
         self.total_regulation_time = 0.0
         self.last_update_time = time.time()
 
-    def update(
-        self, voltage_pu: float, dt: float, rated_power: float
-    ) -> Dict[str, Any]:
+    def update(self, voltage_pu: float, dt: float, rated_power: float) -> Dict[str, Any]:
         """
         Update voltage regulator with current voltage measurement.
 
@@ -97,20 +89,14 @@ class VoltageRegulator:
         current_time = time.time()
 
         if not self.config.enable_regulation:
-            return self._create_response_dict(
-                0.0, "Voltage regulation disabled", rated_power
-            )
+            return self._create_response_dict(0.0, "Voltage regulation disabled", rated_power)
 
         # Input validation
         if voltage_pu < 0.5 or voltage_pu > 1.5:
-            return self._create_response_dict(
-                0.0, "Invalid voltage measurement", rated_power
-            )
+            return self._create_response_dict(0.0, "Invalid voltage measurement", rated_power)
 
         # Apply low-pass filter to voltage measurement
-        self.voltage_filter = (
-            1 - self.alpha
-        ) * self.voltage_filter + self.alpha * voltage_pu
+        self.voltage_filter = (1 - self.alpha) * self.voltage_filter + self.alpha * voltage_pu
         self.measured_voltage = self.voltage_filter
 
         # Calculate voltage error relative to reference
@@ -145,9 +131,7 @@ class VoltageRegulator:
         )
 
         # Apply rate limiting based on response time
-        max_rate = self.config.reactive_capacity / (
-            self.config.response_time_ms / 1000.0
-        )
+        max_rate = self.config.reactive_capacity / (self.config.response_time_ms / 1000.0)
         rate_change = reactive_power_cmd - self.reactive_power_output
 
         if abs(rate_change) > max_rate * dt:
@@ -187,9 +171,7 @@ class VoltageRegulator:
 
         self.last_update_time = current_time
 
-        return self._create_response_dict(
-            self.reactive_power_output, status, rated_power
-        )
+        return self._create_response_dict(self.reactive_power_output, status, rated_power)
 
     def set_voltage_reference(self, voltage_reference: float):
         """Set voltage reference setpoint"""
@@ -198,9 +180,7 @@ class VoltageRegulator:
         else:
             raise ValueError("Voltage reference must be between 0.95 and 1.05 p.u.")
 
-    def _create_response_dict(
-        self, reactive_power_pu: float, status: str, rated_power: float
-    ) -> Dict[str, Any]:
+    def _create_response_dict(self, reactive_power_pu: float, status: str, rated_power: float) -> Dict[str, Any]:
         """Create standardized response dictionary"""
         return {
             "reactive_power_pu": reactive_power_pu,
@@ -217,19 +197,12 @@ class VoltageRegulator:
     def get_performance_metrics(self) -> Dict[str, float]:
         """Get performance metrics for monitoring and optimization"""
         # Calculate average regulation time
-        avg_regulation_time = (
-            self.total_regulation_time / self.regulation_count
-            if self.regulation_count > 0
-            else 0.0
-        )
+        avg_regulation_time = self.total_regulation_time / self.regulation_count if self.regulation_count > 0 else 0.0
 
         # Calculate voltage stability metrics
         if len(self.voltage_history) > 1:
             voltages = [entry["voltage"] for entry in self.voltage_history]
-            voltage_std = math.sqrt(
-                sum((v - sum(voltages) / len(voltages)) ** 2 for v in voltages)
-                / len(voltages)
-            )
+            voltage_std = math.sqrt(sum((v - sum(voltages) / len(voltages)) ** 2 for v in voltages) / len(voltages))
             voltage_range = max(voltages) - min(voltages)
         else:
             voltage_std = 0.0
@@ -237,12 +210,8 @@ class VoltageRegulator:
 
         # Calculate reactive power utilization
         if len(self.reactive_power_history) > 0:
-            reactive_powers = [
-                entry["reactive_power"] for entry in self.reactive_power_history
-            ]
-            max_reactive_utilization = (
-                max(abs(q) for q in reactive_powers) / self.config.reactive_capacity
-            )
+            reactive_powers = [entry["reactive_power"] for entry in self.reactive_power_history]
+            max_reactive_utilization = max(abs(q) for q in reactive_powers) / self.config.reactive_capacity
         else:
             max_reactive_utilization = 0.0
 

@@ -5,27 +5,14 @@ Combines advanced generator, power electronics, and grid interface into unified 
 
 import logging
 import math
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Union
 
-from .advanced_generator import AdvancedGenerator, create_kmp_generator
+from .advanced_generator import create_kmp_generator
 from .power_electronics import (
-    GridInterface,
-    PowerElectronics,
     create_kmp_power_electronics,
 )
 
-# PHASE 2: Import new configuration system
-try:
-    from config.components.electrical_config import ElectricalConfig as NewElectricalConfig
-    NEW_CONFIG_AVAILABLE = True
-except ImportError:
-    NEW_CONFIG_AVAILABLE = False
-    NewElectricalConfig = None
-
 logger = logging.getLogger(__name__)
-
-# Type alias for backward compatibility
-ElectricalConfigType = Union[NewElectricalConfig, Dict[str, Any]] if NEW_CONFIG_AVAILABLE else Dict[str, Any]
 
 class IntegratedElectricalSystem:
     """
@@ -39,41 +26,42 @@ class IntegratedElectricalSystem:
     - System protection and monitoring
     """
 
-    def __init__(self, config: Optional[ElectricalConfigType] = None):
+    def __init__(self, config: Any = None):
         """
         Initialize integrated electrical system.
 
         Args:
-            config (dict or ElectricalConfig): System configuration parameters
+            config (Any): System configuration parameters
         """
-        self.using_new_config = NEW_CONFIG_AVAILABLE and hasattr(config, 'to_dict')
+        self.using_new_config = hasattr(config, "to_dict")
         if config is None:
             config = {}
         if self.using_new_config:
             logger.info("Using new configuration system for electrical system")
-            config_dict = config.to_dict()
+            config_dict = config.to_dict() if hasattr(config, "to_dict") else {}
         else:
             logger.info("Using legacy configuration system for electrical system")
-            config_dict = dict(config)
+            config_dict = dict(config) if isinstance(config, dict) else {}
 
         # Create subsystems
-        self.generator = create_kmp_generator(config_dict.get("generator", {}))
-        pe_config = config_dict.get("power_electronics", {})
-        grid_config = config_dict.get("grid", {})
+        generator_cfg = config_dict["generator"] if isinstance(config_dict, dict) and "generator" in config_dict else {}
+        self.generator = create_kmp_generator(generator_cfg)
+        pe_config = config_dict["power_electronics"] if isinstance(config_dict, dict) and "power_electronics" in config_dict else {}
+        grid_config = config_dict["grid"] if isinstance(config_dict, dict) and "grid" in config_dict else {}
 
         self.power_electronics, self.grid_interface = create_kmp_power_electronics(
             {"power_electronics": pe_config, "grid": grid_config}
         )
 
         # System parameters
-        self.rated_power = config_dict.get("max_power", config_dict.get("rated_power", 530000.0))  # W
-        self.target_power_factor = config_dict.get("power_factor", config_dict.get("target_power_factor", 0.92))
-        self.load_management_enabled = config_dict.get("load_management", True)
+        self.rated_power = config_dict.get("max_power", config_dict.get("rated_power", 530000.0)) if isinstance(config_dict, dict) else 530000.0  # W
+        self.target_power_factor = config_dict.get("power_factor", config_dict.get("target_power_factor", 0.92)) if isinstance(config_dict, dict) else 0.92
+        self.load_management_enabled = config_dict.get("load_management", True) if isinstance(config_dict, dict) else True
 
         # Control parameters
-        self.power_controller_kp = config_dict.get("power_controller_kp", 0.1)
-        self.power_controller_ki = config_dict.get("power_controller_ki", 0.05)
-        self.power_controller_kd = config_dict.get("power_controller_kd", 0.01)
+        self.power_controller_kp = config_dict.get("power_controller_kp", 0.1) if isinstance(config_dict, dict) else 0.1
+        self.power_controller_ki = config_dict.get("power_controller_ki", 0.05) if isinstance(config_dict, dict) else 0.05
+        self.power_controller_kd = config_dict.get("power_controller_kd", 0.01) if isinstance(config_dict, dict) else 0.01
 
         # State variables
         self.mechanical_power_input = 0.0  # W
@@ -99,9 +87,7 @@ class IntegratedElectricalSystem:
         self.power_electronics_state = {}
         self.grid_state = {}
 
-        logger.info(
-            f"Integrated electrical system initialized: {self.rated_power/1000:.0f}kW rated"
-        )
+        logger.info(f"Integrated electrical system initialized: {self.rated_power/1000:.0f}kW rated")
 
     def update(
         self,
@@ -114,8 +100,8 @@ class IntegratedElectricalSystem:
         Update complete electrical system.
 
         Args:
-            mechanical_torque (float): Input torque from drivetrain (N·m)
-            shaft_speed (float): Shaft speed from drivetrain (rad/s)
+            mechanical_torque (float): Input torque from integrated_drivetrain (N·m)
+            shaft_speed (float): Shaft speed from integrated_drivetrain (rad/s)
             dt (float): Time step (s)
             control_commands (dict, optional): Control system commands
 
@@ -128,25 +114,19 @@ class IntegratedElectricalSystem:
         if control_commands:
             # Update target load factor from control system
             if "target_load_factor" in control_commands:
-                self.target_load_factor = max(
-                    0.0, min(1.0, control_commands["target_load_factor"])
-                )
+                self.target_load_factor = max(0.0, min(1.0, control_commands["target_load_factor"]))
 
             # Update power setpoint
             if "power_setpoint" in control_commands:
                 target_power = control_commands["power_setpoint"]
-                self.target_load_factor = max(
-                    0.0, min(1.0, target_power / self.rated_power)
-                )
+                self.target_load_factor = max(0.0, min(1.0, target_power / self.rated_power))
 
             # Grid interface commands
             grid_commands = {}
             if "voltage_setpoint" in control_commands:
                 grid_commands["voltage_setpoint"] = control_commands["voltage_setpoint"]
             if "frequency_setpoint" in control_commands:
-                grid_commands["frequency_setpoint"] = control_commands[
-                    "frequency_setpoint"
-                ]
+                grid_commands["frequency_setpoint"] = control_commands["frequency_setpoint"]
             if "control_mode" in control_commands:
                 grid_commands["control_mode"] = control_commands["control_mode"]
 
@@ -160,29 +140,29 @@ class IntegratedElectricalSystem:
         )  # Step 2: Calculate generator operation at FIXED GRID-SYNCHRONIZED SPEED
         # FUNDAMENTAL FIX: Generator operates at fixed 375 RPM (39.27 rad/s) synchronized to grid
         # The load torque varies based on available mechanical power and control system
-        
+
         target_generator_speed_rpm = 375.0  # Fixed grid-synchronized speed
         target_generator_speed_rad_s = target_generator_speed_rpm * (2 * math.pi / 60)  # 39.27 rad/s
-        
+
         logger.debug(
             f"DEBUG electrical update: actual_shaft_speed={shaft_speed:.2f}rad/s, "
             f"target_generator_speed={target_generator_speed_rad_s:.2f}rad/s, "
             f"mechanical_torque={mechanical_torque:.2f}Nm"
         )
-        
+
         # Calculate available mechanical power
         mechanical_power_available = mechanical_torque * shaft_speed
-        
+
         # Determine maximum electrical power we can generate
         # Limited by available mechanical power and generator rating
         max_electrical_power = min(
             mechanical_power_available * 0.93,  # 93% efficiency maximum
-            self.rated_power  # Cannot exceed generator rating
+            self.rated_power,  # Cannot exceed generator rating
         )
-        
+
         # Calculate effective load factor based on what we can actually produce
         max_load_factor = max_electrical_power / self.rated_power if self.rated_power > 0 else 0.0
-        
+
         logger.debug(
             f"Electrical System: mech_torque={mechanical_torque:.1f}Nm, "
             f"actual_speed={shaft_speed:.2f}rad/s, "
@@ -197,7 +177,7 @@ class IntegratedElectricalSystem:
             # Enhanced engagement logic for better startup
             if mechanical_power_available > 2000.0:  # 2kW threshold for engagement
                 # FIXED: Lower meaningful power threshold from 10% to 1% for smaller systems
-                if max_load_factor > 0.01:  # Only engage if we can produce >1% (>5.3kW) 
+                if max_load_factor > 0.01:  # Only engage if we can produce >1% (>5.3kW)
                     effective_load_factor = min(self.target_load_factor, max_load_factor)
                     logger.info(
                         f"Electrical engagement: mech_power={mechanical_power_available:.0f}W, "
@@ -206,14 +186,10 @@ class IntegratedElectricalSystem:
                     )
                 else:
                     effective_load_factor = 0.0  # Not enough mechanical power
-                    logger.warning(
-                        f"Electrical engagement blocked: max_load_factor={max_load_factor:.3f} < 0.01"
-                    )
+                    logger.warning(f"Electrical engagement blocked: max_load_factor={max_load_factor:.3f} < 0.01")
             else:
                 effective_load_factor = 0.0  # Below engagement threshold
-                logger.warning(
-                    f"Electrical engagement blocked: mech_power={mechanical_power_available:.0f}W < 2000W"
-                )
+                logger.warning(f"Electrical engagement blocked: mech_power={mechanical_power_available:.0f}W < 2000W")
         else:
             # Direct load factor based on available mechanical power
             effective_load_factor = max_load_factor
@@ -221,9 +197,7 @@ class IntegratedElectricalSystem:
         # Step 3: Update generator at FIXED TARGET SPEED (not actual shaft speed)
         # Generator always operates at 375 RPM synchronized to grid
         self.generator_state = self.generator.update(
-            target_generator_speed_rad_s,  # FIXED: Always 375 RPM
-            effective_load_factor, 
-            dt
+            target_generator_speed_rad_s, effective_load_factor, dt  # FIXED: Always 375 RPM
         )
 
         # Step 4: Extract generator outputs at target speed
@@ -237,22 +211,24 @@ class IntegratedElectricalSystem:
             # Calculate load torque to extract the electrical power we want to generate
             # Load torque = (electrical power we want) / (actual mechanical speed available)
             desired_electrical_power = self.rated_power * effective_load_factor
-            
+
             # The load torque is what we need to extract from the mechanical system
             # to produce the desired electrical power
             if shaft_speed > 0.1:
                 # Load torque scales with actual mechanical speed
                 self.load_torque_command = desired_electrical_power / shaft_speed
-                
+
                 # Ensure reasonable limits
                 min_torque = 10.0  # Minimum engagement torque
                 max_torque = mechanical_power_available / shaft_speed  # Cannot exceed available
                 self.load_torque_command = max(min_torque, min(self.load_torque_command, max_torque))
-                
-                logger.debug(f"Variable Load Torque: desired_power={desired_electrical_power/1000:.1f}kW, "
-                            f"actual_speed={shaft_speed:.2f}rad/s, "
-                            f"load_torque={self.load_torque_command:.1f}Nm, "
-                            f"available_power={mechanical_power_available/1000:.1f}kW")
+
+                logger.debug(
+                    f"Variable Load Torque: desired_power={desired_electrical_power/1000:.1f}kW, "
+                    f"actual_speed={shaft_speed:.2f}rad/s, "
+                    f"load_torque={self.load_torque_command:.1f}Nm, "
+                    f"available_power={mechanical_power_available/1000:.1f}kW"
+                )
             else:
                 self.load_torque_command = 0.0
         else:
@@ -270,9 +246,7 @@ class IntegratedElectricalSystem:
 
         # Step 7: Calculate system efficiency
         if self.mechanical_power_input > 0:
-            self.system_efficiency = (
-                self.grid_power_output / self.mechanical_power_input
-            )
+            self.system_efficiency = self.grid_power_output / self.mechanical_power_input
         else:
             self.system_efficiency = 0.0
 
@@ -312,11 +286,7 @@ class IntegratedElectricalSystem:
 
         # Derivative term
         if dt > 0:
-            d_term = (
-                self.power_controller_kd
-                * (power_error - self.power_error_previous)
-                / dt
-            )
+            d_term = self.power_controller_kd * (power_error - self.power_error_previous) / dt
         else:
             d_term = 0.0
 
@@ -376,9 +346,9 @@ class IntegratedElectricalSystem:
         # Account for conversion losses and parasitic loads
         conversion_efficiency = self.system_efficiency if self.system_efficiency > 0 else 0.93
         parasitic_losses = 0.02  # 2% parasitic losses (cooling, control systems, etc.)
-        
+
         effective_power_output = self.electrical_power_output * conversion_efficiency * (1 - parasitic_losses)
-        
+
         # Energy tracking (convert W to Wh)
         self.total_energy_generated += self.electrical_power_output * dt / 3600
         self.total_energy_delivered += effective_power_output * dt / 3600
@@ -394,46 +364,43 @@ class IntegratedElectricalSystem:
             theoretical_max_energy = (
                 self.rated_power * self.operating_hours * availability_factor * grid_availability / 1000
             )  # kWh
-            
+
             actual_energy = self.total_energy_delivered / 1000  # kWh
-            self.capacity_factor = (
-                (actual_energy / theoretical_max_energy) * 100
-                if theoretical_max_energy > 0
-                else 0
-            )
+            self.capacity_factor = (actual_energy / theoretical_max_energy) * 100 if theoretical_max_energy > 0 else 0
 
         # Enhanced load factor calculation with dynamic adjustments
         if self.rated_power > 0:
             # Base load factor
             base_load_factor = self.grid_power_output / self.rated_power
-            
+
             # Apply dynamic adjustments based on:
             # - Grid demand patterns
             # - System health
             # - Environmental conditions
-            
+
             # Grid demand adjustment (simplified)
             import random
+
             grid_demand_factor = 1.0 + 0.1 * random.uniform(-1, 1)  # ±10% variation
-            
+
             # System health factor (degradation over time)
             health_factor = max(0.8, 1.0 - (self.operating_hours / 8760) * 0.1)  # 10% degradation per year
-            
+
             # Environmental factor (temperature effects)
             temp_factor = 1.0  # Can be adjusted based on ambient temperature
-            
+
             # Calculate enhanced load factor
             self.load_factor = base_load_factor * grid_demand_factor * health_factor * temp_factor
-            
+
             # Ensure load factor stays within reasonable bounds
             self.load_factor = max(0.0, min(1.0, self.load_factor))
-        
+
         # Update efficiency tracking
         if self.mechanical_power_input > 0:
             self.system_efficiency = self.electrical_power_output / self.mechanical_power_input
         else:
             self.system_efficiency = 0.0
-        
+
         # Log performance metrics periodically
         if int(self.operating_hours * 3600) % 60 == 0:  # Every minute
             logger.debug(
@@ -468,15 +435,11 @@ class IntegratedElectricalSystem:
             "grid": self.grid_state,
             # System status
             "synchronized": self.power_electronics_state.get("is_synchronized", False),
-            "protection_active": self.power_electronics_state.get(
-                "protection_active", False
-            ),
+            "protection_active": self.power_electronics_state.get("protection_active", False),
             "grid_connected": self.grid_state.get("is_connected", False),
             # Power quality
             "power_factor": self.power_electronics_state.get("power_factor", 0.0),
-            "voltage_regulation": self.power_electronics_state.get(
-                "output_voltage", 0.0
-            )
+            "voltage_regulation": self.power_electronics_state.get("output_voltage", 0.0)
             / self.power_electronics.output_voltage,
             "frequency_stability": abs(self.grid_state.get("frequency", 50.0) - 50.0),
         }
@@ -506,7 +469,7 @@ class IntegratedElectricalSystem:
 
     def get_load_torque(self, speed: float) -> float:
         """
-        Get load torque for given speed (for drivetrain integration).
+        Get load torque for given speed (for integrated_drivetrain integration).
 
         Args:
             speed (float): Shaft speed (rad/s)
@@ -517,9 +480,7 @@ class IntegratedElectricalSystem:
         if self.load_management_enabled:
             return self.load_torque_command
         else:
-            return self.generator.get_load_torque(
-                speed, self.rated_power * self.target_load_factor
-            )
+            return self.generator.get_load_torque(speed, self.rated_power * self.target_load_factor)
 
     def get_power_output(self) -> float:
         """
@@ -581,26 +542,34 @@ class IntegratedElectricalSystem:
             "total_energy_generated": getattr(self, "total_energy_generated", 0.0),
         }
 
+    def get_comprehensive_state(self) -> Dict[str, Any]:
+        """
+        Public method to get comprehensive system state for monitoring and control.
+        Returns:
+            dict: Complete system state information
+        """
+        return self._get_comprehensive_state()
+
 
 def create_standard_kmp_electrical_system(
-    config: Optional[ElectricalConfigType] = None,
+    config: Optional[Any] = None,
 ) -> IntegratedElectricalSystem:
     """
     Create standard KMP electrical system with realistic parameters.
 
     Args:
-        config (dict or ElectricalConfig): Optional configuration overrides
+        config (Any): Optional configuration overrides
 
     Returns:
         IntegratedElectricalSystem: Configured electrical system
     """
-    if config is not None and NEW_CONFIG_AVAILABLE and hasattr(config, 'to_dict'):
+    if config is not None and hasattr(config, "to_dict"):
         # If new config object, pass directly
-        electrical_system = IntegratedElectricalSystem(config)
+        integrated_electrical_system = IntegratedElectricalSystem(config)
         logger.info(
             f"Created standard KMP electrical system (new config): {getattr(config, 'max_power', 530000.0)/1000:.0f}kW"
         )
-        return electrical_system
+        return integrated_electrical_system
     else:
         # Legacy dict config (deep merge as before)
         default_config = {
@@ -620,22 +589,16 @@ def create_standard_kmp_electrical_system(
             "grid": {"nominal_voltage": 13800.0, "nominal_frequency": 50.0},  # 13.8 kV
         }
 
-        if config:
+        if config and isinstance(config, dict):
             # Deep merge configuration
             for key, value in config.items():
-                if (
-                    key in default_config
-                    and isinstance(default_config[key], dict)
-                    and isinstance(value, dict)
-                ):
+                if key in default_config and isinstance(default_config[key], dict) and isinstance(value, dict):
                     default_config[key].update(value)
                 else:
                     default_config[key] = value
 
-        electrical_system = IntegratedElectricalSystem(default_config)
+        integrated_electrical_system = IntegratedElectricalSystem(default_config)
 
-        logger.info(
-            f"Created standard KMP electrical system: {default_config['rated_power']/1000:.0f}kW"
-        )
+        logger.info(f"Created standard KMP electrical system: {default_config['rated_power']/1000:.0f}kW")
 
-        return electrical_system
+        return integrated_electrical_system

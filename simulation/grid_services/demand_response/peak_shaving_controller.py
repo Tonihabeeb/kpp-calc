@@ -12,15 +12,13 @@ Accuracy: <5% peak prediction error
 Recovery time: <15 minutes after peak
 """
 
-import math
 import statistics
 import time
 from collections import deque
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 
 
 @dataclass
@@ -49,18 +47,10 @@ class PeakShavingConfig:
 
     def validate(self):
         """Validate configuration parameters"""
-        assert (
-            0.70 <= self.peak_threshold_percent <= 0.95
-        ), "Peak threshold must be 70-95%"
-        assert (
-            0.60 <= self.shaving_target_percent <= 0.90
-        ), "Shaving target must be 60-90%"
-        assert (
-            self.shaving_target_percent < self.peak_threshold_percent
-        ), "Target must be less than threshold"
-        assert (
-            12 <= self.prediction_horizon_hours <= 48
-        ), "Prediction horizon must be 12-48 hours"
+        assert 0.70 <= self.peak_threshold_percent <= 0.95, "Peak threshold must be 70-95%"
+        assert 0.60 <= self.shaving_target_percent <= 0.90, "Shaving target must be 60-90%"
+        assert self.shaving_target_percent < self.peak_threshold_percent, "Target must be less than threshold"
+        assert 12 <= self.prediction_horizon_hours <= 48, "Prediction horizon must be 12-48 hours"
 
 
 class PeakEvent:
@@ -170,9 +160,7 @@ class PeakShavingController:
             self._update_active_shaving(current_demand, current_time, dt)
 
         # Check if new peak shaving is needed
-        generation_cmd, load_cmd = self._evaluate_peak_shaving_need(
-            current_demand, current_generation, current_time
-        )
+        generation_cmd, load_cmd = self._evaluate_peak_shaving_need(current_demand, current_generation, current_time)
 
         # Update state
         self.current_demand = current_demand
@@ -210,14 +198,9 @@ class PeakShavingController:
         # Update hourly averages every hour
         if len(self.demand_history) >= 60:  # Have at least 1 hour of data
             recent_hour = list(self.demand_history)[-60:]  # Last hour
-            hourly_avg = sum(entry["demand"] for entry in recent_hour) / len(
-                recent_hour
-            )
+            hourly_avg = sum(entry["demand"] for entry in recent_hour) / len(recent_hour)
 
-            if (
-                len(self.hourly_averages) == 0
-                or (current_time - self.last_update_time) >= 3600
-            ):
+            if len(self.hourly_averages) == 0 or (current_time - self.last_update_time) >= 3600:
                 self.hourly_averages.append(
                     {
                         "average": hourly_avg,
@@ -247,18 +230,13 @@ class PeakShavingController:
         forecast = []
         for h in range(24):
             forecast_hour = (current_hour + h) % 24
-            forecast_weekday = (
-                current_weekday
-                if h < (24 - current_hour)
-                else (current_weekday + 1) % 7
-            )
+            forecast_weekday = current_weekday if h < (24 - current_hour) else (current_weekday + 1) % 7
 
             # Find similar historical periods
             similar_periods = [
                 entry["average"]
                 for entry in self.hourly_averages
-                if entry["hour"] == forecast_hour
-                and entry["weekday"] == forecast_weekday
+                if entry["hour"] == forecast_hour and entry["weekday"] == forecast_weekday
             ]
 
             if similar_periods:
@@ -266,23 +244,13 @@ class PeakShavingController:
                 forecast_value = statistics.median(similar_periods)
             else:
                 # Fallback to overall average for that hour
-                hour_averages = [
-                    entry["average"]
-                    for entry in self.hourly_averages
-                    if entry["hour"] == forecast_hour
-                ]
-                forecast_value = (
-                    statistics.median(hour_averages)
-                    if hour_averages
-                    else self.current_demand
-                )
+                hour_averages = [entry["average"] for entry in self.hourly_averages if entry["hour"] == forecast_hour]
+                forecast_value = statistics.median(hour_averages) if hour_averages else self.current_demand
 
             forecast.append(forecast_value)
 
         self.forecast_horizon = forecast
-        self.forecast_confidence = min(
-            0.8, len(self.hourly_averages) / 168.0
-        )  # Increase with data
+        self.forecast_confidence = min(0.8, len(self.hourly_averages) / 168.0)  # Increase with data
 
     def _predict_peaks(self, current_time: float):
         """Predict upcoming peaks based on forecast"""
@@ -300,8 +268,7 @@ class PeakShavingController:
 
                 # Check if we already have a prediction for this time period
                 existing_prediction = any(
-                    abs(p.predicted_time - predicted_time) < 1800  # Within 30 minutes
-                    for p in self.predicted_peaks
+                    abs(p.predicted_time - predicted_time) < 1800 for p in self.predicted_peaks  # Within 30 minutes
                 )
 
                 if not existing_prediction:
@@ -313,9 +280,7 @@ class PeakShavingController:
                     self.predicted_peaks.append(peak_event)
                     self.peaks_predicted += 1
 
-    def _evaluate_peak_shaving_need(
-        self, demand: float, generation: float, current_time: float
-    ) -> Tuple[float, float]:
+    def _evaluate_peak_shaving_need(self, demand: float, generation: float, current_time: float) -> Tuple[float, float]:
         """Evaluate if peak shaving is needed and calculate commands"""
 
         generation_cmd = 0.0
@@ -332,10 +297,7 @@ class PeakShavingController:
             if upcoming_peak and not self.shaving_active:
                 # Start shaving 30 minutes before predicted peak
                 if (upcoming_peak.predicted_time - current_time) <= 1800:  # 30 minutes
-                    if (
-                        self.shaving_events_today
-                        < self.config.max_shaving_events_per_day
-                    ):
+                    if self.shaving_events_today < self.config.max_shaving_events_per_day:
                         self._start_peak_shaving(
                             upcoming_peak.predicted_peak,
                             current_time,
@@ -350,15 +312,11 @@ class PeakShavingController:
 
             # Split reduction between generation increase and load reduction
             if self.config.enable_generation_increase:
-                generation_cmd = min(
-                    required_reduction * 0.7, generation * 0.3
-                )  # Up to 30% gen increase
+                generation_cmd = min(required_reduction * 0.7, generation * 0.3)  # Up to 30% gen increase
 
             if self.config.enable_load_reduction:
                 remaining_reduction = max(0.0, required_reduction - generation_cmd)
-                load_cmd = min(
-                    remaining_reduction, demand * 0.2
-                )  # Up to 20% load reduction
+                load_cmd = min(remaining_reduction, demand * 0.2)  # Up to 20% load reduction
 
         return generation_cmd, load_cmd
 
@@ -399,12 +357,8 @@ class PeakShavingController:
             return
 
         # Update actual values
-        self.active_peak_event.actual_peak = max(
-            self.active_peak_event.actual_peak, demand
-        )
-        self.active_peak_event.shaving_amount = max(
-            0.0, self.active_peak_event.predicted_peak - demand
-        )
+        self.active_peak_event.actual_peak = max(self.active_peak_event.actual_peak, demand)
+        self.active_peak_event.shaving_amount = max(0.0, self.active_peak_event.predicted_peak - demand)
 
         # Check if peak period has ended
         peak_ended = (
@@ -427,10 +381,7 @@ class PeakShavingController:
 
         # Calculate final metrics
         if self.active_peak_event.predicted_peak > 0:
-            shaving_effectiveness = (
-                self.active_peak_event.shaving_amount
-                / self.active_peak_event.predicted_peak
-            )
+            shaving_effectiveness = self.active_peak_event.shaving_amount / self.active_peak_event.predicted_peak
         else:
             shaving_effectiveness = 0.0
 
@@ -450,9 +401,7 @@ class PeakShavingController:
         """Get the next predicted peak event"""
 
         upcoming_peaks = [
-            p
-            for p in self.predicted_peaks
-            if p.predicted_time > current_time and not p.shaving_activated
+            p for p in self.predicted_peaks if p.predicted_time > current_time and not p.shaving_activated
         ]
 
         if upcoming_peaks:
@@ -498,9 +447,7 @@ class PeakShavingController:
 
         return "Monitoring for peaks"
 
-    def _create_response_dict(
-        self, generation_cmd: float, load_cmd: float, status: str
-    ) -> Dict[str, Any]:
+    def _create_response_dict(self, generation_cmd: float, load_cmd: float, status: str) -> Dict[str, Any]:
         """Create standardized response dictionary"""
 
         next_peak = self._get_next_predicted_peak(time.time())
@@ -531,20 +478,13 @@ class PeakShavingController:
                 for p in completed_predictions
                 if p.predicted_peak > 0
             ]
-            self.prediction_accuracy = (
-                (1.0 - statistics.mean(accuracy_errors)) * 100.0
-                if accuracy_errors
-                else 0.0
-            )
+            self.prediction_accuracy = (1.0 - statistics.mean(accuracy_errors)) * 100.0 if accuracy_errors else 0.0
 
         # Calculate average shaving effectiveness
         shaved_peaks = [p for p in completed_predictions if p.shaving_amount > 0]
         if shaved_peaks:
             avg_shaving_effectiveness = (
-                statistics.mean(
-                    [p.shaving_amount / p.predicted_peak for p in shaved_peaks]
-                )
-                * 100.0
+                statistics.mean([p.shaving_amount / p.predicted_peak for p in shaved_peaks]) * 100.0
             )
         else:
             avg_shaving_effectiveness = 0.0
@@ -552,8 +492,7 @@ class PeakShavingController:
         return {
             "peaks_predicted": self.peaks_predicted,
             "peaks_shaved": self.peaks_shaved,
-            "shaving_success_rate": (self.peaks_shaved / max(1, self.peaks_predicted))
-            * 100.0,
+            "shaving_success_rate": (self.peaks_shaved / max(1, self.peaks_predicted)) * 100.0,
             "prediction_accuracy_percent": self.prediction_accuracy,
             "total_cost_savings": self.total_cost_savings,
             "average_shaving_effectiveness": avg_shaving_effectiveness,

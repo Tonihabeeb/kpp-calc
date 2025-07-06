@@ -5,4 +5,4 @@ is now integrated into the electrical system.
 """
 
 # Note: Generator functionality is now integrated into IntegratedElectricalSystem
-# This file is maintained for any future standalone generator needs 
+# This file is maintained for any future standalone generator needs

@@ -150,7 +150,7 @@ def health_check():
             "simulation_engine": "running" if engine else "not_initialized",
             "components": {
                 "floaters": len(engine.floaters) if hasattr(engine, 'floaters') else 0,
-                "drivetrain": "online" if hasattr(engine, 'drivetrain') else "offline",
+                "integrated_drivetrain": "online" if hasattr(engine, 'integrated_drivetrain') else "offline",
                 "generator": "online" if hasattr(engine, 'generator') else "offline",
                 "pneumatics": "online" if hasattr(engine, 'pneumatics') else "offline"
             },
@@ -504,7 +504,7 @@ def energy_balance():
 
 @app.route("/data/drivetrain_status")
 def drivetrain_status():
-    """Get comprehensive drivetrain system status from integrated drivetrain"""
+    """Get comprehensive integrated_drivetrain system status from integrated integrated_drivetrain"""
     try:
         latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
     except Exception:
@@ -513,7 +513,7 @@ def drivetrain_status():
     if not latest:
         return {"status": "no_data"}
 
-    # Extract drivetrain data from the latest simulation state
+    # Extract integrated_drivetrain data from the latest simulation state
     drivetrain_data = {
         "flywheel_speed_rpm": latest.get("flywheel_speed_rpm", 0.0),
         "chain_speed_rpm": latest.get("chain_speed_rpm", 0.0),

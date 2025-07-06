@@ -1,11 +1,10 @@
 """
-Sprocket component for the KPP drivetrain system.
+Sprocket component for the KPP integrated_drivetrain system.
 Handles the conversion from linear chain motion to rotational drive.
 """
 
 import logging
 import math
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +14,7 @@ class DriveShaft:
     Drive shaft component that connects to the sprocket and transmits rotational power.
     """
 
-    def __init__(
-        self, inertia: float = 100.0, max_torque: float = 10000.0, diameter: float = 0.2
-    ):
+    def __init__(self, inertia: float = 100.0, max_torque: float = 10000.0, diameter: float = 0.2):
         """
         Initialize the drive shaft.
 
@@ -93,9 +90,7 @@ class Sprocket:
     Sprocket component that converts chain tension into rotational torque.
     """
 
-    def __init__(
-        self, radius: float = 1.0, tooth_count: int = 20, position: str = "top"
-    ):
+    def __init__(self, radius: float = 1.0, tooth_count: int = 20, position: str = "top"):
         """
         Initialize the sprocket.
 
@@ -133,14 +128,12 @@ class Sprocket:
         # DIRECTION FIX: Use absolute value to ensure positive torque generation
         # The direction of rotation is determined by the system dynamics, not the sign
         abs_tension = abs(chain_tension)
-        
+
         # Basic torque calculation: T = F × r
         base_torque = abs_tension * self.radius
 
         # Apply efficiency losses
-        effective_torque = (
-            base_torque * self.efficiency * self.tooth_engagement_efficiency
-        )
+        effective_torque = base_torque * self.efficiency * self.tooth_engagement_efficiency
 
         return effective_torque
 
@@ -162,7 +155,7 @@ class Sprocket:
 
         # Synchronize angular velocity with drive shaft
         self.angular_velocity = self.drive_shaft.angular_velocity
-        
+
         # SPEED LIMIT: Prevent unrealistic overspeed
         max_angular_velocity = 50.0  # rad/s (about 477 RPM - realistic for large sprocket)
         if abs(self.angular_velocity) > max_angular_velocity:

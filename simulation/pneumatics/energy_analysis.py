@@ -16,9 +16,8 @@ import math
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
-import numpy as np
 
 from utils.logging_setup import setup_logging
 
@@ -99,9 +98,7 @@ class EnergyAnalyzer:
     and performance optimization analysis.
     """
 
-    def __init__(
-        self, analysis_window: float = 60.0, sampling_rate: float = 10.0  # seconds
-    ):  # Hz
+    def __init__(self, analysis_window: float = 60.0, sampling_rate: float = 10.0):  # seconds  # Hz
         """
         Initialize the energy analyzer.
 
@@ -163,16 +160,12 @@ class EnergyAnalyzer:
         elif compression_mode == "adiabatic":
             # Adiabatic compression work: W = (P2*V2 - P1*V1)/(γ-1)
             gamma = 1.4  # Heat capacity ratio for air
-            ideal_work = (initial_pressure * volume / (gamma - 1)) * (
-                pressure_ratio ** ((gamma - 1) / gamma) - 1
-            )
+            ideal_work = (initial_pressure * volume / (gamma - 1)) * (pressure_ratio ** ((gamma - 1) / gamma) - 1)
 
         else:  # mixed mode
             # Weighted average of isothermal and adiabatic
             isothermal_work = initial_pressure * volume * math.log(pressure_ratio)
-            adiabatic_work = (initial_pressure * volume / 0.4) * (
-                pressure_ratio ** (0.4 / 1.4) - 1
-            )
+            adiabatic_work = (initial_pressure * volume / 0.4) * (pressure_ratio ** (0.4 / 1.4) - 1)
             ideal_work = 0.5 * (isothermal_work + adiabatic_work)
 
         # Heat generated during compression
@@ -214,16 +207,12 @@ class EnergyAnalyzer:
         elif expansion_mode == "adiabatic":
             # Adiabatic expansion work
             gamma = 1.4
-            ideal_work = (initial_pressure * volume / (gamma - 1)) * (
-                1 - (1 / pressure_ratio) ** ((gamma - 1) / gamma)
-            )
+            ideal_work = (initial_pressure * volume / (gamma - 1)) * (1 - (1 / pressure_ratio) ** ((gamma - 1) / gamma))
 
         else:  # mixed mode
             # Weighted average
             isothermal_work = initial_pressure * volume * math.log(pressure_ratio)
-            adiabatic_work = (initial_pressure * volume / 0.4) * (
-                1 - (1 / pressure_ratio) ** (0.4 / 1.4)
-            )
+            adiabatic_work = (initial_pressure * volume / 0.4) * (1 - (1 / pressure_ratio) ** (0.4 / 1.4))
             ideal_work = 0.6 * isothermal_work + 0.4 * adiabatic_work
 
         # Heat absorbed during expansion
@@ -253,9 +242,7 @@ class EnergyAnalyzer:
         if pressure <= reference_pressure:
             return 0.0
 
-        stored_energy = (
-            reference_pressure * volume * math.log(pressure / reference_pressure)
-        )
+        stored_energy = reference_pressure * volume * math.log(pressure / reference_pressure)
         return stored_energy
 
     def calculate_thermal_energy_contribution(
@@ -326,18 +313,11 @@ class EnergyAnalyzer:
             EnergyBalance object
         """
         # Calculate efficiencies
-        total_input = electrical_input
-        total_output = mechanical_output + heat_losses + venting_losses
+        mechanical_output + heat_losses + venting_losses
 
-        compression_efficiency = (
-            pneumatic_storage / electrical_input if electrical_input > 0 else 0.0
-        )
-        expansion_efficiency = (
-            mechanical_output / pneumatic_storage if pneumatic_storage > 0 else 0.0
-        )
-        overall_efficiency = (
-            mechanical_output / electrical_input if electrical_input > 0 else 0.0
-        )
+        compression_efficiency = pneumatic_storage / electrical_input if electrical_input > 0 else 0.0
+        expansion_efficiency = mechanical_output / pneumatic_storage if pneumatic_storage > 0 else 0.0
+        overall_efficiency = mechanical_output / electrical_input if electrical_input > 0 else 0.0
 
         balance = EnergyBalance(
             electrical_input=electrical_input,
@@ -391,9 +371,7 @@ class EnergyAnalyzer:
         Returns:
             PowerMetrics object
         """
-        instantaneous_efficiency = (
-            mechanical_power / compressor_power if compressor_power > 0 else 0.0
-        )
+        instantaneous_efficiency = mechanical_power / compressor_power if compressor_power > 0 else 0.0
 
         metrics = PowerMetrics(
             compressor_power=compressor_power,
@@ -409,9 +387,7 @@ class EnergyAnalyzer:
 
         return metrics
 
-    def record_energy_flow(
-        self, flow_type: EnergyFlowType, value: float, description: str = ""
-    ) -> EnergyFlow:
+    def record_energy_flow(self, flow_type: EnergyFlowType, value: float, description: str = "") -> EnergyFlow:
         """
         Record an individual energy flow measurement.
 
@@ -470,9 +446,7 @@ class EnergyAnalyzer:
             "total_input": self.cumulative_energy_input,
             "total_output": self.cumulative_energy_output,
             "total_losses": self.cumulative_losses,
-            "energy_balance": self.cumulative_energy_input
-            - self.cumulative_energy_output
-            - self.cumulative_losses,
+            "energy_balance": self.cumulative_energy_input - self.cumulative_energy_output - self.cumulative_losses,
             "cumulative_efficiency": (
                 self.cumulative_energy_output / self.cumulative_energy_input
                 if self.cumulative_energy_input > 0
@@ -494,24 +468,14 @@ class EnergyAnalyzer:
             return {}
 
         current_time = time.time()
-        recent_metrics = [
-            m
-            for m in self.power_metrics
-            if current_time - m.timestamp <= window_seconds
-        ]
+        recent_metrics = [m for m in self.power_metrics if current_time - m.timestamp <= window_seconds]
 
         if not recent_metrics:
             return {}
 
-        avg_compressor_power = sum(m.compressor_power for m in recent_metrics) / len(
-            recent_metrics
-        )
-        avg_mechanical_power = sum(m.mechanical_power for m in recent_metrics) / len(
-            recent_metrics
-        )
-        avg_efficiency = sum(m.instantaneous_efficiency for m in recent_metrics) / len(
-            recent_metrics
-        )
+        avg_compressor_power = sum(m.compressor_power for m in recent_metrics) / len(recent_metrics)
+        avg_mechanical_power = sum(m.mechanical_power for m in recent_metrics) / len(recent_metrics)
+        avg_efficiency = sum(m.instantaneous_efficiency for m in recent_metrics) / len(recent_metrics)
 
         max_power = max(m.compressor_power for m in recent_metrics)
         min_power = min(m.compressor_power for m in recent_metrics)
@@ -525,9 +489,7 @@ class EnergyAnalyzer:
             "power_variation": max_power - min_power,
         }
 
-    def analyze_energy_flows(
-        self, window_seconds: float = 60.0
-    ) -> Dict[str, Dict[str, float]]:
+    def analyze_energy_flows(self, window_seconds: float = 60.0) -> Dict[str, Dict[str, float]]:
         """
         Analyze energy flows by type over specified window.
 
@@ -541,9 +503,7 @@ class EnergyAnalyzer:
             return {}
 
         current_time = time.time()
-        recent_flows = [
-            f for f in self.energy_flows if current_time - f.timestamp <= window_seconds
-        ]
+        recent_flows = [f for f in self.energy_flows if current_time - f.timestamp <= window_seconds]
 
         # Group by flow type
         flow_analysis = {}
@@ -570,25 +530,13 @@ class EnergyAnalyzer:
         current_time = time.time()
 
         # Remove old energy balances
-        self.energy_balances = [
-            b
-            for b in self.energy_balances
-            if current_time - b.timestamp <= self.analysis_window
-        ]
+        self.energy_balances = [b for b in self.energy_balances if current_time - b.timestamp <= self.analysis_window]
 
         # Remove old power metrics
-        self.power_metrics = [
-            m
-            for m in self.power_metrics
-            if current_time - m.timestamp <= self.analysis_window
-        ]
+        self.power_metrics = [m for m in self.power_metrics if current_time - m.timestamp <= self.analysis_window]
 
         # Remove old energy flows
-        self.energy_flows = [
-            f
-            for f in self.energy_flows
-            if current_time - f.timestamp <= self.analysis_window
-        ]
+        self.energy_flows = [f for f in self.energy_flows if current_time - f.timestamp <= self.analysis_window]
 
     def validate_energy_conservation(self, tolerance: float = 0.01) -> Dict[str, Any]:
         """
@@ -605,9 +553,7 @@ class EnergyAnalyzer:
 
         summary = self.get_energy_summary()
         energy_error = abs(summary["energy_balance"])
-        relative_error = (
-            energy_error / summary["total_input"] if summary["total_input"] > 0 else 0.0
-        )
+        relative_error = energy_error / summary["total_input"] if summary["total_input"] > 0 else 0.0
 
         valid = relative_error <= tolerance
 
@@ -633,9 +579,7 @@ def create_standard_energy_analyzer(analysis_window: float = 60.0) -> EnergyAnal
     Returns:
         Configured EnergyAnalyzer instance
     """
-    analyzer = EnergyAnalyzer(
-        analysis_window=analysis_window, sampling_rate=10.0  # 10 Hz sampling
-    )
+    analyzer = EnergyAnalyzer(analysis_window=analysis_window, sampling_rate=10.0)  # 10 Hz sampling
 
     logger.info("Created standard energy analyzer for KPP pneumatic system")
     return analyzer

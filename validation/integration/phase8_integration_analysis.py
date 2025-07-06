@@ -29,7 +29,7 @@ def analyze_integration_gaps():
 
     # Check advanced systems that should exist
     advanced_systems = {
-        "Advanced Drivetrain System": [
+        "Advanced IntegratedDrivetrain System": [
             "simulation/components/integrated_drivetrain.py",
             "simulation/components/sprocket.py",
             "simulation/components/gearbox.py",
@@ -114,8 +114,8 @@ def analyze_integration_gaps():
 
         # Check legacy systems still used
         legacy_usage = {
-            "legacy_drivetrain": "self.drivetrain.update(" in engine_content
-            or "self.drivetrain.apply_torque(" in engine_content,
+            "legacy_drivetrain": "self.integrated_drivetrain.update(" in engine_content
+            or "self.integrated_drivetrain.apply_torque(" in engine_content,
             "legacy_generator": "self.generator.calculate_power_output("
             in engine_content
             or "self.generator.get_load_torque(" in engine_content,
@@ -174,12 +174,12 @@ def analyze_integration_gaps():
 
         # Check for advanced system UI sections
         ui_sections = {
-            "pneumatic_system": "Phase 7 Pneumatic System"
+            "pneumatics": "Phase 7 Pneumatic System"
             in template_content,  # Should exist
-            "advanced_drivetrain": "Advanced Drivetrain System" in template_content,
+            "advanced_drivetrain": "Advanced IntegratedDrivetrain System" in template_content,
             "advanced_electrical": "Advanced Electrical System" in template_content,
             "grid_services": "Grid Services" in template_content,
-            "control_system": "Control System" in template_content,
+            "integrated_control_system": "Control System" in template_content,
             "loss_analysis": "Loss Analysis" in template_content,
         }
 

@@ -7,16 +7,14 @@ import logging
 import os
 import sys
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 # Add project path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from simulation.optimization.parameter_optimizer import ParameterOptimizer
-from simulation.physics.advanced_event_handler import AdvancedEventHandler
 
 # from simulation.physics.physics_engine import PhysicsEngine  # TODO: Implement PhysicsEngine
-from simulation.physics.state_synchronizer import StateSynchronizer
 from validation.physics_validation import ValidationFramework
 
 
@@ -201,9 +199,7 @@ class IntegrationManager:
         """Integrate optimization system with simulation engine."""
 
         if self.simulation_engine is None:
-            self.logger.error(
-                "Cannot integrate optimization system: simulation engine is None"
-            )
+            self.logger.error("Cannot integrate optimization system: simulation engine is None")
             return
 
         # Add optimization interface to simulation engine
@@ -245,33 +241,19 @@ class IntegrationManager:
                 chain_velocity = getattr(self.simulation_engine, "chain_velocity", 0.0)
                 time_step = self.simulation_engine.physics_engine.params["time_step"]
 
-                validation_result = (
-                    self.validation_framework.validate_physics_consistency(
-                        self.simulation_engine.floaters, chain_velocity, time_step
-                    )
+                validation_result = self.validation_framework.validate_physics_consistency(
+                    self.simulation_engine.floaters, chain_velocity, time_step
                 )
 
                 # Update monitoring metrics
                 self.monitoring_data["validation_count"] += 1
                 if validation_result["passed"]:
-                    self.monitoring_data["performance_metrics"][
-                        "physics_consistency_score"
-                    ] = (
-                        0.99
-                        * self.monitoring_data["performance_metrics"][
-                            "physics_consistency_score"
-                        ]
-                        + 0.01 * 1.0
+                    self.monitoring_data["performance_metrics"]["physics_consistency_score"] = (
+                        0.99 * self.monitoring_data["performance_metrics"]["physics_consistency_score"] + 0.01 * 1.0
                     )
                 else:
-                    self.monitoring_data["performance_metrics"][
-                        "physics_consistency_score"
-                    ] = (
-                        0.99
-                        * self.monitoring_data["performance_metrics"][
-                            "physics_consistency_score"
-                        ]
-                        + 0.01 * 0.0
+                    self.monitoring_data["performance_metrics"]["physics_consistency_score"] = (
+                        0.99 * self.monitoring_data["performance_metrics"]["physics_consistency_score"] + 0.01 * 0.0
                     )
                     self.logger.warning("Physics consistency validation failed")
 
@@ -289,9 +271,7 @@ class IntegrationManager:
 
         try:
             # Run validation suite
-            validation_result = self.validation_framework.run_comprehensive_validation(
-                self.simulation_engine
-            )
+            validation_result = self.validation_framework.run_comprehensive_validation(self.simulation_engine)
 
             # Store results
             self.integration_status["last_validation"] = validation_result
@@ -326,9 +306,7 @@ class IntegrationManager:
             self.logger.error(f"Comprehensive validation failed: {e}")
             return {"success": False, "reason": "validation_error", "error": str(e)}
 
-    def optimize_parameters(
-        self, target: str = "efficiency", max_iterations: int = 50
-    ) -> Dict[str, Any]:
+    def optimize_parameters(self, target: str = "efficiency", max_iterations: int = 50) -> Dict[str, Any]:
         """
         Optimize simulation parameters.
 
@@ -351,9 +329,7 @@ class IntegrationManager:
             self.parameter_optimizer.max_iterations = max_iterations
 
             # Run optimization
-            optimization_result = self.parameter_optimizer.optimize_for_performance(
-                self.simulation_engine, target
-            )
+            optimization_result = self.parameter_optimizer.optimize_for_performance(self.simulation_engine, target)
 
             # Store results
             self.integration_status["last_optimization"] = optimization_result
@@ -366,9 +342,7 @@ class IntegrationManager:
                 total_iterations = optimization_result["total_iterations"]
 
                 self.logger.info(f"Parameter optimization completed successfully")
-                self.logger.info(
-                    f"Best {target} score: {best_score:.4f} after {total_iterations} iterations"
-                )
+                self.logger.info(f"Best {target} score: {best_score:.4f} after {total_iterations} iterations")
 
                 # Log best parameters
                 best_params = optimization_result["best_parameters"]
@@ -396,9 +370,7 @@ class IntegrationManager:
         try:
             # Apply best parameters
             best_params = self.parameter_optimizer.best_configuration
-            self.parameter_optimizer._apply_parameters(
-                self.simulation_engine, best_params
-            )
+            self.parameter_optimizer._apply_parameters(self.simulation_engine, best_params)
 
             self.logger.info("Optimal parameters applied successfully")
             self.logger.info("Applied parameters:")
@@ -415,17 +387,17 @@ class IntegrationManager:
         """Get current integration status and metrics."""
 
         # Calculate success rates
-        validation_success_rate = self.integration_metrics[
-            "successful_validations"
-        ] / max(self.integration_metrics["total_validations"], 1)
+        validation_success_rate = self.integration_metrics["successful_validations"] / max(
+            self.integration_metrics["total_validations"], 1
+        )
 
-        optimization_success_rate = self.integration_metrics[
-            "successful_optimizations"
-        ] / max(self.integration_metrics["total_optimizations"], 1)
+        optimization_success_rate = self.integration_metrics["successful_optimizations"] / max(
+            self.integration_metrics["total_optimizations"], 1
+        )
 
-        integration_success_rate = self.integration_metrics[
-            "successful_integrations"
-        ] / max(self.integration_metrics["component_integration_attempts"], 1)
+        integration_success_rate = self.integration_metrics["successful_integrations"] / max(
+            self.integration_metrics["component_integration_attempts"], 1
+        )
 
         return {
             "integration_status": self.integration_status,
@@ -439,12 +411,8 @@ class IntegrationManager:
             "capabilities": {
                 "validation_framework": True,
                 "parameter_optimization": True,
-                "real_time_monitoring": self.integration_status[
-                    "components_integrated"
-                ],
-                "automatic_optimization": self.integration_status[
-                    "optimization_active"
-                ],
+                "real_time_monitoring": self.integration_status["components_integrated"],
+                "automatic_optimization": self.integration_status["optimization_active"],
                 "continuous_validation": self.integration_status["validation_active"],
             },
         }
@@ -469,9 +437,7 @@ class IntegrationManager:
             "optimization_summary": optimization_summary,
             "monitoring_data": getattr(self, "monitoring_data", {}),
             "last_validation_result": self.integration_status.get("last_validation"),
-            "last_optimization_result": self.integration_status.get(
-                "last_optimization"
-            ),
+            "last_optimization_result": self.integration_status.get("last_optimization"),
         }
 
     def save_integration_results(self, filepath: str):

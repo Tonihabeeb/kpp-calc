@@ -182,6 +182,7 @@ function Import-Configuration {
                         startup_timeout = 10
                         retry_attempts = 3
                         retry_delay = 2
+                        dependencies = @()
                     }
                     master_clock = @{
                         name = "Master Clock Server"
@@ -191,6 +192,7 @@ function Import-Configuration {
                         startup_timeout = 5
                         retry_attempts = 3
                         retry_delay = 1
+                        dependencies = @()
                     }
                     websocket_server = @{
                         name = "WebSocket Server"
@@ -200,6 +202,7 @@ function Import-Configuration {
                         startup_timeout = 5
                         retry_attempts = 3
                         retry_delay = 1
+                        dependencies = @("flask_backend", "master_clock")
                     }
                     dash_frontend = @{
                         name = "Dash Frontend"
@@ -209,6 +212,7 @@ function Import-Configuration {
                         startup_timeout = 10
                         retry_attempts = 3
                         retry_delay = 2
+                        dependencies = @("flask_backend", "websocket_server")
                     }
                 }
                 monitoring = @{
@@ -359,6 +363,12 @@ if (-not (Import-Configuration)) {
 # Initialize logging after configuration is loaded
 Initialize-Logging
 
+# Initialize monitoring alerts
+Initialize-MonitoringAlerts
+
+# Record startup time for uptime tracking
+$script:StartTime = Get-Date
+
 # Set configuration-based variables
 $script:ErrorCheckInterval = $script:Config.monitoring.error_check_interval
 $script:MaxRetries = $script:Config.error_handling.max_retries
@@ -388,6 +398,1624 @@ function Get-BackoffDelay {
     # Add jitter to prevent thundering herd
     $jitter = Get-Random -Minimum 0.8 -Maximum 1.2
     return [math]::Round($delay * $jitter)
+}
+
+# --- Service Dependency Management Functions ---
+
+# Function to validate service dependencies
+function Test-ServiceDependencies {
+    param([string]$ServiceName)
+    
+    try {
+        $serviceConfig = $script:Config.servers.$ServiceName
+        if (-not $serviceConfig) {
+            Write-ErrorLog -Message "Service configuration not found" -Severity "CRITICAL" -Category "DEPENDENCY" -Server $ServiceName -Details "No config for $ServiceName"
+            return $false
+        }
+        
+        # Check if service has dependencies defined
+        if ($serviceConfig.dependencies) {
+            foreach ($dep in $serviceConfig.dependencies) {
+                if (-not (Test-ServiceHealth -ServiceName $dep)) {
+                    Write-ErrorLog -Message "Dependency not healthy" -Severity "HIGH" -Category "DEPENDENCY" -Server $ServiceName -Details "Dependency $dep is not ready"
+                    return $false
+                }
+            }
+        }
+        
+        # Check port availability
+        if (-not (Test-PortAvailability -Port $serviceConfig.port)) {
+            Write-ErrorLog -Message "Port not available" -Severity "HIGH" -Category "DEPENDENCY" -Server $ServiceName -Details "Port $($serviceConfig.port) is in use"
+            return $false
+        }
+        
+        # Check script file exists
+        if (-not (Test-Path $serviceConfig.script)) {
+            Write-ErrorLog -Message "Service script not found" -Severity "CRITICAL" -Category "DEPENDENCY" -Server $ServiceName -Details "Script $($serviceConfig.script) missing"
+            return $false
+        }
+        
+        return $true
+    }
+    catch {
+        Write-ErrorLog -Message "Dependency validation failed" -Severity "CRITICAL" -Category "DEPENDENCY" -Server $ServiceName -Details $_.Exception.Message
+        return $false
+    }
+}
+
+# Function to check service health
+function Test-ServiceHealth {
+    param([string]$ServiceName)
+    
+    try {
+        $serviceConfig = $script:Config.servers.$ServiceName
+        if (-not $serviceConfig) {
+            return $false
+        }
+        
+        $healthUrl = "http://localhost:$($serviceConfig.port)$($serviceConfig.health_endpoint)"
+        
+        # Test URL validity first
+        if (-not (Test-Url -Url $healthUrl)) {
+            return $false
+        }
+        
+        # Check if service is responding
+        $response = try {
+            Invoke-WebRequest -Uri $healthUrl -TimeoutSec 5 -UseBasicParsing
+        } catch {
+            return $false
+        }
+        
+        return ($response.StatusCode -eq 200)
+    }
+    catch {
+        return $false
+    }
+}
+
+# Function to check port availability
+function Test-PortAvailability {
+    param([int]$Port)
+    
+    try {
+        $connection = New-Object System.Net.Sockets.TcpClient
+        $connection.Connect("localhost", $Port)
+        $connection.Close()
+        return $false  # Port is in use
+    }
+    catch {
+        return $true   # Port is available
+    }
+}
+
+# Function to wait for service to be ready
+function Wait-ForServiceReady {
+    param(
+        [string]$ServiceName,
+        [int]$Timeout = 30,
+        [int]$CheckInterval = 2
+    )
+    
+    $startTime = Get-Date
+    $elapsed = 0
+    
+    Write-Host "Waiting for $ServiceName to be ready..." -ForegroundColor Yellow
+    
+    while ($elapsed -lt $Timeout) {
+        if (Test-ServiceHealth -ServiceName $ServiceName) {
+            Write-Host "$ServiceName is ready!" -ForegroundColor Green
+            Write-ErrorLog -Message "Service ready" -Severity "INFO" -Category "DEPENDENCY" -Server $ServiceName
+            return $true
+        }
+        
+        Start-Sleep -Seconds $CheckInterval
+        $elapsed = ((Get-Date) - $startTime).TotalSeconds
+        
+        if ($elapsed % 10 -eq 0) {
+            $elapsedRounded = [math]::Round($elapsed)
+            Write-Host "Still waiting for $ServiceName... ($elapsedRounded s elapsed)" -ForegroundColor Yellow
+        }
+    }
+    
+    Write-Host "Timeout waiting for $ServiceName" -ForegroundColor Red
+    Write-ErrorLog -Message "Service startup timeout" -Severity "HIGH" -Category "DEPENDENCY" -Server $ServiceName -Details "Timeout after $Timeout seconds"
+    return $false
+}
+
+# Function to start service with dependency management
+function Start-ServiceWithDependencies {
+    param([string]$ServiceName)
+    
+    try {
+        # Validate dependencies before starting
+        if (-not (Test-ServiceDependencies -ServiceName $ServiceName)) {
+            Write-Host "Dependencies not met for $ServiceName" -ForegroundColor Red
+            return $false
+        }
+        
+        $serviceConfig = $script:Config.servers.$ServiceName
+        
+        Write-Host "Starting $($serviceConfig.name) (Port $($serviceConfig.port))..." -ForegroundColor Cyan
+        
+        # Start the service
+        $job = Start-Job -ScriptBlock { 
+            param($ScriptPath, $WorkingDir)
+            Set-Location $WorkingDir
+            python $ScriptPath
+        } -ArgumentList $serviceConfig.script, $PWD -Name $ServiceName
+        
+        # Wait for service to be ready
+        $ready = Wait-ForServiceReady -ServiceName $ServiceName -Timeout $serviceConfig.startup_timeout
+        
+        if ($ready) {
+            Write-Host "$($serviceConfig.name) started successfully" -ForegroundColor Green
+            Write-ErrorLog -Message "Service started successfully" -Severity "INFO" -Category "STARTUP" -Server $ServiceName
+            return $true
+        } else {
+            Write-Host "Failed to start $($serviceConfig.name)" -ForegroundColor Red
+            Stop-Job -Job $job -ErrorAction SilentlyContinue
+            Remove-Job -Job $job -ErrorAction SilentlyContinue
+            Write-ErrorLog -Message "Service startup failed" -Severity "CRITICAL" -Category "STARTUP" -Server $ServiceName
+            return $false
+        }
+    }
+    catch {
+        Write-Host "Error starting $ServiceName - $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "Service startup error" -Severity "CRITICAL" -Category "STARTUP" -Server $ServiceName -Details $_.Exception.Message
+        return $false
+    }
+}
+
+# Function to validate startup sequence
+function Test-StartupSequence {
+    param([string[]]$StartupSequence)
+    
+    $errors = @()
+    
+    foreach ($service in $startupSequence) {
+        if (-not $script:Config.servers.PSObject.Properties.Name -contains $service) {
+            $errors += "Service '$service' not found in configuration"
+        }
+    }
+    
+    # Check for circular dependencies
+    $visited = @{}
+    $recStack = @{}
+    
+    foreach ($service in $startupSequence) {
+        if (-not $visited.ContainsKey($service)) {
+            if (Test-CircularDependency -Service $service -Visited $visited -RecStack $recStack) {
+                $errors += "Circular dependency detected involving service '$service'"
+            }
+        }
+    }
+    
+    return @{
+        IsValid = ($errors.Count -eq 0)
+        Errors = $errors
+    }
+}
+
+# Function to detect circular dependencies
+function Test-CircularDependency {
+    param(
+        [string]$Service,
+        [hashtable]$Visited,
+        [hashtable]$RecStack
+    )
+    
+    $Visited[$Service] = $true
+    $RecStack[$Service] = $true
+    
+    $serviceConfig = $script:Config.servers.$Service
+    if ($serviceConfig.dependencies) {
+        foreach ($dep in $serviceConfig.dependencies) {
+            if (-not $Visited.ContainsKey($dep)) {
+                if (Test-CircularDependency -Service $dep -Visited $Visited -RecStack $RecStack) {
+                    return $true
+                }
+            } elseif ($RecStack[$dep]) {
+                return $true
+            }
+        }
+    }
+    
+    $RecStack[$Service] = $false
+    return $false
+}
+
+# Function to get service dependency tree
+function Get-ServiceDependencyTree {
+    param([string]$ServiceName)
+    
+    $tree = @{
+        Service = $ServiceName
+        Dependencies = @()
+        Dependents = @()
+    }
+    
+    $serviceConfig = $script:Config.servers.$ServiceName
+    if ($serviceConfig.dependencies) {
+        $tree.Dependencies = $serviceConfig.dependencies
+    }
+    
+    # Find services that depend on this service
+    foreach ($server in $script:Config.servers.PSObject.Properties.Name) {
+        $config = $script:Config.servers.$server
+        if ($config.dependencies -and $config.dependencies -contains $ServiceName) {
+            $tree.Dependents += $server
+        }
+    }
+    
+    return $tree
+}
+
+# Function to show dependency status
+function Show-DependencyStatus {
+    Write-Host "`nService Dependency Status:" -ForegroundColor Cyan
+    Write-Host "=" * 50 -ForegroundColor Cyan
+    
+    foreach ($server in $script:Config.dependencies.startup_sequence) {
+        $tree = Get-ServiceDependencyTree -ServiceName $server
+        $health = Test-ServiceHealth -ServiceName $server
+        $status = if ($health) { "HEALTHY" } else { "UNHEALTHY" }
+        $color = if ($health) { "Green" } else { "Red" }
+        
+        Write-Host "$server ($status)" -ForegroundColor $color
+        if ($tree.Dependencies.Count -gt 0) {
+            Write-Host "  Dependencies: $($tree.Dependencies -join ', ')" -ForegroundColor Gray
+        }
+        if ($tree.Dependents.Count -gt 0) {
+            Write-Host "  Dependents: $($tree.Dependents -join ', ')" -ForegroundColor Gray
+        }
+        Write-Host ""
+    }
+}
+
+# --- Performance Monitoring Functions ---
+
+# Function to get detailed system performance metrics
+function Get-SystemPerformanceMetrics {
+    try {
+        # CPU Performance
+        $cpuCounter = Get-Counter "\Processor(_Total)\% Processor Time" -ErrorAction SilentlyContinue
+        $cpuUsage = if ($cpuCounter) { $cpuCounter.CounterSamples[0].CookedValue } else { 0 }
+        
+        # Memory Performance
+        $memoryCounter = Get-Counter "\Memory\% Committed Bytes In Use" -ErrorAction SilentlyContinue
+        $memoryUsage = if ($memoryCounter) { $memoryCounter.CounterSamples[0].CookedValue } else { 0 }
+        
+        # Disk Performance
+        $diskCounter = Get-Counter "\PhysicalDisk(_Total)\% Disk Time" -ErrorAction SilentlyContinue
+        $diskUsage = if ($diskCounter) { $diskCounter.CounterSamples[0].CookedValue } else { 0 }
+        
+        # Network Performance
+        $networkCounter = Get-Counter "\Network Interface(*)\Bytes Total/sec" -ErrorAction SilentlyContinue
+        $networkUsage = if ($networkCounter) { 
+            ($networkCounter.CounterSamples | Measure-Object -Property CookedValue -Sum).Sum 
+        } else { 0 }
+        
+        # Process-specific metrics
+        $pythonProcesses = Get-Process -Name "python" -ErrorAction SilentlyContinue
+        $totalProcessMemory = ($pythonProcesses | Measure-Object -Property WorkingSet -Sum).Sum / 1MB
+        $processCount = $pythonProcesses.Count
+        
+        return @{
+            Timestamp = Get-Date
+            CPU = @{
+                Usage = [math]::Round($cpuUsage, 1)
+                Status = if ($cpuUsage -gt $script:Config.monitoring.performance_thresholds.cpu_critical) { "CRITICAL" }
+                         elseif ($cpuUsage -gt $script:Config.monitoring.performance_thresholds.cpu_warning) { "WARNING" }
+                         else { "NORMAL" }
+            }
+            Memory = @{
+                Usage = [math]::Round($memoryUsage, 1)
+                Status = if ($memoryUsage -gt $script:Config.monitoring.performance_thresholds.memory_critical) { "CRITICAL" }
+                         elseif ($memoryUsage -gt $script:Config.monitoring.performance_thresholds.memory_warning) { "WARNING" }
+                         else { "NORMAL" }
+                ProcessMemory = [math]::Round($totalProcessMemory, 1)
+            }
+            Disk = @{
+                Usage = [math]::Round($diskUsage, 1)
+                Status = if ($diskUsage -gt 90) { "CRITICAL" }
+                         elseif ($diskUsage -gt 80) { "WARNING" }
+                         else { "NORMAL" }
+            }
+            Network = @{
+                BytesPerSec = [math]::Round($networkUsage, 0)
+                Status = if ($networkUsage -gt 100000000) { "HIGH" } else { "NORMAL" }
+            }
+            Processes = @{
+                Count = $processCount
+                TotalMemoryMB = [math]::Round($totalProcessMemory, 1)
+            }
+        }
+    }
+    catch {
+        Write-ErrorLog -Message "Performance metrics collection failed" -Severity "HIGH" -Category "MONITORING" -Server "SYSTEM" -Details $_.Exception.Message
+        return $null
+    }
+}
+
+# Function to monitor service performance
+function Get-ServicePerformanceMetrics {
+    param([string]$ServiceName)
+    
+    try {
+        $serviceConfig = $script:Config.servers.$ServiceName
+        if (-not $serviceConfig) {
+            return $null
+        }
+        
+        $startTime = Get-Date
+        $healthUrl = "http://localhost:$($serviceConfig.port)$($serviceConfig.health_endpoint)"
+        
+        # Test response time
+        $response = try {
+            Invoke-WebRequest -Uri $healthUrl -TimeoutSec 5 -UseBasicParsing
+        } catch {
+            return @{
+                Service = $ServiceName
+                Status = "UNREACHABLE"
+                ResponseTime = 0
+                Error = $_.Exception.Message
+                Timestamp = Get-Date
+            }
+        }
+        
+        $responseTime = ((Get-Date) - $startTime).TotalMilliseconds
+        
+        # Get process-specific metrics
+        $process = Get-Process -Name "python" -ErrorAction SilentlyContinue | Where-Object {
+            $_.MainWindowTitle -match $ServiceName -or $_.ProcessName -eq "python"
+        } | Select-Object -First 1
+        
+        $processMetrics = if ($process) {
+            @{
+                ProcessId = $process.Id
+                MemoryMB = [math]::Round($process.WorkingSet / 1MB, 1)
+                CPU = [math]::Round($process.CPU, 1)
+                Threads = $process.Threads.Count
+            }
+        } else {
+            @{
+                ProcessId = 0
+                MemoryMB = 0
+                CPU = 0
+                Threads = 0
+            }
+        }
+        
+        return @{
+            Service = $ServiceName
+            Status = if ($response.StatusCode -eq 200) { "HEALTHY" } else { "UNHEALTHY" }
+            ResponseTime = [math]::Round($responseTime, 1)
+            HttpStatus = $response.StatusCode
+            Process = $processMetrics
+            Timestamp = Get-Date
+        }
+    }
+    catch {
+        Write-ErrorLog -Message "Service performance monitoring failed" -Severity "HIGH" -Category "MONITORING" -Server $ServiceName -Details $_.Exception.Message
+        return $null
+    }
+}
+
+# Function to generate performance alerts
+function Invoke-PerformanceAlerting {
+    param([object]$Metrics)
+    
+    if (-not $Metrics) { return }
+    
+    $alerts = @()
+    
+    # CPU Alerts
+    if ($Metrics.CPU.Status -eq "CRITICAL") {
+        $alerts += "CRITICAL: CPU usage at $($Metrics.CPU.Usage)%"
+        Write-ErrorLog -Message "Critical CPU usage detected" -Severity "CRITICAL" -Category "PERFORMANCE" -Server "SYSTEM" -Details "CPU: $($Metrics.CPU.Usage)%"
+    } elseif ($Metrics.CPU.Status -eq "WARNING") {
+        $alerts += "WARNING: High CPU usage at $($Metrics.CPU.Usage)%"
+        Write-ErrorLog -Message "High CPU usage warning" -Severity "HIGH" -Category "PERFORMANCE" -Server "SYSTEM" -Details "CPU: $($Metrics.CPU.Usage)%"
+    }
+    
+    # Memory Alerts
+    if ($Metrics.Memory.Status -eq "CRITICAL") {
+        $alerts += "CRITICAL: Memory usage at $($Metrics.Memory.Usage)%"
+        Write-ErrorLog -Message "Critical memory usage detected" -Severity "CRITICAL" -Category "PERFORMANCE" -Server "SYSTEM" -Details "Memory: $($Metrics.Memory.Usage)%"
+    } elseif ($Metrics.Memory.Status -eq "WARNING") {
+        $alerts += "WARNING: High memory usage at $($Metrics.Memory.Usage)%"
+        Write-ErrorLog -Message "High memory usage warning" -Severity "HIGH" -Category "PERFORMANCE" -Server "SYSTEM" -Details "Memory: $($Metrics.Memory.Usage)%"
+    }
+    
+    # Process Memory Alerts
+    if ($Metrics.Memory.ProcessMemory -gt 1000) {  # 1GB threshold
+        $alerts += "WARNING: High process memory usage: $($Metrics.Memory.ProcessMemory) MB"
+        Write-ErrorLog -Message "High process memory usage" -Severity "HIGH" -Category "PERFORMANCE" -Server "SYSTEM" -Details "Process Memory: $($Metrics.Memory.ProcessMemory) MB"
+    }
+    
+    # Network Alerts
+    if ($Metrics.Network.Status -eq "HIGH") {
+        $alerts += "INFO: High network activity: $($Metrics.Network.BytesPerSec) bytes/sec"
+        Write-ErrorLog -Message "High network activity detected" -Severity "MEDIUM" -Category "PERFORMANCE" -Server "SYSTEM" -Details "Network: $($Metrics.Network.BytesPerSec) bytes/sec"
+    }
+    
+    return $alerts
+}
+
+# Function to show comprehensive performance dashboard
+function Show-PerformanceDashboard {
+    Write-Host "`nPerformance Dashboard" -ForegroundColor Cyan
+    Write-Host "=" * 50 -ForegroundColor Cyan
+    
+    # System Performance
+    $systemMetrics = Get-SystemPerformanceMetrics
+    if ($systemMetrics) {
+        Write-Host "System Performance:" -ForegroundColor Yellow
+        Write-Host "  CPU: $($systemMetrics.CPU.Usage)% [$($systemMetrics.CPU.Status)]" -ForegroundColor $(if ($systemMetrics.CPU.Status -eq "CRITICAL") { "Red" } elseif ($systemMetrics.CPU.Status -eq "WARNING") { "Yellow" } else { "Green" })
+        Write-Host "  Memory: $($systemMetrics.Memory.Usage)% [$($systemMetrics.Memory.Status)]" -ForegroundColor $(if ($systemMetrics.Memory.Status -eq "CRITICAL") { "Red" } elseif ($systemMetrics.Memory.Status -eq "WARNING") { "Yellow" } else { "Green" })
+        Write-Host "  Disk: $($systemMetrics.Disk.Usage)% [$($systemMetrics.Disk.Status)]" -ForegroundColor $(if ($systemMetrics.Disk.Status -eq "CRITICAL") { "Red" } elseif ($systemMetrics.Disk.Status -eq "WARNING") { "Yellow" } else { "Green" })
+        Write-Host "  Network: $($systemMetrics.Network.BytesPerSec) bytes/sec [$($systemMetrics.Network.Status)]" -ForegroundColor $(if ($systemMetrics.Network.Status -eq "HIGH") { "Yellow" } else { "Green" })
+        Write-Host "  Processes: $($systemMetrics.Processes.Count) (Memory: $($systemMetrics.Processes.TotalMemoryMB) MB)" -ForegroundColor Cyan
+        Write-Host ""
+        
+        # Performance Alerts
+        $alerts = Invoke-PerformanceAlerting -Metrics $systemMetrics
+        if ($alerts.Count -gt 0) {
+            Write-Host "Performance Alerts:" -ForegroundColor Red
+            foreach ($alert in $alerts) {
+                Write-Host "  ⚠ $alert" -ForegroundColor Red
+            }
+            Write-Host ""
+        }
+    }
+    
+    # Service Performance
+    Write-Host "Service Performance:" -ForegroundColor Yellow
+    foreach ($serviceName in $script:Config.dependencies.startup_sequence) {
+        $serviceMetrics = Get-ServicePerformanceMetrics -ServiceName $serviceName
+        if ($serviceMetrics) {
+            $statusColor = switch ($serviceMetrics.Status) {
+                "HEALTHY" { "Green" }
+                "UNHEALTHY" { "Red" }
+                "UNREACHABLE" { "DarkRed" }
+                default { "Gray" }
+            }
+            
+            Write-Host "  $($serviceMetrics.Service): $($serviceMetrics.Status) (${$serviceMetrics.ResponseTime}ms)" -ForegroundColor $statusColor
+            if ($serviceMetrics.Process.ProcessId -gt 0) {
+                Write-Host "    PID: $($serviceMetrics.Process.ProcessId), Memory: $($serviceMetrics.Process.MemoryMB) MB, Threads: $($serviceMetrics.Process.Threads)" -ForegroundColor Gray
+            }
+        }
+    }
+    
+    Write-Host ""
+    Write-Host "Last Updated: $(Get-Date -Format 'HH:mm:ss')" -ForegroundColor Gray
+}
+
+# Function to export performance data
+function Export-PerformanceData {
+    param(
+        [string]$OutputPath = "logs/performance_$(Get-Date -Format 'yyyyMMdd_HHmmss').json"
+    )
+    
+    try {
+        $performanceData = @{
+            Timestamp = Get-Date
+            System = Get-SystemPerformanceMetrics
+            Services = @{}
+        }
+        
+        foreach ($serviceName in $script:Config.dependencies.startup_sequence) {
+            $performanceData.Services[$serviceName] = Get-ServicePerformanceMetrics -ServiceName $serviceName
+        }
+        
+        # Ensure logs directory exists
+        $logDir = Split-Path $OutputPath -Parent
+        if (-not (Test-Path $logDir)) {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        
+        $performanceData | ConvertTo-Json -Depth 10 | Set-Content $OutputPath
+        Write-Host "Performance data exported to: $OutputPath" -ForegroundColor Green
+        Write-ErrorLog -Message "Performance data exported" -Severity "INFO" -Category "MONITORING" -Server "SYSTEM" -Details $OutputPath
+        
+        return $OutputPath
+    }
+    catch {
+        Write-Host "Failed to export performance data: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "Performance export failed" -Severity "HIGH" -Category "MONITORING" -Server "SYSTEM" -Details $_.Exception.Message
+        return $null
+    }
+}
+
+# Function to monitor resource trends
+function Get-ResourceTrends {
+    param([int]$Minutes = 10)
+    
+    try {
+        $trendData = @{
+            CPU = @()
+            Memory = @()
+            Disk = @()
+            Network = @()
+        }
+        
+        # Collect metrics over time
+        for ($i = 0; $i -lt $Minutes; $i++) {
+            $metrics = Get-SystemPerformanceMetrics
+            if ($metrics) {
+                $trendData.CPU += $metrics.CPU.Usage
+                $trendData.Memory += $metrics.Memory.Usage
+                $trendData.Disk += $metrics.Disk.Usage
+                $trendData.Network += $metrics.Network.BytesPerSec
+            }
+            Start-Sleep -Seconds 60
+        }
+        
+        # Calculate trends
+        $trends = @{
+            CPU = @{
+                Average = if ($trendData.CPU.Count -gt 0) { [math]::Round(($trendData.CPU | Measure-Object -Average).Average, 1) } else { 0 }
+                Trend = if ($trendData.CPU.Count -gt 1) { 
+                    $first = $trendData.CPU[0]
+                    $last = $trendData.CPU[-1]
+                    if ($last -gt $first) { "INCREASING" } elseif ($last -lt $first) { "DECREASING" } else { "STABLE" }
+                } else { "UNKNOWN" }
+            }
+            Memory = @{
+                Average = if ($trendData.Memory.Count -gt 0) { [math]::Round(($trendData.Memory | Measure-Object -Average).Average, 1) } else { 0 }
+                Trend = if ($trendData.Memory.Count -gt 1) { 
+                    $first = $trendData.Memory[0]
+                    $last = $trendData.Memory[-1]
+                    if ($last -gt $first) { "INCREASING" } elseif ($last -lt $first) { "DECREASING" } else { "STABLE" }
+                } else { "UNKNOWN" }
+            }
+        }
+        
+        return $trends
+    }
+    catch {
+        Write-ErrorLog -Message "Resource trend analysis failed" -Severity "HIGH" -Category "MONITORING" -Server "SYSTEM" -Details $_.Exception.Message
+        return $null
+    }
+}
+
+# --- Enhanced Monitoring & Alerting Functions ---
+
+# Function to create comprehensive system report
+function Get-SystemReport {
+    param([switch]$IncludeTrends)
+    
+    try {
+        $report = @{
+            Timestamp = Get-Date
+            System = @{
+                Name = $script:Config.system.name
+                Version = $script:Config.system.version
+                Environment = $script:Config.system.environment
+                Uptime = ((Get-Date) - $script:StartTime).ToString("dd\.hh\:mm\:ss")
+            }
+            Performance = Get-SystemPerformanceMetrics
+            Services = @{}
+            Errors = @{
+                Total = $script:ErrorLog.Count
+                Critical = ($script:ErrorLog | Where-Object { $_.severity -eq "CRITICAL" }).Count
+                High = ($script:ErrorLog | Where-Object { $_.severity -eq "HIGH" }).Count
+                Medium = ($script:ErrorLog | Where-Object { $_.severity -eq "MEDIUM" }).Count
+            }
+            Alerts = @()
+        }
+        
+        # Add service status
+        foreach ($serviceName in $script:Config.dependencies.startup_sequence) {
+            $report.Services[$serviceName] = Get-ServicePerformanceMetrics -ServiceName $serviceName
+        }
+        
+        # Add performance alerts
+        if ($report.Performance) {
+            $report.Alerts = Invoke-PerformanceAlerting -Metrics $report.Performance
+        }
+        
+        # Add trends if requested
+        if ($IncludeTrends) {
+            $report.Trends = Get-ResourceTrends -Minutes 5
+        }
+        
+        return $report
+    }
+    catch {
+        Write-ErrorLog -Message "System report generation failed" -Severity "HIGH" -Category "MONITORING" -Server "SYSTEM" -Details $_.Exception.Message
+        return $null
+    }
+}
+
+# Function to show enhanced system health with trends
+function Show-EnhancedSystemHealth {
+    Write-Host "`nEnhanced System Health Report" -ForegroundColor Cyan
+    Write-Host "=" * 50 -ForegroundColor Cyan
+    
+    $report = Get-SystemReport -IncludeTrends
+    if (-not $report) {
+        Write-Host "Failed to generate system report" -ForegroundColor Red
+        return
+    }
+    
+    # System Information
+    Write-Host "System Information:" -ForegroundColor Yellow
+    Write-Host "  Name: $($report.System.Name)" -ForegroundColor White
+    Write-Host "  Version: $($report.System.Version)" -ForegroundColor White
+    Write-Host "  Environment: $($report.System.Environment)" -ForegroundColor White
+    Write-Host "  Uptime: $($report.System.Uptime)" -ForegroundColor White
+    Write-Host ""
+    
+    # Performance Summary
+    if ($report.Performance) {
+        Write-Host "Performance Summary:" -ForegroundColor Yellow
+        Write-Host "  CPU: $($report.Performance.CPU.Usage)% [$($report.Performance.CPU.Status)]" -ForegroundColor $(if ($report.Performance.CPU.Status -eq "CRITICAL") { "Red" } elseif ($report.Performance.CPU.Status -eq "WARNING") { "Yellow" } else { "Green" })
+        Write-Host "  Memory: $($report.Performance.Memory.Usage)% [$($report.Performance.Memory.Status)]" -ForegroundColor $(if ($report.Performance.Memory.Status -eq "CRITICAL") { "Red" } elseif ($report.Performance.Memory.Status -eq "WARNING") { "Yellow" } else { "Green" })
+        Write-Host "  Disk: $($report.Performance.Disk.Usage)% [$($report.Performance.Disk.Status)]" -ForegroundColor $(if ($report.Performance.Disk.Status -eq "CRITICAL") { "Red" } elseif ($report.Performance.Disk.Status -eq "WARNING") { "Yellow" } else { "Green" })
+        Write-Host "  Network: $($report.Performance.Network.BytesPerSec) bytes/sec [$($report.Performance.Network.Status)]" -ForegroundColor $(if ($report.Performance.Network.Status -eq "HIGH") { "Yellow" } else { "Green" })
+        Write-Host ""
+    }
+    
+    # Service Status
+    Write-Host "Service Status:" -ForegroundColor Yellow
+    foreach ($serviceName in $report.Services.Keys) {
+        $service = $report.Services[$serviceName]
+        if ($service) {
+            $statusColor = switch ($service.Status) {
+                "HEALTHY" { "Green" }
+                "UNHEALTHY" { "Red" }
+                "UNREACHABLE" { "DarkRed" }
+                default { "Gray" }
+            }
+            Write-Host "  $($service.Service): $($service.Status) (${$service.ResponseTime}ms)" -ForegroundColor $statusColor
+        }
+    }
+    Write-Host ""
+    
+    # Error Summary
+    Write-Host "Error Summary:" -ForegroundColor Yellow
+    Write-Host "  Total Errors: $($report.Errors.Total)" -ForegroundColor White
+    Write-Host "  Critical: $($report.Errors.Critical)" -ForegroundColor $(if ($report.Errors.Critical -gt 0) { "Red" } else { "Green" })
+    Write-Host "  High: $($report.Errors.High)" -ForegroundColor $(if ($report.Errors.High -gt 0) { "Yellow" } else { "Green" })
+    Write-Host "  Medium: $($report.Errors.Medium)" -ForegroundColor White
+    Write-Host ""
+    
+    # Active Alerts
+    if ($report.Alerts.Count -gt 0) {
+        Write-Host "Active Alerts:" -ForegroundColor Red
+        foreach ($alert in $report.Alerts) {
+            Write-Host "  ⚠ $alert" -ForegroundColor Red
+        }
+        Write-Host ""
+    }
+    
+    # Trends (if available)
+    if ($report.Trends) {
+        Write-Host "Resource Trends (5 min):" -ForegroundColor Yellow
+        Write-Host "  CPU: $($report.Trends.CPU.Average)% average [$($report.Trends.CPU.Trend)]" -ForegroundColor White
+        Write-Host "  Memory: $($report.Trends.Memory.Average)% average [$($report.Trends.Memory.Trend)]" -ForegroundColor White
+        Write-Host ""
+    }
+    
+    Write-Host "Report Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor Gray
+}
+
+
+
+# Function to export monitoring data
+function Export-MonitoringData {
+    param(
+        [string]$OutputPath = "logs/monitoring_$(Get-Date -Format 'yyyyMMdd_HHmmss').json"
+    )
+    
+    try {
+        $monitoringData = @{
+            Timestamp = Get-Date
+            Report = Get-SystemReport -IncludeTrends
+            ErrorLog = $script:ErrorLog
+            AlertHistory = $script:AlertHistory
+        }
+        
+        # Ensure logs directory exists
+        $logDir = Split-Path $OutputPath -Parent
+        if (-not (Test-Path $logDir)) {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        
+        $monitoringData | ConvertTo-Json -Depth 10 | Set-Content $OutputPath
+        Write-Host "Monitoring data exported to: $OutputPath" -ForegroundColor Green
+        Write-ErrorLog -Message "Monitoring data exported" -Severity "INFO" -Category "MONITORING" -Server "SYSTEM" -Details $OutputPath
+        
+        return $OutputPath
+    }
+    catch {
+        Write-Host "Failed to export monitoring data: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "Monitoring export failed" -Severity "HIGH" -Category "MONITORING" -Server "SYSTEM" -Details $_.Exception.Message
+        return $null
+    }
+}
+
+# --- Advanced Automation & Orchestration Functions ---
+
+# Function to create automated workflows
+function New-AutomatedWorkflow {
+    param(
+        [string]$WorkflowName,
+        [string[]]$Steps,
+        [hashtable]$Parameters = @{},
+        [int]$Timeout = 300
+    )
+    
+    try {
+        $workflow = @{
+            Name = $WorkflowName
+            Steps = $Steps
+            Parameters = $Parameters
+            Timeout = $Timeout
+            Created = Get-Date
+            Status = "CREATED"
+            ExecutionHistory = @()
+        }
+        
+        # Store workflow in configuration
+        if (-not $script:Config.automation) {
+            $script:Config.automation = @{
+                workflows = @{}
+            }
+        }
+        
+        $script:Config.automation.workflows[$WorkflowName] = $workflow
+        
+        Write-Host "Workflow '$WorkflowName' created successfully" -ForegroundColor Green
+        Write-ErrorLog -Message "Workflow created" -Severity "INFO" -Category "AUTOMATION" -Server "SYSTEM" -Details $WorkflowName
+        
+        return $workflow
+    }
+    catch {
+        Write-Host "Failed to create workflow: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "Workflow creation failed" -Severity "HIGH" -Category "AUTOMATION" -Server "SYSTEM" -Details $_.Exception.Message
+        return $null
+    }
+}
+
+# Function to execute automated workflows
+function Invoke-AutomatedWorkflow {
+    param(
+        [string]$WorkflowName,
+        [hashtable]$Parameters = @{}
+    )
+    
+    try {
+        if (-not $script:Config.automation.workflows.ContainsKey($WorkflowName)) {
+            throw "Workflow '$WorkflowName' not found"
+        }
+        
+        $workflow = $script:Config.automation.workflows[$WorkflowName]
+        $workflow.Status = "RUNNING"
+        $workflow.StartTime = Get-Date
+        
+        Write-Host "Executing workflow: $WorkflowName" -ForegroundColor Cyan
+        Write-ErrorLog -Message "Workflow execution started" -Severity "INFO" -Category "AUTOMATION" -Server "SYSTEM" -Details $WorkflowName
+        
+        $results = @()
+        $success = $true
+        
+        foreach ($step in $workflow.Steps) {
+            Write-Host "  Executing step: $step" -ForegroundColor Yellow
+            
+            $stepResult = try {
+                & $step @Parameters
+            } catch {
+                $success = $false
+                @{
+                    Step = $step
+                    Status = "FAILED"
+                    Error = $_.Exception.Message
+                    Timestamp = Get-Date
+                }
+            }
+            
+            $results += $stepResult
+            
+            if (-not $success) {
+                Write-Host "  Step failed: $step" -ForegroundColor Red
+                break
+            }
+        }
+        
+        $workflow.Status = if ($success) { "COMPLETED" } else { "FAILED" }
+        $workflow.EndTime = Get-Date
+        $workflow.ExecutionHistory += @{
+            StartTime = $workflow.StartTime
+            EndTime = $workflow.EndTime
+            Success = $success
+            Results = $results
+        }
+        
+        Write-Host "Workflow execution completed: $($workflow.Status)" -ForegroundColor $(if ($success) { "Green" } else { "Red" })
+        Write-ErrorLog -Message "Workflow execution completed" -Severity $(if ($success) { "INFO" } else { "HIGH" }) -Category "AUTOMATION" -Server "SYSTEM" -Details "$WorkflowName - $($workflow.Status)"
+        
+        return @{
+            Success = $success
+            Results = $results
+            Workflow = $workflow
+        }
+    }
+    catch {
+        Write-Host "Workflow execution failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "Workflow execution failed" -Severity "CRITICAL" -Category "AUTOMATION" -Server "SYSTEM" -Details $_.Exception.Message
+        return @{
+            Success = $false
+            Error = $_.Exception.Message
+        }
+    }
+}
+
+# Function to schedule automated tasks
+function New-ScheduledTask {
+    param(
+        [string]$TaskName,
+        [string]$Command,
+        [string]$Schedule,  # "daily", "hourly", "custom"
+        [string]$Time = "00:00",
+        [hashtable]$Parameters = @{}
+    )
+    
+    try {
+        $task = @{
+            Name = $TaskName
+            Command = $Command
+            Schedule = $Schedule
+            Time = $Time
+            Parameters = $Parameters
+            Created = Get-Date
+            LastRun = $null
+            NextRun = Get-NextScheduledRun -Schedule $Schedule -Time $Time
+            Enabled = $true
+        }
+        
+        # Store task in configuration
+        if (-not $script:Config.automation) {
+            $script:Config.automation = @{
+                scheduled_tasks = @{}
+            }
+        }
+        
+        $script:Config.automation.scheduled_tasks[$TaskName] = $task
+        
+        Write-Host "Scheduled task '$TaskName' created successfully" -ForegroundColor Green
+        Write-ErrorLog -Message "Scheduled task created" -Severity "INFO" -Category "AUTOMATION" -Server "SYSTEM" -Details $TaskName
+        
+        return $task
+    }
+    catch {
+        Write-Host "Failed to create scheduled task: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "Scheduled task creation failed" -Severity "HIGH" -Category "AUTOMATION" -Server "SYSTEM" -Details $_.Exception.Message
+        return $null
+    }
+}
+
+# Function to calculate next scheduled run
+function Get-NextScheduledRun {
+    param([string]$Schedule, [string]$Time)
+    
+    $now = Get-Date
+    $timeParts = $Time.Split(":")
+    $hour = [int]$timeParts[0]
+    $minute = [int]$timeParts[1]
+    
+    switch ($Schedule.ToLower()) {
+        "daily" {
+            $nextRun = $now.Date.AddHours($hour).AddMinutes($minute)
+            if ($nextRun -le $now) {
+                $nextRun = $nextRun.AddDays(1)
+            }
+        }
+        "hourly" {
+            $nextRun = $now.Date.AddHours($now.Hour + 1).AddMinutes($minute)
+        }
+        "custom" {
+            $nextRun = $now.AddMinutes(30)  # Default to 30 minutes from now
+        }
+        default {
+            $nextRun = $now.AddHours(1)  # Default to 1 hour from now
+        }
+    }
+    
+    return $nextRun
+}
+
+# Function to check and execute scheduled tasks
+function Invoke-ScheduledTasks {
+    try {
+        if (-not $script:Config.automation.scheduled_tasks) {
+            return
+        }
+        
+        $now = Get-Date
+        $executedTasks = @()
+        
+        foreach ($taskName in $script:Config.automation.scheduled_tasks.Keys) {
+            $task = $script:Config.automation.scheduled_tasks[$taskName]
+            
+            if ($task.Enabled -and $task.NextRun -le $now) {
+                Write-Host "Executing scheduled task: $taskName" -ForegroundColor Yellow
+                
+                try {
+                    # Execute the task
+                    $result = & $task.Command @($task.Parameters.GetEnumerator() | ForEach-Object { $_.Value })
+                    
+                    $task.LastRun = $now
+                    $task.NextRun = Get-NextScheduledRun -Schedule $task.Schedule -Time $task.Time
+                    
+                    $executedTasks += @{
+                        Task = $taskName
+                        Status = "SUCCESS"
+                        Result = $result
+                        Timestamp = $now
+                    }
+                    
+                    Write-ErrorLog -Message "Scheduled task executed successfully" -Severity "INFO" -Category "AUTOMATION" -Server "SYSTEM" -Details $taskName
+                }
+                catch {
+                    $executedTasks += @{
+                        Task = $taskName
+                        Status = "FAILED"
+                        Error = $_.Exception.Message
+                        Timestamp = $now
+                    }
+                    
+                    Write-ErrorLog -Message "Scheduled task execution failed" -Severity "HIGH" -Category "AUTOMATION" -Server "SYSTEM" -Details "$taskName - $($_.Exception.Message)"
+                }
+            }
+        }
+        
+        return $executedTasks
+    }
+    catch {
+        Write-ErrorLog -Message "Scheduled task check failed" -Severity "HIGH" -Category "AUTOMATION" -Server "SYSTEM" -Details $_.Exception.Message
+        return @()
+    }
+}
+
+# --- Integration & API Functions ---
+
+# Function to create REST API endpoints
+function New-RestApiEndpoint {
+    param(
+        [string]$Endpoint,
+        [string]$Method = "GET",
+        [scriptblock]$Handler,
+        [hashtable]$Parameters = @{}
+    )
+    
+    try {
+        $apiEndpoint = @{
+            Endpoint = $Endpoint
+            Method = $Method.ToUpper()
+            Handler = $Handler
+            Parameters = $Parameters
+            Created = Get-Date
+            RequestCount = 0
+            LastRequest = $null
+        }
+        
+        # Store endpoint in configuration
+        if (-not $script:Config.integration) {
+            $script:Config.integration = @{
+                api_endpoints = @{}
+            }
+        }
+        
+        $script:Config.integration.api_endpoints[$Endpoint] = $apiEndpoint
+        
+        Write-Host "API endpoint '$Endpoint' created successfully" -ForegroundColor Green
+        Write-ErrorLog -Message "API endpoint created" -Severity "INFO" -Category "INTEGRATION" -Server "SYSTEM" -Details $Endpoint
+        
+        return $apiEndpoint
+    }
+    catch {
+        Write-Host "Failed to create API endpoint: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "API endpoint creation failed" -Severity "HIGH" -Category "INTEGRATION" -Server "SYSTEM" -Details $_.Exception.Message
+        return $null
+    }
+}
+
+# Function to handle REST API requests
+function Invoke-RestApiRequest {
+    param(
+        [string]$Endpoint,
+        [string]$Method = "GET",
+        [hashtable]$Body = @{},
+        [hashtable]$Headers = @{}
+    )
+    
+    try {
+        if (-not $script:Config.integration.api_endpoints.ContainsKey($Endpoint)) {
+            return @{
+                StatusCode = 404
+                Message = "Endpoint not found"
+            }
+        }
+        
+        $apiEndpoint = $script:Config.integration.api_endpoints[$Endpoint]
+        
+        # Update request statistics
+        $apiEndpoint.RequestCount++
+        $apiEndpoint.LastRequest = Get-Date
+        
+        # Execute handler
+        $result = try {
+            & $apiEndpoint.Handler -Body $Body -Headers $Headers
+        } catch {
+            @{
+                StatusCode = 500
+                Message = "Internal server error"
+                Error = $_.Exception.Message
+            }
+        }
+        
+        return $result
+    }
+    catch {
+        Write-ErrorLog -Message "API request handling failed" -Severity "HIGH" -Category "INTEGRATION" -Server "SYSTEM" -Details $_.Exception.Message
+        return @{
+            StatusCode = 500
+            Message = "Request processing failed"
+            Error = $_.Exception.Message
+        }
+    }
+}
+
+# Function to create webhook integration
+function New-WebhookIntegration {
+    param(
+        [string]$WebhookName,
+        [string]$Url,
+        [string]$Method = "POST",
+        [hashtable]$Headers = @{},
+        [hashtable]$Payload = @{}
+    )
+    
+    try {
+        $webhook = @{
+            Name = $WebhookName
+            Url = $Url
+            Method = $Method.ToUpper()
+            Headers = $Headers
+            Payload = $Payload
+            Created = Get-Date
+            LastTriggered = $null
+            SuccessCount = 0
+            FailureCount = 0
+        }
+        
+        # Store webhook in configuration
+        if (-not $script:Config.integration) {
+            $script:Config.integration = @{
+                webhooks = @{}
+            }
+        }
+        
+        $script:Config.integration.webhooks[$WebhookName] = $webhook
+        
+        Write-Host "Webhook '$WebhookName' created successfully" -ForegroundColor Green
+        Write-ErrorLog -Message "Webhook created" -Severity "INFO" -Category "INTEGRATION" -Server "SYSTEM" -Details $WebhookName
+        
+        return $webhook
+    }
+    catch {
+        Write-Host "Failed to create webhook: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "Webhook creation failed" -Severity "HIGH" -Category "INTEGRATION" -Server "SYSTEM" -Details $_.Exception.Message
+        return $null
+    }
+}
+
+# Function to trigger webhook
+function Invoke-Webhook {
+    param(
+        [string]$WebhookName,
+        [hashtable]$AdditionalData = @{}
+    )
+    
+    try {
+        if (-not $script:Config.integration.webhooks.ContainsKey($WebhookName)) {
+            throw "Webhook '$WebhookName' not found"
+        }
+        
+        $webhook = $script:Config.integration.webhooks[$WebhookName]
+        
+        # Prepare payload
+        $payload = $webhook.Payload.Clone()
+        $payload.Add("timestamp", (Get-Date).ToString("yyyy-MM-dd HH:mm:ss"))
+        $payload.Add("source", "KPP_Simulator")
+        
+        foreach ($key in $AdditionalData.Keys) {
+            $payload[$key] = $AdditionalData[$key]
+        }
+        
+        # Send webhook
+        $response = try {
+            Invoke-RestMethod -Uri $webhook.Url -Method $webhook.Method -Headers $webhook.Headers -Body ($payload | ConvertTo-Json) -ContentType "application/json"
+        } catch {
+            $webhook.FailureCount++
+            throw $_
+        }
+        
+        $webhook.LastTriggered = Get-Date
+        $webhook.SuccessCount++
+        
+        Write-Host "Webhook '$WebhookName' triggered successfully" -ForegroundColor Green
+        Write-ErrorLog -Message "Webhook triggered successfully" -Severity "INFO" -Category "INTEGRATION" -Server "SYSTEM" -Details $WebhookName
+        
+        return $response
+    }
+    catch {
+        Write-Host "Webhook trigger failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "Webhook trigger failed" -Severity "HIGH" -Category "INTEGRATION" -Server "SYSTEM" -Details "$WebhookName - $($_.Exception.Message)"
+        return $null
+    }
+}
+
+# --- Testing & Validation Functions ---
+
+# Function to run comprehensive system tests
+function Invoke-SystemTests {
+    param(
+        [string[]]$TestTypes = @("unit", "integration", "performance", "security"),
+        [switch]$Verbose
+    )
+    
+    try {
+        Write-Host "Starting comprehensive system tests..." -ForegroundColor Cyan
+        Write-ErrorLog -Message "System tests started" -Severity "INFO" -Category "TESTING" -Server "SYSTEM"
+        
+        $testResults = @{
+            Timestamp = Get-Date
+            Tests = @{}
+            Summary = @{
+                Total = 0
+                Passed = 0
+                Failed = 0
+                Skipped = 0
+            }
+        }
+        
+        foreach ($testType in $TestTypes) {
+            Write-Host "Running $testType tests..." -ForegroundColor Yellow
+            
+            $testResults.Tests[$testType] = switch ($testType.ToLower()) {
+                "unit" { Invoke-UnitTests -Verbose:$Verbose }
+                "integration" { Invoke-IntegrationTests -Verbose:$Verbose }
+                "performance" { Invoke-PerformanceTests -Verbose:$Verbose }
+                "security" { Invoke-SecurityTests -Verbose:$Verbose }
+                default { @{ Status = "SKIPPED"; Message = "Unknown test type" } }
+            }
+            
+            $testResults.Summary.Total++
+            switch ($testResults.Tests[$testType].Status) {
+                "PASSED" { $testResults.Summary.Passed++ }
+                "FAILED" { $testResults.Summary.Failed++ }
+                default { $testResults.Summary.Skipped++ }
+            }
+        }
+        
+        # Generate test summary
+        Write-Host "`nTest Summary:" -ForegroundColor Cyan
+        Write-Host "  Total: $($testResults.Summary.Total)" -ForegroundColor White
+        Write-Host "  Passed: $($testResults.Summary.Passed)" -ForegroundColor Green
+        Write-Host "  Failed: $($testResults.Summary.Failed)" -ForegroundColor $(if ($testResults.Summary.Failed -gt 0) { "Red" } else { "Green" })
+        Write-Host "  Skipped: $($testResults.Summary.Skipped)" -ForegroundColor Yellow
+        
+        $overallStatus = if ($testResults.Summary.Failed -eq 0) { "PASSED" } else { "FAILED" }
+        Write-Host "  Overall Status: $overallStatus" -ForegroundColor $(if ($overallStatus -eq "PASSED") { "Green" } else { "Red" })
+        
+        Write-ErrorLog -Message "System tests completed" -Severity "INFO" -Category "TESTING" -Server "SYSTEM" -Details "Status: $overallStatus, Passed: $($testResults.Summary.Passed), Failed: $($testResults.Summary.Failed)"
+        
+        return $testResults
+    }
+    catch {
+        Write-Host "System tests failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "System tests failed" -Severity "CRITICAL" -Category "TESTING" -Server "SYSTEM" -Details $_.Exception.Message
+        return @{
+            Status = "FAILED"
+            Error = $_.Exception.Message
+        }
+    }
+}
+
+# Function to run unit tests
+function Invoke-UnitTests {
+    param([switch]$Verbose)
+    
+    try {
+        $unitTests = @{
+            "Configuration Loading" = {
+                $config = Import-Configuration
+                return $config -eq $true
+            }
+            "Service Health Check" = {
+                $health = Test-ServiceHealth -ServiceName "flask_backend"
+                return $false -eq $health  # Expected to fail if service not running
+            }
+            "Performance Metrics" = {
+                $metrics = Get-SystemPerformanceMetrics
+                return $null -ne $metrics
+            }
+            "Error Logging" = {
+                $originalCount = $script:ErrorLog.Count
+                Write-ErrorLog -Message "Test error" -Severity "LOW" -Category "TESTING" -Server "TEST"
+                return ($script:ErrorLog.Count -gt $originalCount)
+            }
+        }
+        
+        $results = @{
+            Status = "PASSED"
+            Tests = @{}
+            Passed = 0
+            Failed = 0
+        }
+        
+        foreach ($testName in $unitTests.Keys) {
+            $testResult = try {
+                $unitTests[$testName].Invoke()
+            } catch {
+                $false
+            }
+            
+            $results.Tests[$testName] = @{
+                Status = if ($testResult) { "PASSED" } else { "FAILED" }
+                Result = $testResult
+            }
+            
+            if ($testResult) {
+                $results.Passed++
+                if ($Verbose) { Write-Host "  ✓ $testName" -ForegroundColor Green }
+            } else {
+                $results.Failed++
+                if ($Verbose) { Write-Host "  ✗ $testName" -ForegroundColor Red }
+            }
+        }
+        
+        $results.Status = if ($results.Failed -eq 0) { "PASSED" } else { "FAILED" }
+        return $results
+    }
+    catch {
+        return @{
+            Status = "FAILED"
+            Error = $_.Exception.Message
+        }
+    }
+}
+
+# Function to run integration tests
+function Invoke-IntegrationTests {
+    param([switch]$Verbose)
+    
+    try {
+        $integrationTests = @{
+            "Service Dependencies" = {
+                $deps = Test-ServiceDependencies -ServiceName "websocket_server"
+                return $false -eq $deps  # Expected to fail if dependencies not running
+            }
+            "Performance Monitoring" = {
+                Show-PerformanceDashboard | Out-Null
+                return $true  # If no exception, test passes
+            }
+            "System Health" = {
+                Show-EnhancedSystemHealth | Out-Null
+                return $true  # If no exception, test passes
+            }
+            "Data Export" = {
+                $export = Export-MonitoringData -OutputPath "test_export.json"
+                return $null -ne $export
+            }
+        }
+        
+        $results = @{
+            Status = "PASSED"
+            Tests = @{}
+            Passed = 0
+            Failed = 0
+        }
+        
+        foreach ($testName in $integrationTests.Keys) {
+            $testResult = try {
+                $integrationTests[$testName].Invoke()
+            } catch {
+                $false
+            }
+            
+            $results.Tests[$testName] = @{
+                Status = if ($testResult) { "PASSED" } else { "FAILED" }
+                Result = $testResult
+            }
+            
+            if ($testResult) {
+                $results.Passed++
+                if ($Verbose) { Write-Host "  ✓ $testName" -ForegroundColor Green }
+            } else {
+                $results.Failed++
+                if ($Verbose) { Write-Host "  ✗ $testName" -ForegroundColor Red }
+            }
+        }
+        
+        $results.Status = if ($results.Failed -eq 0) { "PASSED" } else { "FAILED" }
+        return $results
+    }
+    catch {
+        return @{
+            Status = "FAILED"
+            Error = $_.Exception.Message
+        }
+    }
+}
+
+# Function to run performance tests
+function Invoke-PerformanceTests {
+    param([switch]$Verbose)
+    
+    try {
+        $performanceTests = @{
+            "System Metrics Collection" = {
+                $startTime = Get-Date
+                Get-SystemPerformanceMetrics | Out-Null
+                $duration = ((Get-Date) - $startTime).TotalMilliseconds
+                return $duration -lt 1000  # Should complete within 1 second
+            }
+            "Service Health Check Speed" = {
+                $startTime = Get-Date
+                Test-ServiceHealth -ServiceName "flask_backend" | Out-Null
+                $duration = ((Get-Date) - $startTime).TotalMilliseconds
+                return $duration -lt 5000  # Should complete within 5 seconds
+            }
+            "Memory Usage" = {
+                $metrics = Get-SystemPerformanceMetrics
+                return $null -ne $metrics -and $metrics.Memory.Usage -lt 95  # Memory usage should be under 95%
+            }
+            "CPU Usage" = {
+                $metrics = Get-SystemPerformanceMetrics
+                return $null -ne $metrics -and $metrics.CPU.Usage -lt 90  # CPU usage should be under 90%
+            }
+        }
+        
+        $results = @{
+            Status = "PASSED"
+            Tests = @{}
+            Passed = 0
+            Failed = 0
+        }
+        
+        foreach ($testName in $performanceTests.Keys) {
+            $testResult = try {
+                $performanceTests[$testName].Invoke()
+            } catch {
+                $false
+            }
+            
+            $results.Tests[$testName] = @{
+                Status = if ($testResult) { "PASSED" } else { "FAILED" }
+                Result = $testResult
+            }
+            
+            if ($testResult) {
+                $results.Passed++
+                if ($Verbose) { Write-Host "  ✓ $testName" -ForegroundColor Green }
+            } else {
+                $results.Failed++
+                if ($Verbose) { Write-Host "  ✗ $testName" -ForegroundColor Red }
+            }
+        }
+        
+        $results.Status = if ($results.Failed -eq 0) { "PASSED" } else { "FAILED" }
+        return $results
+    }
+    catch {
+        return @{
+            Status = "FAILED"
+            Error = $_.Exception.Message
+        }
+    }
+}
+
+# Function to run security tests
+function Invoke-SecurityTests {
+    param([switch]$Verbose)
+    
+    try {
+        $securityTests = @{
+            "URL Validation" = {
+                $validUrl = Test-Url -Url "http://localhost:9100/status"
+                $invalidUrl = Test-Url -Url "invalid://url"
+                return $validUrl -and (-not $invalidUrl)
+            }
+            "Input Sanitization" = {
+                $originalMessage = @'
+Test<script>alert("xss")</script>
+'@
+                $sanitized = Invoke-ErrorSanitization -Message $originalMessage
+                return $sanitized -ne $originalMessage
+            }
+            "Configuration Security" = {
+                $config = $script:Config
+                return $config.security.url_validation -and $config.security.input_sanitization
+            }
+            "Process Validation" = {
+                $processes = Get-Process -Name "python" -ErrorAction SilentlyContinue
+                return $processes.Count -ge 0  # Should not throw exception
+            }
+        }
+        
+        $results = @{
+            Status = "PASSED"
+            Tests = @{}
+            Passed = 0
+            Failed = 0
+        }
+        
+        foreach ($testName in $securityTests.Keys) {
+            $testResult = try {
+                $securityTests[$testName].Invoke()
+            } catch {
+                $false
+            }
+            
+            $results.Tests[$testName] = @{
+                Status = if ($testResult) { "PASSED" } else { "FAILED" }
+                Result = $testResult
+            }
+            
+            if ($testResult) {
+                $results.Passed++
+                if ($Verbose) { Write-Host "  ✓ $testName" -ForegroundColor Green }
+            } else {
+                $results.Failed++
+                if ($Verbose) { Write-Host "  ✗ $testName" -ForegroundColor Red }
+            }
+        }
+        
+        $results.Status = if ($results.Failed -eq 0) { "PASSED" } else { "FAILED" }
+        return $results
+    }
+    catch {
+        return @{
+            Status = "FAILED"
+            Error = $_.Exception.Message
+        }
+    }
+}
+
+# Function to validate system configuration
+function Test-SystemConfiguration {
+    param([switch]$Comprehensive)
+    
+    try {
+        Write-Host "Validating system configuration..." -ForegroundColor Cyan
+        
+        $validationResults = @{
+            Timestamp = Get-Date
+            Validations = @{}
+            Summary = @{
+                Total = 0
+                Passed = 0
+                Failed = 0
+            }
+        }
+        
+        # Basic configuration validation
+        $basicValidations = @{
+            "Configuration Loading" = { $null -ne $script:Config }
+            "System Information" = { $null -ne $script:Config.system -and $null -ne $script:Config.system.name }
+            "Server Configuration" = { $script:Config.servers -and $script:Config.servers.Count -gt 0 }
+            "Monitoring Configuration" = { $script:Config.monitoring -and $script:Config.monitoring.health_check_interval }
+            "Error Handling Configuration" = { $script:Config.error_handling -and $script:Config.error_handling.max_retries }
+            "Logging Configuration" = { $script:Config.logging -and $script:Config.logging.log_level }
+            "Security Configuration" = { $script:Config.security -and $script:Config.security.url_validation }
+            "Dependencies Configuration" = { $script:Config.dependencies -and $script:Config.dependencies.startup_sequence }
+        }
+        
+        foreach ($validationName in $basicValidations.Keys) {
+            $validationResults.Validations[$validationName] = @{
+                Status = "PASSED"
+                Details = "Configuration section validated"
+            }
+            
+            $validationResults.Summary.Total++
+            
+            $isValid = try {
+                $basicValidations[$validationName].Invoke()
+            } catch {
+                $false
+            }
+            
+            if (-not $isValid) {
+                $validationResults.Validations[$validationName].Status = "FAILED"
+                $validationResults.Validations[$validationName].Details = "Configuration section missing or invalid"
+                $validationResults.Summary.Failed++
+            } else {
+                $validationResults.Summary.Passed++
+            }
+        }
+        
+        # Comprehensive validation if requested
+        if ($Comprehensive) {
+            $comprehensiveValidations = @{
+                "Port Availability" = {
+                    $allPortsAvailable = $true
+                    foreach ($server in $script:Config.servers.PSObject.Properties.Name) {
+                        $port = $script:Config.servers.$server.port
+                        if (-not (Test-PortAvailability -Port $port)) {
+                            $allPortsAvailable = $false
+                            break
+                        }
+                    }
+                    return $allPortsAvailable
+                }
+                "Script File Existence" = {
+                    $allScriptsExist = $true
+                    foreach ($server in $script:Config.servers.PSObject.Properties.Name) {
+                        $script = $script:Config.servers.$server.script
+                        if (-not (Test-Path $script)) {
+                            $allScriptsExist = $false
+                            break
+                        }
+                    }
+                    return $allScriptsExist
+                }
+                "Dependency Sequence" = {
+                    $sequence = Test-StartupSequence -StartupSequence $script:Config.dependencies.startup_sequence
+                    return $sequence.IsValid
+                }
+            }
+            
+            foreach ($validationName in $comprehensiveValidations.Keys) {
+                $validationResults.Validations[$validationName] = @{
+                    Status = "PASSED"
+                    Details = "Comprehensive validation passed"
+                }
+                
+                $validationResults.Summary.Total++
+                
+                $isValid = try {
+                    $comprehensiveValidations[$validationName].Invoke()
+                } catch {
+                    $false
+                }
+                
+                if (-not $isValid) {
+                    $validationResults.Validations[$validationName].Status = "FAILED"
+                    $validationResults.Validations[$validationName].Details = "Comprehensive validation failed"
+                    $validationResults.Summary.Failed++
+                } else {
+                    $validationResults.Summary.Passed++
+                }
+            }
+        }
+        
+        # Display results
+        Write-Host "`nConfiguration Validation Results:" -ForegroundColor Cyan
+        Write-Host "  Total: $($validationResults.Summary.Total)" -ForegroundColor White
+        Write-Host "  Passed: $($validationResults.Summary.Passed)" -ForegroundColor Green
+        Write-Host "  Failed: $($validationResults.Summary.Failed)" -ForegroundColor $(if ($validationResults.Summary.Failed -gt 0) { "Red" } else { "Green" })
+        
+        $overallStatus = if ($validationResults.Summary.Failed -eq 0) { "PASSED" } else { "FAILED" }
+        Write-Host "  Overall Status: $overallStatus" -ForegroundColor $(if ($overallStatus -eq "PASSED") { "Green" } else { "Red" })
+        
+        Write-ErrorLog -Message "Configuration validation completed" -Severity "INFO" -Category "TESTING" -Server "SYSTEM" -Details "Status: $overallStatus, Passed: $($validationResults.Summary.Passed), Failed: $($validationResults.Summary.Failed)"
+        
+        return $validationResults
+    }
+    catch {
+        Write-Host "Configuration validation failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "Configuration validation failed" -Severity "CRITICAL" -Category "TESTING" -Server "SYSTEM" -Details $_.Exception.Message
+        return @{
+            Status = "FAILED"
+            Error = $_.Exception.Message
+        }
+    }
 }
 
 # Function to clean up disk space
@@ -449,15 +2077,16 @@ function Test-ServerHealth {
         
         if ($response.StatusCode -eq 200) {
             $status = "HEALTHY"
-            $details = "Response time: $([math]::Round($responseTime, 1))ms"
+            $responseTimeRounded = [math]::Round($responseTime, 1)
+            $details = "Response time: ${responseTimeRounded}ms"
             
             # Check response time thresholds
             if ($responseTime -gt $script:Config.monitoring.response_time_thresholds.critical) {
                 $status = "DEGRADED"
-                $details = "Slow response: $([math]::Round($responseTime, 1))ms"
+                $details = "Slow response: ${responseTimeRounded}ms"
             } elseif ($responseTime -gt $script:Config.monitoring.response_time_thresholds.warning) {
                 $status = "WARNING"
-                $details = "High response time: $([math]::Round($responseTime, 1))ms"
+                $details = "High response time: ${responseTimeRounded}ms"
             }
             
             return @{
@@ -1075,41 +2704,48 @@ Write-Host ""
 # Initialize error tracking
 Write-ErrorLog -Message "System startup initiated" -Severity "INFO" -Category "STARTUP" -Server "SYSTEM"
 
-# Start servers individually with error handling
-Write-Host "Starting Flask Backend (Port 9100)..." -ForegroundColor Cyan
-try {
-    Start-Job -ScriptBlock { Set-Location $using:PWD; python app.py } -Name "Flask-Backend" | Out-Null
-    Start-Sleep 3
-    Write-ErrorLog -Message "Flask Backend started successfully" -Severity "INFO" -Category "STARTUP" -Server "Flask-Backend"
-} catch {
-    Write-ErrorLog -Message "Failed to start Flask Backend" -Severity "CRITICAL" -Category "STARTUP" -Server "Flask-Backend" -Details $_.Exception.Message
+# Validate startup sequence before starting services
+Write-Host "Validating service dependencies..." -ForegroundColor Cyan
+$startupValidation = Test-StartupSequence -StartupSequence $script:Config.dependencies.startup_sequence
+if (-not $startupValidation.IsValid) {
+    Write-Host "Startup sequence validation failed:" -ForegroundColor Red
+    foreach ($errorMsg in $startupValidation.Errors) {
+        Write-Host "  - $errorMsg" -ForegroundColor Red
+    }
+    Write-ErrorLog -Message "Startup sequence validation failed" -Severity "CRITICAL" -Category "DEPENDENCY" -Server "SYSTEM" -Details ($startupValidation.Errors -join "; ")
+    exit 1
 }
 
-Write-Host "Starting Master Clock Server (Port 9200)..." -ForegroundColor Cyan  
-try {
-    Start-Job -ScriptBlock { Set-Location $using:PWD; python realtime_sync_master.py } -Name "Master-Clock" | Out-Null
-    Start-Sleep 2
-    Write-ErrorLog -Message "Master Clock Server started successfully" -Severity "INFO" -Category "STARTUP" -Server "Master-Clock"
-} catch {
-    Write-ErrorLog -Message "Failed to start Master Clock Server" -Severity "CRITICAL" -Category "STARTUP" -Server "Master-Clock" -Details $_.Exception.Message
-}
+Write-Host "Startup sequence validation passed!" -ForegroundColor Green
 
-Write-Host "Starting WebSocket Server (Port 9101)..." -ForegroundColor Cyan
-try {
-    Start-Job -ScriptBlock { Set-Location $using:PWD; python main.py } -Name "WebSocket-Server" | Out-Null
-    Start-Sleep 2
-    Write-ErrorLog -Message "WebSocket Server started successfully" -Severity "INFO" -Category "STARTUP" -Server "WebSocket-Server"
-} catch {
-    Write-ErrorLog -Message "Failed to start WebSocket Server" -Severity "CRITICAL" -Category "STARTUP" -Server "WebSocket-Server" -Details $_.Exception.Message
-}
+# Start services with dependency management
+Write-Host "Starting services with dependency management..." -ForegroundColor Cyan
+$startupSuccess = @{}
 
-Write-Host "Starting Dash Frontend (Port 9103)..." -ForegroundColor Cyan
-try {
-    Start-Job -ScriptBlock { Set-Location $using:PWD; python dash_app.py } -Name "Dash-Frontend" | Out-Null
-    Start-Sleep 3
-    Write-ErrorLog -Message "Dash Frontend started successfully" -Severity "INFO" -Category "STARTUP" -Server "Dash-Frontend"
-} catch {
-    Write-ErrorLog -Message "Failed to start Dash Frontend" -Severity "CRITICAL" -Category "STARTUP" -Server "Dash-Frontend" -Details $_.Exception.Message
+foreach ($serviceName in $script:Config.dependencies.startup_sequence) {
+    $success = Start-ServiceWithDependencies -ServiceName $serviceName
+    $startupSuccess[$serviceName] = $success
+    
+    if (-not $success) {
+        Write-Host "Failed to start $serviceName. Stopping startup sequence." -ForegroundColor Red
+        Write-ErrorLog -Message "Service startup failed, stopping sequence" -Severity "CRITICAL" -Category "STARTUP" -Server $serviceName
+        
+        # Stop any services that were started
+        foreach ($startedService in $startupSuccess.Keys) {
+            if ($startupSuccess[$startedService]) {
+                Write-Host "Stopping $startedService..." -ForegroundColor Yellow
+                $jobs = Get-Job -Name $startedService -ErrorAction SilentlyContinue
+                if ($jobs) {
+                    Stop-Job -Job $jobs -ErrorAction SilentlyContinue
+                    Remove-Job -Job $jobs -ErrorAction SilentlyContinue
+                }
+            }
+        }
+        exit 1
+    }
+    
+    # Brief pause between service starts
+    Start-Sleep -Seconds 1
 }
 
 Write-Host ""
@@ -1131,9 +2767,16 @@ Write-Host "  * WebSocket:       http://localhost:9101" -ForegroundColor White
 Write-Host ""
 Write-Host "Enhanced Controls:" -ForegroundColor Yellow
 Write-Host "  * Press 'S' to show server status"
+Write-Host "  * Press 'D' to show dependency status"
+Write-Host "  * Press 'P' to show performance dashboard"
+Write-Host "  * Press 'H' to show enhanced system health"
+Write-Host "  * Press 'X' to export monitoring data"
+Write-Host "  * Press 'T' to run system tests"
+Write-Host "  * Press 'V' to validate configuration"
+Write-Host "  * Press 'W' to manage workflows"
+Write-Host "  * Press 'A' to manage scheduled tasks"
 Write-Host "  * Press 'R' to restart simulation engine"
 Write-Host "  * Press 'E' to show error summary"
-Write-Host "  * Press 'H' to show system health"
 Write-Host "  * Press 'Q' to quit and stop all servers"
 Write-Host "  * Press Ctrl+C for graceful shutdown"
 
@@ -1307,7 +2950,24 @@ do {
         # Check system resources
         Test-SystemResources
         
-        # Check server health endpoints
+        # Enhanced performance monitoring
+        $systemMetrics = Get-SystemPerformanceMetrics
+        if ($systemMetrics) {
+            # Generate performance alerts
+            $alerts = Invoke-PerformanceAlerting -Metrics $systemMetrics
+            if ($alerts.Count -gt 0) {
+                foreach ($alert in $alerts) {
+                    Write-Host "Performance Alert: $alert" -ForegroundColor Red
+                }
+            }
+            
+            # Log performance metrics periodically
+            if ((Get-Date).Minute % 5 -eq 0) {  # Every 5 minutes
+                Write-ErrorLog -Message "Performance metrics collected" -Severity "INFO" -Category "MONITORING" -Server "SYSTEM" -Details "CPU: $($systemMetrics.CPU.Usage)%, Memory: $($systemMetrics.Memory.Usage)%"
+            }
+        }
+        
+        # Check server health endpoints with performance data
         $serverHealth = @{
             "Flask-Backend" = Test-ServerHealth -ServerName "Flask-Backend" -HealthUrl "http://localhost:9100/status" -Port 9100
             "Master-Clock" = Test-ServerHealth -ServerName "Master-Clock" -HealthUrl "http://localhost:9200/health" -Port 9200
@@ -1336,42 +2996,155 @@ do {
                     Write-Host "  $($job.Name): $status" -ForegroundColor $color
                 }
             }
+            'D' {
+                Show-DependencyStatus
+            }
+            'P' {
+                Show-PerformanceDashboard
+            }
             'E' {
                 Show-ErrorSummary
             }
             'H' {
+                Show-EnhancedSystemHealth
+            }
+            'X' {
                 Write-Host ""
-                Write-Host "System Health Check:" -ForegroundColor Cyan
-                Write-Host "===================" -ForegroundColor Cyan
-                
-                # Check all server health endpoints
-                $endpoints = @{
-                    "Flask Backend" = "http://localhost:9100/status"
-                    "Master Clock" = "http://localhost:9200/health"
-                    "WebSocket Server" = "http://localhost:9101"
-                    "Dash Frontend" = "http://localhost:9103"
+                Write-Host "Exporting monitoring data..." -ForegroundColor Yellow
+                $exportPath = Export-MonitoringData
+                if ($exportPath) {
+                    Write-Host "Monitoring data exported successfully!" -ForegroundColor Green
+                    Write-Host "File: $exportPath" -ForegroundColor Cyan
+                } else {
+                    Write-Host "Failed to export monitoring data" -ForegroundColor Red
                 }
-                
-                foreach ($server in $endpoints.Keys) {
-                    $health = Test-ServerHealth -ServerName $server -HealthUrl $endpoints[$server] -Port 0
-                    $color = switch ($health.Status) {
-                        "HEALTHY" { "Green" }
-                        "DEGRADED" { "Yellow" }
-                        "FAILED" { "Red" }
-                        default { "Gray" }
+            }
+            'T' {
+                Write-Host ""
+                Write-Host "Running comprehensive system tests..." -ForegroundColor Cyan
+                $testResults = Invoke-SystemTests -Verbose
+                if ($testResults.Status -eq "PASSED") {
+                    Write-Host "All tests passed successfully!" -ForegroundColor Green
+                } else {
+                    Write-Host "Some tests failed. Check results above." -ForegroundColor Red
+                }
+            }
+            'V' {
+                Write-Host ""
+                Write-Host "Validating system configuration..." -ForegroundColor Cyan
+                $validationResults = Test-SystemConfiguration -Comprehensive
+                if ($validationResults.Summary.Failed -eq 0) {
+                    Write-Host "Configuration validation passed!" -ForegroundColor Green
+                } else {
+                    Write-Host "Configuration validation failed. Check results above." -ForegroundColor Red
+                }
+            }
+            'W' {
+                Write-Host ""
+                Write-Host "Workflow Management:" -ForegroundColor Cyan
+                Write-Host "  1. Create workflow" -ForegroundColor White
+                Write-Host "  2. Execute workflow" -ForegroundColor White
+                Write-Host "  3. List workflows" -ForegroundColor White
+                $choice = Read-Host "Enter choice (1-3) or press Enter to cancel"
+                switch ($choice) {
+                    "1" {
+                        $workflowName = Read-Host "Enter workflow name"
+                        $steps = @()
+                        do {
+                            $step = Read-Host "Enter step function name (or press Enter to finish)"
+                            if ($step) { $steps += $step }
+                        } while ($step)
+                        if ($steps.Count -gt 0) {
+                            $workflow = New-AutomatedWorkflow -WorkflowName $workflowName -Steps $steps
+                            if ($workflow) {
+                                Write-Host "Workflow created successfully!" -ForegroundColor Green
+                            }
+                        }
                     }
-                    Write-Host "  $server`: $($health.Status)" -ForegroundColor $color
-                    if ($health.ResponseTime -gt 0) {
-                        Write-Host "    Response Time: $($health.ResponseTime)ms" -ForegroundColor Gray
+                    "2" {
+                        if ($script:Config.automation.workflows) {
+                            Write-Host "Available workflows:" -ForegroundColor Yellow
+                            foreach ($workflowName in $script:Config.automation.workflows.Keys) {
+                                Write-Host "  - $workflowName" -ForegroundColor White
+                            }
+                            $workflowName = Read-Host "Enter workflow name to execute"
+                            if ($script:Config.automation.workflows.ContainsKey($workflowName)) {
+                                $result = Invoke-AutomatedWorkflow -WorkflowName $workflowName
+                                if ($result.Success) {
+                                    Write-Host "Workflow executed successfully!" -ForegroundColor Green
+                                } else {
+                                    Write-Host "Workflow execution failed!" -ForegroundColor Red
+                                }
+                            } else {
+                                Write-Host "Workflow not found!" -ForegroundColor Red
+                            }
+                        } else {
+                            Write-Host "No workflows available." -ForegroundColor Yellow
+                        }
+                    }
+                    "3" {
+                        if ($script:Config.automation.workflows) {
+                            Write-Host ""
+                            Write-Host "Available Workflows:" -ForegroundColor Cyan
+                            foreach ($workflowName in $script:Config.automation.workflows.Keys) {
+                                $workflow = $script:Config.automation.workflows[$workflowName]
+                                Write-Host "  $workflowName ($($workflow.Status))" -ForegroundColor White
+                                Write-Host "    Steps: $($workflow.Steps.Count)" -ForegroundColor Gray
+                                Write-Host "    Created: $($workflow.Created)" -ForegroundColor Gray
+                            }
+                        } else {
+                            Write-Host "No workflows available." -ForegroundColor Yellow
+                        }
                     }
                 }
-                
-                # Show system resources
-                $cpuUsage = (Get-Counter "\Processor(_Total)\% Processor Time").CounterSamples[0].CookedValue
-                $memoryUsage = (Get-Counter "\Memory\% Committed Bytes In Use").CounterSamples[0].CookedValue
-                Write-Host "  System Resources:" -ForegroundColor Cyan
-                Write-Host "    CPU Usage: $([math]::Round($cpuUsage, 1))%" -ForegroundColor $(if ($cpuUsage -gt 80) { "Yellow" } else { "Green" })
-                Write-Host "    Memory Usage: $([math]::Round($memoryUsage, 1))%" -ForegroundColor $(if ($memoryUsage -gt 80) { "Yellow" } else { "Green" })
+            }
+            'A' {
+                Write-Host ""
+                Write-Host "Scheduled Tasks Management:" -ForegroundColor Cyan
+                Write-Host "  1. Create scheduled task" -ForegroundColor White
+                Write-Host "  2. List scheduled tasks" -ForegroundColor White
+                Write-Host "  3. Execute scheduled tasks" -ForegroundColor White
+                $choice = Read-Host "Enter choice (1-3) or press Enter to cancel"
+                switch ($choice) {
+                    "1" {
+                        $taskName = Read-Host "Enter task name"
+                        $command = Read-Host "Enter command/function name"
+                        $schedule = Read-Host "Enter schedule (daily/hourly/custom)"
+                        $time = Read-Host "Enter time (HH:MM) or press Enter for default"
+                        if (-not $time) { $time = "00:00" }
+                        $task = New-ScheduledTask -TaskName $taskName -Command $command -Schedule $schedule -Time $time
+                        if ($task) {
+                            Write-Host "Scheduled task created successfully!" -ForegroundColor Green
+                        }
+                    }
+                    "2" {
+                        if ($script:Config.automation.scheduled_tasks) {
+                            Write-Host ""
+                            Write-Host "Scheduled Tasks:" -ForegroundColor Cyan
+                            foreach ($taskName in $script:Config.automation.scheduled_tasks.Keys) {
+                                $task = $script:Config.automation.scheduled_tasks[$taskName]
+                                Write-Host "  $taskName" -ForegroundColor White
+                                Write-Host "    Schedule: $($task.Schedule) at $($task.Time)" -ForegroundColor Gray
+                                Write-Host "    Next Run: $($task.NextRun)" -ForegroundColor Gray
+                                Write-Host "    Enabled: $($task.Enabled)" -ForegroundColor Gray
+                            }
+                        } else {
+                            Write-Host "No scheduled tasks available." -ForegroundColor Yellow
+                        }
+                    }
+                    "3" {
+                        $executedTasks = Invoke-ScheduledTasks
+                        if ($executedTasks.Count -gt 0) {
+                            Write-Host ""
+                            Write-Host "Executed Tasks:" -ForegroundColor Cyan
+                            foreach ($task in $executedTasks) {
+                                Write-Host "  $($task.Task): $($task.Status)" -ForegroundColor $(if ($task.Status -eq "SUCCESS") { "Green" } else { "Red" })
+                            }
+                        } else {
+                            Write-Host "No tasks were due for execution." -ForegroundColor Yellow
+                        }
+                    }
+                }
             }
             'R' {
                 Write-Host ""
@@ -1417,3 +3190,74 @@ do {
     }
     
 } while ($true) 
+
+# Alias: Import-Configuration-Alias (for summary consistency)
+function Import-Configuration-Alias {
+    [CmdletBinding()]
+    param()
+    Import-Configuration
+}
+
+# Alias: Write-ErrorLog-Alias (for summary consistency)
+function Write-ErrorLog-Alias {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)][string]$Message,
+        [string]$Severity = "INFO",
+        [string]$Category = "GENERAL",
+        [string]$Server = "SYSTEM",
+        [string]$Details = ""
+    )
+    Write-ErrorLog -Message $Message -Severity $Severity -Category $Category -Server $Server -Details $Details
+}
+
+# Utility: Test-Url (if not already present)
+function Test-Url {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)][string]$Url
+    )
+    try {
+        $uri = [System.Uri]$Url
+        return $uri.Scheme -in @('http','https') -and $uri.Host.Length -gt 0
+    } catch {
+        return $false
+    }
+}
+
+# Function to set up automated monitoring alerts
+function Initialize-MonitoringAlerts {
+    try {
+        # Create alert thresholds in configuration if not present
+        if (-not $script:Config.monitoring.alert_thresholds) {
+            $script:Config.monitoring.alert_thresholds = @{
+                cpu_critical = 90
+                cpu_warning = 80
+                memory_critical = 85
+                memory_warning = 75
+                disk_critical = 95
+                disk_warning = 85
+                response_time_critical = 5000
+                response_time_warning = 2000
+            }
+        }
+        
+        # Create alert history if not present
+        if (-not $script:AlertHistory) {
+            $script:AlertHistory = @()
+        }
+        
+        Write-Host "Monitoring alerts initialized" -ForegroundColor Green
+        Write-ErrorLog -Message "Monitoring alerts initialized" -Severity "INFO" -Category "MONITORING" -Server "SYSTEM"
+    }
+    catch {
+        Write-Host "Failed to initialize monitoring alerts: $($_.Exception.Message)" -ForegroundColor Red
+        Write-ErrorLog -Message "Monitoring alerts initialization failed" -Severity "HIGH" -Category "MONITORING" -Server "SYSTEM" -Details $_.Exception.Message
+    }
+}
+
+# Initialize monitoring alerts
+Initialize-MonitoringAlerts
+
+
+

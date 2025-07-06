@@ -36,7 +36,7 @@ def fix_formatting():
         "app.py",
         "simulation/components/floater.py",
         "simulation/components/clutch.py",
-        "simulation/components/drivetrain.py",
+        "simulation/components/integrated_drivetrain.py",
         "simulation/components/generator.py",
         "simulation/controller.py",
     ]
@@ -60,7 +60,7 @@ def fix_imports():
         "app.py",
         "simulation/components/floater.py",
         "simulation/components/clutch.py",
-        "simulation/components/drivetrain.py",
+        "simulation/components/integrated_drivetrain.py",
         "simulation/components/generator.py",
         "simulation/controller.py",
     ]

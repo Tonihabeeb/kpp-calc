@@ -1,0 +1,41 @@
+
+CALLBACK AND ENDPOINT ANALYSIS SUMMARY
+=====================================
+
+Total Callbacks: 231
+Total Endpoints: 40
+Total Issues: 167
+
+Callback Types:
+  route: 37
+  event_trigger: 2
+  state_update: 8
+  component_method: 101
+  method: 28
+  simulation_step: 4
+  component_update: 11
+  calculation: 38
+  computation: 2
+
+Endpoint Methods:
+  GET: 26
+  POST: 14
+
+Issue Severities:
+  medium: 130
+  high: 37
+
+Most Complex Callbacks:
+  _execute_physics_step (32 calls) - simulation_step
+  _init_components_with_legacy_params (24 calls) - method
+  _init_components_with_new_config (22 calls) - method
+  log_state (19 calls) - method
+  start_simulation (18 calls) - route
+
+Most Dependent Callbacks:
+  update (12 callers) - component_update
+  get_state (6 callers) - component_method
+  update_state (6 callers) - component_update
+  to_dict (4 callers) - component_method
+  set_theta (4 callers) - component_method
+

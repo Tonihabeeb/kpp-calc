@@ -23,22 +23,27 @@ print("🔍 KPP Real-Time System Health Check\n")
 
 # Check Backend
 backend_ok, backend_data = check_service("Backend (Flask)", "http://localhost:9100/status")
-if backend_ok:
+if backend_ok and backend_data:
     print(f"   └─ Simulation: {'RUNNING' if backend_data.get('simulation_running') else 'STOPPED'}")
     print(f"   └─ Time: {backend_data.get('engine_time', 0):.1f}s")
 
 # Check WebSocket Server
 ws_ok, ws_data = check_service("WebSocket Server", "http://localhost:9101/state")
-if ws_ok:
-    sim_data = ws_data.get('simulation_data', {})
+sim_data = ws_data.get('simulation_data', {}) if ws_ok and ws_data and isinstance(ws_data, dict) else {}
+if ws_ok and sim_data:
     print(f"   └─ Power: {sim_data.get('power', 0):.0f}W")
     print(f"   └─ Status: {sim_data.get('status', 'unknown')}")
     print(f"   └─ Health: {sim_data.get('system_health', 'unknown')}")
 
-# Check Frontend
-frontend_ok, _ = check_service("Frontend (Dash)", "http://localhost:9102/_alive_4c4dd8bd-3c95-4f06-a4f0-ae05a6e5e99d")
+# Check Frontend (Dash)
+frontend_ok, _ = check_service("Frontend (Dash)", "http://localhost:9103/_alive_4c4dd8bd-3c95-4f06-a4f0-ae05a6e5e99d")
 
-print(f"\n📊 System Status: {'🟢 ALL SYSTEMS OPERATIONAL' if all([backend_ok, ws_ok, frontend_ok]) else '🔴 ISSUES DETECTED'}")
+# Check Sync Master Clock
+sync_ok, sync_data = check_service("Sync Master Clock", "http://localhost:9201/health")
+if sync_ok and sync_data:
+    print(f"   └─ Sync Status: {sync_data.get('status', 'unknown')}")
+
+print(f"\n📊 System Status: {'🟢 ALL SYSTEMS OPERATIONAL' if all([backend_ok, ws_ok, frontend_ok, sync_ok]) else '🔴 ISSUES DETECTED'}")
 
 if ws_ok and backend_ok:
     print(f"\n🎯 Real-Time Data Flow: ✅ CONFIRMED")

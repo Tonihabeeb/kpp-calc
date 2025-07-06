@@ -6,7 +6,7 @@ Handles thermal effects, H2 isothermal expansion, and temperature-dependent prop
 import logging
 import math
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -56,15 +56,9 @@ class ThermalModel:
 
         # H2 isothermal parameters
         self.h2_active = config.get("h2_active", False)
-        self.h2_efficiency = config.get(
-            "h2_efficiency", 0.8
-        )  # How close to ideal isothermal (0-1)
-        self.h2_buoyancy_boost = config.get(
-            "h2_buoyancy_boost", 0.05
-        )  # 5% default boost
-        self.h2_compression_improvement = config.get(
-            "h2_compression_improvement", 0.15
-        )  # 15% work reduction
+        self.h2_efficiency = config.get("h2_efficiency", 0.8)  # How close to ideal isothermal (0-1)
+        self.h2_buoyancy_boost = config.get("h2_buoyancy_boost", 0.05)  # 5% default boost
+        self.h2_compression_improvement = config.get("h2_compression_improvement", 0.15)  # 15% work reduction
 
         # Thermal expansion properties
         self.water_expansion_coeff = 2.1e-4  # /K
@@ -87,19 +81,13 @@ class ThermalModel:
 
         # Apply H2 effects if active
         if self.h2_active:
-            self.state.buoyancy_enhancement = (
-                self.h2_buoyancy_boost * self.h2_efficiency
-            )
-            self.state.compression_work_reduction = (
-                self.h2_compression_improvement * self.h2_efficiency
-            )
+            self.state.buoyancy_enhancement = self.h2_buoyancy_boost * self.h2_efficiency
+            self.state.compression_work_reduction = self.h2_compression_improvement * self.h2_efficiency
         else:
             self.state.buoyancy_enhancement = 0.0
             self.state.compression_work_reduction = 0.0
 
-    def calculate_thermal_buoyancy_enhancement(
-        self, base_buoyancy: float, ascent_height: float
-    ) -> float:
+    def calculate_thermal_buoyancy_enhancement(self, base_buoyancy: float, ascent_height: float) -> float:
         """
         Calculate thermal enhancement to buoyancy force due to H2 isothermal expansion.
 
@@ -184,9 +172,7 @@ class ThermalModel:
                 f"({self.state.compression_work_reduction:.1%} reduction)"
             )
 
-            return max(
-                effective_work, 0.1 * isothermal_work
-            )  # Minimum 10% of ideal work
+            return max(effective_work, 0.1 * isothermal_work)  # Minimum 10% of ideal work
         else:
             return isothermal_work
 
@@ -214,9 +200,7 @@ class ThermalModel:
         final_volume = volume * (pressure_ratio ** (-1 / self.gamma))
 
         # Adiabatic work
-        adiabatic_work = (final_pressure * final_volume - initial_pressure * volume) / (
-            self.gamma - 1
-        )
+        adiabatic_work = (final_pressure * final_volume - initial_pressure * volume) / (self.gamma - 1)
 
         logger.debug(
             f"Adiabatic compression work: V₁={volume:.4f} m³, V₂={final_volume:.4f} m³, "
@@ -226,9 +210,7 @@ class ThermalModel:
 
         return adiabatic_work
 
-    def calculate_compression_work(
-        self, volume: float, depth: float, use_isothermal: Optional[bool] = None
-    ) -> float:
+    def calculate_compression_work(self, volume: float, depth: float, use_isothermal: Optional[bool] = None) -> float:
         """
         Calculate compression work for air injection at depth.
 
@@ -258,13 +240,9 @@ class ThermalModel:
             use_isothermal = self.h2_active
 
         if use_isothermal:
-            work = self.calculate_isothermal_compression_work(
-                volume, initial_pressure, final_pressure
-            )
+            work = self.calculate_isothermal_compression_work(volume, initial_pressure, final_pressure)
         else:
-            work = self.calculate_adiabatic_compression_work(
-                volume, initial_pressure, final_pressure
-            )
+            work = self.calculate_adiabatic_compression_work(volume, initial_pressure, final_pressure)
 
         logger.debug(
             f"Compression work at depth {depth:.1f}m: "
@@ -273,9 +251,7 @@ class ThermalModel:
 
         return work
 
-    def calculate_thermal_density_effect(
-        self, base_density: float, temperature_change: float
-    ) -> float:
+    def calculate_thermal_density_effect(self, base_density: float, temperature_change: float) -> float:
         """
         Calculate density change due to thermal expansion.
 
@@ -328,8 +304,7 @@ class ThermalModel:
         heat_rate = heat_transfer_coeff * surface_area * temperature_difference
 
         logger.debug(
-            f"Heat exchange: A={surface_area:.3f} m², ΔT={temperature_difference:.1f}K, "
-            f"Q̇={heat_rate:.1f} W"
+            f"Heat exchange: A={surface_area:.3f} m², ΔT={temperature_difference:.1f}K, " f"Q̇={heat_rate:.1f} W"
         )
 
         return heat_rate
@@ -376,9 +351,7 @@ class ThermalModel:
             self.h2_buoyancy_boost = max(0.0, min(buoyancy_boost, 0.3))  # Limit to 30%
 
         if compression_improvement is not None:
-            self.h2_compression_improvement = max(
-                0.0, min(compression_improvement, 0.5)
-            )  # Limit to 50%
+            self.h2_compression_improvement = max(0.0, min(compression_improvement, 0.5))  # Limit to 50%
 
         self.update_state()
 
@@ -396,14 +369,11 @@ class ThermalModel:
         Args:
             temperature (float): Water temperature in Kelvin
         """
-        self.water_temperature = max(
-            273.15, min(temperature, 373.15)
-        )  # Limit to liquid range
+        self.water_temperature = max(273.15, min(temperature, 373.15))  # Limit to liquid range
         self.update_state()
 
         logger.info(
-            f"Water temperature set to {self.water_temperature:.1f} K "
-            f"({self.water_temperature - 273.15:.1f}°C)"
+            f"Water temperature set to {self.water_temperature:.1f} K " f"({self.water_temperature - 273.15:.1f}°C)"
         )
 
     def set_ambient_temperature(self, temperature: float):
@@ -413,9 +383,7 @@ class ThermalModel:
         Args:
             temperature (float): Ambient temperature in Kelvin
         """
-        self.ambient_temperature = max(
-            173.15, min(temperature, 373.15)
-        )  # Reasonable range
+        self.ambient_temperature = max(173.15, min(temperature, 373.15))  # Reasonable range
         self.update_state()
 
         logger.info(

@@ -1,5 +1,5 @@
 """
-Integrated drivetrain system combining sprockets, gearbox, clutch, and flywheel.
+Integrated integrated_drivetrain system combining sprockets, gearbox, clutch, and flywheel.
 This represents the complete mechanical power transmission system for the KPP.
 """
 
@@ -8,13 +8,14 @@ import math
 from typing import Any, Dict, Optional, Union
 
 from .flywheel import Flywheel, FlywheelController
-from .gearbox import Gearbox, create_kpp_gearbox
+from .gearbox import create_kpp_gearbox
 from .one_way_clutch import OneWayClutch, PulseCoastController
 from .sprocket import Sprocket
 
 # PHASE 2: Import new configuration system
 try:
     from config.components.drivetrain_config import DrivetrainConfig as NewDrivetrainConfig
+
     NEW_CONFIG_AVAILABLE = True
 except ImportError:
     NEW_CONFIG_AVAILABLE = False
@@ -25,30 +26,31 @@ logger = logging.getLogger(__name__)
 # Type alias for backward compatibility
 DrivetrainConfigType = Union[NewDrivetrainConfig, Dict[str, Any]] if NEW_CONFIG_AVAILABLE else Dict[str, Any]
 
+
 class IntegratedDrivetrain:
     """
-    Complete drivetrain system integrating all mechanical components
+    Complete integrated_drivetrain system integrating all mechanical components
     from chain tension input to generator output.
     """
 
     def __init__(self, config: Optional[DrivetrainConfigType] = None):
         """
-        Initialize the integrated drivetrain system.
+        Initialize the integrated integrated_drivetrain system.
 
         Args:
             config (dict or DrivetrainConfig): Configuration parameters for all components
         """
-        self.using_new_config = NEW_CONFIG_AVAILABLE and hasattr(config, 'to_dict')
+        self.using_new_config = NEW_CONFIG_AVAILABLE and hasattr(config, "to_dict")
         if config is None:
             config = {}
         if self.using_new_config:
-            logger.info("Using new configuration system for drivetrain")
+            logger.info("Using new configuration system for integrated_drivetrain")
             config_dict = config.to_dict()
         else:
-            logger.info("Using legacy configuration system for drivetrain")
+            logger.info("Using legacy configuration system for integrated_drivetrain")
             config_dict = dict(config)
 
-        # Initialize all drivetrain components
+        # Initialize all integrated_drivetrain components
         self.top_sprocket = Sprocket(
             radius=config_dict.get("sprocket_radius", 1.0),
             tooth_count=config_dict.get("sprocket_teeth", 20),
@@ -79,10 +81,7 @@ class IntegratedDrivetrain:
         self.pulse_coast_controller = PulseCoastController(self.one_way_clutch)
         self.flywheel_controller = FlywheelController(
             self.flywheel,
-            target_speed=config_dict.get("target_generator_speed", 375.0)
-            * 2
-            * math.pi
-            / 60,  # Convert RPM to rad/s
+            target_speed=config_dict.get("target_generator_speed", 375.0) * 2 * math.pi / 60,  # Convert RPM to rad/s
         )
 
         # System state
@@ -96,11 +95,9 @@ class IntegratedDrivetrain:
         self.total_energy_output = 0.0  # J
         self.operating_time = 0.0  # s
 
-    def update(
-        self, chain_tension: float, generator_load_torque: float, dt: float
-    ) -> Dict[str, float]:
+    def update(self, chain_tension: float, generator_load_torque: float, dt: float) -> Dict[str, float]:
         """
-        Update the complete drivetrain system.
+        Update the complete integrated_drivetrain system.
 
         Args:
             chain_tension (float): Tension in the chain from floaters (N)
@@ -116,27 +113,29 @@ class IntegratedDrivetrain:
 
         # Step 1: Convert chain tension to rotational torque via sprocket
         self.top_sprocket.update(chain_tension, dt)
-        sprocket_power = self.top_sprocket.get_power_output()
-        
+        self.top_sprocket.get_power_output()
+
         # BOOTSTRAP FIX: Force initial rotation if we have substantial chain tension but no motion
         abs_chain_tension = abs(chain_tension)
         abs_sprocket_velocity = abs(self.top_sprocket.angular_velocity)
         abs_sprocket_torque = abs(self.top_sprocket.torque)
-        
-        if (abs_chain_tension > 500.0 and  # Lower threshold for startup
-            abs_sprocket_velocity < 0.05 and  # More generous velocity threshold
-            abs_sprocket_torque > 25.0):  # Lower torque threshold
+
+        if (
+            abs_chain_tension > 500.0  # Lower threshold for startup
+            and abs_sprocket_velocity < 0.05  # More generous velocity threshold
+            and abs_sprocket_torque > 25.0
+        ):  # Lower torque threshold
             # Kick-start the sprocket with minimum angular velocity
             startup_velocity = 0.2  # Higher initial kick
             self.top_sprocket.drive_shaft.angular_velocity = startup_velocity
             self.top_sprocket.angular_velocity = startup_velocity
-            logger.warning(f"Bootstrap: kick-starting sprocket with chain_tension={chain_tension:.0f}N, torque={abs_sprocket_torque:.1f}Nm")
+            logger.warning(
+                f"Bootstrap: kick-starting sprocket with chain_tension={chain_tension:.0f}N, torque={abs_sprocket_torque:.1f}Nm"
+            )
 
         # Step 2: Speed and torque conversion through gearbox
-        self.gearbox.update(
-            self.top_sprocket.angular_velocity, self.top_sprocket.torque
-        )
-        gearbox_power = self.gearbox.get_output_power()
+        self.gearbox.update(self.top_sprocket.angular_velocity, self.top_sprocket.torque)
+        self.gearbox.get_output_power()
 
         # Step 3: Pulse-and-coast operation through one-way clutch
         clutch_output_torque = self.pulse_coast_controller.update(
@@ -149,9 +148,7 @@ class IntegratedDrivetrain:
         # Step 4: Energy buffering and speed stabilization via flywheel
         # The flywheel receives input from clutch and provides output to generator
         net_flywheel_torque = clutch_output_torque - generator_load_torque
-        flywheel_reaction, overspeed_active = self.flywheel_controller.update(
-            net_flywheel_torque, dt
-        )
+        flywheel_reaction, overspeed_active = self.flywheel_controller.update(net_flywheel_torque, dt)
 
         # Step 5: Calculate system outputs
         outputs = self._calculate_system_outputs()
@@ -160,7 +157,7 @@ class IntegratedDrivetrain:
         self._update_performance_metrics(dt)
 
         logger.debug(
-            f"Drivetrain: chain={chain_tension:.0f}N → sprocket={self.top_sprocket.torque:.0f}N·m → "
+            f"IntegratedDrivetrain: chain={chain_tension:.0f}N → sprocket={self.top_sprocket.torque:.0f}N·m → "
             f"gearbox={self.gearbox.output_torque:.0f}N·m → flywheel={self.flywheel.get_rpm():.0f}RPM"
         )
 
@@ -237,7 +234,7 @@ class IntegratedDrivetrain:
         Get comprehensive state information from all components.
 
         Returns:
-            dict: Complete drivetrain state
+            dict: Complete integrated_drivetrain state
         """
         return {
             "sprocket": {
@@ -271,7 +268,7 @@ class IntegratedDrivetrain:
         }
 
     def reset(self):
-        """Reset all drivetrain components to initial conditions."""
+        """Reset all integrated_drivetrain components to initial conditions."""
         self.top_sprocket.reset()
         self.bottom_sprocket.reset()
         self.gearbox.reset()
@@ -297,7 +294,7 @@ class IntegratedDrivetrain:
         self.one_way_clutch.is_engaged = False
         self.one_way_clutch.engagement_factor = 0.0
 
-        logger.warning("Emergency stop applied to drivetrain")
+        logger.warning("Emergency stop applied to integrated_drivetrain")
 
     def get_power_flow_summary(self) -> str:
         """
@@ -320,15 +317,13 @@ class IntegratedDrivetrain:
 
     def get_status(self) -> Dict[str, float]:
         """
-        Get current status of the integrated drivetrain system
+        Get current status of the integrated integrated_drivetrain system
 
         Returns:
-            Dict containing current drivetrain status data
+            Dict containing current integrated_drivetrain status data
         """
         return {
-            "shaft_speed": self.flywheel.angular_velocity
-            * 60
-            / (2 * math.pi),  # Convert to RPM
+            "shaft_speed": self.flywheel.angular_velocity * 60 / (2 * math.pi),  # Convert to RPM
             "flywheel_speed": self.flywheel.angular_velocity * 60 / (2 * math.pi),
             "gearbox_ratio": self.gearbox.overall_ratio,
             "gearbox_efficiency": self.gearbox.overall_efficiency,
@@ -346,20 +341,20 @@ def create_standard_kpp_drivetrain(
     config: Optional[DrivetrainConfigType] = None,
 ) -> IntegratedDrivetrain:
     """
-    Create a standard KPP drivetrain configuration based on the technical specifications.
+    Create a standard KPP integrated_drivetrain configuration based on the technical specifications.
 
     Args:
         config (dict or DrivetrainConfig): Optional configuration overrides
 
     Returns:
-        IntegratedDrivetrain: Configured drivetrain system
+        IntegratedDrivetrain: Configured integrated_drivetrain system
     """
-    if config is not None and NEW_CONFIG_AVAILABLE and hasattr(config, 'to_dict'):
-        drivetrain = IntegratedDrivetrain(config)
+    if config is not None and NEW_CONFIG_AVAILABLE and hasattr(config, "to_dict"):
+        integrated_drivetrain = IntegratedDrivetrain(config)
         logger.info(
-            f"Created standard KPP drivetrain (new config): flywheel_inertia={getattr(config, 'flywheel_mass', 1000.0):.0f}kg, target_speed={getattr(config, 'target_generator_speed', 375.0):.0f}RPM"
+            f"Created standard KPP integrated_drivetrain (new config): flywheel_inertia={getattr(config, 'flywheel_mass', 1000.0):.0f}kg, target_speed={getattr(config, 'target_generator_speed', 375.0):.0f}RPM"
         )
-        return drivetrain
+        return integrated_drivetrain
     else:
         standard_config = {
             "sprocket_radius": 1.0,  # m
@@ -374,8 +369,8 @@ def create_standard_kpp_drivetrain(
         }
         if config:
             standard_config.update(config)
-        drivetrain = IntegratedDrivetrain(standard_config)
+        integrated_drivetrain = IntegratedDrivetrain(standard_config)
         logger.info(
-            f"Created standard KPP drivetrain: gear_ratio={drivetrain.gearbox.overall_ratio:.1f}:1, flywheel_inertia={drivetrain.flywheel.moment_of_inertia:.0f}kg·m², target_speed={standard_config['target_generator_speed']:.0f}RPM"
+            f"Created standard KPP integrated_drivetrain: gear_ratio={integrated_drivetrain.gearbox.overall_ratio:.1f}:1, flywheel_inertia={integrated_drivetrain.flywheel.moment_of_inertia:.0f}kg·m², target_speed={standard_config['target_generator_speed']:.0f}RPM"
         )
-        return drivetrain
+        return integrated_drivetrain

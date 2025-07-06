@@ -14,7 +14,7 @@ Key Features:
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 from utils.logging_setup import setup_logging
 
@@ -84,9 +84,7 @@ class PressureControlSystem:
         self.compressor_state = CompressorState.OFF
         self.safety_level = SafetyLevel.NORMAL
         self.last_start_time = 0.0
-        self.last_stop_time = (
-            -self.settings.min_cycle_time
-        )  # Allow immediate start on first run
+        self.last_stop_time = -self.settings.min_cycle_time  # Allow immediate start on first run
         self.cycle_count = 0
 
         # Pressure monitoring
@@ -106,9 +104,7 @@ class PressureControlSystem:
         self.total_cycles = 0
         self.pressure_violations = 0
 
-        logger.info(
-            f"PressureControlSystem initialized: target={self.settings.target_pressure/1000:.1f} kPa"
-        )
+        logger.info(f"PressureControlSystem initialized: target={self.settings.target_pressure/1000:.1f} kPa")
 
     def set_air_compressor(self, air_compressor) -> None:
         """Set the air compressor system to control."""
@@ -163,9 +159,7 @@ class PressureControlSystem:
 
         return SafetyLevel.NORMAL
 
-    def should_start_compressor(
-        self, current_pressure: float, current_time: float
-    ) -> bool:
+    def should_start_compressor(self, current_pressure: float, current_time: float) -> bool:
         """
         Determine if compressor should start.
 
@@ -200,9 +194,7 @@ class PressureControlSystem:
 
         return True
 
-    def should_stop_compressor(
-        self, current_pressure: float, current_time: float
-    ) -> bool:
+    def should_stop_compressor(self, current_pressure: float, current_time: float) -> bool:
         """
         Determine if compressor should stop.
 
@@ -256,8 +248,7 @@ class PressureControlSystem:
                 self.last_start_time = current_time
                 self.cycle_count += 1
                 logger.info(
-                    f"Starting compressor cycle #{self.cycle_count}: "
-                    f"pressure={current_pressure/1000:.1f} kPa"
+                    f"Starting compressor cycle #{self.cycle_count}: " f"pressure={current_pressure/1000:.1f} kPa"
                 )
 
         elif self.compressor_state == CompressorState.STARTING:
@@ -271,8 +262,7 @@ class PressureControlSystem:
                 runtime = current_time - self.last_start_time
                 self.total_runtime += runtime
                 logger.info(
-                    f"Stopping compressor: pressure={current_pressure/1000:.1f} kPa, "
-                    f"runtime={runtime:.1f}s"
+                    f"Stopping compressor: pressure={current_pressure/1000:.1f} kPa, " f"runtime={runtime:.1f}s"
                 )
 
         elif self.compressor_state == CompressorState.STOPPING:
@@ -310,9 +300,7 @@ class PressureControlSystem:
         compressor_results = {}
         if new_state == CompressorState.RUNNING:
             # Run compressor to high pressure setpoint for proper hysteresis control
-            compressor_results = self.air_compressor.run_compressor(
-                dt, self.settings.high_pressure_setpoint
-            )
+            compressor_results = self.air_compressor.run_compressor(dt, self.settings.high_pressure_setpoint)
         else:
             # Compressor off
             compressor_results = {
@@ -370,20 +358,14 @@ class PressureControlSystem:
         """
         self.settings.target_pressure = new_target
         # Automatically adjust setpoints
-        self.settings.high_pressure_setpoint = (
-            new_target + self.settings.pressure_hysteresis
-        )
-        self.settings.low_pressure_setpoint = (
-            new_target - self.settings.pressure_hysteresis
-        )
+        self.settings.high_pressure_setpoint = new_target + self.settings.pressure_hysteresis
+        self.settings.low_pressure_setpoint = new_target - self.settings.pressure_hysteresis
 
         logger.info(f"Target pressure updated to {new_target/1000:.1f} kPa")
 
     def get_control_status(self) -> Dict[str, Any]:
         """Get comprehensive control system status."""
-        current_pressure = (
-            self.air_compressor.tank_pressure if self.air_compressor else 0.0
-        )
+        current_pressure = self.air_compressor.tank_pressure if self.air_compressor else 0.0
 
         return {
             "compressor_state": self.compressor_state.value,
@@ -401,8 +383,7 @@ class PressureControlSystem:
             "safety_warnings": list(self.safety_warnings),
             "high_setpoint_pa": self.settings.high_pressure_setpoint,
             "low_setpoint_pa": self.settings.low_pressure_setpoint,
-            "pressure_ok_for_injection": current_pressure
-            >= self.settings.low_pressure_setpoint,
+            "pressure_ok_for_injection": current_pressure >= self.settings.low_pressure_setpoint,
         }
 
     def calculate_efficiency_metrics(self) -> Dict[str, float]:
@@ -410,20 +391,14 @@ class PressureControlSystem:
         if self.total_runtime == 0:
             return {"duty_cycle": 0.0, "avg_cycle_time": 0.0}
 
-        total_time = self.total_runtime + (
-            self.cycle_count * self.settings.min_cycle_time
-        )
+        total_time = self.total_runtime + (self.cycle_count * self.settings.min_cycle_time)
         duty_cycle = self.total_runtime / total_time if total_time > 0 else 0.0
-        avg_cycle_time = (
-            self.total_runtime / self.cycle_count if self.cycle_count > 0 else 0.0
-        )
+        avg_cycle_time = self.total_runtime / self.cycle_count if self.cycle_count > 0 else 0.0
 
         return {
             "duty_cycle": duty_cycle,
             "avg_cycle_time": avg_cycle_time,
-            "cycles_per_hour": (
-                self.cycle_count / (total_time / 3600.0) if total_time > 0 else 0.0
-            ),
+            "cycles_per_hour": (self.cycle_count / (total_time / 3600.0) if total_time > 0 else 0.0),
         }
 
     def reset_control_system(self) -> None:

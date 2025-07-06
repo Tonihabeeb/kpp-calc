@@ -28,8 +28,9 @@ class DeepSourceAnalyzer:
     def check_deepsource_installation(self) -> bool:
         """Check if DeepSource CLI is installed."""
         try:
+            # Try Python module approach first
             result = subprocess.run(
-                ["deepsource", "--version"],
+                [sys.executable, "-m", "deepsource", "--version"],
                 capture_output=True,
                 text=True,
                 cwd=self.project_root
@@ -38,8 +39,19 @@ class DeepSourceAnalyzer:
                 logger.info(f"DeepSource CLI found: {result.stdout.strip()}")
                 return True
             else:
-                logger.error("DeepSource CLI not found or not working")
-                return False
+                # Try direct command
+                result = subprocess.run(
+                    ["deepsource", "--version"],
+                    capture_output=True,
+                    text=True,
+                    cwd=self.project_root
+                )
+                if result.returncode == 0:
+                    logger.info(f"DeepSource CLI found: {result.stdout.strip()}")
+                    return True
+                else:
+                    logger.error("DeepSource CLI not found or not working")
+                    return False
         except FileNotFoundError:
             logger.error("DeepSource CLI not installed")
             return False
@@ -64,9 +76,9 @@ class DeepSourceAnalyzer:
         logger.info("Running DeepSource analysis...")
         
         try:
-            # Run analysis
+            # Run analysis using Python module approach
             result = subprocess.run(
-                ["deepsource", "analyze", "--output-format", "json"],
+                [sys.executable, "-m", "deepsource", "analyze", "--output-format", "json"],
                 capture_output=True,
                 text=True,
                 cwd=self.project_root
@@ -114,9 +126,9 @@ class DeepSourceAnalyzer:
         logger.info("Applying automatic fixes...")
         
         try:
-            # Run autofix
+            # Run autofix using Python module approach
             result = subprocess.run(
-                ["deepsource", "fix"],
+                [sys.executable, "-m", "deepsource", "fix"],
                 capture_output=True,
                 text=True,
                 cwd=self.project_root

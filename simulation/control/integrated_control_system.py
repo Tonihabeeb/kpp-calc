@@ -6,18 +6,19 @@ Combines all Phase 4 advanced control components into a unified system.
 import logging
 from collections import deque
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 
-from .fault_detector import FaultDetector, FaultSeverity
-from .grid_stability_controller import GridStabilityController, GridStabilityMode
+from .fault_detector import FaultDetector
+from .grid_stability_controller import GridStabilityController
 from .load_manager import LoadManager, LoadProfile
 from .timing_controller import TimingController
 
 # Import new config system with backward compatibility
 try:
     from config import ControlSystemConfig
+
     NEW_CONFIG_AVAILABLE = True
 except ImportError:
     NEW_CONFIG_AVAILABLE = False
@@ -78,7 +79,7 @@ class IntegratedControlSystem:
             config: Control system configuration (new or legacy format)
         """
         self.config = config
-        
+
         # Handle both new and legacy config formats
         if NEW_CONFIG_AVAILABLE and isinstance(config, ControlSystemConfig):
             # New config format
@@ -182,13 +183,9 @@ class IntegratedControlSystem:
 
         # Coordination algorithms
         self.decision_arbitrator = ControlDecisionArbitrator(self.control_priorities)
-        self.adaptive_tuner = (
-            AdaptiveControlTuner() if config.adaptive_control_enabled else None
-        )
+        self.adaptive_tuner = AdaptiveControlTuner() if config.adaptive_control_enabled else None
 
-        logger.info(
-            f"IntegratedControlSystem initialized with {len(self.control_priorities)} control priorities"
-        )
+        logger.info(f"IntegratedControlSystem initialized with {len(self.control_priorities)} control priorities")
 
     def update(self, system_state: Dict, dt: float) -> Dict:
         """
@@ -210,15 +207,11 @@ class IntegratedControlSystem:
         emergency_status = self._handle_emergency_conditions(control_outputs)
 
         # Coordinate control decisions
-        coordinated_commands = self._coordinate_control_decisions(
-            control_outputs, system_state
-        )
+        coordinated_commands = self._coordinate_control_decisions(control_outputs, system_state)
 
         # Apply adaptive control adjustments
         if self.adaptive_control_active:
-            coordinated_commands = self._apply_adaptive_control(
-                coordinated_commands, system_state
-            )
+            coordinated_commands = self._apply_adaptive_control(coordinated_commands, system_state)
 
         # Update performance tracking
         self._update_performance_tracking(system_state, coordinated_commands)
@@ -242,9 +235,7 @@ class IntegratedControlSystem:
 
         try:
             # Update timing controller
-            outputs["timing_controller"] = self.timing_controller.update(
-                system_state, dt
-            )
+            outputs["timing_controller"] = self.timing_controller.update(system_state, dt)
         except Exception as e:
             logger.error(f"Timing controller error: {e}")
             outputs["timing_controller"] = {"error": str(e)}
@@ -258,9 +249,7 @@ class IntegratedControlSystem:
 
         try:
             # Update grid stability controller
-            outputs["grid_stability"] = self.grid_stability_controller.update(
-                system_state, dt
-            )
+            outputs["grid_stability"] = self.grid_stability_controller.update(system_state, dt)
         except Exception as e:
             logger.error(f"Grid stability controller error: {e}")
             outputs["grid_stability"] = {"error": str(e)}
@@ -298,9 +287,7 @@ class IntegratedControlSystem:
             )
             self.system_mode = "emergency"
             self.emergency_response_active = True
-            logger.critical(
-                f"Emergency: {len(critical_faults)} critical faults detected"
-            )
+            logger.critical(f"Emergency: {len(critical_faults)} critical faults detected")
 
         # Check for grid stability emergencies
         grid_output = control_outputs.get("grid_stability", {})
@@ -323,9 +310,7 @@ class IntegratedControlSystem:
 
         # Check for load management emergencies
         load_output = control_outputs.get("load_manager", {})
-        emergency_load_reduction = load_output.get("load_manager_output", {}).get(
-            "emergency_load_reduction", 0.0
-        )
+        emergency_load_reduction = load_output.get("load_manager_output", {}).get("emergency_load_reduction", 0.0)
 
         if emergency_load_reduction > 0.5:  # >50% load reduction
             emergency_status.update(
@@ -338,9 +323,7 @@ class IntegratedControlSystem:
             )
             if self.system_mode == "normal":
                 self.system_mode = "load_emergency"
-            logger.warning(
-                f"Emergency: {emergency_load_reduction*100:.1f}% load reduction active"
-            )
+            logger.warning(f"Emergency: {emergency_load_reduction*100:.1f}% load reduction active")
 
         # Recovery check
         if not emergency_status["emergency_active"] and self.emergency_response_active:
@@ -349,32 +332,20 @@ class IntegratedControlSystem:
             logger.info("Emergency conditions cleared, entering recovery mode")
 
         # Normal operation check
-        if self.system_mode == "recovery" and self._check_system_stable(
-            control_outputs
-        ):
+        if self.system_mode == "recovery" and self._check_system_stable(control_outputs):
             self.system_mode = "normal"
             logger.info("System recovered, returning to normal operation")
 
         return emergency_status
 
-    def _coordinate_control_decisions(
-        self, control_outputs: Dict, system_state: Dict
-    ) -> Dict:
+    def _coordinate_control_decisions(self, control_outputs: Dict, system_state: Dict) -> Dict:
         """Coordinate control decisions using priority-based arbitration"""
 
         # Extract control commands from each component
-        timing_commands = control_outputs.get("timing_controller", {}).get(
-            "timing_controller_output", {}
-        )
-        load_commands = control_outputs.get("load_manager", {}).get(
-            "load_manager_output", {}
-        )
-        grid_commands = control_outputs.get("grid_stability", {}).get(
-            "grid_stability_output", {}
-        )
-        fault_commands = control_outputs.get("fault_detector", {}).get(
-            "fault_detector_output", {}
-        )
+        timing_commands = control_outputs.get("timing_controller", {}).get("timing_controller_output", {})
+        load_commands = control_outputs.get("load_manager", {}).get("load_manager_output", {})
+        grid_commands = control_outputs.get("grid_stability", {}).get("grid_stability_output", {})
+        fault_commands = control_outputs.get("fault_detector", {}).get("fault_detector_output", {})
 
         # Use decision arbitrator to coordinate commands
         coordinated_commands = self.decision_arbitrator.arbitrate_decisions(
@@ -388,9 +359,7 @@ class IntegratedControlSystem:
 
         # Apply emergency overrides if needed
         if self.emergency_response_active:
-            coordinated_commands = self._apply_emergency_overrides(
-                coordinated_commands, control_outputs
-            )
+            coordinated_commands = self._apply_emergency_overrides(coordinated_commands, control_outputs)
 
         return coordinated_commands
 
@@ -424,11 +393,8 @@ class IntegratedControlSystem:
             # Load emergency response
             emergency_commands.update(
                 {
-                    "target_load_factor": min(
-                        0.3, commands.get("target_load_factor", 0.5)
-                    ),
-                    "ramp_rate": commands.get("ramp_rate", 10000)
-                    * 2,  # Faster response
+                    "target_load_factor": min(0.3, commands.get("target_load_factor", 0.5)),
+                    "ramp_rate": commands.get("ramp_rate", 10000) * 2,  # Faster response
                 }
             )
 
@@ -455,9 +421,7 @@ class IntegratedControlSystem:
 
         # Check fault status
         fault_output = control_outputs.get("fault_detector", {})
-        active_faults = fault_output.get("fault_detector_output", {}).get(
-            "active_faults", 0
-        )
+        active_faults = fault_output.get("fault_detector_output", {}).get("active_faults", 0)
         if active_faults > 2:  # More than 2 active faults
             return False
 
@@ -505,9 +469,7 @@ class IntegratedControlSystem:
 
         # Track efficiency
         if efficiency > 0:
-            self.efficiency_history.append(
-                {"time": self.current_time, "efficiency": efficiency}
-            )
+            self.efficiency_history.append({"time": self.current_time, "efficiency": efficiency})
 
     def _calculate_system_health(self, control_outputs: Dict) -> Dict:
         """Calculate overall system health from control outputs"""
@@ -517,16 +479,12 @@ class IntegratedControlSystem:
 
         # Fault detector health
         fault_output = control_outputs.get("fault_detector", {})
-        fault_health = fault_output.get("fault_detector_output", {}).get(
-            "system_health", {}
-        )
+        fault_health = fault_output.get("fault_detector_output", {}).get("system_health", {})
         health_scores["fault_system"] = fault_health.get("overall", 0.5)
 
         # Grid stability health
         grid_output = control_outputs.get("grid_stability", {})
-        health_scores["grid_stability"] = grid_output.get(
-            "overall_stability_index", 0.5
-        )
+        health_scores["grid_stability"] = grid_output.get("overall_stability_index", 0.5)
 
         # Load management health
         load_output = control_outputs.get("load_manager", {})
@@ -545,9 +503,7 @@ class IntegratedControlSystem:
             "load_management": 0.2,
             "timing_control": 0.2,
         }
-        overall_health = sum(
-            health_scores.get(comp, 0.5) * weight for comp, weight in weights.items()
-        )
+        overall_health = sum(health_scores.get(comp, 0.5) * weight for comp, weight in weights.items())
 
         return {
             "overall_health": overall_health,
@@ -560,20 +516,12 @@ class IntegratedControlSystem:
         if len(self.control_performance) < 10:
             return "unknown"
 
-        recent_efficiency = [
-            p["efficiency"] for p in list(self.control_performance)[-10:]
-        ]
-        recent_stability = [
-            p["stability_index"] for p in list(self.control_performance)[-10:]
-        ]
+        recent_efficiency = [p["efficiency"] for p in list(self.control_performance)[-10:]]
+        recent_stability = [p["stability_index"] for p in list(self.control_performance)[-10:]]
 
         # Calculate trends
-        eff_trend = (
-            np.polyfit(range(10), recent_efficiency, 1)[0] if recent_efficiency else 0
-        )
-        stab_trend = (
-            np.polyfit(range(10), recent_stability, 1)[0] if recent_stability else 0
-        )
+        eff_trend = np.polyfit(range(10), recent_efficiency, 1)[0] if recent_efficiency else 0
+        stab_trend = np.polyfit(range(10), recent_stability, 1)[0] if recent_stability else 0
 
         avg_trend = (eff_trend + stab_trend) / 2
 
@@ -602,9 +550,7 @@ class IntegratedControlSystem:
             "average_efficiency": avg_efficiency,
             "average_stability": avg_stability,
             "uptime": uptime,
-            "emergency_events": sum(
-                1 for p in recent_performance if p["emergency_active"]
-            ),
+            "emergency_events": sum(1 for p in recent_performance if p["emergency_active"]),
             "mode_distribution": self._get_mode_distribution(recent_performance),
         }
 
@@ -616,24 +562,16 @@ class IntegratedControlSystem:
             mode_counts[mode] = mode_counts.get(mode, 0) + 1
 
         total = len(performance_data)
-        return (
-            {mode: count / total for mode, count in mode_counts.items()}
-            if total > 0
-            else {}
-        )
+        return {mode: count / total for mode, count in mode_counts.items()} if total > 0 else {}
 
-    def _generate_system_status(
-        self, control_outputs: Dict, emergency_status: Dict
-    ) -> Dict:
+    def _generate_system_status(self, control_outputs: Dict, emergency_status: Dict) -> Dict:
         """Generate comprehensive system status"""
         return {
             "integrated_control_active": True,
             "system_mode": self.system_mode,
             "emergency_response_active": self.emergency_response_active,
             "adaptive_control_active": self.adaptive_control_active,
-            "control_components_operational": len(
-                [c for c in control_outputs.values() if "error" not in c]
-            ),
+            "control_components_operational": len([c for c in control_outputs.values() if "error" not in c]),
             "total_control_components": len(control_outputs),
             "system_uptime": self.current_time,
             "last_emergency": emergency_status.get("emergency_type", "none"),
@@ -655,7 +593,7 @@ class IntegratedControlSystem:
     def adjust_target_power(self, new_target: float):
         """Adjust target power for all relevant controllers"""
         # Update config based on format
-        if NEW_CONFIG_AVAILABLE and hasattr(self.config, 'load_manager'):
+        if NEW_CONFIG_AVAILABLE and hasattr(self.config, "load_manager"):
             self.config.load_manager.target_power = new_target
         else:
             self.config.target_power = new_target
@@ -701,22 +639,14 @@ class IntegratedControlSystem:
                 "power_error": getattr(self.load_manager, "power_error", 0.0),
             },
             "grid_stability": {
-                "voltage_regulation": getattr(
-                    self.grid_stability_controller, "voltage_regulation_active", False
-                ),
-                "frequency_regulation": getattr(
-                    self.grid_stability_controller, "frequency_regulation_active", False
-                ),
-                "grid_compliance": getattr(
-                    self.grid_stability_controller, "grid_compliance", True
-                ),
+                "voltage_regulation": getattr(self.grid_stability_controller, "voltage_regulation_active", False),
+                "frequency_regulation": getattr(self.grid_stability_controller, "frequency_regulation_active", False),
+                "grid_compliance": getattr(self.grid_stability_controller, "grid_compliance", True),
             },
             "fault_status": {
                 "active_faults": getattr(self.fault_detector, "active_faults", []),
                 "fault_count": getattr(self.fault_detector, "total_faults_detected", 0),
-                "system_health": getattr(
-                    self.fault_detector, "system_health_score", 1.0
-                ),
+                "system_health": getattr(self.fault_detector, "system_health_score", 1.0),
             },
             "performance": {
                 "efficiency": getattr(self, "system_efficiency", 0.0),
@@ -727,7 +657,7 @@ class IntegratedControlSystem:
 
     def _get_target_power(self):
         """Get target power from config, supporting both legacy and modular config."""
-        if NEW_CONFIG_AVAILABLE and hasattr(self.config, 'load_manager'):
+        if NEW_CONFIG_AVAILABLE and hasattr(self.config, "load_manager"):
             return self.config.load_manager.target_power
         return self.config.target_power
 
@@ -792,18 +722,14 @@ class AdaptiveControlTuner:
         self.learning_rate = 0.01
         self.performance_history = deque(maxlen=50)
 
-    def calculate_adjustments(
-        self, commands: Dict, system_state: Dict, performance_history: deque
-    ) -> Dict:
+    def calculate_adjustments(self, commands: Dict, system_state: Dict, performance_history: deque) -> Dict:
         """Calculate adaptive adjustments to control parameters"""
 
         adjustments = {}
 
         # Simple adaptive logic - adjust based on recent performance
         if len(performance_history) >= 10:
-            recent_efficiency = [
-                p["efficiency"] for p in list(performance_history)[-10:]
-            ]
+            recent_efficiency = [p["efficiency"] for p in list(performance_history)[-10:]]
             avg_efficiency = np.mean(recent_efficiency)
 
             # If efficiency is declining, make conservative adjustments
@@ -837,13 +763,13 @@ def create_standard_kpp_control_system(
     if NEW_CONFIG_AVAILABLE and use_new_config:
         # Use new config system
         config = ControlSystemConfig()
-        
+
         # Apply overrides to new config structure
         if config_overrides:
             # Handle nested overrides
             for key, value in config_overrides.items():
                 if hasattr(config, key):
-                    if isinstance(value, dict) and hasattr(getattr(config, key), 'to_dict'):
+                    if isinstance(value, dict) and hasattr(getattr(config, key), "to_dict"):
                         # Nested config override
                         current_config = getattr(config, key)
                         for subkey, subvalue in value.items():

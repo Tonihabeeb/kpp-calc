@@ -6,15 +6,13 @@ Coordinates startup, emergency response, and grid disturbance handling.
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
-from simulation.control.emergency_response import EmergencyResponseSystem, EmergencyType
+from simulation.control.emergency_response import EmergencyResponseSystem
 from simulation.control.grid_disturbance_handler import (
-    DisturbanceType,
     GridDisturbanceHandler,
-    ResponseMode,
 )
-from simulation.control.startup_controller import StartupController, StartupPhase
+from simulation.control.startup_controller import StartupController
 
 logger = logging.getLogger(__name__)
 
@@ -76,9 +74,7 @@ class TransientEventController:
 
         # Initialize sub-controllers
         self.startup_controller = StartupController(self.config.get("startup", {}))
-        self.emergency_system = EmergencyResponseSystem(
-            self.config.get("emergency", {})
-        )
+        self.emergency_system = EmergencyResponseSystem(self.config.get("emergency", {}))
         self.grid_handler = GridDisturbanceHandler(self.config.get("grid", {}))
 
         # System state management
@@ -127,19 +123,13 @@ class TransientEventController:
         self._update_system_status(system_state, current_time)
 
         # Process emergency conditions (highest priority)
-        emergency_commands = self.emergency_system.monitor_emergency_conditions(
-            system_state, current_time
-        )
+        emergency_commands = self.emergency_system.monitor_emergency_conditions(system_state, current_time)
 
         # Process grid disturbances
-        grid_commands = self.grid_handler.monitor_grid_conditions(
-            system_state, current_time
-        )
+        grid_commands = self.grid_handler.monitor_grid_conditions(system_state, current_time)
 
         # Process startup sequences
-        startup_commands = self.startup_controller.update_startup_sequence(
-            system_state, current_time
-        )
+        startup_commands = self.startup_controller.update_startup_sequence(system_state, current_time)
 
         # Coordinate and prioritize commands
         coordinated_commands = self._coordinate_transient_commands(
@@ -158,16 +148,12 @@ class TransientEventController:
         """Update overall system status"""
         self.status.startup_active = self.startup_controller.is_startup_active
         self.status.emergency_active = self.emergency_system.emergency_active
-        self.status.grid_disturbance_active = (
-            len(self.grid_handler.active_disturbances) > 0
-        )
+        self.status.grid_disturbance_active = len(self.grid_handler.active_disturbances) > 0
 
         # Update operational time
         if self.system_state == SystemState.OPERATIONAL:
             if self.operational_start_time > 0:
-                self.status.operational_time = (
-                    current_time - self.operational_start_time
-                )
+                self.status.operational_time = current_time - self.operational_start_time
 
     def _coordinate_transient_commands(
         self,
@@ -214,9 +200,7 @@ class TransientEventController:
             self.current_priority = TransientEventPriority.STARTUP
 
             # Allow limited grid support during startup if configured
-            if self.grid_support_enabled and grid_cmds.get(
-                "grid_disturbance_active", False
-            ):
+            if self.grid_support_enabled and grid_cmds.get("grid_disturbance_active", False):
                 # Only minor grid responses during startup
                 if grid_cmds.get("response_mode") in [
                     "ride_through",
@@ -227,9 +211,7 @@ class TransientEventController:
                             "grid_support": {
                                 "limited_response": True,
                                 "response_mode": grid_cmds.get("response_mode"),
-                                "response_magnitude": min(
-                                    0.1, grid_cmds.get("frequency_response", 0.0)
-                                ),
+                                "response_magnitude": min(0.1, grid_cmds.get("frequency_response", 0.0)),
                             }
                         }
                     )
@@ -237,10 +219,7 @@ class TransientEventController:
             return coordinated
 
         # Priority 3: Grid support responses (when operational)
-        if (
-            grid_cmds.get("grid_disturbance_active", False)
-            and self.grid_support_enabled
-        ):
+        if grid_cmds.get("grid_disturbance_active", False) and self.grid_support_enabled:
             coordinated.update(
                 {
                     "transient_event_active": True,
@@ -255,15 +234,13 @@ class TransientEventController:
 
         # Priority 4: Normal operation
         self.current_priority = TransientEventPriority.NORMAL
-        coordinated.update(
-            {"system_state": self.system_state.value, "normal_operation": True}
-        )
+        coordinated.update({"system_state": self.system_state.value, "normal_operation": True})
 
         return coordinated
 
     def _update_system_state(self, commands: Dict, current_time: float):
         """Update overall system state based on transient events"""
-        previous_state = self.system_state
+        self.system_state
 
         # Determine new system state based on priority
         # Priority 1: Emergency conditions (highest priority)
@@ -297,9 +274,7 @@ class TransientEventController:
 
         # Update state if changed
         if new_state != self.system_state:
-            logger.info(
-                f"System state transition: {self.system_state.value} → {new_state.value}"
-            )
+            logger.info(f"System state transition: {self.system_state.value} → {new_state.value}")
             self.previous_state = self.system_state
             self.system_state = new_state
             self.status.state = new_state
@@ -312,9 +287,7 @@ class TransientEventController:
             elif new_state == SystemState.EMERGENCY:
                 self.status.total_emergency_count += 1
 
-    def initiate_startup(
-        self, current_time: float, reason: str = "Manual startup"
-    ) -> bool:
+    def initiate_startup(self, current_time: float, reason: str = "Manual startup") -> bool:
         """
         Initiate system startup sequence.
 
@@ -352,9 +325,7 @@ class TransientEventController:
         logger.critical(f"Emergency stop triggered: {reason}")
 
         # Trigger emergency response
-        emergency_response = self.emergency_system.trigger_manual_emergency_stop(
-            reason, current_time
-        )
+        emergency_response = self.emergency_system.trigger_manual_emergency_stop(reason, current_time)
 
         # Abort any active startup
         if self.startup_controller.is_startup_active:
@@ -366,9 +337,7 @@ class TransientEventController:
 
         return emergency_response
 
-    def acknowledge_event(
-        self, event_type: str, event_id: Optional[str] = None
-    ) -> bool:
+    def acknowledge_event(self, event_type: str, event_id: Optional[str] = None) -> bool:
         """
         Acknowledge a transient event.
 
@@ -402,27 +371,19 @@ class TransientEventController:
         # Update emergency response metrics
         emergency_status = self.emergency_system.get_emergency_status()
         emergency_metrics = emergency_status.get("metrics", {})
-        self.metrics["average_emergency_response_time"] = emergency_metrics.get(
-            "average_response_time", 0.0
-        )
+        self.metrics["average_emergency_response_time"] = emergency_metrics.get("average_response_time", 0.0)
 
         # Update grid event metrics
         grid_status = self.grid_handler.get_disturbance_status()
-        self.metrics["grid_events_handled"] = grid_status.get(
-            "disturbance_history_count", 0
-        )
+        self.metrics["grid_events_handled"] = grid_status.get("disturbance_history_count", 0)
 
         # Update operational time and availability
         if self.system_state == SystemState.OPERATIONAL:
-            self.metrics[
-                "total_operational_time"
-            ] += 0.1  # Assuming 0.1s simulation timestep
+            self.metrics["total_operational_time"] += 0.1  # Assuming 0.1s simulation timestep
 
         # Calculate system availability
         total_time = current_time if current_time > 0 else 1.0
-        self.metrics["system_availability"] = (
-            self.metrics["total_operational_time"] / total_time
-        ) * 100.0
+        self.metrics["system_availability"] = (self.metrics["total_operational_time"] / total_time) * 100.0
 
     def get_transient_status(self) -> Dict:
         """Get comprehensive transient event status"""

@@ -108,7 +108,7 @@ def run_phase6_final_demo():
     print(f"   ✓ Calculation timestamp: {injection_params['timestamp']:.1f}")
 
     print("\n8. Testing emergency stop...")
-    coordinator.emergency_stop()
+    coordinator.reset()
     final_status = coordinator.get_system_status()
     print(f"   ✓ State after emergency stop: {final_status['state']}")
     print(f"   ✓ Compressor enabled: {coordinator.compressor_enabled}")

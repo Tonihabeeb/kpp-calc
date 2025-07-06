@@ -43,7 +43,7 @@ def fix_chain_direction():
         print("⚠ Chain direction fix location not found")
 
 def fix_drivetrain_startup():
-    """Fix the drivetrain startup and bootstrap logic"""
+    """Fix the integrated_drivetrain startup and bootstrap logic"""
     
     # Fix the bootstrap condition to trigger more reliably
     with open('simulation/components/integrated_drivetrain.py', 'r') as f:
@@ -79,9 +79,9 @@ def fix_drivetrain_startup():
         with open('simulation/components/integrated_drivetrain.py', 'w') as f:
             f.write(content)
         
-        print("✓ Fixed drivetrain bootstrap logic")
+        print("✓ Fixed integrated_drivetrain bootstrap logic")
     else:
-        print("⚠ Drivetrain bootstrap fix location not found")
+        print("⚠ IntegratedDrivetrain bootstrap fix location not found")
 
 def fix_sprocket_torque_calculation():
     """Fix the sprocket torque calculation to handle negative tensions properly"""
@@ -234,7 +234,7 @@ def main():
     print("\n✅ ALL FIXES APPLIED")
     print("\nFixes implemented:")
     print("1. ✓ Chain direction corrected to use absolute values")
-    print("2. ✓ Drivetrain bootstrap logic made more aggressive") 
+    print("2. ✓ IntegratedDrivetrain bootstrap logic made more aggressive") 
     print("3. ✓ Sprocket torque calculation fixed for negative tensions")
     print("4. ✓ Clutch engagement thresholds lowered for startup")
     print("5. ✓ Force engagement added for high-torque situations")

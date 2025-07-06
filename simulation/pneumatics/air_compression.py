@@ -14,7 +14,7 @@ Key Features:
 import logging
 import math
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple, Any
+from typing import Any, Dict, Optional, Tuple
 
 from utils.logging_setup import setup_logging
 
@@ -96,14 +96,14 @@ class AirCompressionSystem:
         # Performance tracking
         self.total_air_compressed = 0.0  # m³
         self.compression_cycles = 0
-        
+
         # Phase Enhancement: Pressure Recovery System
         self.pressure_recovery_enabled = True
         self.pressure_recovery_efficiency = 0.22  # 22% recovery typical
         self.recovered_energy_buffer = 0.0  # J - stored recovered energy
         self.vented_air_storage = 0.0  # m³ - temporary storage for pressure exchange
         self.max_vented_air_storage = 0.5  # m³
-        
+
         # Pressure exchanger parameters
         self.pressure_exchanger_volume = 0.1  # m³
         self.exchanger_efficiency = 0.85  # 85% exchange efficiency
@@ -119,9 +119,7 @@ class AirCompressionSystem:
         """Calculate initial mass of air in tank at ambient conditions."""
         # Using ideal gas law: PV = nRT = (m/M)RT
         # Rearranged: m = PV/(R_specific * T)
-        return (self.ambient_pressure * self.tank.volume) / (
-            self.gas_constant * self.ambient_temperature
-        )
+        return (self.ambient_pressure * self.tank.volume) / (self.gas_constant * self.ambient_temperature)
 
     def get_required_injection_pressure(self, depth: float) -> float:
         """
@@ -143,9 +141,7 @@ class AirCompressionSystem:
         required_pressure = self.ambient_pressure + hydrostatic_pressure + valve_losses
         return required_pressure
 
-    def calculate_isothermal_compression_work(
-        self, volume_at_ambient: float, target_pressure: float
-    ) -> float:
+    def calculate_isothermal_compression_work(self, volume_at_ambient: float, target_pressure: float) -> float:
         """
         Calculate theoretical isothermal compression work.
 
@@ -160,9 +156,7 @@ class AirCompressionSystem:
         work = self.ambient_pressure * volume_at_ambient * math.log(pressure_ratio)
         return work
 
-    def calculate_adiabatic_compression_work(
-        self, volume_at_ambient: float, target_pressure: float
-    ) -> float:
+    def calculate_adiabatic_compression_work(self, volume_at_ambient: float, target_pressure: float) -> float:
         """
         Calculate adiabatic compression work using correct formula.
 
@@ -203,17 +197,11 @@ class AirCompressionSystem:
             heat_removal_fraction = self.compressor.heat_removal_efficiency
 
         # Calculate isothermal and adiabatic work
-        isothermal_work = self.calculate_isothermal_compression_work(
-            volume_at_ambient, target_pressure
-        )
-        adiabatic_work = self.calculate_adiabatic_compression_work(
-            volume_at_ambient, target_pressure
-        )
+        isothermal_work = self.calculate_isothermal_compression_work(volume_at_ambient, target_pressure)
+        adiabatic_work = self.calculate_adiabatic_compression_work(volume_at_ambient, target_pressure)
 
         # Actual work is between isothermal and adiabatic based on heat removal
-        actual_work = isothermal_work + (1 - heat_removal_fraction) * (
-            adiabatic_work - isothermal_work
-        )
+        actual_work = isothermal_work + (1 - heat_removal_fraction) * (adiabatic_work - isothermal_work)
 
         # Heat generated and removed
         heat_generated = adiabatic_work - isothermal_work
@@ -221,9 +209,7 @@ class AirCompressionSystem:
 
         return actual_work, heat_generated, heat_removed
 
-    def update_tank_pressure_after_compression(
-        self, air_volume_added: float, compression_pressure: float
-    ) -> None:
+    def update_tank_pressure_after_compression(self, air_volume_added: float, compression_pressure: float) -> None:
         """
         Update tank pressure after adding compressed air.
 
@@ -232,18 +218,14 @@ class AirCompressionSystem:
             compression_pressure: Pressure of compressed air (Pa)
         """
         # Calculate mass of air added
-        air_mass_added = (self.ambient_pressure * air_volume_added) / (
-            self.gas_constant * self.ambient_temperature
-        )
+        air_mass_added = (self.ambient_pressure * air_volume_added) / (self.gas_constant * self.ambient_temperature)
 
         # Add to tank
         self.air_mass_in_tank += air_mass_added
 
         # Calculate new pressure using ideal gas law
         # Assuming tank temperature stays near ambient due to heat removal
-        self.tank_pressure = (
-            self.air_mass_in_tank * self.gas_constant * self.tank_temperature
-        ) / self.tank.volume
+        self.tank_pressure = (self.air_mass_in_tank * self.gas_constant * self.tank_temperature) / self.tank.volume
 
         logger.debug(
             f"Tank pressure updated: {self.tank_pressure/1000:.1f} kPa after adding {air_volume_added*1000:.1f} L"
@@ -275,9 +257,7 @@ class AirCompressionSystem:
             return True
 
         # Calculate mass of air removed
-        air_mass_removed = (self.tank_pressure * volume_at_tank_pressure) / (
-            self.gas_constant * self.tank_temperature
-        )
+        air_mass_removed = (self.tank_pressure * volume_at_tank_pressure) / (self.gas_constant * self.tank_temperature)
 
         if air_mass_removed > self.air_mass_in_tank:
             logger.warning("Insufficient air in tank for consumption request")
@@ -285,9 +265,7 @@ class AirCompressionSystem:
 
         # Remove air and update pressure
         self.air_mass_in_tank -= air_mass_removed
-        self.tank_pressure = (
-            self.air_mass_in_tank * self.gas_constant * self.tank_temperature
-        ) / self.tank.volume
+        self.tank_pressure = (self.air_mass_in_tank * self.gas_constant * self.tank_temperature) / self.tank.volume
 
         logger.debug(
             f"Consumed {volume_at_tank_pressure*1000:.1f} L from tank, "
@@ -295,9 +273,7 @@ class AirCompressionSystem:
         )
         return True
 
-    def calculate_compressor_power_for_flow(
-        self, volume_flow_rate: float, target_pressure: float
-    ) -> float:
+    def calculate_compressor_power_for_flow(self, volume_flow_rate: float, target_pressure: float) -> float:
         """
         Calculate electrical power required for given flow rate and pressure.
 
@@ -309,9 +285,7 @@ class AirCompressionSystem:
             Required electrical power in Watts
         """
         # Calculate compression work per unit time
-        work_per_second, _, _ = self.calculate_actual_compression_work(
-            volume_flow_rate, target_pressure
-        )
+        work_per_second, _, _ = self.calculate_actual_compression_work(volume_flow_rate, target_pressure)
 
         # Account for compressor efficiency
         electrical_power = work_per_second / self.compressor.efficiency
@@ -335,9 +309,7 @@ class AirCompressionSystem:
 
         while max_flow - min_flow > tolerance:
             test_flow = (min_flow + max_flow) / 2
-            required_power = self.calculate_compressor_power_for_flow(
-                test_flow, target_pressure
-            )
+            required_power = self.calculate_compressor_power_for_flow(test_flow, target_pressure)
 
             if required_power <= self.compressor.power_rating:
                 min_flow = test_flow
@@ -346,9 +318,7 @@ class AirCompressionSystem:
 
         return min_flow
 
-    def run_compressor(
-        self, dt: float, target_pressure: Optional[float] = None
-    ) -> Dict[str, float]:
+    def run_compressor(self, dt: float, target_pressure: Optional[float] = None) -> Dict[str, float]:
         """
         Run compressor for given time step.
 
@@ -360,9 +330,7 @@ class AirCompressionSystem:
             Dictionary with compression results
         """
         if target_pressure is None:
-            target_pressure = (
-                self.tank.max_pressure * 0.9
-            )  # 90% of max as default target
+            target_pressure = self.tank.max_pressure * 0.9  # 90% of max as default target
 
         # Check if compressor should run
         if self.tank_pressure >= target_pressure:
@@ -385,8 +353,8 @@ class AirCompressionSystem:
         volume_compressed = max_flow_rate * dt
 
         # Calculate compression work and energy
-        work_done, heat_generated, heat_removed = (
-            self.calculate_actual_compression_work(volume_compressed, target_pressure)
+        work_done, heat_generated, heat_removed = self.calculate_actual_compression_work(
+            volume_compressed, target_pressure
         )
 
         # Electrical power consumed
@@ -428,13 +396,9 @@ class AirCompressionSystem:
             "total_energy_consumed_kwh": self.total_energy_consumed / 3600000.0,
             "total_compression_work_kj": self.total_compression_work / 1000.0,
             "compression_efficiency": (
-                self.total_compression_work / self.total_energy_consumed
-                if self.total_energy_consumed > 0
-                else 0.0
+                self.total_compression_work / self.total_energy_consumed if self.total_energy_consumed > 0 else 0.0
             ),
-            "tank_fill_percentage": min(
-                100.0, (self.tank_pressure / self.tank.max_pressure) * 100.0
-            ),
+            "tank_fill_percentage": min(100.0, (self.tank_pressure / self.tank.max_pressure) * 100.0),
         }
 
     def reset_system(self) -> None:
@@ -459,13 +423,9 @@ class AirCompressionSystem:
         """
         self.tank_pressure = pressure
         # Update air mass to be consistent with new pressure
-        self.air_mass_in_tank = (pressure * self.tank.volume) / (
-            self.gas_constant * self.tank_temperature
-        )
+        self.air_mass_in_tank = (pressure * self.tank.volume) / (self.gas_constant * self.tank_temperature)
 
-        logger.debug(
-            f"Tank pressure set to {pressure/1000:.1f} kPa, mass updated to {self.air_mass_in_tank:.3f} kg"
-        )
+        logger.debug(f"Tank pressure set to {pressure/1000:.1f} kPa, mass updated to {self.air_mass_in_tank:.3f} kg")
 
     def get_state(self) -> Dict[str, Any]:
         """Get current state of the air compression system."""
@@ -489,82 +449,88 @@ class AirCompressionSystem:
     def add_vented_air_for_recovery(self, vented_volume: float, vented_pressure: float) -> float:
         """
         Add vented air to pressure recovery system.
-        
+
         Implements pressure exchanger concept from KPP technical document:
-        "The pressure exchanger device could be a rotating spool or piston that transfers 
-        a volume of high-pressure air into the floater while taking the same volume of 
+        "The pressure exchanger device could be a rotating spool or piston that transfers
+        a volume of high-pressure air into the floater while taking the same volume of
         lower-pressure air from the vent or environment."
-        
+
         Args:
             vented_volume: Volume of vented air (m³)
             vented_pressure: Pressure of vented air (Pa)
-            
+
         Returns:
             float: Energy recovered (J)
         """
         if not self.pressure_recovery_enabled or vented_pressure < self.min_recovery_pressure:
             return 0.0
-            
+
         # Store vented air for pressure exchange
         available_storage = self.max_vented_air_storage - self.vented_air_storage
         stored_volume = min(vented_volume, available_storage)
         self.vented_air_storage += stored_volume
-        
+
         # Calculate recoverable energy from high-pressure vented air
         # Energy = P * V * ln(P_vented / P_atm) * efficiency
         pressure_ratio = vented_pressure / 101325.0  # Atmospheric reference
         recoverable_energy = (
-            101325.0 * stored_volume * math.log(pressure_ratio) * 
-            self.pressure_recovery_efficiency * self.exchanger_efficiency
+            101325.0
+            * stored_volume
+            * math.log(pressure_ratio)
+            * self.pressure_recovery_efficiency
+            * self.exchanger_efficiency
         )
-        
+
         # Store recovered energy for later use
         self.recovered_energy_buffer += recoverable_energy
-        
-        logger.debug(f"Pressure recovery: stored {stored_volume*1000:.1f}L at {vented_pressure/1000:.1f}kPa, "
-                    f"recovered {recoverable_energy/1000:.2f}kJ energy")
-        
+
+        logger.debug(
+            f"Pressure recovery: stored {stored_volume*1000:.1f}L at {vented_pressure/1000:.1f}kPa, "
+            f"recovered {recoverable_energy/1000:.2f}kJ energy"
+        )
+
         return recoverable_energy
-    
+
     def apply_pressure_exchange(self, injection_volume: float) -> float:
         """
         Apply pressure exchange during air injection to reduce compression work.
-        
+
         Uses stored vented air to pre-pressurize injection, reducing compressor load.
-        
+
         Args:
             injection_volume: Volume of air being injected (m³)
-            
+
         Returns:
             float: Energy savings from pressure exchange (J)
         """
         if not self.pressure_recovery_enabled or self.vented_air_storage <= 0:
             return 0.0
-            
+
         # Use stored vented air to assist injection
         exchange_volume = min(injection_volume, self.vented_air_storage, self.pressure_exchanger_volume)
-        
+
         if exchange_volume > 0:
             # Calculate energy savings
             # Instead of compressing fresh air, we use pre-compressed vented air
             pressure_differential = self.tank_pressure - 101325.0
             energy_savings = (
-                exchange_volume * pressure_differential * 
-                self.exchanger_efficiency * 0.8  # 80% of theoretical savings
+                exchange_volume * pressure_differential * self.exchanger_efficiency * 0.8  # 80% of theoretical savings
             )
-            
+
             # Use up stored vented air and recovered energy
             self.vented_air_storage -= exchange_volume
             energy_used = min(energy_savings, self.recovered_energy_buffer)
             self.recovered_energy_buffer -= energy_used
-            
-            logger.debug(f"Pressure exchange: used {exchange_volume*1000:.1f}L vented air, "
-                        f"saved {energy_used/1000:.2f}kJ compression energy")
-            
+
+            logger.debug(
+                f"Pressure exchange: used {exchange_volume*1000:.1f}L vented air, "
+                f"saved {energy_used/1000:.2f}kJ compression energy"
+            )
+
             return energy_used
-            
+
         return 0.0
-    
+
     def get_pressure_recovery_status(self) -> Dict[str, float]:
         """Get status of pressure recovery system."""
         return {

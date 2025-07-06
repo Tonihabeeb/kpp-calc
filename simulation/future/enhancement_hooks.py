@@ -5,7 +5,7 @@ This module provides integration hooks and utilities for seamlessly
 incorporating future enhancements into the existing simulation engine.
 """
 
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List
 
 import numpy as np
 
@@ -39,9 +39,7 @@ class EnhancementHooks:
             state = hook(state) or state
         return state
 
-    def execute_post_hooks(
-        self, state: Dict[str, Any], forces: np.ndarray
-    ) -> np.ndarray:
+    def execute_post_hooks(self, state: Dict[str, Any], forces: np.ndarray) -> np.ndarray:
         """Execute all post-calculation hooks."""
         for hook in self.post_calculation_hooks:
             forces = hook(state, forces) or forces
@@ -72,9 +70,7 @@ class PhysicsEngineExtension:
         state = {
             "floater": floater,
             "velocity": velocity,
-            "base_forces": np.array(
-                [0.0, 0.0, 0.0]
-            ),  # Will be filled by base calculation
+            "base_forces": np.array([0.0, 0.0, 0.0]),  # Will be filled by base calculation
             "chain_tension": getattr(floater, "chain_tension", 0.0),
             "temperature": getattr(floater, "temperature", 293.15),
             "void_fraction": getattr(floater, "void_fraction", 0.0),
@@ -96,17 +92,13 @@ class PhysicsEngineExtension:
             HypothesisType.H3_THERMAL_COUPLING,
         ]:
 
-            enhancement_forces = self.framework.get_enhanced_forces(
-                hypothesis_type, state
-            )
+            enhancement_forces = self.framework.get_enhanced_forces(hypothesis_type, state)
             if enhancement_forces is not None:
                 # Use vertical component for scalar force
                 enhanced_force += enhancement_forces[2] - base_force
 
         # Execute post-calculation hooks
-        final_forces = self.hooks.execute_post_hooks(
-            state, np.array([0.0, 0.0, enhanced_force])
-        )
+        final_forces = self.hooks.execute_post_hooks(state, np.array([0.0, 0.0, enhanced_force]))
 
         # Execute validation hooks
         validation_results = self.hooks.execute_validation_hooks(state)
@@ -115,9 +107,7 @@ class PhysicsEngineExtension:
 
         return final_forces[2]  # Return scalar force
 
-    def update_chain_dynamics_extended(
-        self, floaters, v_chain: float, generator_torque: float, sprocket_radius: float
-    ):
+    def update_chain_dynamics_extended(self, floaters, v_chain: float, generator_torque: float, sprocket_radius: float):
         """Extended chain dynamics with enhancement support."""
         # Check if any enhancements affect chain dynamics
         has_chain_enhancements = any(
@@ -132,28 +122,20 @@ class PhysicsEngineExtension:
                 "velocity": v_chain,
                 "generator_torque": generator_torque,
                 "sprocket_radius": sprocket_radius,
-                "chain_tension": sum(
-                    getattr(f, "chain_tension", 0.0) for f in floaters
-                ),
+                "chain_tension": sum(getattr(f, "chain_tension", 0.0) for f in floaters),
             }
 
             # Apply H1 advanced dynamics if enabled
-            h1_config = self.framework.active_enhancements.get(
-                HypothesisType.H1_ADVANCED_DYNAMICS
-            )
+            h1_config = self.framework.active_enhancements.get(HypothesisType.H1_ADVANCED_DYNAMICS)
             if h1_config and h1_config.enabled:
                 # Get enhanced chain dynamics
-                model = self.framework.registered_models[
-                    HypothesisType.H1_ADVANCED_DYNAMICS
-                ]
+                model = self.framework.registered_models[HypothesisType.H1_ADVANCED_DYNAMICS]
                 if model.validate_state(chain_state):
                     # Enhanced calculation would go here
                     pass
 
         # Fall back to base implementation
-        return self.base_engine.update_chain_dynamics(
-            floaters, v_chain, generator_torque, sprocket_radius
-        )
+        return self.base_engine.update_chain_dynamics(floaters, v_chain, generator_torque, sprocket_radius)
 
 
 def create_enhancement_integration(base_engine) -> PhysicsEngineExtension:
@@ -167,15 +149,9 @@ def create_enhancement_integration(base_engine) -> PhysicsEngineExtension:
         H3ThermalCouplingModel,
     )
 
-    framework.register_model(
-        HypothesisType.H1_ADVANCED_DYNAMICS, H1AdvancedDynamicsModel()
-    )
-    framework.register_model(
-        HypothesisType.H2_MULTI_PHASE_FLUID, H2MultiPhaseFluidModel()
-    )
-    framework.register_model(
-        HypothesisType.H3_THERMAL_COUPLING, H3ThermalCouplingModel()
-    )
+    framework.register_model(HypothesisType.H1_ADVANCED_DYNAMICS, H1AdvancedDynamicsModel())
+    framework.register_model(HypothesisType.H2_MULTI_PHASE_FLUID, H2MultiPhaseFluidModel())
+    framework.register_model(HypothesisType.H3_THERMAL_COUPLING, H3ThermalCouplingModel())
 
     return PhysicsEngineExtension(base_engine, framework)
 
@@ -201,9 +177,7 @@ def enable_enhancement_gradually(
         framework.enable_enhancement(hypothesis_type, config)
 
 
-def monitor_enhancement_performance(
-    framework: HypothesisFramework, hypothesis_type: HypothesisType
-) -> Dict[str, Any]:
+def monitor_enhancement_performance(framework: HypothesisFramework, hypothesis_type: HypothesisType) -> Dict[str, Any]:
     """Monitor performance of specific enhancement."""
     if hypothesis_type in framework.validation_results:
         return framework.validation_results[hypothesis_type]

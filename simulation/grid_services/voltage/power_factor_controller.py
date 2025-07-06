@@ -15,7 +15,7 @@ import math
 import time
 from collections import deque
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 @dataclass
@@ -33,16 +33,10 @@ class PowerFactorConfig:
 
     def validate(self):
         """Validate configuration parameters"""
-        assert (
-            0.20 <= self.reactive_capacity <= 0.50
-        ), "Reactive capacity must be 20-50%"
-        assert (
-            0.85 <= self.power_factor_target <= 1.0
-        ), "Target power factor must be 0.85-1.0"
+        assert 0.20 <= self.reactive_capacity <= 0.50, "Reactive capacity must be 20-50%"
+        assert 0.85 <= self.power_factor_target <= 1.0, "Target power factor must be 0.85-1.0"
         assert 0.01 <= self.power_factor_deadband <= 0.05, "Deadband must be 0.01-0.05"
-        assert (
-            0.5 <= self.response_time_s <= 5.0
-        ), "Response time must be 0.5-5.0 seconds"
+        assert 0.5 <= self.response_time_s <= 5.0, "Response time must be 0.5-5.0 seconds"
 
 
 class PowerFactorController:
@@ -105,15 +99,11 @@ class PowerFactorController:
         current_time = time.time()
 
         if not self.config.enable_control or not self.enabled:
-            return self._create_response_dict(
-                0.0, "Power factor control disabled", rated_power
-            )
+            return self._create_response_dict(0.0, "Power factor control disabled", rated_power)
 
         # Defer to voltage regulation if coordinated mode is active
         if self.coordinated_mode and voltage_regulation_active:
-            return self._create_response_dict(
-                0.0, "Deferred to voltage regulation", rated_power
-            )
+            return self._create_response_dict(0.0, "Deferred to voltage regulation", rated_power)
 
         # Store current measurements
         self.active_power = active_power_pu
@@ -131,9 +121,7 @@ class PowerFactorController:
         else:
             self.measured_power_factor = 1.0
             self.control_active = False
-            return self._create_response_dict(
-                0.0, "Insufficient active power", rated_power
-            )
+            return self._create_response_dict(0.0, "Insufficient active power", rated_power)
 
         # Calculate power factor error
         pf_error = self.config.power_factor_target - abs(self.measured_power_factor)
@@ -163,17 +151,9 @@ class PowerFactorController:
                 target_reactive = self.active_power * math.sqrt((1 / target_pf**2) - 1)
                 # Determine sign based on whether we need leading or lagging
                 if pf_error > 0:  # Need to improve power factor (reduce reactive power)
-                    target_reactive = (
-                        -abs(target_reactive)
-                        if reactive_power_pu > 0
-                        else abs(target_reactive)
-                    )
+                    target_reactive = -abs(target_reactive) if reactive_power_pu > 0 else abs(target_reactive)
                 else:  # Power factor too high, may need more reactive power
-                    target_reactive = (
-                        abs(target_reactive)
-                        if reactive_power_pu <= 0
-                        else -abs(target_reactive)
-                    )
+                    target_reactive = abs(target_reactive) if reactive_power_pu <= 0 else -abs(target_reactive)
             else:
                 # Unity power factor target
                 target_reactive = 0.0
@@ -225,9 +205,7 @@ class PowerFactorController:
 
         self.last_update_time = current_time
 
-        return self._create_response_dict(
-            self.reactive_power_output, status, rated_power
-        )
+        return self._create_response_dict(self.reactive_power_output, status, rated_power)
 
     def set_power_factor_target(self, power_factor_target: float):
         """Set power factor target setpoint"""
@@ -240,17 +218,14 @@ class PowerFactorController:
         """Enable/disable coordination with voltage regulation"""
         self.coordinated_mode = enable
 
-    def _create_response_dict(
-        self, reactive_power_pu: float, status: str, rated_power: float
-    ) -> Dict[str, Any]:
+    def _create_response_dict(self, reactive_power_pu: float, status: str, rated_power: float) -> Dict[str, Any]:
         """Create standardized response dictionary"""
         return {
             "reactive_power_pu": reactive_power_pu,
             "reactive_power_mvar": reactive_power_pu * rated_power,
             "measured_power_factor": self.measured_power_factor,
             "power_factor_target": self.config.power_factor_target,
-            "power_factor_error": self.config.power_factor_target
-            - abs(self.measured_power_factor),
+            "power_factor_error": self.config.power_factor_target - abs(self.measured_power_factor),
             "status": status,
             "service_type": "power_factor_control",
             "control_active": self.control_active,
@@ -260,33 +235,21 @@ class PowerFactorController:
     def get_performance_metrics(self) -> Dict[str, float]:
         """Get performance metrics for monitoring and optimization"""
         # Calculate average control time
-        avg_control_time = (
-            self.total_control_time / self.control_count
-            if self.control_count > 0
-            else 0.0
-        )
+        avg_control_time = self.total_control_time / self.control_count if self.control_count > 0 else 0.0
 
         # Calculate power factor stability metrics
         if len(self.power_factor_history) > 1:
-            power_factors = [
-                entry["power_factor"] for entry in self.power_factor_history
-            ]
+            power_factors = [entry["power_factor"] for entry in self.power_factor_history]
             pf_mean = sum(power_factors) / len(power_factors)
-            pf_std = math.sqrt(
-                sum((pf - pf_mean) ** 2 for pf in power_factors) / len(power_factors)
-            )
+            pf_std = math.sqrt(sum((pf - pf_mean) ** 2 for pf in power_factors) / len(power_factors))
         else:
             pf_mean = self.measured_power_factor
             pf_std = 0.0
 
         # Calculate reactive power utilization
         if len(self.reactive_power_history) > 0:
-            reactive_powers = [
-                entry["reactive_power"] for entry in self.reactive_power_history
-            ]
-            max_reactive_utilization = (
-                max(abs(q) for q in reactive_powers) / self.config.reactive_capacity
-            )
+            reactive_powers = [entry["reactive_power"] for entry in self.reactive_power_history]
+            max_reactive_utilization = max(abs(q) for q in reactive_powers) / self.config.reactive_capacity
         else:
             max_reactive_utilization = 0.0
 

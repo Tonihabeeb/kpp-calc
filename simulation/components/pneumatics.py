@@ -5,7 +5,7 @@ Includes Phase 5 advanced thermodynamic modeling and thermal boost capabilities.
 """
 
 import logging
-from typing import Optional, Union
+from typing import Optional
 
 from simulation.pneumatics.heat_exchange import (
     IntegratedHeatExchange,
@@ -77,9 +77,7 @@ class PneumaticSystem:
             self.compression_thermo = CompressionThermodynamics()
             self.expansion_thermo = ExpansionThermodynamics(water_temperature)
             self.thermal_buoyancy = ThermalBuoyancyCalculator()
-            self.advanced_thermo = AdvancedThermodynamics(
-                water_temperature, expansion_mode
-            )
+            self.advanced_thermo = AdvancedThermodynamics(water_temperature, expansion_mode)
             self.water_reservoir = WaterThermalReservoir()
             self.heat_exchange = IntegratedHeatExchange()
 
@@ -88,13 +86,9 @@ class PneumaticSystem:
             self.compression_heat_generated = 0.0
             self.thermal_efficiency_factor = 1.0
 
-            logger.info(
-                f"Phase 5 thermodynamics enabled: water={water_temperature:.1f}K, mode={expansion_mode}"
-            )
+            logger.info(f"Phase 5 thermodynamics enabled: water={water_temperature:.1f}K, mode={expansion_mode}")
 
-        logger.info(
-            f"PneumaticSystem initialized: pressure={tank_pressure} bar, volume={tank_volume} m^3"
-        )
+        logger.info(f"PneumaticSystem initialized: pressure={tank_pressure} bar, volume={tank_volume} m^3")
 
     def trigger_injection(self, floater) -> bool:
         """
@@ -112,9 +106,7 @@ class PneumaticSystem:
             # Model a pressure drop for the injection
             pressure_drop = floater.volume / self.tank_volume * 0.5  # Simplified model
             self.tank_pressure -= pressure_drop
-            logger.info(
-                f"Triggered injection for a floater. Tank pressure dropped to {self.tank_pressure:.2f} bar."
-            )
+            logger.info(f"Triggered injection for a floater. Tank pressure dropped to {self.tank_pressure:.2f} bar.")
             return True
         else:
             logger.warning("Injection failed: tank pressure too low.")
@@ -163,9 +155,7 @@ class PneumaticSystem:
         # Update tank pressure
         self.tank_pressure = final_pressure / 100000.0  # Convert back to bar
 
-        logger.info(
-            f"Air vented: {volume_vented:.4f} m³, pressure: {final_pressure/100000:.2f} bar"
-        )
+        logger.info(f"Air vented: {volume_vented:.4f} m³, pressure: {final_pressure/100000:.2f} bar")
 
         return {
             "volume_vented": volume_vented,
@@ -200,7 +190,7 @@ class PneumaticSystem:
             temp_ratio = air_temperature / water_temperature
 
             # Pressure at depth
-            water_pressure = 101325.0 + 1000 * 9.81 * depth
+            101325.0 + 1000 * 9.81 * depth
 
             # Thermal expansion effect on buoyancy
             thermal_expansion_factor = (temp_ratio - 1.0) * 0.1  # Simplified model
@@ -213,9 +203,7 @@ class PneumaticSystem:
             logger.warning(f"Thermal buoyancy boost calculation failed: {e}")
             return 0.0
 
-    def get_thermodynamic_cycle_analysis(
-        self, air_volume: float, ascent_time: float
-    ) -> dict:
+    def get_thermodynamic_cycle_analysis(self, air_volume: float, ascent_time: float) -> dict:
         """
         Perform complete thermodynamic cycle analysis for optimization.
 
@@ -283,9 +271,7 @@ class PneumaticSystem:
         self.tank_pressure = self.initial_pressure
         logger.info("PneumaticSystem state has been reset.")
 
-    def calculate_compression_work(
-        self, initial_pressure: float, final_pressure: float, volume: float
-    ) -> float:
+    def calculate_compression_work(self, initial_pressure: float, final_pressure: float, volume: float) -> float:
         """
         Calculate realistic compression work for KPP air injection.
 
@@ -308,18 +294,18 @@ class PneumaticSystem:
         if not self.enable_thermodynamics:
             # Enhanced simple approximation with realistic effects
             import math
-            
+
             # Temperature effects on compression
             ambient_temperature = 293.15  # K
             compression_ratio = final_pressure / initial_pressure
-            
+
             # Temperature rise during compression (simplified)
             temp_rise = 50.0 * (compression_ratio - 1.0) / 10.0  # 50K rise for 10:1 ratio
             effective_temperature = ambient_temperature + temp_rise
-            
+
             # Temperature correction factor
             temp_factor = effective_temperature / ambient_temperature
-            
+
             # Multi-stage compression effects
             if compression_ratio > 5.0:
                 # Multi-stage compression is more efficient
@@ -328,44 +314,46 @@ class PneumaticSystem:
                 multi_stage_factor = stage_efficiency ** (num_stages - 1)
             else:
                 multi_stage_factor = 1.0
-            
+
             # Heat exchange effects
             # Intercooling reduces work requirement
             intercooling_factor = 1.0 - 0.1 * (compression_ratio - 1.0) / 10.0  # 10% reduction for 10:1 ratio
-            
+
             # Mechanical losses
             mechanical_efficiency = 0.85  # 85% mechanical efficiency
-            
+
             # Environmental effects (altitude, humidity)
             altitude_factor = 1.0 + 0.01  # 1% increase due to altitude
             humidity_factor = 1.0 + 0.02  # 2% increase due to humidity
-            
+
             # Calculate enhanced compression work
             base_work = volume * (final_pressure - initial_pressure)
-            enhanced_work = (base_work * temp_factor * multi_stage_factor * 
-                           intercooling_factor / mechanical_efficiency * 
-                           altitude_factor * humidity_factor)
-            
+            enhanced_work = (
+                base_work
+                * temp_factor
+                * multi_stage_factor
+                * intercooling_factor
+                / mechanical_efficiency
+                * altitude_factor
+                * humidity_factor
+            )
+
             logger.debug(
                 f"Enhanced compression work: temp_factor={temp_factor:.3f}, "
                 f"multi_stage={multi_stage_factor:.3f}, intercooling={intercooling_factor:.3f}, "
                 f"work={enhanced_work:.1f}J"
             )
-            
+
             return enhanced_work
 
         try:
-            return self.compression_thermo.isothermal_compression_work(
-                initial_pressure, final_pressure, volume
-            )
+            return self.compression_thermo.isothermal_compression_work(initial_pressure, final_pressure, volume)
         except Exception as e:
             logger.warning(f"Compression work calculation failed: {e}")
             # Fallback calculation
             return volume * (final_pressure - initial_pressure)
 
-    def inject_air(
-        self, target_depth: float, water_pressure: float, duration: float
-    ) -> dict:
+    def inject_air(self, target_depth: float, water_pressure: float, duration: float) -> dict:
         """
         Inject air at specified depth and pressure conditions.
 
@@ -388,9 +376,7 @@ class PneumaticSystem:
         pressure_drop = (volume_injected / self.tank_volume) * 0.3
         self.tank_pressure = max(1.0, self.tank_pressure - pressure_drop)
 
-        logger.info(
-            f"Air injection: {volume_injected:.4f} m³ at {injection_pressure/100000:.2f} bar"
-        )
+        logger.info(f"Air injection: {volume_injected:.4f} m³ at {injection_pressure/100000:.2f} bar")
 
         return {
             "volume_injected": volume_injected,
@@ -398,9 +384,7 @@ class PneumaticSystem:
             "tank_pressure_after": self.tank_pressure,
         }
 
-    def calculate_buoyancy_change(
-        self, air_volume: float, depth: float, water_temperature: float
-    ) -> dict:
+    def calculate_buoyancy_change(self, air_volume: float, depth: float, water_temperature: float) -> dict:
         """
         Calculate buoyancy changes due to air injection and expansion.
 
@@ -431,9 +415,7 @@ class PneumaticSystem:
                 class MockFloater:
                     def __init__(self, vol, temp):
                         self.air_volume = vol
-                        self.air_temperature = (
-                            water_temperature + 5.0
-                        )  # Slightly warmed
+                        self.air_temperature = water_temperature + 5.0  # Slightly warmed
 
                 mock_floater = MockFloater(air_volume, water_temperature)
                 thermal_boost = self.calculate_thermal_buoyancy_boost(

@@ -13,12 +13,11 @@ Key Features:
 """
 
 import logging
-import math
 import statistics
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 import numpy as np
 
@@ -189,19 +188,13 @@ class PerformanceAnalyzer:
         """
         # Calculate derived metrics
         total_output = mechanical_power + thermal_power
-        instantaneous_efficiency = (
-            total_output / electrical_power if electrical_power > 0 else 0.0
-        )
+        instantaneous_efficiency = total_output / electrical_power if electrical_power > 0 else 0.0
 
         # Thermal efficiency boost
-        thermal_efficiency = (
-            1.0 + (thermal_power / mechanical_power) if mechanical_power > 0 else 1.0
-        )
+        thermal_efficiency = 1.0 + (thermal_power / mechanical_power) if mechanical_power > 0 else 1.0
 
         # Capacity factor
-        capacity_factor = (
-            electrical_power / self.rated_power if self.rated_power > 0 else 0.0
-        )
+        capacity_factor = electrical_power / self.rated_power if self.rated_power > 0 else 0.0
 
         # Power factor (simplified - assuming good power quality)
         power_factor = 0.95 if electrical_power > 0 else 0.0
@@ -271,11 +264,7 @@ class PerformanceAnalyzer:
             return EROIAnalysis()
 
         current_time = time.time()
-        recent_snapshots = [
-            s
-            for s in self.performance_snapshots
-            if current_time - s.timestamp <= time_window
-        ]
+        recent_snapshots = [s for s in self.performance_snapshots if current_time - s.timestamp <= time_window]
 
         if not recent_snapshots:
             return EROIAnalysis()
@@ -310,9 +299,7 @@ class PerformanceAnalyzer:
 
         # Payback time (simplified)
         avg_return_rate = total_returned / time_window if time_window > 0 else 0.0
-        payback_time = (
-            total_invested / avg_return_rate if avg_return_rate > 0 else float("inf")
-        )
+        payback_time = total_invested / avg_return_rate if avg_return_rate > 0 else float("inf")
 
         analysis = EROIAnalysis(
             energy_invested=total_invested,
@@ -336,9 +323,7 @@ class PerformanceAnalyzer:
 
         return analysis
 
-    def calculate_capacity_analysis(
-        self, time_window: float = 3600.0
-    ) -> CapacityAnalysis:
+    def calculate_capacity_analysis(self, time_window: float = 3600.0) -> CapacityAnalysis:
         """
         Calculate system capacity and utilization analysis.
 
@@ -352,11 +337,7 @@ class PerformanceAnalyzer:
             return CapacityAnalysis(rated_power=self.rated_power)
 
         current_time = time.time()
-        recent_snapshots = [
-            s
-            for s in self.performance_snapshots
-            if current_time - s.timestamp <= time_window
-        ]
+        recent_snapshots = [s for s in self.performance_snapshots if current_time - s.timestamp <= time_window]
 
         if not recent_snapshots:
             return CapacityAnalysis(rated_power=self.rated_power)
@@ -367,9 +348,7 @@ class PerformanceAnalyzer:
         peak_power = max(power_values)
 
         # Capacity factor
-        capacity_factor = (
-            actual_power / self.rated_power if self.rated_power > 0 else 0.0
-        )
+        capacity_factor = actual_power / self.rated_power if self.rated_power > 0 else 0.0
 
         # Utilization factor (time operating vs total time)
         operating_snapshots = [s for s in recent_snapshots if s.electrical_power > 0]
@@ -377,29 +356,21 @@ class PerformanceAnalyzer:
 
         # Performance characteristics
         efficiency_values = [s.instantaneous_efficiency for s in operating_snapshots]
-        power_curve_efficiency = (
-            statistics.mean(efficiency_values) if efficiency_values else 0.0
-        )
+        power_curve_efficiency = statistics.mean(efficiency_values) if efficiency_values else 0.0
 
         # Part-load efficiency (efficiency at partial loads)
         part_load_snapshots = [
-            s
-            for s in operating_snapshots
-            if 0.2 * self.rated_power <= s.electrical_power <= 0.8 * self.rated_power
+            s for s in operating_snapshots if 0.2 * self.rated_power <= s.electrical_power <= 0.8 * self.rated_power
         ]
         part_load_efficiency = (
-            statistics.mean([s.instantaneous_efficiency for s in part_load_snapshots])
-            if part_load_snapshots
-            else 0.0
+            statistics.mean([s.instantaneous_efficiency for s in part_load_snapshots]) if part_load_snapshots else 0.0
         )
 
         # Startup efficiency (first 10% of operational snapshots)
         startup_count = max(1, len(operating_snapshots) // 10)
         startup_snapshots = operating_snapshots[:startup_count]
         startup_efficiency = (
-            statistics.mean([s.instantaneous_efficiency for s in startup_snapshots])
-            if startup_snapshots
-            else 0.0
+            statistics.mean([s.instantaneous_efficiency for s in startup_snapshots]) if startup_snapshots else 0.0
         )
 
         analysis = CapacityAnalysis(
@@ -443,13 +414,9 @@ class PerformanceAnalyzer:
             return recommendations
 
         # Calculate current averages
-        avg_efficiency = statistics.mean(
-            [s.instantaneous_efficiency for s in recent_snapshots]
-        )
+        avg_efficiency = statistics.mean([s.instantaneous_efficiency for s in recent_snapshots])
         avg_power = statistics.mean([s.electrical_power for s in recent_snapshots])
-        avg_thermal_efficiency = statistics.mean(
-            [s.thermal_efficiency for s in recent_snapshots]
-        )
+        avg_thermal_efficiency = statistics.mean([s.thermal_efficiency for s in recent_snapshots])
 
         # Efficiency optimization
         if avg_efficiency < self.efficiency_baseline * 0.9:
@@ -484,9 +451,7 @@ class PerformanceAnalyzer:
         # Thermal optimization
         if avg_thermal_efficiency < 1.1:  # Less than 10% thermal boost
             target_thermal = 1.2  # 20% thermal boost target
-            improvement = (
-                target_thermal - avg_thermal_efficiency
-            ) / avg_thermal_efficiency
+            improvement = (target_thermal - avg_thermal_efficiency) / avg_thermal_efficiency
             recommendations.append(
                 OptimizationRecommendation(
                     target=OptimizationTarget.OPTIMIZE_THERMAL_BOOST,
@@ -502,17 +467,13 @@ class PerformanceAnalyzer:
         # Pressure optimization based on depth
         current_depths = [s.depth for s in recent_snapshots]
         avg_depth = statistics.mean(current_depths)
-        optimal_pressure_ratio = (
-            1.0 + (avg_depth * 9.81 * 1000) / 101325.0 * 1.1
-        )  # 10% margin
+        optimal_pressure_ratio = 1.0 + (avg_depth * 9.81 * 1000) / 101325.0 * 1.1  # 10% margin
 
         current_pressure_ratios = [s.pressure_ratio for s in recent_snapshots]
         avg_pressure_ratio = statistics.mean(current_pressure_ratios)
 
         if avg_pressure_ratio < optimal_pressure_ratio * 0.9:
-            improvement = (
-                optimal_pressure_ratio - avg_pressure_ratio
-            ) / avg_pressure_ratio
+            improvement = (optimal_pressure_ratio - avg_pressure_ratio) / avg_pressure_ratio
             recommendations.append(
                 OptimizationRecommendation(
                     target=OptimizationTarget.MAXIMIZE_EFFICIENCY,
@@ -538,8 +499,7 @@ class PerformanceAnalyzer:
                     target=OptimizationTarget.MINIMIZE_ENERGY_CONSUMPTION,
                     parameter="power_stability",
                     current_value=power_variation,
-                    recommended_value=target_power
-                    * 0.2,  # 20% of average as target variation
+                    recommended_value=target_power * 0.2,  # 20% of average as target variation
                     expected_improvement=improvement,
                     confidence=0.65,
                     description="High power variation indicates efficiency losses",
@@ -566,11 +526,7 @@ class PerformanceAnalyzer:
             return 0.0
 
         current_time = time.time()
-        recent_snapshots = [
-            s
-            for s in self.performance_snapshots
-            if current_time - s.timestamp <= time_window
-        ]
+        recent_snapshots = [s for s in self.performance_snapshots if current_time - s.timestamp <= time_window]
 
         if not recent_snapshots:
             return 0.0
@@ -594,11 +550,7 @@ class PerformanceAnalyzer:
             return 0.0
 
         current_time = time.time()
-        recent_snapshots = [
-            s
-            for s in self.performance_snapshots
-            if current_time - s.timestamp <= time_window
-        ]
+        recent_snapshots = [s for s in self.performance_snapshots if current_time - s.timestamp <= time_window]
 
         if not recent_snapshots:
             return 0.0
@@ -669,11 +621,7 @@ class PerformanceAnalyzer:
         window_seconds = window_hours * 3600.0
         current_time = time.time()
 
-        recent_snapshots = [
-            s
-            for s in self.performance_snapshots
-            if current_time - s.timestamp <= window_seconds
-        ]
+        recent_snapshots = [s for s in self.performance_snapshots if current_time - s.timestamp <= window_seconds]
 
         if len(recent_snapshots) < 2:
             return {}
@@ -687,9 +635,7 @@ class PerformanceAnalyzer:
         powers = [s.electrical_power for s in recent_snapshots]
 
         # Simple linear trend calculation
-        time_deltas = [
-            (t - timestamps[0]) / 3600.0 for t in timestamps
-        ]  # Hours from start
+        time_deltas = [(t - timestamps[0]) / 3600.0 for t in timestamps]  # Hours from start
 
         if len(time_deltas) > 1:
             # Efficiency trend
@@ -699,9 +645,7 @@ class PerformanceAnalyzer:
             power_trend = np.polyfit(time_deltas, powers, 1)[0]  # Slope
 
             # Performance stability (coefficient of variation)
-            efficiency_stability = statistics.stdev(efficiencies) / statistics.mean(
-                efficiencies
-            )
+            efficiency_stability = statistics.stdev(efficiencies) / statistics.mean(efficiencies)
             power_stability = statistics.stdev(powers) / statistics.mean(powers)
         else:
             efficiency_trend = 0.0
@@ -724,9 +668,7 @@ class PerformanceAnalyzer:
 
         # Remove old performance snapshots
         self.performance_snapshots = [
-            s
-            for s in self.performance_snapshots
-            if current_time - s.timestamp <= self.analysis_window
+            s for s in self.performance_snapshots if current_time - s.timestamp <= self.analysis_window
         ]
 
         # Limit optimization recommendations to prevent excessive accumulation

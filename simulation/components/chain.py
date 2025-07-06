@@ -4,9 +4,8 @@ Manages the kinematic coupling of multiple floaters on the endless chain loop an
 """
 
 import logging
-import math
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -69,9 +68,7 @@ class Chain:
         self.operating_time = 0.0  # s
         self.max_tension = 0.0  # N
 
-        logger.info(
-            f"Chain initialized: radius={self.sprocket_radius}m, length={self.total_length}m"
-        )
+        logger.info(f"Chain initialized: radius={self.sprocket_radius}m, length={self.total_length}m")
 
     def add_floaters(self, floaters: List) -> None:
         """
@@ -89,9 +86,7 @@ class Chain:
                 position = i * self.floater_spacing
                 floater.set_chain_position(position)
 
-        logger.info(
-            f"Added {len(floaters)} floaters to chain with spacing {self.floater_spacing:.2f}m"
-        )
+        logger.info(f"Added {len(floaters)} floaters to chain with spacing {self.floater_spacing:.2f}m")
 
     def advance(self, dt: float, net_force: float = 0.0) -> Dict[str, float]:
         """
@@ -136,9 +131,7 @@ class Chain:
 
         # Add dynamic effects from acceleration
         if len(self.floaters) > 0:
-            total_mass = self.total_chain_mass + sum(
-                f.get_total_mass() for f in self.floaters
-            )
+            total_mass = self.total_chain_mass + sum(f.get_total_mass() for f in self.floaters)
             acceleration = net_force / max(total_mass, 1.0)
             dynamic_tension = total_mass * acceleration * 0.1  # Dynamic factor
             tension = base_tension + dynamic_tension
@@ -157,9 +150,7 @@ class Chain:
         """
         if len(self.floaters) > 0:
             # Calculate total system mass
-            total_mass = self.total_chain_mass + sum(
-                f.get_total_mass() for f in self.floaters
-            )
+            total_mass = self.total_chain_mass + sum(f.get_total_mass() for f in self.floaters)
 
             # Simple Euler integration for velocity
             acceleration = net_force / max(total_mass, 1.0)

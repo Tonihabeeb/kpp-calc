@@ -61,7 +61,7 @@ def main():
     print()
     print("=== PHASE 5 FULLY INTEGRATED AND OPERATIONAL ===")
     print("✅ All subsystems working together:")
-    print("   • Mechanical drivetrain with comprehensive loss modeling")
+    print("   • Mechanical integrated_drivetrain with comprehensive loss modeling")
     print("   • Electrical systems with copper/iron/switching losses")
     print("   • Thermal dynamics with temperature effects on efficiency")
     print("   • Advanced control with integrated optimization")

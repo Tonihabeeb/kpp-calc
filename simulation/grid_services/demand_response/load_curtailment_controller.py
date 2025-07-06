@@ -12,12 +12,11 @@ Recovery time: <5 minutes
 Frequency: <10 events per month
 """
 
-import math
 import time
 from collections import deque
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 
 class CurtailmentType(Enum):
@@ -61,15 +60,9 @@ class LoadCurtailmentConfig:
     def validate(self):
         """Validate configuration parameters"""
         assert 0.05 <= self.max_curtailment_percent <= 0.80, "Curtailment must be 5-80%"
-        assert (
-            60.0 <= self.min_curtailment_duration <= 300.0
-        ), "Min duration must be 1-5 minutes"
-        assert (
-            300.0 <= self.max_curtailment_duration <= 86400.0
-        ), "Max duration must be 5min-24hr"
-        assert (
-            60.0 <= self.response_time_s <= 300.0
-        ), "Response time must be 1-5 minutes"
+        assert 60.0 <= self.min_curtailment_duration <= 300.0, "Min duration must be 1-5 minutes"
+        assert 300.0 <= self.max_curtailment_duration <= 86400.0, "Max duration must be 5min-24hr"
+        assert 60.0 <= self.response_time_s <= 300.0, "Response time must be 1-5 minutes"
 
 
 @dataclass
@@ -179,9 +172,7 @@ class LoadCurtailmentController:
             self._update_active_event(current_load, current_time, dt)
 
         # Check for new curtailment requests
-        curtailment_command = self._check_for_curtailment_needs(
-            current_load, grid_conditions, current_time
-        )
+        curtailment_command = self._check_for_curtailment_needs(current_load, grid_conditions, current_time)
         # Calculate actual curtailment achieved
         if self.curtailment_active and self.active_event:
             # Use requested reduction if we don't have a good baseline yet
@@ -226,9 +217,7 @@ class LoadCurtailmentController:
             event_id = f"{event_type.value}_{int(current_time)}"
 
         # Validate request
-        if not self._validate_curtailment_request(
-            reduction_mw, duration_s, event_type, current_time
-        ):
+        if not self._validate_curtailment_request(reduction_mw, duration_s, event_type, current_time):
             return False
 
         # Create curtailment event
@@ -268,10 +257,7 @@ class LoadCurtailmentController:
             return False
 
         # Check emergency override
-        if (
-            event_type == CurtailmentType.EMERGENCY
-            and self.config.enable_emergency_override
-        ):
+        if event_type == CurtailmentType.EMERGENCY and self.config.enable_emergency_override:
             return True  # Emergency override bypasses most limits
 
         # Check maximum reduction limit
@@ -280,10 +266,7 @@ class LoadCurtailmentController:
             return False
 
         # Check duration limits
-        if (
-            duration_s < self.config.min_curtailment_duration
-            or duration_s > self.config.max_curtailment_duration
-        ):
+        if duration_s < self.config.min_curtailment_duration or duration_s > self.config.max_curtailment_duration:
             return False
 
         # Check daily event limit
@@ -295,9 +278,7 @@ class LoadCurtailmentController:
             return False
 
         # Check minimum interval between events
-        if (
-            current_time - self.last_event_time
-        ) < self.config.min_interval_between_events:
+        if (current_time - self.last_event_time) < self.config.min_interval_between_events:
             return False
 
         return True
@@ -321,9 +302,7 @@ class LoadCurtailmentController:
             return
 
         # Check if event duration has elapsed
-        if (
-            current_time - self.active_event.start_time
-        ) >= self.active_event.duration_requested:
+        if (current_time - self.active_event.start_time) >= self.active_event.duration_requested:
             self._end_current_event(current_time)
             return
 
@@ -333,9 +312,7 @@ class LoadCurtailmentController:
 
         # Calculate compliance rate
         if self.active_event.requested_reduction > 0:
-            self.active_event.compliance_rate = min(
-                1.0, actual_reduction / self.active_event.requested_reduction
-            )
+            self.active_event.compliance_rate = min(1.0, actual_reduction / self.active_event.requested_reduction)
 
         # Track energy curtailed
         energy_curtailed_mwh = actual_reduction * (dt / 3600.0)
@@ -374,7 +351,7 @@ class LoadCurtailmentController:
 
         # Check direct frequency/voltage or emergency conditions flags
         frequency = grid_conditions.get("frequency", 60.0)
-        voltage = grid_conditions.get("voltage", 1.0)
+        grid_conditions.get("voltage", 1.0)
 
         # Emergency conditions from flags
         freq_emergency = (
@@ -384,20 +361,16 @@ class LoadCurtailmentController:
             or frequency > 60.5
         )
 
-        voltage_emergency = emergency_conditions.get(
-            "voltage_low", False
-        ) or emergency_conditions.get("voltage_high", False)
+        voltage_emergency = emergency_conditions.get("voltage_low", False) or emergency_conditions.get(
+            "voltage_high", False
+        )
 
         system_overload = emergency_conditions.get("system_overload", False)
 
         # Emergency curtailment
         if freq_emergency or voltage_emergency or system_overload:
             if not self.curtailment_active:
-                emergency_reduction = (
-                    self.baseline_load * 0.20
-                    if self.baseline_load > 0
-                    else current_load * 0.20
-                )
+                emergency_reduction = self.baseline_load * 0.20 if self.baseline_load > 0 else current_load * 0.20
                 self.request_curtailment(
                     emergency_reduction,
                     300.0,  # 5 minutes
@@ -408,15 +381,9 @@ class LoadCurtailmentController:
             return self.active_event.requested_reduction if self.active_event else 0.0
 
         # Check for economic curtailment opportunities
-        market_price = grid_conditions.get(
-            "electricity_price", grid_conditions.get("market_price", 50.0)
-        )  # $/MWh
+        market_price = grid_conditions.get("electricity_price", grid_conditions.get("market_price", 50.0))  # $/MWh
         if market_price > 150.0 and not self.curtailment_active:  # High price
-            economic_reduction = (
-                self.baseline_load * 0.15
-                if self.baseline_load > 0
-                else current_load * 0.15
-            )
+            economic_reduction = self.baseline_load * 0.15 if self.baseline_load > 0 else current_load * 0.15
             self.request_curtailment(
                 economic_reduction,
                 3600.0,  # 1 hour
@@ -441,9 +408,7 @@ class LoadCurtailmentController:
         )
 
         # Update baseline load (average of non-curtailed periods)
-        non_curtailed_loads = [
-            entry["load"] for entry in self.load_history if not entry["curtailed"]
-        ]
+        non_curtailed_loads = [entry["load"] for entry in self.load_history if not entry["curtailed"]]
 
         if non_curtailed_loads:
             # Use recent non-curtailed load as baseline
@@ -471,19 +436,12 @@ class LoadCurtailmentController:
             return "Load curtailment disabled"
 
         if self.curtailment_active and self.active_event:
-            remaining_time = self.active_event.duration_requested - (
-                time.time() - self.active_event.start_time
-            )
-            return (
-                f"Curtailment active - {self.active_event.event_type.value} "
-                f"({remaining_time:.0f}s remaining)"
-            )
+            remaining_time = self.active_event.duration_requested - (time.time() - self.active_event.start_time)
+            return f"Curtailment active - {self.active_event.event_type.value} " f"({remaining_time:.0f}s remaining)"
 
         return "Ready for curtailment requests"
 
-    def _create_response_dict(
-        self, curtailment_command: float, status: str
-    ) -> Dict[str, Any]:
+    def _create_response_dict(self, curtailment_command: float, status: str) -> Dict[str, Any]:
         """Create standardized response dictionary"""
         return {
             "curtailment_command_mw": curtailment_command,
@@ -491,15 +449,9 @@ class LoadCurtailmentController:
             "actual_load": self.current_load_actual,
             "curtailment_amount": self.curtailment_amount,
             "curtailment_active": self.curtailment_active,
-            "active_event_id": (
-                self.active_event.event_id if self.active_event else None
-            ),
-            "active_event_type": (
-                self.active_event.event_type.value if self.active_event else None
-            ),
-            "compliance_rate": (
-                self.active_event.compliance_rate if self.active_event else 1.0
-            ),
+            "active_event_id": (self.active_event.event_id if self.active_event else None),
+            "active_event_type": (self.active_event.event_type.value if self.active_event else None),
+            "compliance_rate": (self.active_event.compliance_rate if self.active_event else 1.0),
             "status": status,
             "service_type": "load_curtailment",
             "timestamp": self.last_update_time,
@@ -510,13 +462,9 @@ class LoadCurtailmentController:
 
         # Calculate average compliance rate
         if len(self.event_history) > 0:
-            avg_compliance = sum(
-                event.compliance_rate for event in self.event_history
-            ) / len(self.event_history)
+            avg_compliance = sum(event.compliance_rate for event in self.event_history) / len(self.event_history)
             total_revenue = sum(event.revenue for event in self.event_history)
-            avg_event_duration = sum(
-                event.duration_actual for event in self.event_history
-            ) / len(self.event_history)
+            avg_event_duration = sum(event.duration_actual for event in self.event_history) / len(self.event_history)
         else:
             avg_compliance = 1.0
             total_revenue = 0.0
@@ -524,14 +472,8 @@ class LoadCurtailmentController:
 
         # Calculate curtailment capacity utilization
         if self.baseline_load > 0:
-            curtailment_capacity = (
-                self.baseline_load * self.config.max_curtailment_percent
-            )
-            current_utilization = (
-                self.curtailment_amount / curtailment_capacity
-                if curtailment_capacity > 0
-                else 0.0
-            )
+            curtailment_capacity = self.baseline_load * self.config.max_curtailment_percent
+            current_utilization = self.curtailment_amount / curtailment_capacity if curtailment_capacity > 0 else 0.0
         else:
             current_utilization = 0.0
 
@@ -547,8 +489,7 @@ class LoadCurtailmentController:
             "current_curtailment_utilization": current_utilization,
             "baseline_load": self.baseline_load,
             "current_curtailment": self.curtailment_amount,
-            "max_curtailment_capacity": self.baseline_load
-            * self.config.max_curtailment_percent,
+            "max_curtailment_capacity": self.baseline_load * self.config.max_curtailment_percent,
         }
 
     def reset(self):

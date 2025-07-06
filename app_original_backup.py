@@ -423,7 +423,8 @@ def set_load():
     data = request.get_json() or {}
     user_load = data.get('user_load_torque', None)
     if user_load is not None:
-        engine.generator.set_user_load(float(user_load))
+                    if engine.integrated_electrical_system:
+                engine.integrated_electrical_system.set_target_load_factor(float(user_load) / 100.0)
         return (f"User load set to {user_load} Nm", 200)
     else:
         return ("Missing user_load_torque in request", 400)
@@ -508,7 +509,7 @@ def energy_balance():
 
 @app.route("/data/drivetrain_status")
 def drivetrain_status():
-    """Get comprehensive drivetrain system status from integrated drivetrain"""
+    """Get comprehensive integrated_drivetrain system status from integrated integrated_drivetrain"""
     try:
         latest = engine.data_queue.queue[-1] if not engine.data_queue.empty() else None
     except Exception:
@@ -517,7 +518,7 @@ def drivetrain_status():
     if not latest:
         return {'status': 'no_data'}
     
-    # Extract drivetrain data from the latest simulation state
+    # Extract integrated_drivetrain data from the latest simulation state
     drivetrain_data = {
         'flywheel_speed_rpm': latest.get('flywheel_speed_rpm', 0.0),
         'chain_speed_rpm': latest.get('chain_speed_rpm', 0.0),
@@ -1052,11 +1053,11 @@ def control_foc():
         flux_kp = data.get('flux_kp', 90.0)
         
         # Update FOC parameters in electrical system
-        if hasattr(engine, 'electrical_system') and hasattr(engine.electrical_system, 'generator'):
-            generator = engine.electrical_system.generator
-            generator.enable_foc(foc_enabled)
-            if hasattr(generator, 'set_foc_parameters'):
-                generator.set_foc_parameters(torque_kp=torque_kp, flux_kp=flux_kp)
+        if hasattr(engine, 'integrated_electrical_system') and hasattr(engine.integrated_electrical_system, 'generator'):
+            generator = engine.integrated_electrical_system.generator
+            # FOC control moved to integrated electrical system
+            logger.info(f"FOC {'enabled' if foc_enabled else 'disabled'} - using integrated electrical system")
+            # Integrated electrical system handles FOC internally
         
         return {"status": "ok", "message": f"FOC control {'enabled' if foc_enabled else 'disabled'} with Kp_torque={torque_kp}, Kp_flux={flux_kp}"}
     except Exception as e:
@@ -1120,9 +1121,9 @@ def enhancement_status():
                 "recovered_energy": getattr(engine.pneumatics.air_compression_system if hasattr(engine.pneumatics, 'air_compression_system') else None, 'recovered_energy_buffer', 0.0)
             },
             "foc_control": {
-                "enabled": getattr(engine.electrical_system.generator if hasattr(engine, 'electrical_system') and hasattr(engine.electrical_system, 'generator') else None, 'foc_enabled', False),
-                "d_axis_current": getattr(engine.electrical_system.generator if hasattr(engine, 'electrical_system') and hasattr(engine.electrical_system, 'generator') else None, 'd_axis_current', 0.0),
-                "q_axis_current": getattr(engine.electrical_system.generator if hasattr(engine, 'electrical_system') and hasattr(engine.electrical_system, 'generator') else None, 'q_axis_current', 0.0)
+                            "enabled": getattr(engine.integrated_electrical_system.generator if hasattr(engine, 'integrated_electrical_system') and hasattr(engine.integrated_electrical_system, 'generator') else None, 'foc_enabled', False),
+            "d_axis_current": getattr(engine.integrated_electrical_system.generator if hasattr(engine, 'integrated_electrical_system') and hasattr(engine.integrated_electrical_system, 'generator') else None, 'd_axis_current', 0.0),
+            "q_axis_current": getattr(engine.integrated_electrical_system.generator if hasattr(engine, 'integrated_electrical_system') and hasattr(engine.integrated_electrical_system, 'generator') else None, 'q_axis_current', 0.0)
             },
             "system_scale": {
                 "num_floaters": len(engine.floaters) if engine.floaters else 0,

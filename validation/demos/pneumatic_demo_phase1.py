@@ -81,15 +81,15 @@ def demonstrate_pressure_control():
 
     # Create integrated system
     air_system = create_standard_kpp_compressor()
-    control_system = create_standard_kpp_pressure_controller(2.5)  # 2.5 bar target
-    control_system.set_air_compressor(air_system)
+    integrated_control_system = create_standard_kpp_pressure_controller(2.5)  # 2.5 bar target
+    integrated_control_system.set_air_compressor(air_system)
 
-    print(f"Target pressure: {control_system.settings.target_pressure/100000:.1f} bar")
+    print(f"Target pressure: {integrated_control_system.settings.target_pressure/100000:.1f} bar")
     print(
-        f"High setpoint:   {control_system.settings.high_pressure_setpoint/100000:.1f} bar"
+        f"High setpoint:   {integrated_control_system.settings.high_pressure_setpoint/100000:.1f} bar"
     )
     print(
-        f"Low setpoint:    {control_system.settings.low_pressure_setpoint/100000:.1f} bar"
+        f"Low setpoint:    {integrated_control_system.settings.low_pressure_setpoint/100000:.1f} bar"
     )
 
     # Simulate pressure buildup
@@ -108,7 +108,7 @@ def demonstrate_pressure_control():
     )
 
     while current_time < max_time:
-        results = control_system.control_step(dt, current_time)
+        results = integrated_control_system.control_step(dt, current_time)
 
         # Collect data
         times.append(current_time)
@@ -130,12 +130,12 @@ def demonstrate_pressure_control():
         current_time += dt
 
         # Stop if target reached
-        if results["tank_pressure"] >= control_system.settings.target_pressure * 0.98:
+        if results["tank_pressure"] >= integrated_control_system.settings.target_pressure * 0.98:
             print(f"  Target pressure reached at t={current_time:.0f}s")
             break
 
     # Show final status
-    final_status = control_system.get_control_status()
+    final_status = integrated_control_system.get_control_status()
     air_status = air_system.get_system_status()
 
     print(f"\nFinal system status:")
@@ -157,12 +157,12 @@ def demonstrate_air_consumption_regulation():
 
     # Create system and build up pressure first
     air_system = create_standard_kpp_compressor()
-    control_system = create_standard_kpp_pressure_controller(2.0)  # 2 bar target
-    control_system.set_air_compressor(air_system)
+    integrated_control_system = create_standard_kpp_pressure_controller(2.0)  # 2 bar target
+    integrated_control_system.set_air_compressor(air_system)
 
     # Build up pressure (simplified)
     for _ in range(60):  # 1 minute to build pressure
-        control_system.control_step(1.0, float(_))
+        integrated_control_system.control_step(1.0, float(_))
 
     print(f"Initial pressure: {air_system.tank_pressure/100000:.2f} bar")
 
@@ -190,7 +190,7 @@ def demonstrate_air_consumption_regulation():
             )
 
         # Run control step
-        results = control_system.control_step(dt, current_time)
+        results = integrated_control_system.control_step(dt, current_time)
 
         # Collect data
         times.append(t - 60)  # Relative time
@@ -207,7 +207,7 @@ def demonstrate_safety_systems():
     print("\n🚨 Demonstrating Safety Systems")
     print("-" * 50)
 
-    control_system = create_standard_kpp_pressure_controller(2.0)
+    integrated_control_system = create_standard_kpp_pressure_controller(2.0)
 
     # Test safety level calculations
     test_pressures = [
@@ -220,26 +220,26 @@ def demonstrate_safety_systems():
 
     print("Safety level responses to different pressures:")
     for pressure, description in test_pressures:
-        safety_level = control_system.check_safety_conditions(pressure)
+        safety_level = integrated_control_system.check_safety_conditions(pressure)
         print(
             f"  {pressure/100000:.1f} bar ({description}): {safety_level.value.upper()}"
         )
-        if control_system.safety_warnings:
-            print(f"    Warnings: {', '.join(control_system.safety_warnings)}")
+        if integrated_control_system.safety_warnings:
+            print(f"    Warnings: {', '.join(integrated_control_system.safety_warnings)}")
 
     # Test emergency stop
     print(f"\nTesting emergency stop:")
-    control_system.compressor_state = CompressorState.RUNNING
-    print(f"  Before emergency stop: State = {control_system.compressor_state.value}")
+    integrated_control_system.compressor_state = CompressorState.RUNNING
+    print(f"  Before emergency stop: State = {integrated_control_system.compressor_state.value}")
 
-    control_system.emergency_stop()
-    print(f"  After emergency stop:  State = {control_system.compressor_state.value}")
-    print(f"  Emergency active:      {control_system.emergency_stop_active}")
+    integrated_control_system.reset()
+    print(f"  After emergency stop:  State = {integrated_control_system.compressor_state.value}")
+    print(f"  Emergency active:      {integrated_control_system.emergency_stop_active}")
 
     # Test reset
-    control_system.reset_emergency_stop()
+    integrated_control_system.reset_emergency_stop()
     print(
-        f"  After reset:           Emergency active = {control_system.emergency_stop_active}"
+        f"  After reset:           Emergency active = {integrated_control_system.emergency_stop_active}"
     )
 
 

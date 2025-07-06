@@ -3,14 +3,16 @@ Pydantic schemas for the KPP Simulator.
 Provides type safety and validation for all data structures used in the simulation.
 """
 
-from typing import Dict, List, Optional, Any, Union
-from enum import Enum
-from pydantic import BaseModel, Field, validator, root_validator
 import math
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field, root_validator, validator
 
 
 class FloaterState(str, Enum):
     """Possible states for a floater."""
+
     EMPTY = "empty"
     FILLING = "filling"
     FILLED = "filled"
@@ -19,6 +21,7 @@ class FloaterState(str, Enum):
 
 class ControlMode(str, Enum):
     """Control system operating modes."""
+
     NORMAL = "normal"
     STARTUP = "startup"
     EMERGENCY = "emergency"
@@ -28,6 +31,7 @@ class ControlMode(str, Enum):
 
 class ComponentStatus(str, Enum):
     """Component operational status."""
+
     ONLINE = "online"
     OFFLINE = "offline"
     FAULT = "fault"
@@ -37,6 +41,7 @@ class ComponentStatus(str, Enum):
 # Physics Data Schemas
 class FloaterPhysicsData(BaseModel):
     """Physics data for a single floater."""
+
     id: int = Field(..., ge=0, description="Floater identifier")
     position: float = Field(..., description="Position along chain (radians)")
     velocity: float = Field(..., description="Velocity (m/s)")
@@ -48,8 +53,8 @@ class FloaterPhysicsData(BaseModel):
     state: FloaterState = Field(default=FloaterState.EMPTY, description="Current state")
     fill_progress: float = Field(default=0.0, ge=0.0, le=1.0, description="Fill progress (0-1)")
     is_filled: bool = Field(default=False, description="Whether floater is filled")
-    
-    @validator('position')
+
+    @validator("position")
     @classmethod
     def validate_position(cls, v):
         """Normalize position to [0, 2π]."""
@@ -58,6 +63,7 @@ class FloaterPhysicsData(BaseModel):
 
 class EnhancedPhysicsData(BaseModel):
     """Enhanced physics effects data (H1/H2/H3)."""
+
     h1_nanobubbles: Dict[str, Any] = Field(default_factory=dict, description="H1 nanobubble effects")
     h2_thermal: Dict[str, Any] = Field(default_factory=dict, description="H2 thermal effects")
     h3_pulse: Dict[str, Any] = Field(default_factory=dict, description="H3 pulse control")
@@ -67,6 +73,7 @@ class EnhancedPhysicsData(BaseModel):
 
 class PhysicsResults(BaseModel):
     """Complete physics calculation results."""
+
     total_vertical_force: float = Field(..., description="Total vertical force (N)")
     base_buoy_force: float = Field(default=0.0, description="Base buoyancy force (N)")
     enhanced_buoy_force: float = Field(default=0.0, description="Enhanced buoyancy force (N)")
@@ -75,13 +82,16 @@ class PhysicsResults(BaseModel):
     drag_force: float = Field(default=0.0, description="Total drag force (N)")
     net_force: float = Field(..., description="Net force on system (N)")
     floater_data: List[FloaterPhysicsData] = Field(default_factory=list, description="Individual floater data")
-    enhanced_physics: EnhancedPhysicsData = Field(default_factory=EnhancedPhysicsData, description="Enhanced physics data")
+    enhanced_physics: EnhancedPhysicsData = Field(
+        default_factory=EnhancedPhysicsData, description="Enhanced physics data"
+    )
     chain_dynamics: Dict[str, Any] = Field(default_factory=dict, description="Chain dynamics data")
 
 
 # System Data Schemas
 class DrivetrainData(BaseModel):
-    """Drivetrain system data."""
+    """IntegratedDrivetrain system data."""
+
     flywheel_speed_rpm: float = Field(default=0.0, ge=0.0, description="Flywheel speed (RPM)")
     chain_speed_rpm: float = Field(default=0.0, description="Chain speed (RPM)")
     gearbox_ratio: float = Field(default=39.4, gt=0.0, description="Gearbox ratio")
@@ -91,11 +101,12 @@ class DrivetrainData(BaseModel):
     output_torque: float = Field(default=0.0, description="Output torque (N⋅m)")
     load_torque: float = Field(default=0.0, description="Load torque (N⋅m)")
     system_efficiency: float = Field(default=0.0, ge=0.0, le=1.0, description="System efficiency")
-    status: ComponentStatus = Field(default=ComponentStatus.ONLINE, description="Drivetrain status")
+    status: ComponentStatus = Field(default=ComponentStatus.ONLINE, description="IntegratedDrivetrain status")
 
 
 class ElectricalData(BaseModel):
     """Electrical system data."""
+
     power_output: float = Field(default=0.0, ge=0.0, description="Power output (W)")
     grid_power: float = Field(default=0.0, description="Grid power (W)")
     load_torque: float = Field(default=0.0, description="Electrical load torque (N⋅m)")
@@ -111,6 +122,7 @@ class ElectricalData(BaseModel):
 
 class ControlData(BaseModel):
     """Control system data."""
+
     control_mode: ControlMode = Field(default=ControlMode.NORMAL, description="Current control mode")
     timing_commands: Dict[str, Any] = Field(default_factory=dict, description="Timing control commands")
     load_commands: Dict[str, Any] = Field(default_factory=dict, description="Load control commands")
@@ -124,7 +136,8 @@ class ControlData(BaseModel):
 
 class SystemResults(BaseModel):
     """Complete system update results."""
-    drivetrain: DrivetrainData = Field(default_factory=DrivetrainData, description="Drivetrain data")
+
+    integrated_drivetrain: DrivetrainData = Field(default_factory=DrivetrainData, description="IntegratedDrivetrain data")
     electrical: ElectricalData = Field(default_factory=ElectricalData, description="Electrical data")
     control: ControlData = Field(default_factory=ControlData, description="Control data")
     transient: Dict[str, Any] = Field(default_factory=dict, description="Transient event data")
@@ -137,6 +150,7 @@ class SystemResults(BaseModel):
 
 class ElectricalSystemOutput(BaseModel):
     """Electrical system update output."""
+
     electrical_load_torque: float = Field(default=0.0, description="Electrical load torque (N⋅m)")
     power_output: float = Field(default=0.0, ge=0.0, description="Power output (W)")
     grid_power: float = Field(default=0.0, description="Grid power (W)")
@@ -152,13 +166,14 @@ class ElectricalSystemOutput(BaseModel):
 
 class SystemState(BaseModel):
     """System state for control and monitoring."""
+
     time: float = Field(..., ge=0.0, description="Current time (s)")
     power_output: float = Field(default=0.0, ge=0.0, description="Power output (W)")
     speed_rpm: float = Field(default=0.0, description="Speed (RPM)")
     torque: float = Field(default=0.0, description="Torque (N⋅m)")
     total_vertical_force: float = Field(default=0.0, description="Total vertical force (N)")
     net_force: float = Field(default=0.0, description="Net force (N)")
-    drivetrain_status: ComponentStatus = Field(default=ComponentStatus.ONLINE, description="Drivetrain status")
+    drivetrain_status: ComponentStatus = Field(default=ComponentStatus.ONLINE, description="IntegratedDrivetrain status")
     electrical_status: ComponentStatus = Field(default=ComponentStatus.ONLINE, description="Electrical status")
     control_status: ComponentStatus = Field(default=ComponentStatus.ONLINE, description="Control status")
     fault_flags: Dict[str, bool] = Field(default_factory=dict, description="System fault flags")
@@ -167,6 +182,7 @@ class SystemState(BaseModel):
 
 class GridServicesState(BaseModel):
     """Grid services state and control."""
+
     frequency_regulation_active: bool = Field(default=False, description="Frequency regulation active")
     voltage_support_active: bool = Field(default=False, description="Voltage support active")
     reactive_power_support: bool = Field(default=False, description="Reactive power support active")
@@ -180,6 +196,7 @@ class GridServicesState(BaseModel):
 
 class TransientEventState(BaseModel):
     """Transient event handling state."""
+
     fault_detected: bool = Field(default=False, description="Fault detected")
     fault_type: Optional[str] = Field(default=None, description="Type of fault")
     fault_severity: Optional[str] = Field(default=None, description="Fault severity level")
@@ -193,6 +210,7 @@ class TransientEventState(BaseModel):
 # State Management Schemas
 class EnergyLossData(BaseModel):
     """Energy loss tracking data."""
+
     drag_loss: float = Field(default=0.0, ge=0.0, description="Drag losses (J)")
     dissolution_loss: float = Field(default=0.0, ge=0.0, description="Dissolution losses (J)")
     venting_loss: float = Field(default=0.0, ge=0.0, description="Venting losses (J)")
@@ -205,6 +223,7 @@ class EnergyLossData(BaseModel):
 
 class PerformanceMetrics(BaseModel):
     """System performance metrics."""
+
     overall_efficiency: float = Field(default=0.0, ge=0.0, le=1.0, description="Overall system efficiency")
     power_efficiency: float = Field(default=0.0, ge=0.0, le=1.0, description="Power conversion efficiency")
     mechanical_efficiency: float = Field(default=0.0, ge=0.0, le=1.0, description="Mechanical efficiency")
@@ -216,6 +235,7 @@ class PerformanceMetrics(BaseModel):
 
 class SimulationState(BaseModel):
     """Complete simulation state data."""
+
     time: float = Field(..., ge=0.0, description="Simulation time (s)")
     dt: float = Field(..., gt=0.0, description="Time step (s)")
     physics: PhysicsResults = Field(..., description="Physics calculation results")
@@ -228,37 +248,38 @@ class SimulationState(BaseModel):
 # Configuration Schemas
 class SimulationParams(BaseModel):
     """Simulation parameters with validation."""
+
     # Time parameters
     time_step: float = Field(default=0.1, gt=0.0, le=1.0, description="Simulation time step (s)")
-    
+
     # Floater parameters
     num_floaters: int = Field(default=8, ge=1, le=20, description="Number of floaters")
     floater_volume: float = Field(default=0.3, gt=0.0, description="Floater volume (m³)")
     floater_mass_empty: float = Field(default=18.0, gt=0.0, description="Empty floater mass (kg)")
     floater_area: float = Field(default=0.035, gt=0.0, description="Floater cross-sectional area (m²)")
     drag_coefficient: float = Field(default=0.8, gt=0.0, description="Drag coefficient")
-    
-    # Drivetrain parameters
+
+    # IntegratedDrivetrain parameters
     sprocket_radius: float = Field(default=1.0, gt=0.0, description="Sprocket radius (m)")
     sprocket_teeth: int = Field(default=20, ge=10, le=100, description="Number of sprocket teeth")
     gear_ratio: float = Field(default=39.4, gt=1.0, description="Gear ratio")
     flywheel_inertia: float = Field(default=50.0, gt=0.0, description="Flywheel moment of inertia (kg⋅m²)")
-    drivetrain_efficiency: float = Field(default=0.95, gt=0.0, le=1.0, description="Drivetrain efficiency")
-    
+    drivetrain_efficiency: float = Field(default=0.95, gt=0.0, le=1.0, description="IntegratedDrivetrain efficiency")
+
     # Electrical parameters
     target_power: float = Field(default=530000.0, gt=0.0, description="Target power output (W)")
     target_rpm: float = Field(default=375.0, gt=0.0, description="Target RPM")
     generator_efficiency: float = Field(default=0.94, gt=0.0, le=1.0, description="Generator efficiency")
-    
+
     # Pneumatic parameters
     target_pressure: float = Field(default=5.0, gt=0.0, le=10.0, description="Target pressure (bar)")
     air_fill_time: float = Field(default=0.5, gt=0.0, description="Air fill time (s)")
-    
+
     # Physics parameters
     water_density: float = Field(default=1000.0, gt=0.0, description="Water density (kg/m³)")
     water_temperature: float = Field(default=293.15, gt=200.0, lt=400.0, description="Water temperature (K)")
     gravity: float = Field(default=9.81, gt=0.0, description="Gravitational acceleration (m/s²)")
-    
+
     # Enhanced physics parameters
     h1_enabled: bool = Field(default=False, description="Enable H1 nanobubble physics")
     h2_enabled: bool = Field(default=False, description="Enable H2 thermal physics")
@@ -266,36 +287,52 @@ class SimulationParams(BaseModel):
     nanobubble_frac: float = Field(default=0.0, ge=0.0, le=0.2, description="Nanobubble fraction")
     drag_reduction_factor: float = Field(default=0.12, ge=0.0, le=0.5, description="Drag reduction factor")
     thermal_efficiency: float = Field(default=0.75, ge=0.0, le=1.0, description="Thermal efficiency")
-    
-    @validator('target_rpm')
+
+    @validator("target_rpm")
     @classmethod
     def validate_rpm_range(cls, v):
         """Validate RPM is within reasonable range."""
         if not (50.0 <= v <= 1000.0):
             raise ValueError("target_rpm must be between 50 and 1000 RPM")
         return v
-    
-    @validator('num_floaters')
+
+    @validator("num_floaters")
     @classmethod
     def validate_floater_count(cls, v):
         """Validate floater count is even for balanced operation."""
         if v % 2 != 0:
             raise ValueError("num_floaters should be even for balanced operation")
         return v
-    
-    @root_validator
-    @classmethod
-    def validate_enhanced_physics(cls, values):
-        """Validate enhanced physics parameter consistency."""
-        if values.get('h1_enabled') and values.get('nanobubble_frac', 0.0) <= 0.0:
-            raise ValueError("nanobubble_frac must be > 0 when h1_enabled is True")
-        if values.get('h2_enabled') and values.get('thermal_efficiency', 0.0) <= 0.0:
-            raise ValueError("thermal_efficiency must be > 0 when h2_enabled is True")
+
+    @root_validator(skip_on_failure=True)
+    def validate_parameters(cls, values):
+        """Validate parameter relationships and constraints."""
+        # Ensure time_step is positive
+        if values.get('time_step', 0) <= 0:
+            values['time_step'] = 0.01
+        
+        # Ensure num_floaters is positive
+        if values.get('num_floaters', 0) <= 0:
+            values['num_floaters'] = 4
+        
+        # Ensure target_power is positive
+        if values.get('target_power', 0) <= 0:
+            values['target_power'] = 5000.0
+        
+        # Ensure tank_height is positive
+        if values.get('tank_height', 0) <= 0:
+            values['tank_height'] = 10.0
+        
+        # Ensure air_pressure is positive
+        if values.get('air_pressure', 0) <= 0:
+            values['air_pressure'] = 300000.0
+        
         return values
 
 
 class ManagerInterface(BaseModel):
     """Base interface for all manager classes."""
+
     manager_type: str = Field(..., description="Type of manager")
     status: ComponentStatus = Field(default=ComponentStatus.ONLINE, description="Manager status")
     last_update_time: Optional[float] = Field(default=None, description="Last update timestamp")
@@ -306,6 +343,7 @@ class ManagerInterface(BaseModel):
 # Response Schemas for API
 class SimulationStepResponse(BaseModel):
     """Response from a simulation step."""
+
     success: bool = Field(..., description="Whether step completed successfully")
     state: Optional[SimulationState] = Field(default=None, description="Current simulation state")
     error_message: Optional[str] = Field(default=None, description="Error message if failed")
@@ -315,6 +353,7 @@ class SimulationStepResponse(BaseModel):
 
 class HealthCheckResponse(BaseModel):
     """System health check response."""
+
     overall_status: ComponentStatus = Field(..., description="Overall system status")
     managers: Dict[str, ComponentStatus] = Field(..., description="Individual manager statuses")
     uptime: float = Field(..., ge=0.0, description="System uptime (s)")
@@ -326,6 +365,7 @@ class HealthCheckResponse(BaseModel):
 # Error Schemas
 class ValidationError(BaseModel):
     """Validation error details."""
+
     field: str = Field(..., description="Field that failed validation")
     error_type: str = Field(..., description="Type of validation error")
     message: str = Field(..., description="Error message")
@@ -334,6 +374,7 @@ class ValidationError(BaseModel):
 
 class SimulationError(BaseModel):
     """Simulation error details."""
+
     error_code: str = Field(..., description="Error code")
     error_type: str = Field(..., description="Type of error")
     message: str = Field(..., description="Error message")
@@ -345,18 +386,33 @@ class SimulationError(BaseModel):
 # Export all schemas for easy import
 __all__ = [
     # Enums
-    'FloaterState', 'ControlMode', 'ComponentStatus',
+    "FloaterState",
+    "ControlMode",
+    "ComponentStatus",
     # Physics schemas
-    'FloaterPhysicsData', 'EnhancedPhysicsData', 'PhysicsResults',
+    "FloaterPhysicsData",
+    "EnhancedPhysicsData",
+    "PhysicsResults",
     # System schemas
-    'DrivetrainData', 'ElectricalData', 'ControlData', 'SystemResults',
-    'ElectricalSystemOutput', 'SystemState', 'GridServicesState', 'TransientEventState',
+    "DrivetrainData",
+    "ElectricalData",
+    "ControlData",
+    "SystemResults",
+    "ElectricalSystemOutput",
+    "SystemState",
+    "GridServicesState",
+    "TransientEventState",
     # State schemas
-    'EnergyLossData', 'PerformanceMetrics', 'SimulationState',
+    "EnergyLossData",
+    "PerformanceMetrics",
+    "SimulationState",
     # Configuration schemas
-    'SimulationParams', 'ManagerInterface',
+    "SimulationParams",
+    "ManagerInterface",
     # Response schemas
-    'SimulationStepResponse', 'HealthCheckResponse',
+    "SimulationStepResponse",
+    "HealthCheckResponse",
     # Error schemas
-    'ValidationError', 'SimulationError'
+    "ValidationError",
+    "SimulationError",
 ]

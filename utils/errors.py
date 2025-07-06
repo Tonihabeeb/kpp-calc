@@ -27,4 +27,3 @@ class FloaterError(SimulationError):
 class EnvironmentError(SimulationError):
     """Exception for errors in Environment or invalid parameters."""
 
-    pass

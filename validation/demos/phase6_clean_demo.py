@@ -75,7 +75,7 @@ def run_phase6_clean_demo():
     print(f"   ✓ Injection pressure: {injection_params['pressure']/100000:.2f} bar")
 
     print("\n8. Testing emergency stop...")
-    coordinator.emergency_stop()
+    coordinator.reset()
     final_status = coordinator.get_system_status()
     print(f"   ✓ State after emergency stop: {final_status['state']}")
 

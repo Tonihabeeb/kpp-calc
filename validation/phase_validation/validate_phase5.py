@@ -45,7 +45,7 @@ loss_model = create_standard_kpp_enhanced_loss_model(25.0)
 print(
     f"    Model created with ambient: {loss_model.thermal_model.ambient_temperature}°C"
 )
-print(f'    Drivetrain losses available: {hasattr(loss_model, "drivetrain_losses")}')
+print(f'    IntegratedDrivetrain losses available: {hasattr(loss_model, "drivetrain_losses")}')
 print(f'    Electrical losses available: {hasattr(loss_model, "electrical_losses")}')
 print(f'    Thermal model available: {hasattr(loss_model, "thermal_model")}')
 print()
@@ -79,7 +79,7 @@ print()
 # Test 4: Loss and Thermal Tracking
 print("4. Loss and Thermal Tracking Validation")
 system_state = {
-    "drivetrain": {
+    "integrated_drivetrain": {
         "gearbox": {
             "torque": 1200.0,
             "speed": 120.0,

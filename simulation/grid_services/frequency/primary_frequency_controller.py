@@ -61,13 +61,9 @@ class PrimaryFrequencyController:
         self.total_response_time = 0.0
         self.max_response_magnitude = 0.0
         # Rate limiting
-        self.max_response_rate = (
-            2.0  # 200% per second max rate (faster for primary response)
-        )
+        self.max_response_rate = 2.0  # 200% per second max rate (faster for primary response)
 
-    def update(
-        self, grid_frequency: float, dt: float, rated_power: float
-    ) -> Dict[str, Any]:
+    def update(self, grid_frequency: float, dt: float, rated_power: float) -> Dict[str, Any]:
         """
         Update primary frequency control response.
 
@@ -82,17 +78,11 @@ class PrimaryFrequencyController:
         current_time = time.time()
 
         # Update frequency history
-        self.frequency_history.append(
-            {"frequency": grid_frequency, "timestamp": current_time}
-        )
+        self.frequency_history.append({"frequency": grid_frequency, "timestamp": current_time})
 
         # Keep only recent history (last 10 seconds)
         cutoff_time = current_time - 10.0
-        self.frequency_history = [
-            entry
-            for entry in self.frequency_history
-            if entry["timestamp"] > cutoff_time
-        ]
+        self.frequency_history = [entry for entry in self.frequency_history if entry["timestamp"] > cutoff_time]
 
         if not self.config.enable_response:
             return self._create_response_dict(0.0, "Disabled")
@@ -106,13 +96,8 @@ class PrimaryFrequencyController:
             status = "Within dead band"
         else:
             # Calculate droop response: ΔP = -ΔF / droop * response_range
-            effective_error = frequency_error - math.copysign(
-                self.config.dead_band, frequency_error
-            )
-            self.target_response = (
-                -(effective_error / self.config.droop_setting)
-                * self.config.response_range
-            )
+            effective_error = frequency_error - math.copysign(self.config.dead_band, frequency_error)
+            self.target_response = -(effective_error / self.config.droop_setting) * self.config.response_range
 
             # Limit response to configured range
             self.target_response = max(
@@ -146,17 +131,13 @@ class PrimaryFrequencyController:
                 delattr(self, "_response_start_time")
 
         # Track maximum response
-        self.max_response_magnitude = max(
-            self.max_response_magnitude, abs(self.current_response)
-        )
+        self.max_response_magnitude = max(self.max_response_magnitude, abs(self.current_response))
 
         self.last_update_time = current_time
 
         return self._create_response_dict(self.current_response * rated_power, status)
 
-    def _create_response_dict(
-        self, power_command: float, status: str
-    ) -> Dict[str, Any]:
+    def _create_response_dict(self, power_command: float, status: str) -> Dict[str, Any]:
         """Create standardized response dictionary"""
         return {
             "power_command_mw": power_command,
@@ -170,11 +151,7 @@ class PrimaryFrequencyController:
 
     def get_performance_metrics(self) -> Dict[str, float]:
         """Get performance metrics for monitoring and optimization"""
-        avg_response_time = (
-            self.total_response_time / self.response_count
-            if self.response_count > 0
-            else 0.0
-        )
+        avg_response_time = self.total_response_time / self.response_count if self.response_count > 0 else 0.0
 
         return {
             "average_response_time": avg_response_time,

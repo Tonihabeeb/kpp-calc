@@ -16,11 +16,10 @@ Key Features:
 - Thermal management and safety monitoring
 """
 
-import math
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 
 class BatteryMode(Enum):
@@ -124,9 +123,7 @@ class BatteryStorageSystem:
         load_demand = grid_conditions.get("load_demand", 0.0)
 
         # Determine operating mode and power setpoint
-        self._determine_operating_mode(
-            electricity_price, grid_frequency, grid_voltage, load_demand
-        )
+        self._determine_operating_mode(electricity_price, grid_frequency, grid_voltage, load_demand)
 
         # Execute power control
         actual_power = self._execute_power_control(dt)
@@ -145,9 +142,7 @@ class BatteryStorageSystem:
 
         return self._get_status()
 
-    def _determine_operating_mode(
-        self, price: float, frequency: float, voltage: float, load: float
-    ):
+    def _determine_operating_mode(self, price: float, frequency: float, voltage: float, load: float):
         """Determine optimal operating mode based on grid conditions"""
 
         # Priority 1: Grid stabilization (emergency conditions)
@@ -174,23 +169,16 @@ class BatteryStorageSystem:
             # Charge at maximum rate during low prices
             available_charge_power = min(
                 self.specs.max_power_kw,
-                (self.specs.max_soc - self.state.soc)
-                * self.specs.nominal_capacity_kwh
-                * 2,  # 2-hour charge rate
+                (self.specs.max_soc - self.state.soc) * self.specs.nominal_capacity_kwh * 2,  # 2-hour charge rate
             )
             self.power_setpoint = available_charge_power
 
-        elif (
-            price >= self.discharge_price_threshold
-            and self.state.soc > self.specs.min_soc
-        ):
+        elif price >= self.discharge_price_threshold and self.state.soc > self.specs.min_soc:
             self.mode = BatteryMode.DISCHARGING
             # Discharge at optimal rate during high prices
             available_discharge_power = min(
                 self.specs.max_power_kw,
-                (self.state.soc - self.specs.min_soc)
-                * self.specs.nominal_capacity_kwh
-                * 2,  # 2-hour discharge rate
+                (self.state.soc - self.specs.min_soc) * self.specs.nominal_capacity_kwh * 2,  # 2-hour discharge rate
             )
             self.power_setpoint = -available_discharge_power
 
@@ -214,9 +202,7 @@ class BatteryStorageSystem:
             else:
                 # Limit charging power based on available capacity
                 max_charge_power = (
-                    (self.specs.max_soc - self.state.soc)
-                    * self.specs.nominal_capacity_kwh
-                    / (dt / 3600.0)
+                    (self.specs.max_soc - self.state.soc) * self.specs.nominal_capacity_kwh / (dt / 3600.0)
                 )
                 self.power_setpoint = min(self.power_setpoint, max_charge_power)
 
@@ -226,9 +212,7 @@ class BatteryStorageSystem:
             else:
                 # Limit discharging power based on available energy
                 max_discharge_power = (
-                    -(self.state.soc - self.specs.min_soc)
-                    * self.specs.nominal_capacity_kwh
-                    / (dt / 3600.0)
+                    -(self.state.soc - self.specs.min_soc) * self.specs.nominal_capacity_kwh / (dt / 3600.0)
                 )
                 self.power_setpoint = max(self.power_setpoint, max_discharge_power)
 
@@ -258,9 +242,7 @@ class BatteryStorageSystem:
         self.state.soc = max(0.0, min(1.0, self.state.soc + soc_change))
 
         # Update electrical parameters
-        self.state.current = (
-            power / self.state.voltage if self.state.voltage > 0 else 0.0
-        )
+        self.state.current = power / self.state.voltage if self.state.voltage > 0 else 0.0
 
         # Update voltage based on SOC (simplified model)
         base_voltage = 400.0
@@ -278,12 +260,8 @@ class BatteryStorageSystem:
 
     def _update_available_capacity(self):
         """Update available energy and capacity"""
-        self.state.available_energy_kwh = (
-            self.state.soc - self.specs.min_soc
-        ) * self.specs.nominal_capacity_kwh
-        self.state.available_capacity_kwh = (
-            self.specs.max_soc - self.state.soc
-        ) * self.specs.nominal_capacity_kwh
+        self.state.available_energy_kwh = (self.state.soc - self.specs.min_soc) * self.specs.nominal_capacity_kwh
+        self.state.available_capacity_kwh = (self.specs.max_soc - self.state.soc) * self.specs.nominal_capacity_kwh
 
     def _update_thermal_state(self, dt: float, power: float):
         """Update battery temperature based on power and ambient conditions"""
@@ -383,9 +361,7 @@ class BatteryStorageSystem:
         self.mode = BatteryMode.IDLE
         self.power_setpoint = 0.0
 
-    def set_economic_parameters(
-        self, charge_threshold: float, discharge_threshold: float, service_rate: float
-    ):
+    def set_economic_parameters(self, charge_threshold: float, discharge_threshold: float, service_rate: float):
         """Update economic operating parameters"""
         self.charge_price_threshold = charge_threshold
         self.discharge_price_threshold = discharge_threshold
@@ -394,9 +370,7 @@ class BatteryStorageSystem:
     def emergency_discharge(self, power_kw: float) -> bool:
         """Emergency discharge for grid support"""
         if self.state.soc > self.specs.min_soc:
-            max_power = min(
-                power_kw, self.specs.max_power_kw, self.state.available_energy_kwh * 2
-            )  # 30-min discharge
+            max_power = min(power_kw, self.specs.max_power_kw, self.state.available_energy_kwh * 2)  # 30-min discharge
             self.power_setpoint = -max_power
             self.mode = BatteryMode.STABILIZING
             return True
@@ -405,9 +379,7 @@ class BatteryStorageSystem:
     def emergency_charge(self, power_kw: float) -> bool:
         """Emergency charge for grid support"""
         if self.state.soc < self.specs.max_soc:
-            max_power = min(
-                power_kw, self.specs.max_power_kw, self.state.available_capacity_kwh * 2
-            )  # 30-min charge
+            max_power = min(power_kw, self.specs.max_power_kw, self.state.available_capacity_kwh * 2)  # 30-min charge
             self.power_setpoint = max_power
             self.mode = BatteryMode.STABILIZING
             return True
@@ -431,10 +403,8 @@ class BatteryStorageSystem:
 
         return {
             "forecasted_soc": forecasted_soc,
-            "available_energy_kwh": (forecasted_soc - self.specs.min_soc)
-            * self.specs.nominal_capacity_kwh,
-            "available_capacity_kwh": (self.specs.max_soc - forecasted_soc)
-            * self.specs.nominal_capacity_kwh,
+            "available_energy_kwh": (forecasted_soc - self.specs.min_soc) * self.specs.nominal_capacity_kwh,
+            "available_capacity_kwh": (self.specs.max_soc - forecasted_soc) * self.specs.nominal_capacity_kwh,
             "max_discharge_power_kw": self.specs.max_power_kw * self.state.health,
             "max_charge_power_kw": self.specs.max_power_kw * self.state.health,
         }
@@ -458,9 +428,7 @@ class BatteryStorageSystem:
         return self._get_status()
 
 
-def create_battery_storage_system(
-    capacity_kwh: float = 500.0, max_power_kw: float = 250.0
-) -> BatteryStorageSystem:
+def create_battery_storage_system(capacity_kwh: float = 500.0, max_power_kw: float = 250.0) -> BatteryStorageSystem:
     """
     Factory function to create a battery storage system
 

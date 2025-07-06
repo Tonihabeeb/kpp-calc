@@ -16,9 +16,7 @@ class PlottingUtility:
         # Set up logging
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        self.logger.info(
-            f"PlottingUtility initialized. Output directory: {self.output_dir}"
-        )
+        self.logger.info(f"PlottingUtility initialized. Output directory: {self.output_dir}")
 
     def plot_time_series(self, data, title, xlabel, ylabel, filename):
         """

@@ -11,8 +11,7 @@ Phase 3 of pneumatics upgrade implementation.
 """
 
 import logging
-import math
-from typing import Dict, Optional, Tuple
+from typing import Dict
 
 from config.config import RHO_WATER, G
 
@@ -64,9 +63,7 @@ class PressureExpansionPhysics:
         """
         return self.P_atm + RHO_WATER * G * depth
 
-    def get_depth_from_position(
-        self, position: float, tank_height: float = 10.0
-    ) -> float:
+    def get_depth_from_position(self, position: float, tank_height: float = 10.0) -> float:
         """
         Convert floater position to depth below surface.
 
@@ -79,9 +76,7 @@ class PressureExpansionPhysics:
         """
         return max(0.0, tank_height - position)
 
-    def isothermal_expansion(
-        self, initial_pressure: float, initial_volume: float, final_pressure: float
-    ) -> float:
+    def isothermal_expansion(self, initial_pressure: float, initial_volume: float, final_pressure: float) -> float:
         """
         Calculate final volume using isothermal expansion (Boyle's Law).
 
@@ -107,9 +102,7 @@ class PressureExpansionPhysics:
 
         return final_volume
 
-    def adiabatic_expansion(
-        self, initial_pressure: float, initial_volume: float, final_pressure: float
-    ) -> float:
+    def adiabatic_expansion(self, initial_pressure: float, initial_volume: float, final_pressure: float) -> float:
         """
         Calculate final volume using adiabatic expansion.
 
@@ -161,18 +154,11 @@ class PressureExpansionPhysics:
         Returns:
             float: Final air volume (m³)
         """
-        isothermal_vol = self.isothermal_expansion(
-            initial_pressure, initial_volume, final_pressure
-        )
-        adiabatic_vol = self.adiabatic_expansion(
-            initial_pressure, initial_volume, final_pressure
-        )
+        isothermal_vol = self.isothermal_expansion(initial_pressure, initial_volume, final_pressure)
+        adiabatic_vol = self.adiabatic_expansion(initial_pressure, initial_volume, final_pressure)
 
         # Weighted average of the two expansion models
-        final_volume = (
-            isothermal_fraction * isothermal_vol
-            + (1 - isothermal_fraction) * adiabatic_vol
-        )
+        final_volume = isothermal_fraction * isothermal_vol + (1 - isothermal_fraction) * adiabatic_vol
 
         logger.debug(
             f"Mixed expansion (f_iso={isothermal_fraction:.2f}): "
@@ -182,9 +168,7 @@ class PressureExpansionPhysics:
 
         return final_volume
 
-    def calculate_gas_dissolution(
-        self, air_pressure: float, current_dissolved_fraction: float, dt: float
-    ) -> float:
+    def calculate_gas_dissolution(self, air_pressure: float, current_dissolved_fraction: float, dt: float) -> float:
         """
         Calculate change in dissolved air fraction using Henry's Law.
 
@@ -200,9 +184,7 @@ class PressureExpansionPhysics:
             float: New dissolved air fraction (0-1)
         """
         # Convert pressure to atm for Henry's law calculation
-        pressure_atm = (
-            air_pressure / self.P_atm
-        )  # Calculate equilibrium dissolved fraction based on pressure
+        pressure_atm = air_pressure / self.P_atm  # Calculate equilibrium dissolved fraction based on pressure
         # Higher pressure → more dissolution, up to maximum
         # Henry's Law: dissolved concentration proportional to pressure
         pressure_atm = air_pressure / self.P_atm
@@ -211,29 +193,17 @@ class PressureExpansionPhysics:
         base_equilibrium = 0.01  # 1% at 1 atm
 
         # Scale with pressure (higher pressure = more dissolution)
-        equilibrium_fraction = min(
-            self.max_dissolution_fraction, base_equilibrium * pressure_atm
-        )
+        equilibrium_fraction = min(self.max_dissolution_fraction, base_equilibrium * pressure_atm)
 
         # Rate of change towards equilibrium
         if current_dissolved_fraction < equilibrium_fraction:
             # Dissolving air into water
-            delta = (
-                (equilibrium_fraction - current_dissolved_fraction)
-                * self.dissolution_rate
-                * dt
-            )
+            delta = (equilibrium_fraction - current_dissolved_fraction) * self.dissolution_rate * dt
         else:
             # Releasing dissolved air (slower rate)
-            delta = (
-                (equilibrium_fraction - current_dissolved_fraction)
-                * (self.release_rate * 0.8)
-                * dt
-            )
+            delta = (equilibrium_fraction - current_dissolved_fraction) * (self.release_rate * 0.8) * dt
 
-        new_fraction = max(
-            0.0, min(self.max_dissolution_fraction, current_dissolved_fraction + delta)
-        )
+        new_fraction = max(0.0, min(self.max_dissolution_fraction, current_dissolved_fraction + delta))
 
         if abs(delta) > 1e-6:
             logger.debug(
@@ -243,9 +213,7 @@ class PressureExpansionPhysics:
 
         return new_fraction
 
-    def calculate_effective_air_volume(
-        self, nominal_air_volume: float, dissolved_fraction: float
-    ) -> float:
+    def calculate_effective_air_volume(self, nominal_air_volume: float, dissolved_fraction: float) -> float:
         """
         Calculate effective air volume accounting for dissolution.
 
@@ -284,22 +252,14 @@ class PressureExpansionPhysics:
 
         # Calculate expanded volume based on mode
         if expansion_mode == "isothermal":
-            expanded_volume = self.isothermal_expansion(
-                initial_pressure, initial_air_volume, current_pressure
-            )
+            expanded_volume = self.isothermal_expansion(initial_pressure, initial_air_volume, current_pressure)
         elif expansion_mode == "adiabatic":
-            expanded_volume = self.adiabatic_expansion(
-                initial_pressure, initial_air_volume, current_pressure
-            )
+            expanded_volume = self.adiabatic_expansion(initial_pressure, initial_air_volume, current_pressure)
         else:  # mixed
-            expanded_volume = self.mixed_expansion(
-                initial_pressure, initial_air_volume, current_pressure
-            )
+            expanded_volume = self.mixed_expansion(initial_pressure, initial_air_volume, current_pressure)
 
         # Calculate expansion ratio
-        expansion_ratio = (
-            expanded_volume / initial_air_volume if initial_air_volume > 0 else 1.0
-        )
+        expansion_ratio = expanded_volume / initial_air_volume if initial_air_volume > 0 else 1.0
 
         return {
             "initial_pressure": initial_pressure,
@@ -311,9 +271,7 @@ class PressureExpansionPhysics:
             "volume_gain": expanded_volume - initial_air_volume,
         }
 
-    def calculate_buoyancy_from_expansion(
-        self, floater_total_volume: float, effective_air_volume: float
-    ) -> float:
+    def calculate_buoyancy_from_expansion(self, floater_total_volume: float, effective_air_volume: float) -> float:
         """
         Calculate buoyant force based on effective air displacement.
 

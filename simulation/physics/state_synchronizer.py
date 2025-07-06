@@ -5,7 +5,6 @@ Ensures immediate synchronization between floater state changes and physics calc
 
 import logging
 import time
-from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -62,9 +61,7 @@ class StateSynchronizer:
             if state_changed:
                 # Apply synchronization
                 if immediate:
-                    result = self._apply_immediate_sync(
-                        floater, floater_id, current_state
-                    )
+                    result = self._apply_immediate_sync(floater, floater_id, current_state)
                 else:
                     result = self._queue_sync_update(floater, floater_id, current_state)
 
@@ -190,9 +187,7 @@ class StateSynchronizer:
                 return True
 
         # Check significant position/velocity changes
-        angle_change = abs(
-            current_state.get("angle", 0) - previous_state.get("angle", 0)
-        )
+        angle_change = abs(current_state.get("angle", 0) - previous_state.get("angle", 0))
         if angle_change > 0.1:  # Significant angular change
             return True
 
@@ -266,9 +261,7 @@ class StateSynchronizer:
             update = self.pending_updates.pop(0)
 
             try:
-                self._apply_immediate_sync(
-                    update["floater"], update["floater_id"], update["state"]
-                )
+                self._apply_immediate_sync(update["floater"], update["floater_id"], update["state"])
                 processed += 1
             except Exception as e:
                 logger.error(f"Failed to process pending update: {e}")
@@ -348,8 +341,7 @@ class StateSynchronizer:
         return {
             "sync_operations": self.sync_operations,
             "sync_failures": self.sync_failures,
-            "success_rate": (self.sync_operations - self.sync_failures)
-            / max(1, self.sync_operations),
+            "success_rate": (self.sync_operations - self.sync_failures) / max(1, self.sync_operations),
             "pending_updates": len(self.pending_updates),
             "tracked_floaters": len(self.floater_snapshots),
             "last_sync_time": self.last_sync_time,

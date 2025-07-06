@@ -410,10 +410,10 @@ def create_system_overview_panel():
         dbc.CardHeader(html.H5("System Overview", className="mb-0")),
         dbc.CardBody([
             dbc.Row([
-                # Drivetrain Status
+                # IntegratedDrivetrain Status
                 dbc.Col([
-                    html.H6("Drivetrain", className="text-primary"),
-                    html.Div(id="drivetrain-overview")
+                    html.H6("IntegratedDrivetrain", className="text-primary"),
+                    html.Div(id="integrated_drivetrain-overview")
                 ], width=3),
                 # Electrical Status  
                 dbc.Col([

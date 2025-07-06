@@ -1,11 +1,10 @@
 """
-One-way clutch (overrunning clutch) for the KPP drivetrain system.
+One-way clutch (overrunning clutch) for the KPP integrated_drivetrain system.
 Implements pulse-and-coast operation with selective engagement.
 """
 
 import logging
 import math
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +13,7 @@ class OneWayClutch:
     """
     One-way clutch that engages when input speed exceeds output speed,
     and disengages (freewheels) when output speed exceeds input speed.
-    This enables pulse-and-coast operation in the KPP drivetrain.
+    This enables pulse-and-coast operation in the KPP integrated_drivetrain.
     """
 
     def __init__(
@@ -53,9 +52,7 @@ class OneWayClutch:
         self.total_transmitted_energy = 0.0  # J
         self.engagement_losses = 0.0  # W (power loss during engagement)
 
-    def update(
-        self, input_speed: float, output_speed: float, input_torque: float, dt: float
-    ) -> float:
+    def update(self, input_speed: float, output_speed: float, input_torque: float, dt: float) -> float:
         """
         Update the clutch state and calculate transmitted torque.
 
@@ -90,20 +87,14 @@ class OneWayClutch:
 
         # Update engagement factor smoothly
         if target_engaged:
-            self.engagement_factor = min(
-                1.0, self.engagement_factor + self.engagement_rate * dt
-            )
+            self.engagement_factor = min(1.0, self.engagement_factor + self.engagement_rate * dt)
         else:
-            self.engagement_factor = max(
-                0.0, self.engagement_factor - self.engagement_rate * dt
-            )
+            self.engagement_factor = max(0.0, self.engagement_factor - self.engagement_rate * dt)
             if self.engagement_factor <= 0.0:
                 self.is_engaged = False
 
         # Calculate transmitted torque
-        self.transmitted_torque = self._calculate_transmitted_torque(
-            input_torque, speed_difference
-        )
+        self.transmitted_torque = self._calculate_transmitted_torque(input_torque, speed_difference)
 
         # Calculate engagement losses (slip losses during partial engagement)
         self._calculate_engagement_losses(speed_difference, dt)
@@ -141,9 +132,7 @@ class OneWayClutch:
             # Disengage if output becomes faster than input (with hysteresis)
             return speed_difference > self.disengagement_threshold
 
-    def _calculate_transmitted_torque(
-        self, input_torque: float, speed_difference: float
-    ) -> float:
+    def _calculate_transmitted_torque(self, input_torque: float, speed_difference: float) -> float:
         """
         Calculate the torque transmitted through the clutch.
 
@@ -250,14 +239,12 @@ class PulseCoastController:
         self.total_coast_energy = 0.0  # J
         self.efficiency_ratio = 0.0
 
-    def update(
-        self, input_torque: float, input_speed: float, output_speed: float, dt: float
-    ) -> float:
+    def update(self, input_torque: float, input_speed: float, output_speed: float, dt: float) -> float:
         """
         Update the pulse-coast controller and clutch.
 
         Args:
-            input_torque (float): Input torque from drivetrain (N·m)
+            input_torque (float): Input torque from integrated_drivetrain (N·m)
             input_speed (float): Input shaft speed (rad/s)
             output_speed (float): Output shaft speed (rad/s)
             dt (float): Time step (s)
@@ -277,14 +264,10 @@ class PulseCoastController:
         elif torque_change < -self.pulse_detection_threshold and self.pulse_detected:
             self.pulse_detected = False
             self.coast_phase = True
-            logger.info(
-                f"Coast phase initiated: torque decrease of {torque_change:.1f} N·m"
-            )
+            logger.info(f"Coast phase initiated: torque decrease of {torque_change:.1f} N·m")
 
         # Update clutch with current conditions
-        transmitted_torque = self.clutch.update(
-            input_speed, output_speed, input_torque, dt
-        )
+        transmitted_torque = self.clutch.update(input_speed, output_speed, input_torque, dt)
 
         # Track energy in pulse vs coast phases
         power = transmitted_torque * output_speed

@@ -113,7 +113,7 @@ def run_phase6_demo():
 
     # Demonstrate emergency stop
     print("\n7. Testing emergency stop procedure...")
-    coordinator.emergency_stop()
+    coordinator.reset()
 
     status = coordinator.get_system_status()
     print(f"   - System state after emergency stop: {status['state']}")

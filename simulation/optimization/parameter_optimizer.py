@@ -7,7 +7,7 @@ import json
 import logging
 import math
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, Tuple
 
 import numpy as np
 
@@ -127,13 +127,9 @@ class ParameterOptimizer:
             description="Floater volume (m³)",
         )
 
-        self.logger.info(
-            f"Set up {len(self.parameters)} default optimization parameters"
-        )
+        self.logger.info(f"Set up {len(self.parameters)} default optimization parameters")
 
-    def optimize_for_performance(
-        self, simulation_engine, optimization_target: str = "efficiency"
-    ) -> Dict[str, Any]:
+    def optimize_for_performance(self, simulation_engine, optimization_target: str = "efficiency") -> Dict[str, Any]:
         """
         Optimize parameters for simulation performance.
 
@@ -152,9 +148,7 @@ class ParameterOptimizer:
         # Run optimization algorithm
         if len(self.parameters) <= 3:
             # Use grid search for small parameter spaces
-            result = self._grid_search_optimization(
-                simulation_engine, objective_function
-            )
+            result = self._grid_search_optimization(simulation_engine, objective_function)
         else:
             # Use gradient-free optimization for larger spaces
             result = self._adaptive_optimization(simulation_engine, objective_function)
@@ -162,9 +156,7 @@ class ParameterOptimizer:
         # Update best configuration
         if result["success"]:
             self.best_configuration = result["best_parameters"]
-            self.logger.info(
-                f"Optimization completed successfully. Best score: {result['best_score']:.4f}"
-            )
+            self.logger.info(f"Optimization completed successfully. Best score: {result['best_score']:.4f}")
         else:
             self.logger.warning("Optimization failed to converge")
 
@@ -231,9 +223,7 @@ class ParameterOptimizer:
         else:
             raise ValueError(f"Unknown optimization target: {target}")
 
-    def _grid_search_optimization(
-        self, simulation_engine, objective_function
-    ) -> Dict[str, Any]:
+    def _grid_search_optimization(self, simulation_engine, objective_function) -> Dict[str, Any]:
         """Perform grid search optimization."""
         self.logger.info("Running grid search optimization")
 
@@ -247,9 +237,7 @@ class ParameterOptimizer:
 
         for name in param_names:
             param = self.parameters[name]
-            values = np.arange(
-                param.min_value, param.max_value + param.step_size, param.step_size
-            )
+            values = np.arange(param.min_value, param.max_value + param.step_size, param.step_size)
             param_ranges.append(values)
 
         # Limit grid size to prevent excessive computation
@@ -258,13 +246,9 @@ class ParameterOptimizer:
             total_combinations *= len(r)
 
         if total_combinations > 1000:
-            self.logger.warning(
-                f"Grid search would require {total_combinations} evaluations. Using sampling."
-            )
+            self.logger.warning(f"Grid search would require {total_combinations} evaluations. Using sampling.")
             # Sample random combinations instead
-            return self._random_search_optimization(
-                simulation_engine, objective_function, 100
-            )
+            return self._random_search_optimization(simulation_engine, objective_function, 100)
 
         # Evaluate all combinations
         from itertools import product
@@ -278,9 +262,7 @@ class ParameterOptimizer:
             if score > best_score:
                 best_score = score
                 best_params = params.copy()
-                self.logger.info(
-                    f"New best score: {best_score:.4f} at iteration {iteration_count}"
-                )
+                self.logger.info(f"New best score: {best_score:.4f} at iteration {iteration_count}")
 
             # Store iteration result
             self.optimization_history.append(
@@ -301,13 +283,9 @@ class ParameterOptimizer:
             "convergence": True,
         }
 
-    def _random_search_optimization(
-        self, simulation_engine, objective_function, max_evaluations
-    ) -> Dict[str, Any]:
+    def _random_search_optimization(self, simulation_engine, objective_function, max_evaluations) -> Dict[str, Any]:
         """Perform random search optimization."""
-        self.logger.info(
-            f"Running random search optimization with {max_evaluations} evaluations"
-        )
+        self.logger.info(f"Running random search optimization with {max_evaluations} evaluations")
 
         best_score = -float("inf")
         best_params = {}
@@ -324,9 +302,7 @@ class ParameterOptimizer:
             if score > best_score:
                 best_score = score
                 best_params = params.copy()
-                self.logger.info(
-                    f"New best score: {best_score:.4f} at iteration {iteration + 1}"
-                )
+                self.logger.info(f"New best score: {best_score:.4f} at iteration {iteration + 1}")
 
             # Store iteration result
             self.optimization_history.append(
@@ -347,16 +323,12 @@ class ParameterOptimizer:
             "convergence": True,
         }
 
-    def _adaptive_optimization(
-        self, simulation_engine, objective_function
-    ) -> Dict[str, Any]:
+    def _adaptive_optimization(self, simulation_engine, objective_function) -> Dict[str, Any]:
         """Perform adaptive optimization using simulated annealing."""
         self.logger.info("Running adaptive optimization")
 
         # Initialize with current parameter values
-        current_params = {
-            name: param.current_value for name, param in self.parameters.items()
-        }
+        current_params = {name: param.current_value for name, param in self.parameters.items()}
         current_score = objective_function(simulation_engine, current_params)
 
         best_params = current_params.copy()
@@ -374,9 +346,7 @@ class ParameterOptimizer:
 
             # Accept or reject based on simulated annealing criteria
             score_diff = new_score - current_score
-            accept_probability = (
-                1.0 if score_diff > 0 else math.exp(score_diff / temperature)
-            )
+            accept_probability = 1.0 if score_diff > 0 else math.exp(score_diff / temperature)
 
             if np.random.random() < accept_probability:
                 current_params = new_params.copy()
@@ -385,9 +355,7 @@ class ParameterOptimizer:
                 if new_score > best_score:
                     best_score = new_score
                     best_params = new_params.copy()
-                    self.logger.info(
-                        f"New best score: {best_score:.4f} at iteration {iteration + 1}"
-                    )
+                    self.logger.info(f"New best score: {best_score:.4f} at iteration {iteration + 1}")
 
             # Cool down
             temperature *= cooling_rate
@@ -417,14 +385,10 @@ class ParameterOptimizer:
             "best_score": best_score,
             "best_parameters": best_params,
             "total_iterations": len(self.optimization_history),
-            "convergence": (
-                score_variance < self.convergence_threshold if iteration > 10 else False
-            ),
+            "convergence": (score_variance < self.convergence_threshold if iteration > 10 else False),
         }
 
-    def _generate_neighbor(
-        self, params: Dict[str, float], temperature: float
-    ) -> Dict[str, float]:
+    def _generate_neighbor(self, params: Dict[str, float], temperature: float) -> Dict[str, float]:
         """Generate a neighbor solution for adaptive optimization."""
         new_params = params.copy()
 
@@ -460,28 +424,19 @@ class ParameterOptimizer:
                     floater.mass = floater.container_mass + 1000 * floater.volume
 
         # Generator parameters
-        if (
-            hasattr(simulation_engine, "integrated_drivetrain")
-            and "generator_torque" in params
-        ):
+        if hasattr(simulation_engine, "integrated_drivetrain") and "generator_torque" in params:
             if hasattr(simulation_engine.integrated_drivetrain, "generator"):
-                simulation_engine.integrated_drivetrain.generator.max_torque = params[
-                    "generator_torque"
-                ]
+                simulation_engine.integrated_drivetrain.generator.max_torque = params["generator_torque"]
 
         # Event handler parameters
         if hasattr(simulation_engine, "advanced_event_handler"):
             if "injection_pressure_factor" in params:
-                simulation_engine.advanced_event_handler.optimization_params[
-                    "pressure_safety_factor"
-                ] = params["injection_pressure_factor"]
+                simulation_engine.advanced_event_handler.optimization_params["pressure_safety_factor"] = params[
+                    "injection_pressure_factor"
+                ]
             if "event_zone_tolerance" in params:
-                simulation_engine.advanced_event_handler.bottom_zone = params[
-                    "event_zone_tolerance"
-                ]
-                simulation_engine.advanced_event_handler.top_zone = params[
-                    "event_zone_tolerance"
-                ]
+                simulation_engine.advanced_event_handler.bottom_zone = params["event_zone_tolerance"]
+                simulation_engine.advanced_event_handler.top_zone = params["event_zone_tolerance"]
 
     def _run_efficiency_test(self, simulation_engine) -> Tuple[float, float]:
         """Run test to measure system efficiency."""
@@ -494,9 +449,7 @@ class ParameterOptimizer:
         time_step = simulation_engine.physics_engine.params["time_step"]
         steps = int(test_duration / time_step)
 
-        initial_energy = sum(
-            [0.5 * f.mass * f.velocity**2 for f in simulation_engine.floaters]
-        )
+        initial_energy = sum([0.5 * f.mass * f.velocity**2 for f in simulation_engine.floaters])
 
         for _ in range(steps):
             try:
@@ -505,12 +458,8 @@ class ParameterOptimizer:
                 break  # Stop if simulation becomes unstable
 
         # Calculate energy metrics
-        energy_input = getattr(
-            simulation_engine.advanced_event_handler, "total_energy_input", 0.0
-        )
-        final_energy = sum(
-            [0.5 * f.mass * f.velocity**2 for f in simulation_engine.floaters]
-        )
+        energy_input = getattr(simulation_engine.advanced_event_handler, "total_energy_input", 0.0)
+        final_energy = sum([0.5 * f.mass * f.velocity**2 for f in simulation_engine.floaters])
         energy_output = final_energy - initial_energy
 
         return max(energy_input, 1.0), max(energy_output, 0.0)
@@ -527,9 +476,7 @@ class ParameterOptimizer:
         for _ in range(steps):
             try:
                 simulation_engine.step()
-                avg_velocity = np.mean(
-                    [abs(f.velocity) for f in simulation_engine.floaters]
-                )
+                avg_velocity = np.mean([abs(f.velocity) for f in simulation_engine.floaters])
                 velocity_history.append(avg_velocity)
             except Exception:
                 return 0.0  # Unstable simulation
@@ -557,9 +504,7 @@ class ParameterOptimizer:
 
                 # Calculate instantaneous power from generator
                 if hasattr(simulation_engine, "integrated_drivetrain"):
-                    power = getattr(
-                        simulation_engine.integrated_drivetrain, "power_output", 0.0
-                    )
+                    power = getattr(simulation_engine.integrated_drivetrain, "power_output", 0.0)
                     power_history.append(power)
                 else:
                     power_history.append(0.0)
@@ -628,8 +573,6 @@ class ParameterOptimizer:
             "score_improvement": max(scores) - scores[0] if len(scores) > 1 else 0,
             "best_parameters": self.best_configuration,
             "convergence_achieved": (
-                self.optimization_history[-1].get("convergence", False)
-                if self.optimization_history
-                else False
+                self.optimization_history[-1].get("convergence", False) if self.optimization_history else False
             ),
         }

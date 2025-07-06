@@ -6,7 +6,7 @@ Handles water properties, nanobubble effects (H1), and drag calculations.
 import logging
 import math
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -58,9 +58,7 @@ class Fluid:
         # H1 Nanobubble parameters
         self.h1_active = config.get("h1_active", False)
         self.h1_bubble_fraction = config.get("h1_bubble_fraction", 0.05)  # 5% default
-        self.h1_drag_reduction = config.get(
-            "h1_drag_reduction", 0.1
-        )  # 10% drag reduction
+        self.h1_drag_reduction = config.get("h1_drag_reduction", 0.1)  # 10% drag reduction
 
         # Current state
         self.state = FluidState()
@@ -80,12 +78,8 @@ class Fluid:
         # Apply nanobubble effects if H1 is active
         if self.h1_active:
             self.state.nanobubble_fraction = self.h1_bubble_fraction
-            self.state.effective_density = self.apply_nanobubble_effects(
-                self.state.density
-            )
-            self.state.drag_coefficient = self.base_drag_coefficient * (
-                1 - self.h1_drag_reduction
-            )
+            self.state.effective_density = self.apply_nanobubble_effects(self.state.density)
+            self.state.drag_coefficient = self.base_drag_coefficient * (1 - self.h1_drag_reduction)
         else:
             self.state.nanobubble_fraction = 0.0
             self.state.effective_density = self.state.density
@@ -107,31 +101,37 @@ class Fluid:
         """
         # Convert to Celsius for polynomial calculation
         temp_celsius = temperature - 273.15
-        
+
         # Polynomial coefficients for water density (0-100°C)
         # Based on IAPWS-95 formulation for practical use
         rho_0 = 999.842594  # kg/m³ at 0°C
-        A = 6.793952e-2     # kg/m³/°C
-        B = -9.095290e-3    # kg/m³/°C²
-        C = 1.001685e-4     # kg/m³/°C³
-        D = -1.120083e-6    # kg/m³/°C⁴
-        E = 6.536336e-9     # kg/m³/°C⁵
-        
+        A = 6.793952e-2  # kg/m³/°C
+        B = -9.095290e-3  # kg/m³/°C²
+        C = 1.001685e-4  # kg/m³/°C³
+        D = -1.120083e-6  # kg/m³/°C⁴
+        E = 6.536336e-9  # kg/m³/°C⁵
+
         # Clamp temperature to valid range
         temp_celsius = max(0.0, min(100.0, temp_celsius))
-        
+
         # Calculate density using polynomial
-        density = (rho_0 + A * temp_celsius + B * temp_celsius**2 + 
-                  C * temp_celsius**3 + D * temp_celsius**4 + E * temp_celsius**5)
-        
+        density = (
+            rho_0
+            + A * temp_celsius
+            + B * temp_celsius**2
+            + C * temp_celsius**3
+            + D * temp_celsius**4
+            + E * temp_celsius**5
+        )
+
         # Apply salinity correction if needed (seawater vs freshwater)
         # For KPP simulation, assume freshwater unless specified
         salinity_correction = 1.0  # No salinity correction for freshwater
-        
+
         final_density = density * salinity_correction
-        
+
         logger.debug(f"Water density at {temp_celsius:.1f}°C: {final_density:.1f} kg/m³")
-        
+
         return max(final_density, 900.0)  # Minimum reasonable density
 
     def apply_nanobubble_effects(self, base_density: float) -> float:
@@ -157,48 +157,42 @@ class Fluid:
         bubble_size = 50e-9  # 50 nm typical nanobubble size
         pressure = 101325.0  # Atmospheric pressure (Pa)
         temperature = self.state.temperature
-        
+
         # Calculate bubble stability factor
         # Smaller bubbles are more stable due to surface tension
         surface_tension = 0.0728  # N/m for water at 20°C
         bubble_stability = surface_tension / (2 * bubble_size)
-        
+
         # Pressure effect on bubble volume (Boyle's law approximation)
         pressure_factor = 101325.0 / pressure  # Reference to atmospheric
-        
+
         # Temperature effect on bubble dissolution
         # Higher temperature increases dissolution rate
         temp_factor = 1.0 - 0.02 * (temperature - 293.15) / 100.0  # 2% per 100K
-        
+
         # Effective bubble fraction considering stability and conditions
-        effective_bubble_fraction = (self.state.nanobubble_fraction * 
-                                   pressure_factor * temp_factor * bubble_stability)
-        
+        effective_bubble_fraction = self.state.nanobubble_fraction * pressure_factor * temp_factor * bubble_stability
+
         # Air density at current conditions
         air_density = 1.225 * (273.15 / temperature) * (pressure / 101325.0)
-        
+
         # Calculate effective density with enhanced physics
-        effective_density = (
-            base_density * (1 - effective_bubble_fraction)
-            + air_density * effective_bubble_fraction
-        )
-        
+        effective_density = base_density * (1 - effective_bubble_fraction) + air_density * effective_bubble_fraction
+
         # Add turbulence effects on bubble distribution
         # Turbulence can enhance or reduce bubble effectiveness
         turbulence_factor = 1.0  # Can be adjusted based on flow conditions
-        
+
         final_density = effective_density * turbulence_factor
-        
+
         logger.debug(
             f"Enhanced nanobubble effect: {base_density:.1f} → {final_density:.1f} kg/m³ "
             f"(bubbles: {effective_bubble_fraction*100:.2f}%, stability: {bubble_stability:.1e})"
         )
-        
+
         return max(final_density, 800.0)  # Minimum reasonable density with bubbles
 
-    def calculate_reynolds_number(
-        self, velocity: float, characteristic_length: float
-    ) -> float:
+    def calculate_reynolds_number(self, velocity: float, characteristic_length: float) -> float:
         """
         Calculate Reynolds number for flow around floater.
 
@@ -218,9 +212,7 @@ class Fluid:
         self.state.reynolds_number = reynolds
         return reynolds
 
-    def calculate_drag_coefficient(
-        self, velocity: float, characteristic_length: float
-    ) -> float:
+    def calculate_drag_coefficient(self, velocity: float, characteristic_length: float) -> float:
         """
         Calculate drag coefficient based on flow conditions.
 
@@ -265,9 +257,7 @@ class Fluid:
 
         return cd_effective
 
-    def calculate_drag_force(
-        self, velocity: float, floater_area: Optional[float] = None
-    ) -> float:
+    def calculate_drag_force(self, velocity: float, floater_area: Optional[float] = None) -> float:
         """
         Calculate hydrodynamic drag force on a floater.
 
@@ -299,9 +289,7 @@ class Fluid:
 
         return drag_force
 
-    def calculate_buoyant_force(
-        self, volume: float, submerged_fraction: float = 1.0
-    ) -> float:
+    def calculate_buoyant_force(self, volume: float, submerged_fraction: float = 1.0) -> float:
         """
         Calculate realistic buoyant force for KPP operation.
 
@@ -325,50 +313,58 @@ class Fluid:
         # Base buoyant force calculation
         submerged_volume = volume * min(submerged_fraction, 1.0)
         base_buoyant_force = self.state.effective_density * self.gravity * submerged_volume
-        
+
         # Enhanced physics corrections
-        
+
         # 1. Pressure effects on fluid density
         # Hydrostatic pressure increases with depth
         depth = 5.0  # Typical KPP depth (m)
         hydrostatic_pressure = self.state.effective_density * self.gravity * depth
         pressure_density_correction = 1.0 + (hydrostatic_pressure / 2.2e9)  # Bulk modulus of water
-        
+
         # 2. Temperature stratification effects
         # Water temperature can vary with depth
         surface_temp = self.state.temperature
         depth_temp = surface_temp - 2.0  # 2°C cooler at depth
         temp_density_correction = self.calculate_density(depth_temp) / self.calculate_density(surface_temp)
-        
+
         # 3. Surface tension effects
         # Surface tension affects buoyancy near water surface
-        surface_tension_force = 0.0728 * 2 * math.pi * (volume ** (1/3))  # N
-        surface_tension_correction = 1.0 + (surface_tension_force / base_buoyant_force) if base_buoyant_force > 0 else 1.0
-        
+        surface_tension_force = 0.0728 * 2 * math.pi * (volume ** (1 / 3))  # N
+        surface_tension_correction = (
+            1.0 + (surface_tension_force / base_buoyant_force) if base_buoyant_force > 0 else 1.0
+        )
+
         # 4. Dynamic pressure effects
         # Flow velocity affects effective pressure
         flow_velocity = 1.0  # m/s typical flow
         dynamic_pressure = 0.5 * self.state.effective_density * flow_velocity**2
         dynamic_correction = 1.0 + (dynamic_pressure / (self.state.effective_density * self.gravity * depth))
-        
+
         # 5. Wave and turbulence effects
         # Random variations in buoyancy due to waves
         import random
+
         wave_factor = 1.0 + 0.05 * random.uniform(-1, 1)  # ±5% variation
-        
+
         # Combine all corrections
-        total_correction = (pressure_density_correction * temp_density_correction * 
-                          surface_tension_correction * dynamic_correction * wave_factor)
-        
+        total_correction = (
+            pressure_density_correction
+            * temp_density_correction
+            * surface_tension_correction
+            * dynamic_correction
+            * wave_factor
+        )
+
         # Apply correction to buoyant force
         enhanced_buoyant_force = base_buoyant_force * total_correction
-        
+
         logger.debug(
             f"Enhanced buoyant force: {base_buoyant_force:.1f}N → {enhanced_buoyant_force:.1f}N "
             f"(V={volume:.3f} m³, fraction={submerged_fraction:.2f}, "
             f"ρ_eff={self.state.effective_density:.1f} kg/m³, correction={total_correction:.3f})"
         )
-        
+
         return max(enhanced_buoyant_force, 0.0)  # Ensure non-negative
 
     def get_fluid_properties(self) -> Dict[str, float]:
@@ -405,9 +401,7 @@ class Fluid:
         self.h1_active = active
 
         if bubble_fraction is not None:
-            self.h1_bubble_fraction = max(
-                0.0, min(bubble_fraction, 0.2)
-            )  # Limit to 20%
+            self.h1_bubble_fraction = max(0.0, min(bubble_fraction, 0.2))  # Limit to 20%
 
         if drag_reduction is not None:
             self.h1_drag_reduction = max(0.0, min(drag_reduction, 0.5))  # Limit to 50%
@@ -427,9 +421,7 @@ class Fluid:
         Args:
             temperature (float): Water temperature in Kelvin
         """
-        self.base_temperature = max(
-            273.15, min(temperature, 373.15)
-        )  # Limit to liquid range
+        self.base_temperature = max(273.15, min(temperature, 373.15))  # Limit to liquid range
         self.update_state()
 
         logger.info(

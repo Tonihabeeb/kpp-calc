@@ -1,14 +1,12 @@
 """
-Enhanced Loss Modeling for KPP Drivetrain System
+Enhanced Loss Modeling for KPP IntegratedDrivetrain System
 Comprehensive tracking of mechanical, electrical, and thermal losses throughout the system.
 """
 
 import logging
-import math
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +38,7 @@ class ComponentState:
 
 class DrivetrainLosses:
     """
-    Comprehensive drivetrain loss modeling including:
+    Comprehensive integrated_drivetrain loss modeling including:
     - Bearing friction with temperature dependence
     - Gear mesh losses with load dependence
     - Seal friction with speed dependence
@@ -57,7 +55,7 @@ class DrivetrainLosses:
         clutch_friction_coeff: float = 0.05,
     ):
         """
-        Initialize drivetrain loss model.
+        Initialize integrated_drivetrain loss model.
 
         Args:
             bearing_friction_coeff: Base bearing friction coefficient
@@ -96,18 +94,14 @@ class DrivetrainLosses:
         temp_factor = 1.0 + self.temp_friction_coeff * (state.temperature - 20.0)
 
         # Speed factor (slight increase with speed)
-        speed_factor = 1.0 + 0.1 * (
-            abs(state.speed) / 100.0
-        )  # 10% increase at 100 rad/s
+        speed_factor = 1.0 + 0.1 * (abs(state.speed) / 100.0)  # 10% increase at 100 rad/s
 
         friction_torque = base_friction * temp_factor * speed_factor
         power_loss = friction_torque * abs(state.speed)
 
         return power_loss
 
-    def calculate_gear_mesh_losses(
-        self, state: ComponentState, gear_ratio: float = 1.0
-    ) -> float:
+    def calculate_gear_mesh_losses(self, state: ComponentState, gear_ratio: float = 1.0) -> float:
         """
         Calculate gear mesh losses with load and temperature dependence.
 
@@ -120,9 +114,7 @@ class DrivetrainLosses:
         base_efficiency_loss = 1.0 - self.gear_mesh_efficiency
 
         # Load factor effect (efficiency decreases under high loads)
-        load_factor_effect = (
-            1.0 + 0.5 * state.load_factor
-        )  # Up to 50% increase at full load
+        load_factor_effect = 1.0 + 0.5 * state.load_factor  # Up to 50% increase at full load
 
         # Temperature effect (efficiency decreases at extreme temperatures)
         optimal_temp = 60.0  # °C
@@ -132,9 +124,7 @@ class DrivetrainLosses:
         # Speed factor (slight efficiency decrease at very high speeds)
         speed_factor = 1.0 + 0.0001 * (abs(state.speed) / 100.0) ** 2
 
-        efficiency_loss = (
-            base_efficiency_loss * load_factor_effect * temp_factor * speed_factor
-        )
+        efficiency_loss = base_efficiency_loss * load_factor_effect * temp_factor * speed_factor
 
         input_power = abs(state.torque * state.speed)
         power_loss = input_power * efficiency_loss
@@ -160,9 +150,7 @@ class DrivetrainLosses:
 
         return max(0.0, power_loss)
 
-    def calculate_windage_losses(
-        self, state: ComponentState, component_diameter: float = 0.5
-    ) -> float:
+    def calculate_windage_losses(self, state: ComponentState, component_diameter: float = 0.5) -> float:
         """
         Calculate windage losses from rotating components.
 
@@ -176,17 +164,12 @@ class DrivetrainLosses:
         air_density_corrected = air_density * (293.15 / temp_kelvin)
 
         windage_power = (
-            self.windage_coefficient
-            * air_density_corrected
-            * (abs(state.speed) ** 3)
-            * (component_diameter**5)
+            self.windage_coefficient * air_density_corrected * (abs(state.speed) ** 3) * (component_diameter**5)
         )
 
         return windage_power
 
-    def calculate_clutch_losses(
-        self, state: ComponentState, is_engaged: bool, slip_speed: float = 0.0
-    ) -> float:
+    def calculate_clutch_losses(self, state: ComponentState, is_engaged: bool, slip_speed: float = 0.0) -> float:
         """
         Calculate clutch engagement and slip losses.
 
@@ -251,9 +234,7 @@ class DrivetrainLosses:
             if "clutch" in component_name.lower():
                 is_engaged = system_config.get(f"{component_name}_engaged", False)
                 slip_speed = system_config.get(f"{component_name}_slip_speed", 0.0)
-                clutch_loss = self.calculate_clutch_losses(
-                    state, is_engaged, slip_speed
-                )
+                clutch_loss = self.calculate_clutch_losses(state, is_engaged, slip_speed)
                 losses.clutch_losses += clutch_loss
 
         # Calculate total losses
@@ -269,9 +250,7 @@ class DrivetrainLosses:
 
         # Update tracking
         self.total_energy_loss += losses.total_losses
-        self.loss_history.append(
-            {"timestamp": len(self.loss_history), "losses": losses}
-        )
+        self.loss_history.append({"timestamp": len(self.loss_history), "losses": losses})
 
         # Keep history limited
         if len(self.loss_history) > 1000:
@@ -279,9 +258,7 @@ class DrivetrainLosses:
 
         return losses
 
-    def get_efficiency_from_losses(
-        self, input_power: float, losses: LossComponents
-    ) -> float:
+    def get_efficiency_from_losses(self, input_power: float, losses: LossComponents) -> float:
         """Calculate overall efficiency from loss breakdown"""
         if input_power <= 0:
             return 0.0
@@ -351,9 +328,7 @@ class ElectricalLosses:
 
         logger.info("ElectricalLosses initialized")
 
-    def calculate_copper_losses(
-        self, current: float, temperature: float = 20.0
-    ) -> float:
+    def calculate_copper_losses(self, current: float, temperature: float = 20.0) -> float:
         """Calculate I²R copper losses with temperature correction"""
         # Base resistance
         base_resistance = self.copper_resistance_coeff
@@ -366,9 +341,7 @@ class ElectricalLosses:
 
         return copper_loss
 
-    def calculate_iron_losses(
-        self, frequency: float, flux_density: float, temperature: float = 20.0
-    ) -> float:
+    def calculate_iron_losses(self, frequency: float, flux_density: float, temperature: float = 20.0) -> float:
         """Calculate iron losses (hysteresis + eddy current)"""
         # Hysteresis losses (proportional to frequency and flux density squared)
         hysteresis_loss = self.hysteresis_coeff * frequency * (flux_density**2)
@@ -383,9 +356,7 @@ class ElectricalLosses:
 
         return max(0.0, total_iron_loss)
 
-    def calculate_switching_losses(
-        self, switching_frequency: float, voltage: float, current: float
-    ) -> float:
+    def calculate_switching_losses(self, switching_frequency: float, voltage: float, current: float) -> float:
         """Calculate power electronics switching losses"""
         # Switching loss per operation
         loss_per_switch = self.switching_loss_coeff * voltage * current
@@ -407,9 +378,7 @@ class ElectricalLosses:
         # Calculate individual loss components
         copper_loss = self.calculate_copper_losses(current, temperature)
         iron_loss = self.calculate_iron_losses(frequency, flux_density, temperature)
-        switching_loss = self.calculate_switching_losses(
-            switching_freq, voltage, current
-        )
+        switching_loss = self.calculate_switching_losses(switching_freq, voltage, current)
 
         total_loss = copper_loss + iron_loss + switching_loss
 
@@ -417,7 +386,7 @@ class ElectricalLosses:
 
 
 def create_standard_kpp_loss_model() -> DrivetrainLosses:
-    """Create standard KPP drivetrain loss model with realistic parameters"""
+    """Create standard KPP integrated_drivetrain loss model with realistic parameters"""
     return DrivetrainLosses(
         bearing_friction_coeff=0.0015,  # Optimized for KPP bearings
         gear_mesh_efficiency=0.985,  # High-quality gears

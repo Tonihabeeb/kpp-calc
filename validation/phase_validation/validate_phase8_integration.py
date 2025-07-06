@@ -88,7 +88,7 @@ def test_engine_initialization():
         engine = SimulationEngine(test_params, test_queue)
 
         # Test that advanced systems are initialized
-        assert hasattr(engine, "integrated_drivetrain"), "Missing integrated drivetrain"
+        assert hasattr(engine, "integrated_drivetrain"), "Missing integrated integrated_drivetrain"
         assert hasattr(
             engine, "integrated_electrical_system"
         ), "Missing integrated electrical system"
@@ -147,9 +147,9 @@ def test_advanced_systems():
         test_queue = queue.Queue()
         engine = SimulationEngine(test_params, test_queue)
 
-        # Test drivetrain system
+        # Test integrated_drivetrain system
         drivetrain_status = engine.integrated_drivetrain.get_status()
-        print(f"  ✅ Drivetrain status: {drivetrain_status['shaft_speed']:.1f} RPM")
+        print(f"  ✅ IntegratedDrivetrain status: {drivetrain_status['shaft_speed']:.1f} RPM")
 
         # Test electrical system
         electrical_status = engine.integrated_electrical_system.get_status()
@@ -235,7 +235,7 @@ def test_ui_updates():
             html_content = f.read()
 
         required_ui_sections = [
-            "drivetrain-status",
+            "integrated_drivetrain-status",
             "electrical-status",
             "control-status",
             "grid-services-status",
@@ -332,7 +332,7 @@ def main():
         success_msg = """
 🌟 PHASE 8 INTEGRATION COMPLETE! 🌟
 
-✅ Advanced drivetrain system integrated
+✅ Advanced integrated_drivetrain system integrated
 ✅ Integrated electrical system functional  
 ✅ Advanced control system operational
 ✅ Enhanced loss modeling active

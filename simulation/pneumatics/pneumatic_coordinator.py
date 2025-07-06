@@ -18,7 +18,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from simulation.pneumatics.heat_exchange import IntegratedHeatExchange
 
@@ -69,39 +69,25 @@ class PneumaticSensors:
     """Collection of pneumatic system sensors."""
 
     # Pressure sensors (Pa)
-    tank_pressure: SensorReading = field(
-        default_factory=lambda: SensorReading("tank_pressure", 0.0, "Pa", time.time())
-    )
+    tank_pressure: SensorReading = field(default_factory=lambda: SensorReading("tank_pressure", 0.0, "Pa", time.time()))
     injection_pressure: SensorReading = field(
-        default_factory=lambda: SensorReading(
-            "injection_pressure", 0.0, "Pa", time.time()
-        )
+        default_factory=lambda: SensorReading("injection_pressure", 0.0, "Pa", time.time())
     )
     line_pressures: List[SensorReading] = field(default_factory=list)
 
     # Temperature sensors (K)
     compressor_temp: SensorReading = field(
-        default_factory=lambda: SensorReading(
-            "compressor_temp", 293.15, "K", time.time()
-        )
+        default_factory=lambda: SensorReading("compressor_temp", 293.15, "K", time.time())
     )
-    tank_temp: SensorReading = field(
-        default_factory=lambda: SensorReading("tank_temp", 293.15, "K", time.time())
-    )
-    water_temp: SensorReading = field(
-        default_factory=lambda: SensorReading("water_temp", 288.15, "K", time.time())
-    )
+    tank_temp: SensorReading = field(default_factory=lambda: SensorReading("tank_temp", 293.15, "K", time.time()))
+    water_temp: SensorReading = field(default_factory=lambda: SensorReading("water_temp", 288.15, "K", time.time()))
 
     # Flow sensors (m³/s)
     compressor_flow: SensorReading = field(
-        default_factory=lambda: SensorReading(
-            "compressor_flow", 0.0, "m³/s", time.time()
-        )
+        default_factory=lambda: SensorReading("compressor_flow", 0.0, "m³/s", time.time())
     )
     injection_flow: SensorReading = field(
-        default_factory=lambda: SensorReading(
-            "injection_flow", 0.0, "m³/s", time.time()
-        )
+        default_factory=lambda: SensorReading("injection_flow", 0.0, "m³/s", time.time())
     )
 
     # Position sensors (for floaters)
@@ -272,9 +258,7 @@ class PneumaticControlCoordinator:
 
             except Exception as e:
                 logger.error(f"Control loop error: {e}")
-                self.add_fault(
-                    FaultType.COMMUNICATION_LOSS, f"Control loop exception: {e}"
-                )
+                self.add_fault(FaultType.COMMUNICATION_LOSS, f"Control loop exception: {e}")
 
     def update_control_logic(self, dt: float):
         """
@@ -374,9 +358,7 @@ class PneumaticControlCoordinator:
         for sensor_name in ["tank_pressure", "compressor_temp", "water_temp"]:
             sensor = getattr(self.sensors, sensor_name)
             if current_time - sensor.timestamp > self.control_params.sensor_timeout:
-                self.add_fault(
-                    FaultType.SENSOR_FAILURE, f"Sensor timeout: {sensor_name}"
-                )
+                self.add_fault(FaultType.SENSOR_FAILURE, f"Sensor timeout: {sensor_name}")
 
     def add_fault(self, fault_type: FaultType, description: str):
         """Add a new fault to the active faults list."""
@@ -412,8 +394,7 @@ class PneumaticControlCoordinator:
             # Check if startup conditions are met
             if (
                 self.sensors.tank_pressure.value > self.control_params.min_pressure
-                and self.sensors.compressor_temp.value
-                < self.control_params.max_compressor_temp
+                and self.sensors.compressor_temp.value < self.control_params.max_compressor_temp
                 and not self.active_faults
             ):
                 self.system_state = SystemState.NORMAL
@@ -458,23 +439,15 @@ class PneumaticControlCoordinator:
         current_time = time.time()
 
         # Check if enough time has passed since last injection
-        if (
-            current_time - self.last_injection_time
-            < self.control_params.injection_delay
-        ):
+        if current_time - self.last_injection_time < self.control_params.injection_delay:
             return
 
         # Check if pressure is sufficient for injection
         tank_pressure = self.sensors.tank_pressure.value
-        required_pressure = (
-            self.control_params.min_pressure
-            + self.control_params.injection_pressure_margin
-        )
+        required_pressure = self.control_params.min_pressure + self.control_params.injection_pressure_margin
 
         if tank_pressure < required_pressure:
-            logger.debug(
-                f"Injection delayed: insufficient pressure {tank_pressure/100000:.2f} bar"
-            )
+            logger.debug(f"Injection delayed: insufficient pressure {tank_pressure/100000:.2f} bar")
             return
 
         # Trigger injection (would interface with actual injection system)
@@ -491,16 +464,12 @@ class PneumaticControlCoordinator:
         # Thermal optimization using Phase 5 data
         if compressor_temp > self.control_params.cooling_threshold:
             # Activate cooling measures
-            logger.debug(
-                f"Thermal management: compressor cooling activated at {compressor_temp-273.15:.1f}°C"
-            )
+            logger.debug(f"Thermal management: compressor cooling activated at {compressor_temp-273.15:.1f}°C")
 
         # Calculate thermal efficiency boost
         if hasattr(self, "thermodynamics"):
             # Use thermodynamic analysis for optimization
-            thermal_efficiency = self.calculate_thermal_efficiency(
-                compressor_temp, water_temp
-            )
+            thermal_efficiency = self.calculate_thermal_efficiency(compressor_temp, water_temp)
             self.performance_metrics["thermal_boost_factor"] = thermal_efficiency
 
     def performance_optimization_algorithm(self):
@@ -509,7 +478,7 @@ class PneumaticControlCoordinator:
             return
 
         # Optimize based on current conditions
-        tank_pressure = self.sensors.tank_pressure.value
+        self.sensors.tank_pressure.value
         compressor_temp = self.sensors.compressor_temp.value
         water_temp = self.sensors.water_temp.value
 
@@ -517,13 +486,9 @@ class PneumaticControlCoordinator:
         optimal_pressure = self.calculate_optimal_pressure(compressor_temp, water_temp)
 
         # Adjust target pressure for optimization
-        if (
-            abs(optimal_pressure - self.control_params.target_pressure) > 5000.0
-        ):  # 0.05 bar
+        if abs(optimal_pressure - self.control_params.target_pressure) > 5000.0:  # 0.05 bar
             self.control_params.target_pressure = optimal_pressure
-            logger.info(
-                f"Pressure target optimized to {optimal_pressure/100000:.2f} bar"
-            )
+            logger.info(f"Pressure target optimized to {optimal_pressure/100000:.2f} bar")
 
     def fault_recovery_algorithm(self):
         """Fault recovery and system restoration procedures."""
@@ -573,9 +538,7 @@ class PneumaticControlCoordinator:
         # Phase 5 optimization
         if self.enable_thermodynamics:
             # Use thermodynamic analysis to optimize injection
-            thermal_factor = self.calculate_thermal_efficiency(
-                tank_pressure, water_temp
-            )
+            thermal_factor = self.calculate_thermal_efficiency(tank_pressure, water_temp)
             injection_duration *= thermal_factor
 
         return {
@@ -584,9 +547,7 @@ class PneumaticControlCoordinator:
             "timestamp": time.time(),
         }
 
-    def calculate_thermal_efficiency(
-        self, temperature: float, water_temp: float
-    ) -> float:
+    def calculate_thermal_efficiency(self, temperature: float, water_temp: float) -> float:
         """Calculate thermal efficiency factor using Phase 5 thermodynamics."""
         if not hasattr(self, "thermodynamics"):
             return 1.0
@@ -594,12 +555,8 @@ class PneumaticControlCoordinator:
         try:
             # Use Phase 5 thermodynamic calculations
             base_efficiency = 0.85
-            temp_factor = (
-                1.0 + (temperature - 293.15) / 1000.0
-            )  # Simple temperature factor
-            water_factor = (
-                1.0 + (water_temp - 288.15) / 500.0
-            )  # Water temperature factor
+            temp_factor = 1.0 + (temperature - 293.15) / 1000.0  # Simple temperature factor
+            water_factor = 1.0 + (water_temp - 288.15) / 500.0  # Water temperature factor
 
             return base_efficiency * temp_factor * water_factor
 
@@ -607,16 +564,12 @@ class PneumaticControlCoordinator:
             logger.warning(f"Thermal efficiency calculation failed: {e}")
             return 1.0
 
-    def calculate_optimal_pressure(
-        self, compressor_temp: float, water_temp: float
-    ) -> float:
+    def calculate_optimal_pressure(self, compressor_temp: float, water_temp: float) -> float:
         """Calculate optimal operating pressure based on thermal conditions."""
         base_pressure = self.control_params.target_pressure
 
         # Thermal optimization adjustments
-        temp_adjustment = (
-            compressor_temp - 293.15
-        ) * 1000.0  # Increase pressure for hot air
+        temp_adjustment = (compressor_temp - 293.15) * 1000.0  # Increase pressure for hot air
         water_adjustment = (water_temp - 288.15) * 500.0  # Adjust for water temperature
 
         optimal_pressure = base_pressure + temp_adjustment + water_adjustment
@@ -634,9 +587,7 @@ class PneumaticControlCoordinator:
         try:
             if fault_type == FaultType.PRESSURE_DROP:
                 # Reset pressure control parameters
-                self.control_params.target_pressure = (
-                    250000.0  # Reset to conservative value
-                )
+                self.control_params.target_pressure = 250000.0  # Reset to conservative value
                 return True
 
             elif fault_type == FaultType.SENSOR_FAILURE:
@@ -656,19 +607,13 @@ class PneumaticControlCoordinator:
         if self.compressor_enabled and self.sensors.compressor_flow.value > 0:
             # Simplified efficiency calculation
             pressure_ratio = self.sensors.tank_pressure.value / 101325.0
-            flow_efficiency = (
-                self.sensors.compressor_flow.value / 0.05
-            )  # Normalize to rated flow
-            self.performance_metrics["system_efficiency"] = min(
-                0.95, 0.85 * flow_efficiency / pressure_ratio
-            )
+            flow_efficiency = self.sensors.compressor_flow.value / 0.05  # Normalize to rated flow
+            self.performance_metrics["system_efficiency"] = min(0.95, 0.85 * flow_efficiency / pressure_ratio)
 
         # Update uptime based on faults
         if self.active_faults:
             fault_penalty = len(self.active_faults) * 0.1
-            self.performance_metrics["uptime_percentage"] = max(
-                0.0, 100.0 - fault_penalty
-            )
+            self.performance_metrics["uptime_percentage"] = max(0.0, 100.0 - fault_penalty)
         else:
             self.performance_metrics["uptime_percentage"] = min(
                 100.0, self.performance_metrics["uptime_percentage"] + dt * 0.1
@@ -680,14 +625,12 @@ class PneumaticControlCoordinator:
             "state": self.system_state.value,
             "sensors": {
                 "tank_pressure": {
-                    "value": self.sensors.tank_pressure.value
-                    / 100000.0,  # Convert to bar
+                    "value": self.sensors.tank_pressure.value / 100000.0,  # Convert to bar
                     "unit": "bar",
                     "timestamp": self.sensors.tank_pressure.timestamp,
                 },
                 "compressor_temp": {
-                    "value": self.sensors.compressor_temp.value
-                    - 273.15,  # Convert to °C
+                    "value": self.sensors.compressor_temp.value - 273.15,  # Convert to °C
                     "unit": "°C",
                     "timestamp": self.sensors.compressor_temp.timestamp,
                 },
@@ -697,8 +640,7 @@ class PneumaticControlCoordinator:
                     "timestamp": self.sensors.water_temp.timestamp,
                 },
                 "compressor_flow": {
-                    "value": self.sensors.compressor_flow.value
-                    * 1000.0,  # Convert to L/s
+                    "value": self.sensors.compressor_flow.value * 1000.0,  # Convert to L/s
                     "unit": "L/s",
                     "timestamp": self.sensors.compressor_flow.timestamp,
                 },
@@ -706,8 +648,7 @@ class PneumaticControlCoordinator:
             "control": {
                 "compressor_enabled": self.compressor_enabled,
                 "injection_enabled": self.injection_enabled,
-                "target_pressure": self.control_params.target_pressure
-                / 100000.0,  # bar
+                "target_pressure": self.control_params.target_pressure / 100000.0,  # bar
                 "cycle_count": self.cycle_count,
             },
             "faults": [fault.value for fault in self.active_faults],
@@ -765,9 +706,7 @@ class PneumaticControlCoordinator:
                 self._floater_depth = sensor_reading
         elif sensor_name == "floater_velocity":
             # Create or update floater velocity sensor
-            sensor_reading = SensorReading(
-                f"floater_velocity", value, "m/s", current_time
-            )
+            sensor_reading = SensorReading(f"floater_velocity", value, "m/s", current_time)
             if hasattr(self, "_floater_velocity"):
                 self._floater_velocity = sensor_reading
             else:
@@ -781,9 +720,7 @@ class PneumaticControlCoordinator:
 
         # Validate sensor reading
         if value < 0 and sensor_name in ["tank_pressure", "tank_temperature"]:
-            self.add_fault(
-                FaultType.SENSOR_FAILURE, f"Invalid {sensor_name} reading: {value}"
-            )
+            self.add_fault(FaultType.SENSOR_FAILURE, f"Invalid {sensor_name} reading: {value}")
 
     def set_operational_mode(self, mode: str):
         """Set operational mode - demo compatibility method."""

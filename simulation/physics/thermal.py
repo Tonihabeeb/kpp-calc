@@ -4,11 +4,9 @@ Comprehensive thermal dynamics modeling including heat generation, transfer, and
 """
 
 import logging
-import math
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict
 
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +36,7 @@ class ThermalProperties:
 
 class ThermalModel:
     """
-    Comprehensive thermal model for the KPP drivetrain system.
+    Comprehensive thermal model for the KPP integrated_drivetrain system.
 
     Models:
     - Heat generation from losses
@@ -72,9 +70,7 @@ class ThermalModel:
         self.temperature_history = {}
         self.max_temperatures = {}
 
-        logger.info(
-            f"ThermalModel initialized with ambient temperature {ambient_temperature}°C"
-        )
+        logger.info(f"ThermalModel initialized with ambient temperature {ambient_temperature}°C")
 
     def add_component(self, component_name: str, thermal_state: ThermalState):
         """Add a component to the thermal model"""
@@ -84,9 +80,7 @@ class ThermalModel:
 
         logger.debug(f"Added thermal component: {component_name}")
 
-    def calculate_heat_generation(
-        self, component_name: str, power_loss: float
-    ) -> float:
+    def calculate_heat_generation(self, component_name: str, power_loss: float) -> float:
         """
         Calculate heat generation from power losses.
 
@@ -104,9 +98,7 @@ class ThermalModel:
         Q = h * A * (T_surface - T_ambient)
         """
         temp_difference = component.temperature - self.ambient_temperature
-        heat_transfer = (
-            self.convection_coefficient * component.surface_area * temp_difference
-        )
+        heat_transfer = self.convection_coefficient * component.surface_area * temp_difference
 
         return heat_transfer
 
@@ -118,9 +110,7 @@ class ThermalModel:
         Linearized for small temperature differences.
         """
         temp_difference = component.temperature - self.ambient_temperature
-        heat_transfer = (
-            self.radiation_coefficient * component.surface_area * temp_difference
-        )
+        heat_transfer = self.radiation_coefficient * component.surface_area * temp_difference
 
         return heat_transfer
 
@@ -139,12 +129,7 @@ class ThermalModel:
         # Assume 1cm conduction path length
         conduction_length = 0.01  # m
 
-        heat_transfer = (
-            self.thermal_properties.steel_conductivity
-            * contact_area
-            * temp_difference
-            / conduction_length
-        )
+        heat_transfer = self.thermal_properties.steel_conductivity * contact_area * temp_difference / conduction_length
 
         return heat_transfer
 
@@ -184,22 +169,16 @@ class ThermalModel:
         component.temperature = max(component.temperature, self.ambient_temperature)
 
         # Track maximum temperature
-        self.max_temperatures[component_name] = max(
-            self.max_temperatures[component_name], component.temperature
-        )
+        self.max_temperatures[component_name] = max(self.max_temperatures[component_name], component.temperature)
 
         # Store temperature history
         self.temperature_history[component_name].append(component.temperature)
 
         # Limit history size
         if len(self.temperature_history[component_name]) > 1000:
-            self.temperature_history[component_name] = self.temperature_history[
-                component_name
-            ][-1000:]
+            self.temperature_history[component_name] = self.temperature_history[component_name][-1000:]
 
-    def calculate_temperature_effects_on_efficiency(
-        self, component_name: str, base_efficiency: float
-    ) -> float:
+    def calculate_temperature_effects_on_efficiency(self, component_name: str, base_efficiency: float) -> float:
         """
         Calculate how temperature affects component efficiency.
 
@@ -246,9 +225,7 @@ class ThermalModel:
 
         return adjusted_efficiency
 
-    def calculate_thermal_expansion_effects(
-        self, component_name: str
-    ) -> Dict[str, float]:
+    def calculate_thermal_expansion_effects(self, component_name: str) -> Dict[str, float]:
         """
         Calculate thermal expansion effects on component clearances and fits.
 
@@ -305,9 +282,7 @@ class ThermalModel:
                 "heat_generation": component.heat_generation,
                 "max_temperature": self.max_temperatures[component_name],
                 "temp_rise": component.temperature - self.ambient_temperature,
-                "thermal_expansion": self.calculate_thermal_expansion_effects(
-                    component_name
-                ),
+                "thermal_expansion": self.calculate_thermal_expansion_effects(component_name),
             }
 
         return thermal_state

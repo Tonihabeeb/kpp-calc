@@ -16,14 +16,11 @@ Key Features:
 - Performance tracking and ROI analysis
 """
 
-import math
-import statistics
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional
 
-import numpy as np
 
 
 class OptimizationObjective(Enum):
@@ -223,9 +220,7 @@ class EconomicOptimizer:
         service_values = self._calculate_service_values(current_conditions, forecasts)
 
         # Perform optimization based on objective
-        optimization_result = self._perform_optimization(
-            service_values, available_services, current_conditions
-        )
+        optimization_result = self._perform_optimization(service_values, available_services, current_conditions)
 
         # Update performance tracking
         self._update_performance_metrics(optimization_result)
@@ -273,10 +268,7 @@ class EconomicOptimizer:
 
         volt_params = self.service_parameters[ServiceType.VOLTAGE_SUPPORT]
         voltage_value = (
-            volt_params.revenue_rate
-            * voltage_urgency
-            * volt_params.reliability_factor
-            * volt_params.performance_bonus
+            volt_params.revenue_rate * voltage_urgency * volt_params.reliability_factor * volt_params.performance_bonus
         )
         service_values[ServiceType.VOLTAGE_SUPPORT] = voltage_value
 
@@ -297,21 +289,14 @@ class EconomicOptimizer:
         if load_level > peak_threshold:
             dr_urgency = (load_level - peak_threshold) / peak_threshold
             dr_params = self.service_parameters[ServiceType.DEMAND_RESPONSE]
-            dr_value = (
-                dr_params.revenue_rate
-                * dr_urgency
-                * dr_params.reliability_factor
-                * dr_params.performance_bonus
-            )
+            dr_value = dr_params.revenue_rate * dr_urgency * dr_params.reliability_factor * dr_params.performance_bonus
         else:
             dr_value = 0.0
         service_values[ServiceType.DEMAND_RESPONSE] = dr_value
 
         # Grid stabilization value
         grid_emergency = (
-            frequency_deviation > 0.2
-            or voltage_deviation > 0.1
-            or not conditions.get("grid_connected", True)
+            frequency_deviation > 0.2 or voltage_deviation > 0.1 or not conditions.get("grid_connected", True)
         )
 
         if grid_emergency:
@@ -349,9 +334,7 @@ class EconomicOptimizer:
         elif self.objective == OptimizationObjective.GRID_SUPPORT_PRIORITY:
             allocation = self._optimize_grid_support(service_values, total_capacity)
         else:  # BALANCED_OPTIMIZATION
-            allocation = self._optimize_balanced(
-                service_values, total_capacity, conditions
-            )
+            allocation = self._optimize_balanced(service_values, total_capacity, conditions)
         # Calculate expected performance
         expected_revenue = self._calculate_expected_revenue(allocation, service_values)
         expected_risk = self._calculate_expected_risk(allocation)
@@ -370,8 +353,7 @@ class EconomicOptimizer:
             "capacity_utilization": sum(allocation.values()) / total_capacity,
             "optimization_timestamp": time.time(),
             "total_opportunity_value": sum(service_values.values()),
-            "captured_value_ratio": expected_revenue
-            / max(sum(service_values.values()), 1.0),
+            "captured_value_ratio": expected_revenue / max(sum(service_values.values()), 1.0),
         }
 
     def _optimize_revenue(
@@ -382,8 +364,7 @@ class EconomicOptimizer:
         # Sort services by value per unit capacity
         sorted_services = sorted(
             service_values.items(),
-            key=lambda x: x[1]
-            / max(self.service_parameters[x[0]].capacity_requirement, 1.0),
+            key=lambda x: x[1] / max(self.service_parameters[x[0]].capacity_requirement, 1.0),
             reverse=True,
         )
 
@@ -397,9 +378,7 @@ class EconomicOptimizer:
 
             # Get service capacity requirement
             min_capacity = self.service_parameters[service_type].capacity_requirement
-            max_capacity = min(
-                remaining_capacity, total_capacity * 0.4
-            )  # Max 40% per service
+            max_capacity = min(remaining_capacity, total_capacity * 0.4)  # Max 40% per service
 
             if max_capacity >= min_capacity and remaining_capacity > 0:
                 allocated_capacity = min(max_capacity, remaining_capacity)
@@ -415,7 +394,6 @@ class EconomicOptimizer:
     ) -> Dict[ServiceType, float]:
         """Optimize for risk-adjusted returns"""
 
-        allocation = {}
 
         # Calculate risk-adjusted values
         risk_adjusted_values = {}
@@ -445,7 +423,7 @@ class EconomicOptimizer:
         ]
 
         # Reserve minimum capacity for grid support
-        grid_support_reserve = total_capacity * self.constraints.min_grid_support
+        total_capacity * self.constraints.min_grid_support
 
         for service_type in priority_services:
             if service_type not in service_values:
@@ -508,12 +486,8 @@ class EconomicOptimizer:
 
             for service_type in grid_services:
                 if service_type in service_values and service_values[service_type] > 0:
-                    min_capacity = self.service_parameters[
-                        service_type
-                    ].capacity_requirement
-                    max_capacity = min(
-                        remaining_capacity, grid_reserve / len(grid_services)
-                    )
+                    min_capacity = self.service_parameters[service_type].capacity_requirement
+                    max_capacity = min(remaining_capacity, grid_reserve / len(grid_services))
 
                     if max_capacity >= min_capacity:
                         allocation[service_type] = max_capacity
@@ -591,9 +565,7 @@ class EconomicOptimizer:
                     commands["frequency_regulation"] = {
                         "enable": True,
                         "capacity_kw": capacity,
-                        "response_time": self.service_parameters[
-                            service_type
-                        ].response_time,
+                        "response_time": self.service_parameters[service_type].response_time,
                         "droop_setting": 0.04,  # 4% droop
                     }
 
@@ -619,26 +591,20 @@ class EconomicOptimizer:
                         "enable": True,
                         "capacity_kw": capacity,
                         "activation_threshold": 200.0,  # kW load threshold
-                        "response_time": self.service_parameters[
-                            service_type
-                        ].response_time,
+                        "response_time": self.service_parameters[service_type].response_time,
                     }
 
                 elif service_type == ServiceType.GRID_STABILIZATION:
                     commands["grid_stabilization"] = {
                         "enable": True,
                         "capacity_kw": capacity,
-                        "response_time": self.service_parameters[
-                            service_type
-                        ].response_time,
+                        "response_time": self.service_parameters[service_type].response_time,
                         "black_start_ready": True,
                     }
 
         return commands
 
-    def _update_economic_state(
-        self, conditions: Dict[str, Any], services: Dict[str, Any]
-    ):
+    def _update_economic_state(self, conditions: Dict[str, Any], services: Dict[str, Any]):
         """Update economic state tracking"""
 
         dt = 300.0  # 5-minute interval in seconds
@@ -663,9 +629,7 @@ class EconomicOptimizer:
         if services.get("arbitrage_active", False):
             arbitrage_power = services.get("arbitrage_power", 0.0)
             if arbitrage_power < 0:  # Discharging
-                arbitrage_revenue = (
-                    abs(arbitrage_power) * current_price * dt / 3600000.0
-                )
+                arbitrage_revenue = abs(arbitrage_power) * current_price * dt / 3600000.0
                 self.economic_state.arbitrage_revenue += arbitrage_revenue
 
         # Update total revenue
@@ -678,16 +642,12 @@ class EconomicOptimizer:
         )
 
         # Calculate net profit
-        self.economic_state.net_profit = (
-            self.economic_state.total_revenue - self.economic_state.total_costs
-        )
+        self.economic_state.net_profit = self.economic_state.total_revenue - self.economic_state.total_costs
 
         # Calculate ROI (simplified)
         if self.economic_state.operating_hours > 0:
             investment_cost = 500000.0  # Assumed system cost
-            self.economic_state.roi = (
-                self.economic_state.net_profit / investment_cost
-            ) * 100
+            self.economic_state.roi = (self.economic_state.net_profit / investment_cost) * 100
 
     def _update_performance_metrics(self, optimization_result: Dict[str, Any]):
         """Update optimization performance metrics"""
@@ -706,8 +666,7 @@ class EconomicOptimizer:
         # Calculate efficiency
         if self.performance_metrics["total_opportunity_value"] > 0:
             self.performance_metrics["optimization_efficiency"] = (
-                self.performance_metrics["captured_value"]
-                / self.performance_metrics["total_opportunity_value"]
+                self.performance_metrics["captured_value"] / self.performance_metrics["total_opportunity_value"]
             )
 
     def _get_cached_optimization(self) -> Dict[str, Any]:
@@ -756,9 +715,7 @@ class EconomicOptimizer:
         """Set optimization objective"""
         self.objective = objective
 
-    def update_service_parameters(
-        self, service_type: ServiceType, parameters: Dict[str, float]
-    ):
+    def update_service_parameters(self, service_type: ServiceType, parameters: Dict[str, float]):
         """Update service economic parameters"""
         if service_type in self.service_parameters:
             for param_name, value in parameters.items():
@@ -777,9 +734,7 @@ class EconomicOptimizer:
         self.optimization_history.clear()
 
 
-def create_economic_optimizer(
-    max_power_kw: float = 250.0, risk_tolerance: float = 0.3
-) -> EconomicOptimizer:
+def create_economic_optimizer(max_power_kw: float = 250.0, risk_tolerance: float = 0.3) -> EconomicOptimizer:
     """
     Factory function to create an economic optimizer
 
@@ -790,7 +745,5 @@ def create_economic_optimizer(
     Returns:
         Configured EconomicOptimizer instance
     """
-    constraints = OptimizationConstraints(
-        max_power_output=max_power_kw, risk_tolerance=risk_tolerance
-    )
+    constraints = OptimizationConstraints(max_power_output=max_power_kw, risk_tolerance=risk_tolerance)
     return EconomicOptimizer(constraints)

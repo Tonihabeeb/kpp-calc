@@ -7,7 +7,7 @@ import logging
 import math
 from collections import deque
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -146,33 +146,23 @@ class TimingController:
 
         return {
             "timing_controller_output": control_commands,
-            "optimal_injection_time": (
-                optimal_timing.injection_time if optimal_timing else None
-            ),
-            "target_floater_id": (
-                optimal_timing.target_floater_id if optimal_timing else None
-            ),
+            "optimal_injection_time": (optimal_timing.injection_time if optimal_timing else None),
+            "target_floater_id": (optimal_timing.target_floater_id if optimal_timing else None),
             "predicted_torque": torque_prediction.get("peak_torque", 0.0),
-            "injection_efficiency": (
-                optimal_timing.expected_efficiency if optimal_timing else 0.0
-            ),
+            "injection_efficiency": (optimal_timing.expected_efficiency if optimal_timing else 0.0),
             "timing_confidence": optimal_timing.confidence if optimal_timing else 0.0,
             "controller_status": self._get_controller_status(),
         }
 
     def _update_system_state(self, system_state: Dict):
         """Update internal system state from simulation"""
-        self.chain_speed = system_state.get("chain_speed_rpm", 0.0) * (
-            2 * math.pi / 60
-        )  # Convert to rad/s
+        self.chain_speed = system_state.get("chain_speed_rpm", 0.0) * (2 * math.pi / 60)  # Convert to rad/s
         self.generator_load = system_state.get("power", 0.0)
         self.clutch_engaged = system_state.get("clutch_engaged", False)
 
         # Extract target torque from electrical system
         if "electrical_output" in system_state:
-            self.target_torque = system_state["electrical_output"].get(
-                "load_torque_command", 0.0
-            )
+            self.target_torque = system_state["electrical_output"].get("load_torque_command", 0.0)
 
     def _update_floater_tracking(self, system_state: Dict):
         """Update floater position and state tracking"""
@@ -209,9 +199,7 @@ class TimingController:
             prediction_horizon=self.prediction_horizon,
         )
 
-    def _optimize_injection_timing(
-        self, torque_prediction: Dict
-    ) -> Optional[OptimalTiming]:
+    def _optimize_injection_timing(self, torque_prediction: Dict) -> Optional[OptimalTiming]:
         """
         Optimize injection timing based on predicted torque requirements.
 
@@ -230,9 +218,7 @@ class TimingController:
         # Evaluate each floater for potential injection
         for floater in self.floater_states:
             # Skip if recently injected
-            if (
-                self.current_time - self.last_injection_times[floater.floater_id]
-            ) < self.min_injection_interval:
+            if (self.current_time - self.last_injection_times[floater.floater_id]) < self.min_injection_interval:
                 continue
 
             # Skip if already filled
@@ -268,9 +254,7 @@ class TimingController:
 
         return best_timing
 
-    def _calculate_injection_time(
-        self, floater: FloaterTiming, torque_prediction: Dict
-    ) -> Optional[float]:
+    def _calculate_injection_time(self, floater: FloaterTiming, torque_prediction: Dict) -> Optional[float]:
         """Calculate optimal injection time for a specific floater"""
         # Predict when floater will be at optimal position for injection
         optimal_theta = math.pi / 2  # Top of chain for maximum buoyancy effect
@@ -294,17 +278,13 @@ class TimingController:
 
         return max(self.current_time, injection_time)
 
-    def _estimate_injection_torque(
-        self, floater: FloaterTiming, injection_time: float
-    ) -> float:
+    def _estimate_injection_torque(self, floater: FloaterTiming, injection_time: float) -> float:
         """Estimate torque contribution from injection"""
         # Base torque from buoyancy (simplified model)
         base_torque = 1000.0  # N⋅m (typical value)
 
         # Position-dependent efficiency
-        theta_at_injection = floater.theta + floater.velocity * (
-            injection_time - self.current_time
-        )
+        theta_at_injection = floater.theta + floater.velocity * (injection_time - self.current_time)
         position_efficiency = max(0.1, math.sin(theta_at_injection))
 
         # Speed-dependent efficiency
@@ -339,9 +319,7 @@ class TimingController:
 
         return total_score
 
-    def _generate_control_commands(
-        self, optimal_timing: Optional[OptimalTiming]
-    ) -> Dict:
+    def _generate_control_commands(self, optimal_timing: Optional[OptimalTiming]) -> Dict:
         """Generate control commands based on optimal timing"""
         commands = {
             "injection_command": False,
@@ -356,17 +334,11 @@ class TimingController:
             # Execute injection
             commands["injection_command"] = True
             commands["target_floater_id"] = optimal_timing.target_floater_id
-            commands["injection_pressure"] = self._calculate_injection_pressure(
-                optimal_timing
-            )
-            commands["injection_duration"] = self._calculate_injection_duration(
-                optimal_timing
-            )
+            commands["injection_pressure"] = self._calculate_injection_pressure(optimal_timing)
+            commands["injection_duration"] = self._calculate_injection_duration(optimal_timing)
 
             # Record injection
-            self.last_injection_times[optimal_timing.target_floater_id] = (
-                self.current_time
-            )
+            self.last_injection_times[optimal_timing.target_floater_id] = self.current_time
             self.injection_schedule.append(
                 {
                     "time": self.current_time,
@@ -378,9 +350,7 @@ class TimingController:
 
         return commands
 
-    def _get_pneumatic_control_commands(
-        self, optimal_timing: Optional[OptimalTiming]
-    ) -> Dict:
+    def _get_pneumatic_control_commands(self, optimal_timing: Optional[OptimalTiming]) -> Dict:
         """Get pneumatic control commands for direct system interface"""
         if not optimal_timing:
             return {"action": "none"}
@@ -396,9 +366,7 @@ class TimingController:
                 "injection_time": optimal_timing.injection_time,
                 "expected_pressure": self._calculate_injection_pressure(optimal_timing),
                 "pressure_boost": min(2.0, optimal_timing.expected_efficiency * 2.0),
-                "injection_duration": self._calculate_injection_duration(
-                    optimal_timing
-                ),
+                "injection_duration": self._calculate_injection_duration(optimal_timing),
                 "confidence": optimal_timing.confidence,
             }
         else:
@@ -413,12 +381,12 @@ class TimingController:
 
         return pneumatic_commands
 
-    def execute_pneumatic_control(self, pneumatic_system, floaters) -> bool:
+    def execute_pneumatic_control(self, pneumatics, floaters) -> bool:
         """
         Directly execute pneumatic control commands on the pneumatic system.
 
         Args:
-            pneumatic_system: The PneumaticSystem instance
+            pneumatics: The PneumaticSystem instance
             floaters: List of floater objects
 
         Returns:
@@ -437,7 +405,7 @@ class TimingController:
                 target_floater = floaters[target_floater_id]
 
                 # Execute injection through pneumatic system
-                success = pneumatic_system.trigger_injection(target_floater)
+                success = pneumatics.trigger_injection(target_floater)
 
                 if success:
                     logger.info(
@@ -446,11 +414,9 @@ class TimingController:
 
                     # Update floater state tracking
                     if target_floater_id < len(self.floater_states):
-                        self.floater_states[target_floater_id].last_injection_time = (
-                            self.current_time
-                        )
-                        self.floater_states[target_floater_id].injection_efficiency = (
-                            pneumatic_commands.get("confidence", 0.8)
+                        self.floater_states[target_floater_id].last_injection_time = self.current_time
+                        self.floater_states[target_floater_id].injection_efficiency = pneumatic_commands.get(
+                            "confidence", 0.8
                         )
 
                     return True
@@ -509,18 +475,11 @@ class TimingController:
         return {
             "active_floaters": len([f for f in self.floater_states if not f.is_filled]),
             "recent_injections": len(self.injection_history),
-            "average_efficiency": (
-                np.mean(self.efficiency_history) if self.efficiency_history else 0.0
-            ),
-            "average_torque": (
-                np.mean(self.torque_history) if self.torque_history else 0.0
-            ),
-            "optimization_window_utilization": len(self.injection_schedule)
-            / max(1, self.optimization_window),
+            "average_efficiency": (np.mean(self.efficiency_history) if self.efficiency_history else 0.0),
+            "average_torque": (np.mean(self.torque_history) if self.torque_history else 0.0),
+            "optimization_window_utilization": len(self.injection_schedule) / max(1, self.optimization_window),
             "prediction_accuracy": (
-                self.torque_predictor.get_accuracy()
-                if hasattr(self.torque_predictor, "get_accuracy")
-                else 0.0
+                self.torque_predictor.get_accuracy() if hasattr(self.torque_predictor, "get_accuracy") else 0.0
             ),
         }
 
@@ -555,9 +514,7 @@ class TorquePredictor:
         """Predict future torque requirements"""
 
         # Simple prediction model based on current conditions
-        base_torque = max(
-            100.0, generator_load / 1000.0
-        )  # Convert power to approximate torque
+        base_torque = max(100.0, generator_load / 1000.0)  # Convert power to approximate torque
 
         # Adjust for chain speed
         speed_factor = min(2.0, max(0.5, chain_speed / 10.0))

@@ -4,10 +4,9 @@ Implements dynamic electrical load adjustment for optimal efficiency and grid st
 """
 
 import logging
-import math
 from collections import deque
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
 import numpy as np
 
@@ -124,9 +123,7 @@ class LoadManager:
         self.power_price = 0.12  # $/kWh
         self.efficiency_price_multiplier = 1.2
 
-        logger.info(
-            f"LoadManager initialized: target={target_power/1000:.1f}kW, tolerance={power_tolerance*100:.1f}%"
-        )
+        logger.info(f"LoadManager initialized: target={target_power/1000:.1f}kW, tolerance={power_tolerance*100:.1f}%")
 
     def update(self, system_state: Dict, dt: float) -> Dict:
         """
@@ -186,33 +183,21 @@ class LoadManager:
         self.grid_conditions.voltage = electrical_output.get("grid_voltage", 480.0)
         self.grid_conditions.frequency = electrical_output.get("grid_frequency", 50.0)
         self.grid_conditions.power_factor = electrical_output.get("power_factor", 0.95)
-        self.grid_conditions.fault_detected = electrical_output.get(
-            "fault_detected", False
-        )
+        self.grid_conditions.fault_detected = electrical_output.get("fault_detected", False)
 
         # Calculate grid stability metric
-        voltage_stability = max(
-            0.0, 1.0 - abs(self.grid_conditions.voltage - 480.0) / 48.0
-        )
-        frequency_stability = max(
-            0.0, 1.0 - abs(self.grid_conditions.frequency - 50.0) / 3.0
-        )
-        pf_stability = max(
-            0.0, 1.0 - abs(self.grid_conditions.power_factor - 0.95) / 0.2
-        )
+        voltage_stability = max(0.0, 1.0 - abs(self.grid_conditions.voltage - 480.0) / 48.0)
+        frequency_stability = max(0.0, 1.0 - abs(self.grid_conditions.frequency - 50.0) / 3.0)
+        pf_stability = max(0.0, 1.0 - abs(self.grid_conditions.power_factor - 0.95) / 0.2)
 
-        self.grid_conditions.grid_stability = min(
-            1.0, (voltage_stability + frequency_stability + pf_stability) / 3.0
-        )
+        self.grid_conditions.grid_stability = min(1.0, (voltage_stability + frequency_stability + pf_stability) / 3.0)
 
         # Apply fault detection
         if self.grid_conditions.fault_detected:
             self.grid_conditions.grid_stability *= 0.5
 
         # Record grid conditions
-        self.grid_conditions_history.append(
-            {"time": self.last_update_time, "conditions": self.grid_conditions}
-        )
+        self.grid_conditions_history.append({"time": self.last_update_time, "conditions": self.grid_conditions})
 
     def _update_system_state(self, system_state: Dict):
         """Update internal system state"""
@@ -225,9 +210,7 @@ class LoadManager:
         # Update thermal conditions
         generator_temp = electrical_output.get("generator_temperature", 75.0)
         max_temp = 120.0  # °C
-        self.thermal_derate_factor = max(
-            0.5, 1.0 - max(0, generator_temp - 100.0) / (max_temp - 100.0)
-        )
+        self.thermal_derate_factor = max(0.5, 1.0 - max(0, generator_temp - 100.0) / (max_temp - 100.0))
 
         # Update grid derate factor
         self.grid_derate_factor = self.grid_conditions.grid_stability
@@ -250,9 +233,7 @@ class LoadManager:
         # Calculate weighted setpoint from active profiles
         if self.active_profiles:
             total_weight = sum(1.0 / max(1, p.priority) for p in self.active_profiles)
-            weighted_power = sum(
-                p.target_power / max(1, p.priority) for p in self.active_profiles
-            )
+            weighted_power = sum(p.target_power / max(1, p.priority) for p in self.active_profiles)
             self.power_setpoint = weighted_power / total_weight
         else:
             self.power_setpoint = self.target_power
@@ -308,7 +289,7 @@ class LoadManager:
 
     def _optimize_for_efficiency(self, system_state: Dict, max_power: float) -> float:
         """Optimize load for maximum electrical efficiency"""
-        electrical_output = system_state.get("electrical_output", {})
+        system_state.get("electrical_output", {})
 
         # Get efficiency curve (simplified model)
         load_factors = np.linspace(0.1, 1.0, 10)
@@ -319,13 +300,9 @@ class LoadManager:
             if lf < 0.2:
                 eff = 0.8 * lf / 0.2  # Linear increase to 80% at 20% load
             elif lf < 0.8:
-                eff = (
-                    0.8 + 0.14 * (lf - 0.2) / 0.6
-                )  # Linear increase to 94% at 80% load
+                eff = 0.8 + 0.14 * (lf - 0.2) / 0.6  # Linear increase to 94% at 80% load
             else:
-                eff = (
-                    0.94 - 0.04 * (lf - 0.8) / 0.2
-                )  # Slight decrease to 90% at 100% load
+                eff = 0.94 - 0.04 * (lf - 0.8) / 0.2  # Slight decrease to 90% at 100% load
             efficiencies.append(eff)
 
         # Find load factor with maximum efficiency
@@ -356,9 +333,7 @@ class LoadManager:
         current_efficiency = electrical_output.get("system_efficiency", 0.8)
 
         # Prefer operation at high efficiency points
-        economic_multiplier = (
-            1.0 + (current_efficiency - 0.8) * self.efficiency_price_multiplier
-        )
+        economic_multiplier = 1.0 + (current_efficiency - 0.8) * self.efficiency_price_multiplier
 
         economic_target = min(self.power_setpoint * economic_multiplier, max_power)
 
@@ -377,17 +352,13 @@ class LoadManager:
 
         # Prevent integral windup
         integral_limit = 0.5
-        self.error_integral = max(
-            -integral_limit, min(integral_limit, self.error_integral)
-        )
+        self.error_integral = max(-integral_limit, min(integral_limit, self.error_integral))
 
         # Derivative term
         error_derivative = (error - self.last_error) / dt if dt > 0 else 0.0
 
         # PID output
-        pid_output = (
-            self.kp * error + self.ki * self.error_integral + self.kd * error_derivative
-        )
+        pid_output = self.kp * error + self.ki * self.error_integral + self.kd * error_derivative
 
         # Apply rate limiting
         max_change = (self.max_ramp_rate / self.target_power) * dt
@@ -441,9 +412,7 @@ class LoadManager:
             "target_load_factor": load_factor,
             "commanded_power": self.commanded_power,
             "power_setpoint": self.power_setpoint,
-            "ramp_rate": min(
-                self.max_ramp_rate, abs(self.commanded_power - self.actual_power) / 0.1
-            ),
+            "ramp_rate": min(self.max_ramp_rate, abs(self.commanded_power - self.actual_power) / 0.1),
             "enable_generator": load_factor > 0.05,
             "enable_grid_connection": not self.grid_conditions.fault_detected,
             "load_shed_amount": self.emergency_load_reduction,
@@ -535,9 +504,7 @@ class LoadManager:
         """Add a new load profile to the active list"""
         self.active_profiles.append(profile)
         self.active_profiles.sort(key=lambda p: p.priority)  # Sort by priority
-        logger.info(
-            f"Added load profile: {profile.target_power/1000:.1f}kW, priority={profile.priority}"
-        )
+        logger.info(f"Added load profile: {profile.target_power/1000:.1f}kW, priority={profile.priority}")
 
     def set_emergency_load_reduction(self, reduction_factor: float):
         """Set emergency load reduction (0.0 = normal, 1.0 = full reduction)"""

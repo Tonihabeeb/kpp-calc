@@ -16,10 +16,9 @@ import statistics
 import time
 from collections import deque
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-import numpy as np
 
 
 @dataclass
@@ -43,27 +42,17 @@ class LoadForecastConfig:
 
     def validate(self):
         """Validate configuration parameters"""
-        assert (
-            1 <= self.forecast_horizon_hours <= 48
-        ), "Forecast horizon must be 1-48 hours"
-        assert (
-            300.0 <= self.forecast_update_interval <= 3600.0
-        ), "Update interval must be 5-60 minutes"
-        assert (
-            7 <= self.historical_data_days <= 365
-        ), "Historical data must be 7-365 days"
-        total_weight = (
-            self.pattern_weight + self.regression_weight + self.seasonal_weight
-        )
+        assert 1 <= self.forecast_horizon_hours <= 48, "Forecast horizon must be 1-48 hours"
+        assert 300.0 <= self.forecast_update_interval <= 3600.0, "Update interval must be 5-60 minutes"
+        assert 7 <= self.historical_data_days <= 365, "Historical data must be 7-365 days"
+        total_weight = self.pattern_weight + self.regression_weight + self.seasonal_weight
         assert abs(total_weight - 1.0) < 0.01, "Method weights must sum to 1.0"
 
 
 class ForecastPoint:
     """Individual forecast point"""
 
-    def __init__(
-        self, timestamp: float, predicted_load: float, confidence: float, method: str
-    ):
+    def __init__(self, timestamp: float, predicted_load: float, confidence: float, method: str):
         self.timestamp = timestamp
         self.predicted_load = predicted_load
         self.confidence = confidence
@@ -75,9 +64,7 @@ class ForecastPoint:
         """Update with actual load for accuracy calculation"""
         self.actual_load = actual_load
         if self.predicted_load > 0:
-            self.error = (
-                abs(actual_load - self.predicted_load) / self.predicted_load * 100.0
-            )
+            self.error = abs(actual_load - self.predicted_load) / self.predicted_load * 100.0
 
 
 class LoadForecaster:
@@ -96,15 +83,9 @@ class LoadForecaster:
         self.config.validate()
 
         # Historical data storage
-        self.load_history = deque(
-            maxlen=self.config.historical_data_days * 1440
-        )  # 1-minute data
-        self.hourly_data = deque(
-            maxlen=self.config.historical_data_days * 24
-        )  # Hourly averages
-        self.daily_data = deque(
-            maxlen=self.config.historical_data_days
-        )  # Daily patterns
+        self.load_history = deque(maxlen=self.config.historical_data_days * 1440)  # 1-minute data
+        self.hourly_data = deque(maxlen=self.config.historical_data_days * 24)  # Hourly averages
+        self.daily_data = deque(maxlen=self.config.historical_data_days)  # Daily patterns
 
         # Forecast storage
         self.current_forecast: List[ForecastPoint] = []
@@ -221,10 +202,7 @@ class LoadForecaster:
             hourly_avg = sum(entry["load"] for entry in recent_hour) / len(recent_hour)
 
             # Check if we need to add new hourly point
-            if (
-                len(self.hourly_data) == 0
-                or (timestamp - self.hourly_data[-1]["timestamp"]) >= 3600
-            ):
+            if len(self.hourly_data) == 0 or (timestamp - self.hourly_data[-1]["timestamp"]) >= 3600:
 
                 self.hourly_data.append(
                     {
@@ -241,10 +219,7 @@ class LoadForecaster:
             daily_avg = sum(entry["load"] for entry in recent_day) / len(recent_day)
 
             # Check if we need to add new daily point
-            if (
-                len(self.daily_data) == 0
-                or (timestamp - self.daily_data[-1]["timestamp"]) >= 86400
-            ):
+            if len(self.daily_data) == 0 or (timestamp - self.daily_data[-1]["timestamp"]) >= 86400:
 
                 self.daily_data.append(
                     {
@@ -262,9 +237,7 @@ class LoadForecaster:
             return True
 
         # Check update interval
-        if (
-            current_time - self.last_forecast_time
-        ) >= self.config.forecast_update_interval:
+        if (current_time - self.last_forecast_time) >= self.config.forecast_update_interval:
             return True
 
         # Check if forecast is getting stale
@@ -274,9 +247,7 @@ class LoadForecaster:
 
         return False
 
-    def _generate_forecast(
-        self, current_time: float, weather_data: Optional[Dict[str, float]] = None
-    ):
+    def _generate_forecast(self, current_time: float, weather_data: Optional[Dict[str, float]] = None):
         """Generate new load forecast"""
 
         if len(self.hourly_data) < 24:  # Need at least 24 hours of data
@@ -304,9 +275,7 @@ class LoadForecaster:
 
             # Apply weather adjustment if enabled
             if self.config.enable_weather_correction and weather_data:
-                combined_forecast = self._apply_weather_adjustment(
-                    combined_forecast, weather_data
-                )
+                combined_forecast = self._apply_weather_adjustment(combined_forecast, weather_data)
 
             # Create forecast point
             forecast_point = ForecastPoint(
@@ -338,20 +307,14 @@ class LoadForecaster:
             if len(similar_periods) > 5:
                 # Weight recent periods more heavily
                 weights = [1.0 + i * 0.1 for i in range(len(similar_periods))]
-                weighted_sum = sum(
-                    load * weight for load, weight in zip(similar_periods, weights)
-                )
+                weighted_sum = sum(load * weight for load, weight in zip(similar_periods, weights))
                 total_weight = sum(weights)
                 return weighted_sum / total_weight
             else:
                 return statistics.median(similar_periods)
 
         # Fallback to overall hourly average
-        hour_loads = [
-            entry["load"]
-            for entry in self.hourly_data
-            if entry["hour"] == forecast_hour
-        ]
+        hour_loads = [entry["load"] for entry in self.hourly_data if entry["hour"] == forecast_hour]
         return statistics.median(hour_loads) if hour_loads else 0.0
 
     def _regression_forecast(self, forecast_time: float) -> float:
@@ -412,22 +375,16 @@ class LoadForecaster:
 
         # Adjust based on historical accuracy
         if self.current_mape > 0:
-            accuracy_factor = max(
-                0.5, 1.0 - (self.current_mape / 20.0)
-            )  # Scale based on 20% max error
+            accuracy_factor = max(0.5, 1.0 - (self.current_mape / 20.0))  # Scale based on 20% max error
         else:
             accuracy_factor = 0.8  # Default when no history
 
         # Adjust based on data availability
-        data_factor = min(
-            1.0, len(self.hourly_data) / (7 * 24)
-        )  # Full confidence with 1 week of data
+        data_factor = min(1.0, len(self.hourly_data) / (7 * 24))  # Full confidence with 1 week of data
 
         return base_confidence * accuracy_factor * data_factor
 
-    def _apply_weather_adjustment(
-        self, base_forecast: float, weather_data: Dict[str, float]
-    ) -> float:
+    def _apply_weather_adjustment(self, base_forecast: float, weather_data: Dict[str, float]) -> float:
         """Apply weather-based adjustments to forecast"""
 
         # Simple temperature-based adjustment
@@ -448,19 +405,13 @@ class LoadForecaster:
 
         # Update weekday patterns
         for weekday in range(7):
-            weekday_loads = [
-                entry["load"]
-                for entry in self.hourly_data
-                if entry["weekday"] == weekday
-            ]
+            weekday_loads = [entry["load"] for entry in self.hourly_data if entry["weekday"] == weekday]
             if weekday_loads:
                 self.weekday_patterns[weekday] = statistics.mean(weekday_loads)
 
         # Update hourly patterns
         for hour in range(24):
-            hour_loads = [
-                entry["load"] for entry in self.hourly_data if entry["hour"] == hour
-            ]
+            hour_loads = [entry["load"] for entry in self.hourly_data if entry["hour"] == hour]
             if hour_loads:
                 self.hourly_patterns[hour] = statistics.mean(hour_loads)
 
@@ -484,9 +435,7 @@ class LoadForecaster:
             sum_t2 = sum(t * t for t in times)
 
             if n * sum_t2 - sum_t * sum_t != 0:
-                slope = (n * sum_t_load - sum_t * sum_load) / (
-                    n * sum_t2 - sum_t * sum_t
-                )
+                slope = (n * sum_t_load - sum_t * sum_load) / (n * sum_t2 - sum_t * sum_t)
                 intercept = (sum_load - slope * sum_t) / n
 
                 self.regression_coefficients = {
@@ -521,18 +470,14 @@ class LoadForecaster:
         # Calculate seasonal factors
         for day_of_year, loads in daily_averages.items():
             if overall_average > 0:
-                self.seasonal_factors[day_of_year] = (
-                    statistics.mean(loads) / overall_average
-                )
+                self.seasonal_factors[day_of_year] = statistics.mean(loads) / overall_average
 
     def _update_forecast_accuracy(self, current_load: float, current_time: float):
         """Update accuracy metrics for previous forecasts"""
 
         # Find forecasts that correspond to current time
         matching_forecasts = [
-            point
-            for point in self.current_forecast
-            if abs(point.timestamp - current_time) < 1800  # Within 30 minutes
+            point for point in self.current_forecast if abs(point.timestamp - current_time) < 1800  # Within 30 minutes
         ]
 
         for forecast_point in matching_forecasts:
@@ -543,10 +488,7 @@ class LoadForecaster:
                 self.forecast_accuracy_history.append(forecast_point.error)
 
                 # Update overall accuracy metrics
-                if (
-                    forecast_point.error is not None
-                    and forecast_point.error <= self.config.accuracy_target_mape
-                ):
+                if forecast_point.error is not None and forecast_point.error <= self.config.accuracy_target_mape:
                     self.accurate_forecasts += 1
 
         # Calculate current MAPE
@@ -566,23 +508,15 @@ class LoadForecaster:
         """Create standardized response dictionary"""
 
         next_24h_forecast = self.get_forecast(24)
-        peak_forecast = (
-            max(point["predicted_load"] for point in next_24h_forecast)
-            if next_24h_forecast
-            else 0.0
-        )
+        peak_forecast = max(point["predicted_load"] for point in next_24h_forecast) if next_24h_forecast else 0.0
 
         return {
             "forecast_available": len(self.current_forecast) > 0,
             "forecast_horizon_hours": len(self.current_forecast),
-            "next_hour_forecast": (
-                next_24h_forecast[0]["predicted_load"] if next_24h_forecast else 0.0
-            ),
+            "next_hour_forecast": (next_24h_forecast[0]["predicted_load"] if next_24h_forecast else 0.0),
             "peak_forecast_24h": peak_forecast,
             "forecast_confidence": (
-                statistics.mean([p.confidence for p in self.current_forecast])
-                if self.current_forecast
-                else 0.0
+                statistics.mean([p.confidence for p in self.current_forecast]) if self.current_forecast else 0.0
             ),
             "current_mape": self.current_mape,
             "forecast_bias": self.forecast_bias,
@@ -602,9 +536,7 @@ class LoadForecaster:
             "current_mape": self.current_mape,
             "forecast_bias": self.forecast_bias,
             "data_points_available": len(self.load_history),
-            "pattern_completeness": min(
-                100.0, len(self.hourly_data) / (7 * 24) * 100.0
-            ),
+            "pattern_completeness": min(100.0, len(self.hourly_data) / (7 * 24) * 100.0),
             "trend_coefficient": self.trend_coefficient,
             "seasonal_factors_count": len(self.seasonal_factors),
         }
@@ -639,8 +571,7 @@ class LoadForecaster:
         """Check if forecaster is actively forecasting"""
         return (
             len(self.current_forecast) > 0
-            and time.time() - self.last_forecast_time
-            < self.config.forecast_update_interval * 2
+            and time.time() - self.last_forecast_time < self.config.forecast_update_interval * 2
         )
 
     def get_forecast_accuracy(self) -> float:

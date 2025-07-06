@@ -1,11 +1,11 @@
 """
-Gearbox system for the KPP drivetrain.
+Gearbox system for the KPP integrated_drivetrain.
 Implements multi-stage speed conversion with realistic gear ratios.
 """
 
 import logging
 import math
-from typing import List, Optional
+from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +15,7 @@ class GearStage:
     Individual gear stage within a gearbox.
     """
 
-    def __init__(
-        self, ratio: float, efficiency: float = 0.95, max_torque: float = 5000.0
-    ):
+    def __init__(self, ratio: float, efficiency: float = 0.95, max_torque: float = 5000.0):
         """
         Initialize a gear stage.
 
@@ -91,9 +89,7 @@ class Gearbox:
         self.housing_temperature = 20.0  # °C
         self.oil_temperature = 20.0  # °C
 
-    def add_stage(
-        self, ratio: float, efficiency: float = 0.95, max_torque: float = 5000.0
-    ):
+    def add_stage(self, ratio: float, efficiency: float = 0.95, max_torque: float = 5000.0):
         """
         Add a gear stage to the gearbox.
 

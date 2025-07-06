@@ -6,7 +6,7 @@ Implements the architecture described in guideprestagegap.md.
 import logging
 
 from simulation.components.control import Control
-from simulation.components.drivetrain import Drivetrain
+from simulation.components.integrated_drivetrain import create_standard_kpp_drivetrain
 from simulation.components.environment import Environment
 from simulation.components.floater import Floater
 from simulation.components.pneumatics import PneumaticSystem
@@ -16,7 +16,7 @@ from simulation.hypotheses.h1_nanobubbles import H1Nanobubbles
 from simulation.hypotheses.h2_isothermal import H2Isothermal
 from simulation.hypotheses.h3_pulse_mode import H3PulseMode
 from simulation.plotting import PlottingUtility
-from utils.errors import ControlError, PhysicsError, SimulationError
+from utils.errors import SimulationError
 from utils.logging_setup import setup_logging
 
 setup_logging()
@@ -44,18 +44,18 @@ class SimulatorController:
                 mass=params.get("floater_mass_empty", 18.0),
                 area=params.get("floater_area", 0.035),
                 drag_coefficient=params.get("drag_coefficient", 0.8),
-                position=(
-                    i * params.get("water_depth", 10.0) / params.get("num_floaters", 8)
-                )
+                position=(i * params.get("water_depth", 10.0) / params.get("num_floaters", 8))
                 % params.get("water_depth", 10.0),
             )
             for i in range(params.get("num_floaters", 8))
         ]
-        self.drivetrain = Drivetrain(
-            gear_ratio=params.get("gear_ratio", 1.0),
-            efficiency=params.get("drivetrain_efficiency", 1.0),
-            sprocket_radius=params.get("sprocket_radius", 0.5),
-        )
+        # Create integrated integrated_drivetrain with standard configuration
+        drivetrain_config = {
+            "sprocket_radius": params.get("sprocket_radius", 0.5),
+            "gear_ratio": params.get("gear_ratio", 1.0),
+            "efficiency": params.get("drivetrain_efficiency", 1.0),
+        }
+        self.integrated_drivetrain = create_standard_kpp_drivetrain(drivetrain_config)
         self.pneumatic = PneumaticSystem(
             tank_pressure=params.get("air_pressure", 3.0),
             tank_volume=params.get("tank_volume", 0.1),
@@ -64,20 +64,16 @@ class SimulatorController:
         )
         self.sensors = Sensors()
         water_depth = params.get("water_depth", 10.0)
-        self.top_sensor = PositionSensor(
-            position_threshold=water_depth, trigger_when="above"
-        )
-        self.bottom_sensor = PositionSensor(
-            position_threshold=0.0, trigger_when="below"
-        )
-        # Pass drivetrain and control params to Control
+        self.top_sensor = PositionSensor(position_threshold=water_depth, trigger_when="above")
+        self.bottom_sensor = PositionSensor(position_threshold=0.0, trigger_when="below")
+        # Pass integrated_drivetrain and control params to Control
         self.control = Control(
             floaters=self.floaters,
             pneumatic=self.pneumatic,
             sensors=self.sensors,
             top_sensor=self.top_sensor,
             bottom_sensor=self.bottom_sensor,
-            drivetrain=self.drivetrain,
+            integrated_drivetrain=self.integrated_drivetrain,
             target_rpm=params.get("target_rpm", 20.0),
             Kp=params.get("Kp", 1.0),
             Ki=params.get("Ki", 0.0),
@@ -103,7 +99,7 @@ class SimulatorController:
             self.control.update(dt)
             for floater in self.floaters:
                 floater.update(dt)
-            # Compute net forces from floaters for drivetrain
+            # Compute net forces from floaters for integrated_drivetrain
             forces = []
             for floater in self.floaters:
                 # Calculate net upward force for torque calculation
@@ -112,15 +108,12 @@ class SimulatorController:
                 weight = floater.mass * self.environment.gravity
                 net_upward = buoyant - weight
                 forces.append(net_upward)
-            # Use Drivetrain.compute_input_torque instead of compute_torque
-            torque = self.drivetrain.compute_input_torque(sum(forces))
+            # Use integrated integrated_drivetrain to compute torque
+            drivetrain_output = self.integrated_drivetrain.update(sum(forces), 0.0, dt)
+            torque = drivetrain_output.get("gearbox_output_torque", 0.0)
             # Update power (derive angular speed from floater velocity)
             avg_velocity = sum(f.velocity for f in self.floaters) / len(self.floaters)
-            angular_speed = (
-                avg_velocity / self.drivetrain.sprocket_radius
-                if self.drivetrain.sprocket_radius
-                else 0.0
-            )
+            angular_speed = avg_velocity / drivetrain_output.get("sprocket_radius", 0.5) if drivetrain_output.get("sprocket_radius", 0.5) else 0.0
             # Log results for this step
             self.current_time += dt
             self.results_log.append(

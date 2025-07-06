@@ -236,8 +236,7 @@ class EventHandler:
         energy_required = P_depth * volume
 
         logger.debug(
-            f"Injection energy: P_depth={P_depth:.0f}Pa, "
-            f"volume={volume:.3f}m³, energy={energy_required:.1f}J"
+            f"Injection energy: P_depth={P_depth:.0f}Pa, " f"volume={volume:.3f}m³, energy={energy_required:.1f}J"
         )
 
         return energy_required

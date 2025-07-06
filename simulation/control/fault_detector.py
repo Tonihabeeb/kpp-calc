@@ -4,12 +4,10 @@ Implements comprehensive system monitoring and protection.
 """
 
 import logging
-import math
-import time
 from collections import deque
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -120,9 +118,7 @@ class FaultDetector:
         self.current_time = 0.0
         self.last_update_time = 0.0
 
-        logger.info(
-            f"FaultDetector initialized with {len(self.fault_detectors)} detection algorithms"
-        )
+        logger.info(f"FaultDetector initialized with {len(self.fault_detectors)} detection algorithms")
 
     def update(self, system_state: Dict, dt: float) -> Dict:
         """
@@ -174,9 +170,7 @@ class FaultDetector:
             },
             "fault_summary": fault_summary,
             "component_health": self.component_health.copy(),
-            "critical_faults": [
-                f for f in self.active_faults if f.severity == FaultSeverity.CRITICAL
-            ],
+            "critical_faults": [f for f in self.active_faults if f.severity == FaultSeverity.CRITICAL],
             "recovery_status": self._get_recovery_status(),
             "detector_status": self._get_detector_status(),
         }
@@ -274,10 +268,10 @@ class FaultDetector:
         # Extract component data
         components = {
             "floaters": self._assess_floater_health(system_state),
-            "drivetrain": self._assess_drivetrain_health(system_state),
+            "integrated_drivetrain": self._assess_drivetrain_health(system_state),
             "generator": self._assess_generator_health(system_state),
             "power_electronics": self._assess_power_electronics_health(system_state),
-            "control_system": self._assess_control_health(system_state),
+            "integrated_control_system": self._assess_control_health(system_state),
         }
 
         # Update health scores
@@ -308,10 +302,10 @@ class FaultDetector:
         return float(np.mean(health_scores)) if health_scores else 0.5
 
     def _assess_drivetrain_health(self, system_state: Dict) -> float:
-        """Assess mechanical drivetrain health"""
+        """Assess mechanical integrated_drivetrain health"""
         drivetrain_output = system_state.get("drivetrain_output", {})
 
-        # Check key drivetrain metrics
+        # Check key integrated_drivetrain metrics
         efficiency = drivetrain_output.get("overall_efficiency", 0.8)
         vibration = drivetrain_output.get("vibration_level", 1.0)
         temperature = drivetrain_output.get("temperature", 60.0)
@@ -393,9 +387,7 @@ class FaultDetector:
 
         for detector_name, detector in self.fault_detectors.items():
             try:
-                detected_faults = detector.detect_faults(
-                    system_state, self.performance_baselines
-                )
+                detected_faults = detector.detect_faults(system_state, self.performance_baselines)
                 for fault in detected_faults:
                     fault["detector"] = detector_name
                 all_detected_faults.extend(detected_faults)
@@ -404,9 +396,7 @@ class FaultDetector:
 
         return all_detected_faults
 
-    def _process_detected_faults(
-        self, detected_faults: List[Dict]
-    ) -> List[SystemFault]:
+    def _process_detected_faults(self, detected_faults: List[Dict]) -> List[SystemFault]:
         """Process newly detected faults"""
         new_faults = []
 
@@ -430,17 +420,13 @@ class FaultDetector:
                     location=fault_data.get("location", "unknown"),
                     parameters=fault_data.get("parameters", {}),
                     recovery_actions=fault_data.get("recovery_actions", []),
-                    auto_recovery_possible=fault_data.get(
-                        "auto_recovery_possible", True
-                    ),
+                    auto_recovery_possible=fault_data.get("auto_recovery_possible", True),
                 )
 
                 self.active_faults.append(fault)
                 new_faults.append(fault)
 
-                logger.warning(
-                    f"New {fault.severity.value} fault detected: {fault.description}"
-                )
+                logger.warning(f"New {fault.severity.value} fault detected: {fault.description}")
 
         return new_faults
 
@@ -459,9 +445,7 @@ class FaultDetector:
             if self._is_fault_cleared(fault):
                 cleared_faults.append(fault)
                 self.fault_history.append(fault)
-                logger.info(
-                    f"Fault cleared: {fault.description} (duration: {fault.duration:.1f}s)"
-                )
+                logger.info(f"Fault cleared: {fault.description} (duration: {fault.duration:.1f}s)")
 
         # Remove cleared faults
         for fault in cleared_faults:
@@ -492,10 +476,7 @@ class FaultDetector:
             for fault in self.active_faults:
                 fault_trigger = f"{fault.category.value}_{fault.severity.value}_fault"
 
-                if (
-                    fault_trigger in procedure["triggers"]
-                    or fault.fault_id in procedure["triggers"]
-                ):
+                if fault_trigger in procedure["triggers"] or fault.fault_id in procedure["triggers"]:
                     # Execute recovery procedure
                     action = {
                         "procedure": procedure_name,
@@ -506,9 +487,7 @@ class FaultDetector:
                     }
                     recovery_actions.append(action)
 
-                    logger.info(
-                        f"Initiating recovery procedure '{procedure_name}' for fault {fault.fault_id}"
-                    )
+                    logger.info(f"Initiating recovery procedure '{procedure_name}' for fault {fault.fault_id}")
 
         return recovery_actions
 
@@ -548,10 +527,10 @@ class FaultDetector:
         # Weight components by criticality
         component_weights = {
             "floaters": 0.2,
-            "drivetrain": 0.25,
+            "integrated_drivetrain": 0.25,
             "generator": 0.25,
             "power_electronics": 0.2,
-            "control_system": 0.1,
+            "integrated_control_system": 0.1,
         }
 
         weighted_health = 0.0
@@ -566,14 +545,9 @@ class FaultDetector:
 
         # Adjust for active faults
         fault_penalty = len(self.active_faults) * 0.1
-        critical_fault_penalty = (
-            len([f for f in self.active_faults if f.severity == FaultSeverity.CRITICAL])
-            * 0.3
-        )
+        critical_fault_penalty = len([f for f in self.active_faults if f.severity == FaultSeverity.CRITICAL]) * 0.3
 
-        overall_health = max(
-            0.0, overall_health - fault_penalty - critical_fault_penalty
-        )
+        overall_health = max(0.0, overall_health - fault_penalty - critical_fault_penalty)
 
         return {
             "overall": overall_health,
@@ -619,16 +593,9 @@ class FaultDetector:
             "total_active_faults": len(self.active_faults),
             "severity_breakdown": {k.value: v for k, v in severity_counts.items()},
             "category_breakdown": {k.value: v for k, v in category_counts.items()},
-            "critical_fault_ids": [
-                f.fault_id
-                for f in self.active_faults
-                if f.severity == FaultSeverity.CRITICAL
-            ],
-            "oldest_fault_duration": max(
-                [f.duration for f in self.active_faults], default=0.0
-            ),
-            "recent_fault_rate": len(self.fault_history)
-            / max(1, self.current_time / 3600),  # Faults per hour
+            "critical_fault_ids": [f.fault_id for f in self.active_faults if f.severity == FaultSeverity.CRITICAL],
+            "oldest_fault_duration": max([f.duration for f in self.active_faults], default=0.0),
+            "recent_fault_rate": len(self.fault_history) / max(1, self.current_time / 3600),  # Faults per hour
         }
 
     def _get_recovery_status(self) -> Dict:
@@ -720,11 +687,7 @@ class ElectricalFaultDetector:
 
         # Check grid voltage
         grid_voltage = electrical_output.get("grid_voltage", 480.0)
-        if not (
-            self.thresholds["grid_voltage_min"]
-            <= grid_voltage
-            <= self.thresholds["grid_voltage_max"]
-        ):
+        if not (self.thresholds["grid_voltage_min"] <= grid_voltage <= self.thresholds["grid_voltage_max"]):
             faults.append(
                 {
                     "fault_id": "grid_voltage_fault",
@@ -796,7 +759,7 @@ class ControlFaultDetector:
                     "category": "control",
                     "severity": "minor",
                     "description": f"Control response slow: {response_time:.2f}s",
-                    "location": "control_system",
+                    "location": "integrated_control_system",
                 }
             )
 

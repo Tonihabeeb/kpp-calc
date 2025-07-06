@@ -1,0 +1,5047 @@
+{
+  "timestamp": "2025-07-06T12:40:47.387032",
+  "project": "H:\\My Drive\\kpp force calc",
+  "summary": {
+    "core_files_analyzed": 127,
+    "total_lines_of_code": 42005,
+    "total_issues": 407,
+    "error_count": 0,
+    "warning_count": 407,
+    "info_count": 0,
+    "code_quality_score": 0.0,
+    "analysis_time_seconds": 18.76267719268799
+  },
+  "core_files_analyzed": [
+    {
+      "file_path": "app.py",
+      "lines_of_code": 1019,
+      "function_count": 40,
+      "class_count": 0,
+      "import_count": 20,
+      "complexity_score": 67,
+      "has_syntax_errors": false,
+      "issues_count": 3
+    },
+    {
+      "file_path": "config\\components\\__init__.py",
+      "lines_of_code": 12,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 5,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\components\\control_config.py",
+      "lines_of_code": 57,
+      "function_count": 4,
+      "class_count": 1,
+      "import_count": 2,
+      "complexity_score": 3,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\components\\drivetrain_config.py",
+      "lines_of_code": 59,
+      "function_count": 2,
+      "class_count": 1,
+      "import_count": 2,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\components\\electrical_config.py",
+      "lines_of_code": 77,
+      "function_count": 1,
+      "class_count": 1,
+      "import_count": 3,
+      "complexity_score": 7,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\components\\floater_config.py",
+      "lines_of_code": 120,
+      "function_count": 6,
+      "class_count": 1,
+      "import_count": 4,
+      "complexity_score": 6,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\components\\generator_config.py",
+      "lines_of_code": 9,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\components\\simulation_config.py",
+      "lines_of_code": 47,
+      "function_count": 0,
+      "class_count": 1,
+      "import_count": 2,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\config.py",
+      "lines_of_code": 17,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\core\\__init__.py",
+      "lines_of_code": 10,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 3,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\core\\base_config.py",
+      "lines_of_code": 64,
+      "function_count": 5,
+      "class_count": 2,
+      "import_count": 3,
+      "complexity_score": 4,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\core\\schema.py",
+      "lines_of_code": 156,
+      "function_count": 5,
+      "class_count": 7,
+      "import_count": 2,
+      "complexity_score": 5,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\core\\validation.py",
+      "lines_of_code": 123,
+      "function_count": 5,
+      "class_count": 1,
+      "import_count": 2,
+      "complexity_score": 24,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "config\\parameter_schema.py",
+      "lines_of_code": 184,
+      "function_count": 4,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 12,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "dash_app.py",
+      "lines_of_code": 2635,
+      "function_count": 32,
+      "class_count": 1,
+      "import_count": 27,
+      "complexity_score": 165,
+      "has_syntax_errors": false,
+      "issues_count": 13
+    },
+    {
+      "file_path": "main.py",
+      "lines_of_code": 422,
+      "function_count": 9,
+      "class_count": 2,
+      "import_count": 14,
+      "complexity_score": 30,
+      "has_syntax_errors": false,
+      "issues_count": 19
+    },
+    {
+      "file_path": "simulation\\components\\__init__.py",
+      "lines_of_code": 2,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\advanced_generator.py",
+      "lines_of_code": 695,
+      "function_count": 18,
+      "class_count": 1,
+      "import_count": 3,
+      "complexity_score": 26,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\chain.py",
+      "lines_of_code": 294,
+      "function_count": 14,
+      "class_count": 2,
+      "import_count": 3,
+      "complexity_score": 11,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\clutch.py",
+      "lines_of_code": 37,
+      "function_count": 2,
+      "class_count": 2,
+      "import_count": 1,
+      "complexity_score": 10,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\control.py",
+      "lines_of_code": 158,
+      "function_count": 3,
+      "class_count": 1,
+      "import_count": 2,
+      "complexity_score": 27,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\components\\drivetrain.py",
+      "lines_of_code": 13,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 1,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\environment.py",
+      "lines_of_code": 163,
+      "function_count": 4,
+      "class_count": 1,
+      "import_count": 3,
+      "complexity_score": 2,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\floater\\__init__.py",
+      "lines_of_code": 24,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 6,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\floater\\buoyancy.py",
+      "lines_of_code": 97,
+      "function_count": 5,
+      "class_count": 2,
+      "import_count": 3,
+      "complexity_score": 3,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\floater\\core.py",
+      "lines_of_code": 480,
+      "function_count": 28,
+      "class_count": 2,
+      "import_count": 10,
+      "complexity_score": 31,
+      "has_syntax_errors": false,
+      "issues_count": 16
+    },
+    {
+      "file_path": "simulation\\components\\floater\\pneumatic.py",
+      "lines_of_code": 134,
+      "function_count": 9,
+      "class_count": 2,
+      "import_count": 3,
+      "complexity_score": 7,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\floater\\state_machine.py",
+      "lines_of_code": 121,
+      "function_count": 9,
+      "class_count": 3,
+      "import_count": 4,
+      "complexity_score": 5,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\floater\\tests\\__init__.py",
+      "lines_of_code": 1,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\floater\\thermal.py",
+      "lines_of_code": 90,
+      "function_count": 5,
+      "class_count": 2,
+      "import_count": 2,
+      "complexity_score": 6,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\floater\\validation.py",
+      "lines_of_code": 126,
+      "function_count": 5,
+      "class_count": 2,
+      "import_count": 3,
+      "complexity_score": 16,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\fluid.py",
+      "lines_of_code": 432,
+      "function_count": 11,
+      "class_count": 2,
+      "import_count": 5,
+      "complexity_score": 14,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\flywheel.py",
+      "lines_of_code": 549,
+      "function_count": 15,
+      "class_count": 2,
+      "import_count": 2,
+      "complexity_score": 16,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\gearbox.py",
+      "lines_of_code": 205,
+      "function_count": 12,
+      "class_count": 2,
+      "import_count": 3,
+      "complexity_score": 4,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\generator.py",
+      "lines_of_code": 13,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 1,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\integrated_drivetrain.py",
+      "lines_of_code": 377,
+      "function_count": 10,
+      "class_count": 1,
+      "import_count": 8,
+      "complexity_score": 13,
+      "has_syntax_errors": false,
+      "issues_count": 55
+    },
+    {
+      "file_path": "simulation\\components\\integrated_electrical_system.py",
+      "lines_of_code": 609,
+      "function_count": 13,
+      "class_count": 1,
+      "import_count": 7,
+      "complexity_score": 35,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\components\\one_way_clutch.py",
+      "lines_of_code": 300,
+      "function_count": 10,
+      "class_count": 2,
+      "import_count": 2,
+      "complexity_score": 21,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\pneumatics.py",
+      "lines_of_code": 494,
+      "function_count": 12,
+      "class_count": 2,
+      "import_count": 6,
+      "complexity_score": 23,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\position_sensor.py",
+      "lines_of_code": 35,
+      "function_count": 2,
+      "class_count": 1,
+      "import_count": 0,
+      "complexity_score": 3,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\power_electronics.py",
+      "lines_of_code": 597,
+      "function_count": 16,
+      "class_count": 2,
+      "import_count": 4,
+      "complexity_score": 46,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\components\\sensors.py",
+      "lines_of_code": 55,
+      "function_count": 3,
+      "class_count": 1,
+      "import_count": 2,
+      "complexity_score": 4,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\sprocket.py",
+      "lines_of_code": 189,
+      "function_count": 11,
+      "class_count": 2,
+      "import_count": 2,
+      "complexity_score": 3,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\components\\thermal.py",
+      "lines_of_code": 393,
+      "function_count": 12,
+      "class_count": 2,
+      "import_count": 4,
+      "complexity_score": 20,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\control\\__init__.py",
+      "lines_of_code": 21,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 5,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\control\\emergency_response.py",
+      "lines_of_code": 589,
+      "function_count": 16,
+      "class_count": 5,
+      "import_count": 4,
+      "complexity_score": 57,
+      "has_syntax_errors": false,
+      "issues_count": 66
+    },
+    {
+      "file_path": "simulation\\control\\fault_detector.py",
+      "lines_of_code": 817,
+      "function_count": 37,
+      "class_count": 10,
+      "import_count": 6,
+      "complexity_score": 48,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\control\\grid_disturbance_handler.py",
+      "lines_of_code": 538,
+      "function_count": 16,
+      "class_count": 5,
+      "import_count": 5,
+      "complexity_score": 57,
+      "has_syntax_errors": false,
+      "issues_count": 15
+    },
+    {
+      "file_path": "simulation\\control\\grid_stability_controller.py",
+      "lines_of_code": 620,
+      "function_count": 24,
+      "class_count": 8,
+      "import_count": 6,
+      "complexity_score": 39,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\control\\integrated_control_system.py",
+      "lines_of_code": 808,
+      "function_count": 29,
+      "class_count": 4,
+      "import_count": 10,
+      "complexity_score": 57,
+      "has_syntax_errors": false,
+      "issues_count": 2
+    },
+    {
+      "file_path": "simulation\\control\\load_manager.py",
+      "lines_of_code": 541,
+      "function_count": 21,
+      "class_count": 3,
+      "import_count": 5,
+      "complexity_score": 19,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\control\\startup_controller.py",
+      "lines_of_code": 474,
+      "function_count": 17,
+      "class_count": 4,
+      "import_count": 4,
+      "complexity_score": 28,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\control\\timing_controller.py",
+      "lines_of_code": 579,
+      "function_count": 22,
+      "class_count": 5,
+      "import_count": 6,
+      "complexity_score": 28,
+      "has_syntax_errors": false,
+      "issues_count": 11
+    },
+    {
+      "file_path": "simulation\\control\\transient_event_controller.py",
+      "lines_of_code": 437,
+      "function_count": 11,
+      "class_count": 4,
+      "import_count": 7,
+      "complexity_score": 28,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\controller.py",
+      "lines_of_code": 183,
+      "function_count": 4,
+      "class_count": 1,
+      "import_count": 14,
+      "complexity_score": 7,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\engine.py",
+      "lines_of_code": 1398,
+      "function_count": 45,
+      "class_count": 1,
+      "import_count": 19,
+      "complexity_score": 117,
+      "has_syntax_errors": false,
+      "issues_count": 140
+    },
+    {
+      "file_path": "simulation\\future\\__init__.py",
+      "lines_of_code": 44,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 2,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\future\\enhancement_hooks.py",
+      "lines_of_code": 234,
+      "function_count": 14,
+      "class_count": 2,
+      "import_count": 5,
+      "complexity_score": 18,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\future\\hypothesis_framework.py",
+      "lines_of_code": 393,
+      "function_count": 41,
+      "class_count": 10,
+      "import_count": 5,
+      "complexity_score": 19,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\grid_services\\__init__.py",
+      "lines_of_code": 80,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 6,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\grid_services\\demand_response\\__init__.py",
+      "lines_of_code": 27,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 3,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\grid_services\\demand_response\\load_curtailment_controller.py",
+      "lines_of_code": 546,
+      "function_count": 20,
+      "class_count": 5,
+      "import_count": 5,
+      "complexity_score": 47,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\grid_services\\demand_response\\load_forecaster.py",
+      "lines_of_code": 601,
+      "function_count": 25,
+      "class_count": 3,
+      "import_count": 7,
+      "complexity_score": 55,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\grid_services\\demand_response\\peak_shaving_controller.py",
+      "lines_of_code": 564,
+      "function_count": 20,
+      "class_count": 3,
+      "import_count": 6,
+      "complexity_score": 53,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\grid_services\\economic\\__init__.py",
+      "lines_of_code": 30,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 4,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\grid_services\\economic\\bidding_strategy.py",
+      "lines_of_code": 741,
+      "function_count": 32,
+      "class_count": 6,
+      "import_count": 7,
+      "complexity_score": 35,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\grid_services\\economic\\economic_optimizer.py",
+      "lines_of_code": 750,
+      "function_count": 19,
+      "class_count": 6,
+      "import_count": 4,
+      "complexity_score": 56,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\grid_services\\economic\\market_interface.py",
+      "lines_of_code": 478,
+      "function_count": 16,
+      "class_count": 6,
+      "import_count": 6,
+      "complexity_score": 29,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\grid_services\\economic\\price_forecaster.py",
+      "lines_of_code": 664,
+      "function_count": 22,
+      "class_count": 4,
+      "import_count": 8,
+      "complexity_score": 57,
+      "has_syntax_errors": false,
+      "issues_count": 2
+    },
+    {
+      "file_path": "simulation\\grid_services\\frequency\\__init__.py",
+      "lines_of_code": 17,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 3,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\grid_services\\frequency\\primary_frequency_controller.py",
+      "lines_of_code": 199,
+      "function_count": 9,
+      "class_count": 2,
+      "import_count": 4,
+      "complexity_score": 10,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\grid_services\\frequency\\secondary_frequency_controller.py",
+      "lines_of_code": 316,
+      "function_count": 12,
+      "class_count": 3,
+      "import_count": 5,
+      "complexity_score": 22,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\grid_services\\frequency\\synthetic_inertia_controller.py",
+      "lines_of_code": 334,
+      "function_count": 12,
+      "class_count": 3,
+      "import_count": 5,
+      "complexity_score": 18,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\grid_services\\grid_services_coordinator.py",
+      "lines_of_code": 863,
+      "function_count": 22,
+      "class_count": 5,
+      "import_count": 19,
+      "complexity_score": 63,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\grid_services\\storage\\__init__.py",
+      "lines_of_code": 24,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 2,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\grid_services\\storage\\battery_storage_system.py",
+      "lines_of_code": 444,
+      "function_count": 21,
+      "class_count": 4,
+      "import_count": 4,
+      "complexity_score": 31,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\grid_services\\storage\\grid_stabilization_controller.py",
+      "lines_of_code": 587,
+      "function_count": 25,
+      "class_count": 4,
+      "import_count": 5,
+      "complexity_score": 51,
+      "has_syntax_errors": false,
+      "issues_count": 2
+    },
+    {
+      "file_path": "simulation\\grid_services\\voltage\\__init__.py",
+      "lines_of_code": 27,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 3,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\grid_services\\voltage\\dynamic_voltage_support.py",
+      "lines_of_code": 397,
+      "function_count": 16,
+      "class_count": 3,
+      "import_count": 5,
+      "complexity_score": 35,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\grid_services\\voltage\\power_factor_controller.py",
+      "lines_of_code": 304,
+      "function_count": 11,
+      "class_count": 2,
+      "import_count": 5,
+      "complexity_score": 20,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\grid_services\\voltage\\voltage_regulator.py",
+      "lines_of_code": 269,
+      "function_count": 10,
+      "class_count": 2,
+      "import_count": 5,
+      "complexity_score": 15,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\integration\\__init__.py",
+      "lines_of_code": 2,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\integration\\integration_manager.py",
+      "lines_of_code": 485,
+      "function_count": 16,
+      "class_count": 1,
+      "import_count": 8,
+      "complexity_score": 30,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\logging\\data_logger.py",
+      "lines_of_code": 1,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\managers\\base_manager.py",
+      "lines_of_code": 479,
+      "function_count": 18,
+      "class_count": 3,
+      "import_count": 6,
+      "complexity_score": 44,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\managers\\callback_integration_manager.py",
+      "lines_of_code": 464,
+      "function_count": 34,
+      "class_count": 8,
+      "import_count": 6,
+      "complexity_score": 49,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\managers\\component_manager.py",
+      "lines_of_code": 329,
+      "function_count": 12,
+      "class_count": 1,
+      "import_count": 3,
+      "complexity_score": 28,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\managers\\physics_manager.py",
+      "lines_of_code": 501,
+      "function_count": 16,
+      "class_count": 3,
+      "import_count": 5,
+      "complexity_score": 26,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\managers\\state_manager.py",
+      "lines_of_code": 383,
+      "function_count": 11,
+      "class_count": 1,
+      "import_count": 4,
+      "complexity_score": 9,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\managers\\system_manager.py",
+      "lines_of_code": 497,
+      "function_count": 14,
+      "class_count": 1,
+      "import_count": 9,
+      "complexity_score": 7,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\managers\\thread_safe_engine.py",
+      "lines_of_code": 229,
+      "function_count": 12,
+      "class_count": 1,
+      "import_count": 7,
+      "complexity_score": 25,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\monitoring\\__init__.py",
+      "lines_of_code": 18,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 1,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\monitoring\\performance_monitor.py",
+      "lines_of_code": 398,
+      "function_count": 13,
+      "class_count": 3,
+      "import_count": 8,
+      "complexity_score": 20,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\monitoring\\real_time_monitor.py",
+      "lines_of_code": 535,
+      "function_count": 27,
+      "class_count": 4,
+      "import_count": 5,
+      "complexity_score": 49,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\optimization\\__init__.py",
+      "lines_of_code": 2,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\optimization\\parameter_optimizer.py",
+      "lines_of_code": 579,
+      "function_count": 19,
+      "class_count": 2,
+      "import_count": 7,
+      "complexity_score": 44,
+      "has_syntax_errors": false,
+      "issues_count": 2
+    },
+    {
+      "file_path": "simulation\\optimization\\real_time_optimizer.py",
+      "lines_of_code": 401,
+      "function_count": 20,
+      "class_count": 5,
+      "import_count": 6,
+      "complexity_score": 46,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\physics\\__init__.py",
+      "lines_of_code": 13,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 1,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\physics\\advanced_event_handler.py",
+      "lines_of_code": 481,
+      "function_count": 26,
+      "class_count": 1,
+      "import_count": 3,
+      "complexity_score": 41,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\physics\\event_handler.py",
+      "lines_of_code": 256,
+      "function_count": 14,
+      "class_count": 1,
+      "import_count": 3,
+      "complexity_score": 22,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\physics\\integrated_loss_model.py",
+      "lines_of_code": 466,
+      "function_count": 13,
+      "class_count": 3,
+      "import_count": 7,
+      "complexity_score": 23,
+      "has_syntax_errors": false,
+      "issues_count": 13
+    },
+    {
+      "file_path": "simulation\\physics\\losses.py",
+      "lines_of_code": 397,
+      "function_count": 16,
+      "class_count": 4,
+      "import_count": 3,
+      "complexity_score": 9,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\physics\\nanobubble_physics.py",
+      "lines_of_code": 1,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\physics\\physics_engine.py",
+      "lines_of_code": 1,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\physics\\pulse_controller.py",
+      "lines_of_code": 1,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\physics\\state_synchronizer.py",
+      "lines_of_code": 350,
+      "function_count": 14,
+      "class_count": 1,
+      "import_count": 2,
+      "complexity_score": 51,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\physics\\thermal.py",
+      "lines_of_code": 390,
+      "function_count": 14,
+      "class_count": 3,
+      "import_count": 3,
+      "complexity_score": 18,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\physics\\thermal_physics.py",
+      "lines_of_code": 1,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\pneumatics\\__init__.py",
+      "lines_of_code": 112,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 7,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\pneumatics\\air_compression.py",
+      "lines_of_code": 565,
+      "function_count": 20,
+      "class_count": 3,
+      "import_count": 5,
+      "complexity_score": 15,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\pneumatics\\air_compression_fixed.py",
+      "lines_of_code": 420,
+      "function_count": 15,
+      "class_count": 3,
+      "import_count": 5,
+      "complexity_score": 10,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\pneumatics\\energy_analysis.py",
+      "lines_of_code": 586,
+      "function_count": 15,
+      "class_count": 5,
+      "import_count": 7,
+      "complexity_score": 14,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\pneumatics\\heat_exchange.py",
+      "lines_of_code": 658,
+      "function_count": 18,
+      "class_count": 5,
+      "import_count": 3,
+      "complexity_score": 11,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\pneumatics\\injection_control.py",
+      "lines_of_code": 453,
+      "function_count": 13,
+      "class_count": 6,
+      "import_count": 6,
+      "complexity_score": 21,
+      "has_syntax_errors": false,
+      "issues_count": 1
+    },
+    {
+      "file_path": "simulation\\pneumatics\\performance_metrics.py",
+      "lines_of_code": 700,
+      "function_count": 12,
+      "class_count": 6,
+      "import_count": 8,
+      "complexity_score": 23,
+      "has_syntax_errors": false,
+      "issues_count": 15
+    },
+    {
+      "file_path": "simulation\\pneumatics\\pneumatic_coordinator.py",
+      "lines_of_code": 780,
+      "function_count": 34,
+      "class_count": 7,
+      "import_count": 10,
+      "complexity_score": 74,
+      "has_syntax_errors": false,
+      "issues_count": 8
+    },
+    {
+      "file_path": "simulation\\pneumatics\\pressure_control.py",
+      "lines_of_code": 451,
+      "function_count": 16,
+      "class_count": 4,
+      "import_count": 5,
+      "complexity_score": 34,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\pneumatics\\pressure_expansion.py",
+      "lines_of_code": 295,
+      "function_count": 10,
+      "class_count": 1,
+      "import_count": 3,
+      "complexity_score": 7,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\pneumatics\\thermodynamics.py",
+      "lines_of_code": 639,
+      "function_count": 23,
+      "class_count": 5,
+      "import_count": 4,
+      "complexity_score": 20,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "simulation\\pneumatics\\venting_system.py",
+      "lines_of_code": 536,
+      "function_count": 17,
+      "class_count": 3,
+      "import_count": 4,
+      "complexity_score": 21,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "start_server.py",
+      "lines_of_code": 75,
+      "function_count": 1,
+      "class_count": 0,
+      "import_count": 7,
+      "complexity_score": 7,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "start_synchronized_system.py",
+      "lines_of_code": 275,
+      "function_count": 9,
+      "class_count": 1,
+      "import_count": 9,
+      "complexity_score": 29,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "utils\\__init__.py",
+      "lines_of_code": 2,
+      "function_count": 0,
+      "class_count": 0,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "utils\\backend_logger.py",
+      "lines_of_code": 34,
+      "function_count": 1,
+      "class_count": 0,
+      "import_count": 3,
+      "complexity_score": 5,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "utils\\errors.py",
+      "lines_of_code": 30,
+      "function_count": 1,
+      "class_count": 6,
+      "import_count": 0,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "utils\\logger.py",
+      "lines_of_code": 23,
+      "function_count": 1,
+      "class_count": 1,
+      "import_count": 1,
+      "complexity_score": 1,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    },
+    {
+      "file_path": "utils\\logging_setup.py",
+      "lines_of_code": 79,
+      "function_count": 2,
+      "class_count": 1,
+      "import_count": 5,
+      "complexity_score": 6,
+      "has_syntax_errors": false,
+      "issues_count": 0
+    }
+  ],
+  "issues": [
+    {
+      "file": "H:\\My Drive\\kpp force calc\\app.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function start_simulation is complex (complexity: 11)",
+      "line": 260
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\app.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: matplotlib.pyplot",
+      "line": 969
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\app.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 970
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: dash_bootstrap_components",
+      "line": 16
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: plotly.graph_objs",
+      "line": 17
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function unified_param_notification_preset_callback is complex (complexity: 11)",
+      "line": 1845
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function handle_simulation_controls is complex (complexity: 15)",
+      "line": 1982
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function handle_action_outputs is complex (complexity: 29)",
+      "line": 2070
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function validate_basic_parameters is complex (complexity: 13)",
+      "line": 2207
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function validate_advanced_parameters is complex (complexity: 22)",
+      "line": 2251
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function validate_physics_controls is complex (complexity: 15)",
+      "line": 2307
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function update_status_indicators is complex (complexity: 15)",
+      "line": 2457
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function fetch_synchronized_data is complex (complexity: 13)",
+      "line": 2509
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (130 chars)",
+      "line": 135
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (140 chars)",
+      "line": 456
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\dash_app.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 493
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function get_kpp_data is complex (complexity: 13)",
+      "line": 96
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\main.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 311
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\control.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function update is complex (complexity: 27)",
+      "line": 69
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\floater\\core.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (121 chars)",
+      "line": 108
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (198 chars)",
+      "line": 355
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (128 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_drivetrain.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (231 chars)",
+      "line": 374
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\integrated_electrical_system.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function update is complex (complexity: 15)",
+      "line": 104
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\components\\power_electronics.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _check_protection_systems is complex (complexity: 22)",
+      "line": 141
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _detect_emergency_conditions is complex (complexity: 18)",
+      "line": 164
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 176
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (152 chars)",
+      "line": 240
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (168 chars)",
+      "line": 259
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\emergency_response.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (142 chars)",
+      "line": 224
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\fault_detector.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 12
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 11
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _detect_grid_disturbances is complex (complexity: 11)",
+      "line": 168
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _determine_response_mode is complex (complexity: 20)",
+      "line": 263
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_disturbance_handler.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (123 chars)",
+      "line": 229
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\grid_stability_controller.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 12
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\integrated_control_system.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 11
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\integrated_control_system.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function create_standard_kpp_control_system is complex (complexity: 13)",
+      "line": 748
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\load_manager.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 11
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 12
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (135 chars)",
+      "line": 412
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (135 chars)",
+      "line": 412
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (135 chars)",
+      "line": 412
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (135 chars)",
+      "line": 412
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (135 chars)",
+      "line": 412
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (135 chars)",
+      "line": 412
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (135 chars)",
+      "line": 412
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (135 chars)",
+      "line": 412
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (135 chars)",
+      "line": 412
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\control\\timing_controller.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (135 chars)",
+      "line": 412
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _execute_physics_step is complex (complexity: 16)",
+      "line": 348
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function log_state is complex (complexity: 17)",
+      "line": 638
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (204 chars)",
+      "line": 654
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (245 chars)",
+      "line": 829
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (151 chars)",
+      "line": 253
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (222 chars)",
+      "line": 244
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\engine.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (213 chars)",
+      "line": 909
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\future\\enhancement_hooks.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 10
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\future\\hypothesis_framework.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 19
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\demand_response\\load_curtailment_controller.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _check_for_curtailment_needs is complex (complexity: 11)",
+      "line": 344
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\demand_response\\peak_shaving_controller.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _evaluate_peak_shaving_need is complex (complexity: 14)",
+      "line": 283
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\economic\\bidding_strategy.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 18
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\economic\\economic_optimizer.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _optimize_balanced is complex (complexity: 12)",
+      "line": 453
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\economic\\market_interface.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 17
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\economic\\price_forecaster.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 27
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\economic\\price_forecaster.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _update_patterns is complex (complexity: 13)",
+      "line": 249
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\frequency\\secondary_frequency_controller.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function process_agc_signal is complex (complexity: 14)",
+      "line": 82
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\storage\\battery_storage_system.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _determine_operating_mode is complex (complexity: 12)",
+      "line": 145
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\storage\\grid_stabilization_controller.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _detect_grid_events is complex (complexity: 12)",
+      "line": 164
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\storage\\grid_stabilization_controller.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _determine_stabilization_mode is complex (complexity: 15)",
+      "line": 206
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\voltage\\dynamic_voltage_support.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _update_voltage_event is complex (complexity: 11)",
+      "line": 219
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\voltage\\power_factor_controller.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function update is complex (complexity: 16)",
+      "line": 78
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\grid_services\\voltage\\voltage_regulator.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function update is complex (complexity: 11)",
+      "line": 77
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\managers\\base_manager.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function get_config_param is complex (complexity: 14)",
+      "line": 289
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\managers\\callback_integration_manager.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function register_callback is complex (complexity: 16)",
+      "line": 393
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\monitoring\\performance_monitor.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _check_alerts is complex (complexity: 13)",
+      "line": 275
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\monitoring\\real_time_monitor.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function check_monitors is complex (complexity: 13)",
+      "line": 152
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\optimization\\parameter_optimizer.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 12
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\optimization\\parameter_optimizer.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _apply_parameters is complex (complexity: 12)",
+      "line": 409
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\optimization\\real_time_optimizer.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function optimize_data_output is complex (complexity: 11)",
+      "line": 340
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 10
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\integrated_loss_model.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (144 chars)",
+      "line": 367
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\physics\\state_synchronizer.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function _apply_immediate_sync is complex (complexity: 17)",
+      "line": 196
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\injection_control.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function injection_step is complex (complexity: 12)",
+      "line": 297
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "unused_import",
+      "severity": "warning",
+      "message": "Unused import: numpy",
+      "line": 22
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\performance_metrics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 432
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\pneumatic_coordinator.py",
+      "type": "complex_function",
+      "severity": "warning",
+      "message": "Function update_sensor_data is complex (complexity: 11)",
+      "line": 690
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\pneumatic_coordinator.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (130 chars)",
+      "line": 195
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\pneumatic_coordinator.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (130 chars)",
+      "line": 195
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\pneumatic_coordinator.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (130 chars)",
+      "line": 195
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\pneumatic_coordinator.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (130 chars)",
+      "line": 195
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\pneumatic_coordinator.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (130 chars)",
+      "line": 195
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\pneumatic_coordinator.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (130 chars)",
+      "line": 195
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\simulation\\pneumatics\\pneumatic_coordinator.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (130 chars)",
+      "line": 195
+    }
+  ],
+  "metrics": {
+    "core_files_count": 127,
+    "total_lines": 42005,
+    "total_functions": 1448,
+    "total_classes": 284,
+    "total_imports": 592,
+    "complexity_scores": [
+      67,
+      1,
+      3,
+      1,
+      7,
+      6,
+      1,
+      1,
+      1,
+      1,
+      4,
+      5,
+      24,
+      12,
+      165,
+      30,
+      1,
+      26,
+      11,
+      10,
+      27,
+      1,
+      2,
+      1,
+      3,
+      31,
+      7,
+      5,
+      1,
+      6,
+      16,
+      14,
+      16,
+      4,
+      1,
+      13,
+      35,
+      21,
+      23,
+      3,
+      46,
+      4,
+      3,
+      20,
+      1,
+      57,
+      48,
+      57,
+      39,
+      57,
+      19,
+      28,
+      28,
+      28,
+      7,
+      117,
+      1,
+      18,
+      19,
+      1,
+      1,
+      47,
+      55,
+      53,
+      1,
+      35,
+      56,
+      29,
+      57,
+      1,
+      10,
+      22,
+      18,
+      63,
+      1,
+      31,
+      51,
+      1,
+      35,
+      20,
+      15,
+      1,
+      30,
+      1,
+      44,
+      49,
+      28,
+      26,
+      9,
+      7,
+      25,
+      1,
+      20,
+      49,
+      1,
+      44,
+      46,
+      1,
+      41,
+      22,
+      23,
+      9,
+      1,
+      1,
+      1,
+      51,
+      18,
+      1,
+      1,
+      15,
+      10,
+      14,
+      11,
+      21,
+      23,
+      74,
+      34,
+      7,
+      20,
+      21,
+      7,
+      29,
+      1,
+      5,
+      1,
+      1,
+      6
+    ]
+  },
+  "architecture_analysis": {
+    "modules": {
+      "simulation/monitoring/__init__": {
+        "path": "simulation\\monitoring\\__init__.py",
+        "size": 303,
+        "type": "other"
+      },
+      "simulation/control/load_manager": {
+        "path": "simulation\\control\\load_manager.py",
+        "size": 20915,
+        "type": "control_system"
+      },
+      "simulation/grid_services/voltage/dynamic_voltage_support": {
+        "path": "simulation\\grid_services\\voltage\\dynamic_voltage_support.py",
+        "size": 16243,
+        "type": "other"
+      },
+      "simulation/physics/__init__": {
+        "path": "simulation\\physics\\__init__.py",
+        "size": 305,
+        "type": "physics_engine"
+      },
+      "utils/errors": {
+        "path": "utils\\errors.py",
+        "size": 596,
+        "type": "utility"
+      },
+      "simulation/grid_services/grid_services_coordinator": {
+        "path": "simulation\\grid_services\\grid_services_coordinator.py",
+        "size": 39127,
+        "type": "other"
+      },
+      "simulation/grid_services/__init__": {
+        "path": "simulation\\grid_services\\__init__.py",
+        "size": 2315,
+        "type": "other"
+      },
+      "simulation/pneumatics/air_compression": {
+        "path": "simulation\\pneumatics\\air_compression.py",
+        "size": 22611,
+        "type": "other"
+      },
+      "simulation/pneumatics/heat_exchange": {
+        "path": "simulation\\pneumatics\\heat_exchange.py",
+        "size": 23785,
+        "type": "other"
+      },
+      "config/config": {
+        "path": "config\\config.py",
+        "size": 416,
+        "type": "configuration"
+      },
+      "simulation/physics/advanced_event_handler": {
+        "path": "simulation\\physics\\advanced_event_handler.py",
+        "size": 18309,
+        "type": "physics_engine"
+      },
+      "start_synchronized_system": {
+        "path": "start_synchronized_system.py",
+        "size": 10385,
+        "type": "other"
+      },
+      "simulation/components/environment": {
+        "path": "simulation\\components\\environment.py",
+        "size": 6272,
+        "type": "physics_component"
+      },
+      "simulation/grid_services/economic/price_forecaster": {
+        "path": "simulation\\grid_services\\economic\\price_forecaster.py",
+        "size": 25469,
+        "type": "other"
+      },
+      "simulation/grid_services/storage/__init__": {
+        "path": "simulation\\grid_services\\storage\\__init__.py",
+        "size": 741,
+        "type": "other"
+      },
+      "simulation/managers/callback_integration_manager": {
+        "path": "simulation\\managers\\callback_integration_manager.py",
+        "size": 19835,
+        "type": "system_manager"
+      },
+      "simulation/components/floater/thermal": {
+        "path": "simulation\\components\\floater\\thermal.py",
+        "size": 3258,
+        "type": "physics_component"
+      },
+      "simulation/engine": {
+        "path": "simulation\\engine.py",
+        "size": 64185,
+        "type": "core_engine"
+      },
+      "simulation/components/flywheel": {
+        "path": "simulation\\components\\flywheel.py",
+        "size": 20275,
+        "type": "physics_component"
+      },
+      "simulation/control/emergency_response": {
+        "path": "simulation\\control\\emergency_response.py",
+        "size": 25001,
+        "type": "control_system"
+      },
+      "config/core/schema": {
+        "path": "config\\core\\schema.py",
+        "size": 6190,
+        "type": "configuration"
+      },
+      "simulation/components/fluid": {
+        "path": "simulation\\components\\fluid.py",
+        "size": 16361,
+        "type": "physics_component"
+      },
+      "simulation/components/advanced_generator": {
+        "path": "simulation\\components\\advanced_generator.py",
+        "size": 27982,
+        "type": "physics_component"
+      },
+      "config/core/__init__": {
+        "path": "config\\core\\__init__.py",
+        "size": 230,
+        "type": "configuration"
+      },
+      "simulation/monitoring/performance_monitor": {
+        "path": "simulation\\monitoring\\performance_monitor.py",
+        "size": 15995,
+        "type": "other"
+      },
+      "main": {
+        "path": "main.py",
+        "size": 18749,
+        "type": "other"
+      },
+      "simulation/physics/pulse_controller": {
+        "path": "simulation\\physics\\pulse_controller.py",
+        "size": 0,
+        "type": "physics_engine"
+      },
+      "simulation/pneumatics/energy_analysis": {
+        "path": "simulation\\pneumatics\\energy_analysis.py",
+        "size": 20871,
+        "type": "other"
+      },
+      "simulation/pneumatics/air_compression_fixed": {
+        "path": "simulation\\pneumatics\\air_compression_fixed.py",
+        "size": 16119,
+        "type": "other"
+      },
+      "simulation/optimization/real_time_optimizer": {
+        "path": "simulation\\optimization\\real_time_optimizer.py",
+        "size": 15686,
+        "type": "other"
+      },
+      "config/core/validation": {
+        "path": "config\\core\\validation.py",
+        "size": 4392,
+        "type": "configuration"
+      },
+      "utils/backend_logger": {
+        "path": "utils\\backend_logger.py",
+        "size": 1179,
+        "type": "utility"
+      },
+      "utils/__init__": {
+        "path": "utils\\__init__.py",
+        "size": 17,
+        "type": "utility"
+      },
+      "simulation/future/__init__": {
+        "path": "simulation\\future\\__init__.py",
+        "size": 1156,
+        "type": "other"
+      },
+      "simulation/pneumatics/pneumatic_coordinator": {
+        "path": "simulation\\pneumatics\\pneumatic_coordinator.py",
+        "size": 32029,
+        "type": "other"
+      },
+      "simulation/pneumatics/__init__": {
+        "path": "simulation\\pneumatics\\__init__.py",
+        "size": 3509,
+        "type": "other"
+      },
+      "simulation/components/floater/core": {
+        "path": "simulation\\components\\floater\\core.py",
+        "size": 18861,
+        "type": "physics_component"
+      },
+      "config/components/__init__": {
+        "path": "config\\components\\__init__.py",
+        "size": 396,
+        "type": "configuration"
+      },
+      "simulation/optimization/parameter_optimizer": {
+        "path": "simulation\\optimization\\parameter_optimizer.py",
+        "size": 22177,
+        "type": "other"
+      },
+      "simulation/components/pneumatics": {
+        "path": "simulation\\components\\pneumatics.py",
+        "size": 19414,
+        "type": "physics_component"
+      },
+      "simulation/components/sprocket": {
+        "path": "simulation\\components\\sprocket.py",
+        "size": 6550,
+        "type": "physics_component"
+      },
+      "simulation/control/grid_stability_controller": {
+        "path": "simulation\\control\\grid_stability_controller.py",
+        "size": 24279,
+        "type": "control_system"
+      },
+      "simulation/grid_services/frequency/secondary_frequency_controller": {
+        "path": "simulation\\grid_services\\frequency\\secondary_frequency_controller.py",
+        "size": 13246,
+        "type": "other"
+      },
+      "simulation/managers/component_manager": {
+        "path": "simulation\\managers\\component_manager.py",
+        "size": 13314,
+        "type": "system_manager"
+      },
+      "simulation/control/integrated_control_system": {
+        "path": "simulation\\control\\integrated_control_system.py",
+        "size": 32657,
+        "type": "control_system"
+      },
+      "simulation/grid_services/storage/grid_stabilization_controller": {
+        "path": "simulation\\grid_services\\storage\\grid_stabilization_controller.py",
+        "size": 23051,
+        "type": "other"
+      },
+      "utils/logger": {
+        "path": "utils\\logger.py",
+        "size": 549,
+        "type": "utility"
+      },
+      "simulation/physics/state_synchronizer": {
+        "path": "simulation\\physics\\state_synchronizer.py",
+        "size": 13705,
+        "type": "physics_engine"
+      },
+      "simulation/integration/integration_manager": {
+        "path": "simulation\\integration\\integration_manager.py",
+        "size": 19519,
+        "type": "other"
+      },
+      "simulation/grid_services/frequency/__init__": {
+        "path": "simulation\\grid_services\\frequency\\__init__.py",
+        "size": 541,
+        "type": "other"
+      },
+      "simulation/components/thermal": {
+        "path": "simulation\\components\\thermal.py",
+        "size": 15144,
+        "type": "physics_component"
+      },
+      "config/components/floater_config": {
+        "path": "config\\components\\floater_config.py",
+        "size": 5305,
+        "type": "configuration"
+      },
+      "simulation/control/fault_detector": {
+        "path": "simulation\\control\\fault_detector.py",
+        "size": 31809,
+        "type": "control_system"
+      },
+      "utils/logging_setup": {
+        "path": "utils\\logging_setup.py",
+        "size": 2609,
+        "type": "utility"
+      },
+      "simulation/physics/losses": {
+        "path": "simulation\\physics\\losses.py",
+        "size": 15415,
+        "type": "physics_engine"
+      },
+      "simulation/grid_services/demand_response/load_forecaster": {
+        "path": "simulation\\grid_services\\demand_response\\load_forecaster.py",
+        "size": 24820,
+        "type": "other"
+      },
+      "simulation/monitoring/real_time_monitor": {
+        "path": "simulation\\monitoring\\real_time_monitor.py",
+        "size": 20589,
+        "type": "other"
+      },
+      "simulation/grid_services/voltage/voltage_regulator": {
+        "path": "simulation\\grid_services\\voltage\\voltage_regulator.py",
+        "size": 10890,
+        "type": "other"
+      },
+      "simulation/managers/system_manager": {
+        "path": "simulation\\managers\\system_manager.py",
+        "size": 21738,
+        "type": "system_manager"
+      },
+      "simulation/components/floater/buoyancy": {
+        "path": "simulation\\components\\floater\\buoyancy.py",
+        "size": 3498,
+        "type": "physics_component"
+      },
+      "simulation/control/transient_event_controller": {
+        "path": "simulation\\control\\transient_event_controller.py",
+        "size": 17073,
+        "type": "control_system"
+      },
+      "simulation/components/floater/tests/__init__": {
+        "path": "simulation\\components\\floater\\tests\\__init__.py",
+        "size": 0,
+        "type": "physics_component"
+      },
+      "simulation/grid_services/frequency/primary_frequency_controller": {
+        "path": "simulation\\grid_services\\frequency\\primary_frequency_controller.py",
+        "size": 7735,
+        "type": "other"
+      },
+      "simulation/grid_services/frequency/synthetic_inertia_controller": {
+        "path": "simulation\\grid_services\\frequency\\synthetic_inertia_controller.py",
+        "size": 13748,
+        "type": "other"
+      },
+      "simulation/grid_services/economic/market_interface": {
+        "path": "simulation\\grid_services\\economic\\market_interface.py",
+        "size": 17761,
+        "type": "other"
+      },
+      "config/components/electrical_config": {
+        "path": "config\\components\\electrical_config.py",
+        "size": 3118,
+        "type": "configuration"
+      },
+      "simulation/control/__init__": {
+        "path": "simulation\\control\\__init__.py",
+        "size": 597,
+        "type": "control_system"
+      },
+      "simulation/physics/thermal_physics": {
+        "path": "simulation\\physics\\thermal_physics.py",
+        "size": 0,
+        "type": "physics_engine"
+      },
+      "simulation/grid_services/demand_response/peak_shaving_controller": {
+        "path": "simulation\\grid_services\\demand_response\\peak_shaving_controller.py",
+        "size": 23359,
+        "type": "other"
+      },
+      "simulation/grid_services/storage/battery_storage_system": {
+        "path": "simulation\\grid_services\\storage\\battery_storage_system.py",
+        "size": 18029,
+        "type": "other"
+      },
+      "simulation/physics/nanobubble_physics": {
+        "path": "simulation\\physics\\nanobubble_physics.py",
+        "size": 0,
+        "type": "physics_engine"
+      },
+      "simulation/components/floater/state_machine": {
+        "path": "simulation\\components\\floater\\state_machine.py",
+        "size": 3970,
+        "type": "physics_component"
+      },
+      "simulation/pneumatics/pressure_expansion": {
+        "path": "simulation\\pneumatics\\pressure_expansion.py",
+        "size": 11318,
+        "type": "other"
+      },
+      "simulation/control/startup_controller": {
+        "path": "simulation\\control\\startup_controller.py",
+        "size": 18760,
+        "type": "control_system"
+      },
+      "simulation/components/drivetrain": {
+        "path": "simulation\\components\\drivetrain.py",
+        "size": 329,
+        "type": "physics_component"
+      },
+      "simulation/managers/thread_safe_engine": {
+        "path": "simulation\\managers\\thread_safe_engine.py",
+        "size": 8280,
+        "type": "system_manager"
+      },
+      "simulation/pneumatics/performance_metrics": {
+        "path": "simulation\\pneumatics\\performance_metrics.py",
+        "size": 26733,
+        "type": "other"
+      },
+      "config/components/drivetrain_config": {
+        "path": "config\\components\\drivetrain_config.py",
+        "size": 2422,
+        "type": "configuration"
+      },
+      "dash_app": {
+        "path": "dash_app.py",
+        "size": 117388,
+        "type": "other"
+      },
+      "simulation/optimization/__init__": {
+        "path": "simulation\\optimization\\__init__.py",
+        "size": 42,
+        "type": "other"
+      },
+      "simulation/components/chain": {
+        "path": "simulation\\components\\chain.py",
+        "size": 10090,
+        "type": "physics_component"
+      },
+      "simulation/components/generator": {
+        "path": "simulation\\components\\generator.py",
+        "size": 344,
+        "type": "physics_component"
+      },
+      "simulation/grid_services/economic/__init__": {
+        "path": "simulation\\grid_services\\economic\\__init__.py",
+        "size": 1073,
+        "type": "other"
+      },
+      "simulation/physics/thermal": {
+        "path": "simulation\\physics\\thermal.py",
+        "size": 14626,
+        "type": "physics_engine"
+      },
+      "simulation/pneumatics/thermodynamics": {
+        "path": "simulation\\pneumatics\\thermodynamics.py",
+        "size": 23191,
+        "type": "other"
+      },
+      "simulation/components/gearbox": {
+        "path": "simulation\\components\\gearbox.py",
+        "size": 6833,
+        "type": "physics_component"
+      },
+      "simulation/physics/integrated_loss_model": {
+        "path": "simulation\\physics\\integrated_loss_model.py",
+        "size": 19155,
+        "type": "physics_engine"
+      },
+      "start_server": {
+        "path": "start_server.py",
+        "size": 2389,
+        "type": "other"
+      },
+      "simulation/control/timing_controller": {
+        "path": "simulation\\control\\timing_controller.py",
+        "size": 22941,
+        "type": "control_system"
+      },
+      "config/parameter_schema": {
+        "path": "config\\parameter_schema.py",
+        "size": 8075,
+        "type": "configuration"
+      },
+      "simulation/pneumatics/venting_system": {
+        "path": "simulation\\pneumatics\\venting_system.py",
+        "size": 20024,
+        "type": "other"
+      },
+      "simulation/components/floater/__init__": {
+        "path": "simulation\\components\\floater\\__init__.py",
+        "size": 605,
+        "type": "physics_component"
+      },
+      "config/components/simulation_config": {
+        "path": "config\\components\\simulation_config.py",
+        "size": 1472,
+        "type": "configuration"
+      },
+      "simulation/components/clutch": {
+        "path": "simulation\\components\\clutch.py",
+        "size": 1355,
+        "type": "physics_component"
+      },
+      "config/components/generator_config": {
+        "path": "config\\components\\generator_config.py",
+        "size": 337,
+        "type": "configuration"
+      },
+      "simulation/components/__init__": {
+        "path": "simulation\\components\\__init__.py",
+        "size": 33,
+        "type": "physics_component"
+      },
+      "simulation/components/floater/validation": {
+        "path": "simulation\\components\\floater\\validation.py",
+        "size": 4983,
+        "type": "physics_component"
+      },
+      "simulation/managers/state_manager": {
+        "path": "simulation\\managers\\state_manager.py",
+        "size": 16170,
+        "type": "system_manager"
+      },
+      "simulation/future/enhancement_hooks": {
+        "path": "simulation\\future\\enhancement_hooks.py",
+        "size": 9273,
+        "type": "other"
+      },
+      "simulation/managers/base_manager": {
+        "path": "simulation\\managers\\base_manager.py",
+        "size": 17136,
+        "type": "system_manager"
+      },
+      "simulation/integration/__init__": {
+        "path": "simulation\\integration\\__init__.py",
+        "size": 41,
+        "type": "other"
+      },
+      "simulation/components/sensors": {
+        "path": "simulation\\components\\sensors.py",
+        "size": 1384,
+        "type": "physics_component"
+      },
+      "simulation/components/position_sensor": {
+        "path": "simulation\\components\\position_sensor.py",
+        "size": 1212,
+        "type": "physics_component"
+      },
+      "simulation/controller": {
+        "path": "simulation\\controller.py",
+        "size": 7864,
+        "type": "control_system"
+      },
+      "simulation/pneumatics/pressure_control": {
+        "path": "simulation\\pneumatics\\pressure_control.py",
+        "size": 16614,
+        "type": "other"
+      },
+      "simulation/logging/data_logger": {
+        "path": "simulation\\logging\\data_logger.py",
+        "size": 0,
+        "type": "other"
+      },
+      "simulation/grid_services/voltage/__init__": {
+        "path": "simulation\\grid_services\\voltage\\__init__.py",
+        "size": 794,
+        "type": "other"
+      },
+      "simulation/components/floater/pneumatic": {
+        "path": "simulation\\components\\floater\\pneumatic.py",
+        "size": 4968,
+        "type": "physics_component"
+      },
+      "simulation/physics/physics_engine": {
+        "path": "simulation\\physics\\physics_engine.py",
+        "size": 0,
+        "type": "physics_engine"
+      },
+      "simulation/components/control": {
+        "path": "simulation\\components\\control.py",
+        "size": 6464,
+        "type": "physics_component"
+      },
+      "simulation/pneumatics/injection_control": {
+        "path": "simulation\\pneumatics\\injection_control.py",
+        "size": 17107,
+        "type": "other"
+      },
+      "config/components/control_config": {
+        "path": "config\\components\\control_config.py",
+        "size": 1907,
+        "type": "configuration"
+      },
+      "simulation/managers/physics_manager": {
+        "path": "simulation\\managers\\physics_manager.py",
+        "size": 20550,
+        "type": "system_manager"
+      },
+      "simulation/grid_services/economic/bidding_strategy": {
+        "path": "simulation\\grid_services\\economic\\bidding_strategy.py",
+        "size": 27210,
+        "type": "other"
+      },
+      "simulation/future/hypothesis_framework": {
+        "path": "simulation\\future\\hypothesis_framework.py",
+        "size": 15647,
+        "type": "other"
+      },
+      "simulation/control/grid_disturbance_handler": {
+        "path": "simulation\\control\\grid_disturbance_handler.py",
+        "size": 22505,
+        "type": "control_system"
+      },
+      "simulation/components/one_way_clutch": {
+        "path": "simulation\\components\\one_way_clutch.py",
+        "size": 11839,
+        "type": "physics_component"
+      },
+      "simulation/components/integrated_electrical_system": {
+        "path": "simulation\\components\\integrated_electrical_system.py",
+        "size": 25753,
+        "type": "physics_component"
+      },
+      "app": {
+        "path": "app.py",
+        "size": 34601,
+        "type": "other"
+      },
+      "simulation/grid_services/economic/economic_optimizer": {
+        "path": "simulation\\grid_services\\economic\\economic_optimizer.py",
+        "size": 31260,
+        "type": "other"
+      },
+      "simulation/grid_services/demand_response/load_curtailment_controller": {
+        "path": "simulation\\grid_services\\demand_response\\load_curtailment_controller.py",
+        "size": 22176,
+        "type": "other"
+      },
+      "simulation/grid_services/voltage/power_factor_controller": {
+        "path": "simulation\\grid_services\\voltage\\power_factor_controller.py",
+        "size": 12837,
+        "type": "other"
+      },
+      "config/core/base_config": {
+        "path": "config\\core\\base_config.py",
+        "size": 2059,
+        "type": "configuration"
+      },
+      "simulation/components/integrated_drivetrain": {
+        "path": "simulation\\components\\integrated_drivetrain.py",
+        "size": 15582,
+        "type": "physics_component"
+      },
+      "simulation/components/power_electronics": {
+        "path": "simulation\\components\\power_electronics.py",
+        "size": 24421,
+        "type": "physics_component"
+      },
+      "simulation/physics/event_handler": {
+        "path": "simulation\\physics\\event_handler.py",
+        "size": 8806,
+        "type": "physics_engine"
+      },
+      "simulation/grid_services/demand_response/__init__": {
+        "path": "simulation\\grid_services\\demand_response\\__init__.py",
+        "size": 804,
+        "type": "other"
+      }
+    },
+    "dependencies": {},
+    "entry_points": [
+      "app.py",
+      "dash_app.py",
+      "main.py",
+      "start_server.py"
+    ],
+    "core_components": [
+      "simulation/monitoring/__init__",
+      "simulation/control/load_manager",
+      "simulation/grid_services/voltage/dynamic_voltage_support",
+      "simulation/physics/__init__",
+      "simulation/grid_services/grid_services_coordinator",
+      "simulation/grid_services/__init__",
+      "simulation/pneumatics/air_compression",
+      "simulation/pneumatics/heat_exchange",
+      "simulation/physics/advanced_event_handler",
+      "simulation/components/environment",
+      "simulation/grid_services/economic/price_forecaster",
+      "simulation/grid_services/storage/__init__",
+      "simulation/managers/callback_integration_manager",
+      "simulation/components/floater/thermal",
+      "simulation/engine",
+      "simulation/components/flywheel",
+      "simulation/control/emergency_response",
+      "simulation/components/fluid",
+      "simulation/components/advanced_generator",
+      "simulation/monitoring/performance_monitor",
+      "simulation/physics/pulse_controller",
+      "simulation/pneumatics/energy_analysis",
+      "simulation/pneumatics/air_compression_fixed",
+      "simulation/optimization/real_time_optimizer",
+      "simulation/future/__init__",
+      "simulation/pneumatics/pneumatic_coordinator",
+      "simulation/pneumatics/__init__",
+      "simulation/components/floater/core",
+      "simulation/optimization/parameter_optimizer",
+      "simulation/components/pneumatics",
+      "simulation/components/sprocket",
+      "simulation/control/grid_stability_controller",
+      "simulation/grid_services/frequency/secondary_frequency_controller",
+      "simulation/managers/component_manager",
+      "simulation/control/integrated_control_system",
+      "simulation/grid_services/storage/grid_stabilization_controller",
+      "simulation/physics/state_synchronizer",
+      "simulation/integration/integration_manager",
+      "simulation/grid_services/frequency/__init__",
+      "simulation/components/thermal",
+      "simulation/control/fault_detector",
+      "simulation/physics/losses",
+      "simulation/grid_services/demand_response/load_forecaster",
+      "simulation/monitoring/real_time_monitor",
+      "simulation/grid_services/voltage/voltage_regulator",
+      "simulation/managers/system_manager",
+      "simulation/components/floater/buoyancy",
+      "simulation/control/transient_event_controller",
+      "simulation/components/floater/tests/__init__",
+      "simulation/grid_services/frequency/primary_frequency_controller",
+      "simulation/grid_services/frequency/synthetic_inertia_controller",
+      "simulation/grid_services/economic/market_interface",
+      "simulation/control/__init__",
+      "simulation/physics/thermal_physics",
+      "simulation/grid_services/demand_response/peak_shaving_controller",
+      "simulation/grid_services/storage/battery_storage_system",
+      "simulation/physics/nanobubble_physics",
+      "simulation/components/floater/state_machine",
+      "simulation/pneumatics/pressure_expansion",
+      "simulation/control/startup_controller",
+      "simulation/components/drivetrain",
+      "simulation/managers/thread_safe_engine",
+      "simulation/pneumatics/performance_metrics",
+      "simulation/optimization/__init__",
+      "simulation/components/chain",
+      "simulation/components/generator",
+      "simulation/grid_services/economic/__init__",
+      "simulation/physics/thermal",
+      "simulation/pneumatics/thermodynamics",
+      "simulation/components/gearbox",
+      "simulation/physics/integrated_loss_model",
+      "simulation/control/timing_controller",
+      "simulation/pneumatics/venting_system",
+      "simulation/components/floater/__init__",
+      "config/components/simulation_config",
+      "simulation/components/clutch",
+      "simulation/components/__init__",
+      "simulation/components/floater/validation",
+      "simulation/managers/state_manager",
+      "simulation/future/enhancement_hooks",
+      "simulation/managers/base_manager",
+      "simulation/integration/__init__",
+      "simulation/components/sensors",
+      "simulation/components/position_sensor",
+      "simulation/controller",
+      "simulation/pneumatics/pressure_control",
+      "simulation/logging/data_logger",
+      "simulation/grid_services/voltage/__init__",
+      "simulation/components/floater/pneumatic",
+      "simulation/physics/physics_engine",
+      "simulation/components/control",
+      "simulation/pneumatics/injection_control",
+      "simulation/managers/physics_manager",
+      "simulation/grid_services/economic/bidding_strategy",
+      "simulation/future/hypothesis_framework",
+      "simulation/control/grid_disturbance_handler",
+      "simulation/components/one_way_clutch",
+      "simulation/components/integrated_electrical_system",
+      "simulation/grid_services/economic/economic_optimizer",
+      "simulation/grid_services/demand_response/load_curtailment_controller",
+      "simulation/grid_services/voltage/power_factor_controller",
+      "simulation/components/integrated_drivetrain",
+      "simulation/components/power_electronics",
+      "simulation/physics/event_handler",
+      "simulation/grid_services/demand_response/__init__"
+    ]
+  },
+  "recommendations": [
+    {
+      "priority": "medium",
+      "category": "complexity",
+      "message": "Simplify 39 complex functions",
+      "action": "Reduce cyclomatic complexity in functions with complexity > 10"
+    },
+    {
+      "priority": "low",
+      "category": "style",
+      "message": "Break 350 long lines for readability",
+      "action": "Keep lines under 120 characters for better readability"
+    },
+    {
+      "priority": "low",
+      "category": "cleanup",
+      "message": "Remove 18 unused imports",
+      "action": "Clean up unused imports to improve code clarity"
+    }
+  ],
+  "code_quality_score": 0.0
+}

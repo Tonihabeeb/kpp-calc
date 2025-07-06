@@ -1,0 +1,304 @@
+{
+  "timestamp": "2025-07-06 19:28:55",
+  "summary": {
+    "total_endpoints_tested": 54,
+    "successful_responses": 54,
+    "connection_errors": 0,
+    "trace_correlations": 0,
+    "success_rate": "100.0%",
+    "services_running": 3
+  },
+  "category_results": {
+    "flask_backend": {
+      "total_tested": 48,
+      "successful_responses": 48,
+      "connection_errors": 0,
+      "trace_correlations": 0,
+      "endpoints_details": {
+        "GET /": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-0"
+        },
+        "GET /status": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-1"
+        },
+        "GET /parameters": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-2"
+        },
+        "GET /data/summary": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-3"
+        },
+        "GET /data/live": {
+          "status_code": 500,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-4"
+        },
+        "GET /data/drivetrain_status": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-5"
+        },
+        "GET /data/electrical_status": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-6"
+        },
+        "GET /data/control_status": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-7"
+        },
+        "GET /data/pneumatic_status": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-8"
+        },
+        "GET /data/energy_balance": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-9"
+        },
+        "GET /data/enhanced_performance": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-10"
+        },
+        "GET /data/system_overview": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-11"
+        },
+        "GET /data/physics_status": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-12"
+        },
+        "GET /data/transient_status": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-13"
+        },
+        "GET /data/grid_services_status": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-14"
+        },
+        "GET /data/enhanced_losses": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-15"
+        },
+        "GET /data/fluid_properties": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-16"
+        },
+        "GET /data/thermal_properties": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-17"
+        },
+        "GET /data/chain_status": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-18"
+        },
+        "GET /data/enhancement_status": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-19"
+        },
+        "GET /data/optimization_recommendations": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-20"
+        },
+        "GET /data/history": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-21"
+        },
+        "GET /download_csv": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-22"
+        },
+        "GET /export_collected_data": {
+          "status_code": 500,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-23"
+        },
+        "GET /inspect/input_data": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-24"
+        },
+        "GET /inspect/output_data": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-25"
+        },
+        "GET /stream": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-26"
+        },
+        "GET /chart/power.png": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-27"
+        },
+        "POST /start": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-28"
+        },
+        "POST /stop": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-29"
+        },
+        "POST /pause": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-30"
+        },
+        "POST /step": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-31"
+        },
+        "POST /trigger_pulse": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-32"
+        },
+        "POST /parameters": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-33"
+        },
+        "POST /set_params": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-34"
+        },
+        "POST /update_params": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-35"
+        },
+        "POST /set_load": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-36"
+        },
+        "POST /control/set_control_mode": {
+          "status_code": 200,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-37"
+        },
+        "POST /control/trigger_emergency_stop": {
+          "status_code": 500,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-38"
+        },
+        "POST /control/initiate_startup": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-39"
+        },
+        "POST /control/h1_nanobubbles": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-40"
+        },
+        "POST /control/h2_thermal": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-41"
+        },
+        "POST /control/enhanced_physics": {
+          "status_code": 400,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-42"
+        },
+        "POST /control/water_temperature": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-43"
+        },
+        "POST /control/pressure_recovery": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-44"
+        },
+        "POST /control/water_jet_physics": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-45"
+        },
+        "POST /control/foc_control": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-46"
+        },
+        "POST /control/system_scale": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "8fd78375-29b3-4872-941c-3142e8774997-flask-47"
+        }
+      }
+    },
+    "websocket_server": {
+      "total_tested": 2,
+      "successful_responses": 2,
+      "connection_errors": 0,
+      "endpoints_details": {
+        "GET /": {
+          "status_code": 200,
+          "trace_id": "55ba25ac-021c-40c9-befe-18dbab2f031e-ws-0"
+        },
+        "GET /state": {
+          "status_code": 200,
+          "trace_id": "55ba25ac-021c-40c9-befe-18dbab2f031e-ws-1"
+        }
+      }
+    },
+    "observability_system": {
+      "total_tested": 3,
+      "successful_responses": 3,
+      "connection_errors": 0,
+      "trace_correlations": 0,
+      "endpoints_details": {
+        "GET /observability/health": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "60ba074a-7ee7-47cf-9427-ba6e9969ee6c-obs-0"
+        },
+        "GET /observability/traces": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "60ba074a-7ee7-47cf-9427-ba6e9969ee6c-obs-1"
+        },
+        "GET /observability/traces/60ba074a-7ee7-47cf-9427-ba6e9969ee6c": {
+          "status_code": 404,
+          "trace_correlated": false,
+          "trace_id": "60ba074a-7ee7-47cf-9427-ba6e9969ee6c-obs-2"
+        }
+      }
+    },
+    "dash_frontend": {
+      "status_code": 200,
+      "trace_id": "4eba32e9-9bd6-428f-a765-9dd2ce7701b3",
+      "success": true
+    }
+  }
+}

@@ -7,7 +7,6 @@ import logging
 import math
 from typing import Any, Dict, Optional, Tuple
 
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -55,13 +54,9 @@ class PowerElectronics:
         self.sync_time_constant = config.get("sync_time_constant", 2.0)  # s
 
         # Protection limits
-        self.max_current = config.get(
-            "max_current", self.rated_power / (math.sqrt(3) * self.input_voltage * 0.9)
-        )
+        self.max_current = config.get("max_current", self.rated_power / (math.sqrt(3) * self.input_voltage * 0.9))
         self.max_voltage_deviation = config.get("max_voltage_deviation", 0.15)  # ±15%
-        self.max_frequency_deviation = config.get(
-            "max_frequency_deviation", 1.0
-        )  # ±1 Hz
+        self.max_frequency_deviation = config.get("max_frequency_deviation", 1.0)  # ±1 Hz
 
         # State variables
         self.input_power = 0.0  # W
@@ -116,9 +111,7 @@ class PowerElectronics:
         self.input_voltage_actual = generator_voltage
 
         # Check for fault conditions
-        self._check_protection_systems(
-            generator_voltage, generator_frequency, grid_conditions
-        )
+        self._check_protection_systems(generator_voltage, generator_frequency, grid_conditions)
 
         if self.protection_active:
             # Protection active - no power transfer
@@ -145,9 +138,7 @@ class PowerElectronics:
 
         return self._get_state_dict()
 
-    def _check_protection_systems(
-        self, voltage: float, frequency: float, grid_conditions: Dict[str, float]
-    ):
+    def _check_protection_systems(self, voltage: float, frequency: float, grid_conditions: Dict[str, float]):
         """
         Monitor realistic protection systems and fault conditions for KPP operation.
 
@@ -173,9 +164,7 @@ class PowerElectronics:
         if voltage_deviation > self.max_voltage_deviation:
             # Add time delay for voltage faults (typical 0.1-1.0s)
             fault_delay = 0.5  # seconds
-            self.fault_conditions.append(
-                f"Voltage deviation: {voltage_deviation*100:.1f}% (delay: {fault_delay}s)"
-            )
+            self.fault_conditions.append(f"Voltage deviation: {voltage_deviation*100:.1f}% (delay: {fault_delay}s)")
 
         # Enhanced frequency protection with stability analysis
         frequency_deviation = abs(frequency - self.grid_frequency)
@@ -183,30 +172,20 @@ class PowerElectronics:
             # Frequency stability analysis
             stability_margin = 0.5  # Hz margin for stability
             if frequency_deviation > (self.max_frequency_deviation + stability_margin):
-                self.fault_conditions.append(
-                    f"Frequency instability: {frequency_deviation:.2f}Hz (critical)"
-                )
+                self.fault_conditions.append(f"Frequency instability: {frequency_deviation:.2f}Hz (critical)")
             else:
-                self.fault_conditions.append(
-                    f"Frequency deviation: {frequency_deviation:.2f}Hz (warning)"
-                )
+                self.fault_conditions.append(f"Frequency deviation: {frequency_deviation:.2f}Hz (warning)")
 
         # Enhanced grid voltage protection with harmonics
         grid_voltage = grid_conditions.get("voltage", self.output_voltage)
-        grid_voltage_deviation = (
-            abs(grid_voltage - self.output_voltage) / self.output_voltage
-        )
+        grid_voltage_deviation = abs(grid_voltage - self.output_voltage) / self.output_voltage
         if grid_voltage_deviation > self.max_voltage_deviation:
             # Check for harmonic distortion
             harmonic_distortion = grid_conditions.get("harmonic_distortion", 0.0)
             if harmonic_distortion > 0.05:  # 5% THD limit
-                self.fault_conditions.append(
-                    f"Grid harmonics: {harmonic_distortion*100:.1f}% THD (excessive)"
-                )
+                self.fault_conditions.append(f"Grid harmonics: {harmonic_distortion*100:.1f}% THD (excessive)")
             else:
-                self.fault_conditions.append(
-                    f"Grid voltage deviation: {grid_voltage_deviation*100:.1f}%"
-                )
+                self.fault_conditions.append(f"Grid voltage deviation: {grid_voltage_deviation*100:.1f}%")
 
         # Enhanced overcurrent protection with thermal effects
         current = self.input_power / (math.sqrt(3) * voltage) if voltage > 0 else 0.0
@@ -215,7 +194,7 @@ class PowerElectronics:
             temperature = grid_conditions.get("temperature", 25.0)  # °C
             temp_factor = 1.0 - 0.005 * (temperature - 25.0)  # 0.5% reduction per °C
             adjusted_current_limit = self.max_current * temp_factor
-            
+
             if current > adjusted_current_limit:
                 self.fault_conditions.append(
                     f"Overcurrent: {current:.1f}A > {adjusted_current_limit:.1f}A (thermal limit)"
@@ -224,34 +203,26 @@ class PowerElectronics:
         # Enhanced temperature monitoring
         temperature = grid_conditions.get("temperature", 25.0)
         if temperature > 60.0:  # 60°C limit
-            self.fault_conditions.append(
-                f"High temperature: {temperature:.1f}°C (thermal protection)"
-            )
+            self.fault_conditions.append(f"High temperature: {temperature:.1f}°C (thermal protection)")
 
         # Enhanced harmonic distortion protection
         harmonic_distortion = grid_conditions.get("harmonic_distortion", 0.0)
         if harmonic_distortion > 0.08:  # 8% THD limit
-            self.fault_conditions.append(
-                f"Harmonic distortion: {harmonic_distortion*100:.1f}% THD (protection)"
-            )
+            self.fault_conditions.append(f"Harmonic distortion: {harmonic_distortion*100:.1f}% THD (protection)")
 
         # Enhanced ground fault protection (simplified)
         ground_fault_current = grid_conditions.get("ground_fault_current", 0.0)
         if ground_fault_current > 0.1:  # 100mA ground fault limit
-            self.fault_conditions.append(
-                f"Ground fault: {ground_fault_current*1000:.1f}mA (protection active)"
-            )
+            self.fault_conditions.append(f"Ground fault: {ground_fault_current*1000:.1f}mA (protection active)")
 
         # Enhanced phase imbalance protection
         phase_imbalance = grid_conditions.get("phase_imbalance", 0.0)
         if phase_imbalance > 0.05:  # 5% imbalance limit
-            self.fault_conditions.append(
-                f"Phase imbalance: {phase_imbalance*100:.1f}% (protection active)"
-            )
+            self.fault_conditions.append(f"Phase imbalance: {phase_imbalance*100:.1f}% (protection active)")
 
         # Set protection status
         self.protection_active = len(self.fault_conditions) > 0
-        
+
         if self.protection_active:
             logger.warning(f"Protection systems active: {len(self.fault_conditions)} faults detected")
             for fault in self.fault_conditions:
@@ -260,12 +231,8 @@ class PowerElectronics:
             logger.debug("Protection systems: All parameters within normal limits")
             harmonic_distortion = grid_conditions.get("thd", 0.0)  # Total Harmonic Distortion
             if harmonic_distortion > 5.0:  # 5% THD limit
-                self.fault_conditions.append(
-                    f"Grid harmonics: {harmonic_distortion:.1f}% THD"
-                )
-            self.fault_conditions.append(
-                f"Grid voltage deviation: {grid_voltage_deviation*100:.1f}%"
-            )
+                self.fault_conditions.append(f"Grid harmonics: {harmonic_distortion:.1f}% THD")
+            self.fault_conditions.append(f"Grid voltage deviation: {grid_voltage_deviation*100:.1f}%")
 
         # Enhanced overcurrent protection with thermal effects
         if self.input_power > 0 and voltage > 0:
@@ -275,7 +242,7 @@ class PowerElectronics:
                 thermal_time_constant = 30.0  # seconds for thermal protection
                 overload_factor = current / self.max_current
                 thermal_trip_time = thermal_time_constant / (overload_factor**2 - 1)
-                
+
                 self.fault_conditions.append(
                     f"Overcurrent: {current:.1f}A > {self.max_current:.1f}A "
                     f"(thermal trip: {thermal_trip_time:.1f}s)"
@@ -285,39 +252,31 @@ class PowerElectronics:
         ambient_temp = grid_conditions.get("ambient_temperature", 25.0)
         component_temp = ambient_temp + (self.input_power / self.rated_power) * 40.0  # Simplified thermal model
         if component_temp > 85.0:  # 85°C limit
-            self.fault_conditions.append(
-                f"Overtemperature: {component_temp:.1f}°C"
-            )
+            self.fault_conditions.append(f"Overtemperature: {component_temp:.1f}°C")
 
         # Phase imbalance protection
         phase_imbalance = grid_conditions.get("phase_imbalance", 0.0)
         if phase_imbalance > 5.0:  # 5% imbalance limit
-            self.fault_conditions.append(
-                f"Phase imbalance: {phase_imbalance:.1f}%"
-            )
+            self.fault_conditions.append(f"Phase imbalance: {phase_imbalance:.1f}%")
 
         # Ground fault protection (simplified)
         ground_current = grid_conditions.get("ground_current", 0.0)
         if ground_current > 10.0:  # 10A ground fault limit
-            self.fault_conditions.append(
-                f"Ground fault: {ground_current:.1f}A"
-            )
+            self.fault_conditions.append(f"Ground fault: {ground_current:.1f}A")
 
         # Set protection status with enhanced logic
         self.protection_active = len(self.fault_conditions) > 0
 
         if self.protection_active:
             logger.warning(f"Enhanced protection active: {', '.join(self.fault_conditions)}")
-            
+
             # Log protection details for analysis
             logger.debug(
                 f"Protection details: voltage_dev={voltage_deviation*100:.1f}%, "
                 f"freq_dev={frequency_deviation:.2f}Hz, temp={component_temp:.1f}°C"
             )
 
-    def _update_synchronization(
-        self, generator_frequency: float, grid_conditions: Dict[str, float], dt: float
-    ):
+    def _update_synchronization(self, generator_frequency: float, grid_conditions: Dict[str, float], dt: float):
         """
         Update grid synchronization status.
 
@@ -338,10 +297,7 @@ class PowerElectronics:
 
         # Synchronization criteria
         freq_ok = frequency_error < self.frequency_tolerance
-        voltage_ok = (
-            abs(self.input_voltage_actual - self.input_voltage) / self.input_voltage
-            < 0.1
-        )
+        voltage_ok = abs(self.input_voltage_actual - self.input_voltage) / self.input_voltage < 0.1
 
         if freq_ok and voltage_ok:
             # Move towards synchronization
@@ -361,9 +317,7 @@ class PowerElectronics:
         self.grid_frequency_actual = grid_frequency
 
         if self.is_synchronized:
-            logger.debug(
-                f"Grid synchronized: f_gen={generator_frequency:.2f}Hz, f_grid={grid_frequency:.2f}Hz"
-            )
+            logger.debug(f"Grid synchronized: f_gen={generator_frequency:.2f}Hz, f_grid={grid_frequency:.2f}Hz")
 
     def _calculate_power_conversion(self):
         """
@@ -390,12 +344,7 @@ class PowerElectronics:
         self.output_power = filter_input - self.filter_losses
 
         # Total losses and efficiency
-        self.total_losses = (
-            self.rectifier_losses
-            + self.inverter_losses
-            + self.transformer_losses
-            + self.filter_losses
-        )
+        self.total_losses = self.rectifier_losses + self.inverter_losses + self.transformer_losses + self.filter_losses
 
         if self.input_power > 0:
             self.overall_efficiency = self.output_power / self.input_power
@@ -529,9 +478,7 @@ class GridInterface:
         self.power_demand = 0.0  # W
         self.is_connected = True
 
-        logger.info(
-            f"Grid interface initialized: {self.nominal_voltage/1000:.1f}kV, {self.nominal_frequency}Hz"
-        )
+        logger.info(f"Grid interface initialized: {self.nominal_voltage/1000:.1f}kV, {self.nominal_frequency}Hz")
 
     def update(self, dt: float) -> Dict[str, float]:
         """
@@ -547,9 +494,7 @@ class GridInterface:
         import random
 
         voltage_noise = random.uniform(-self.voltage_variation, self.voltage_variation)
-        frequency_noise = random.uniform(
-            -self.frequency_variation, self.frequency_variation
-        )
+        frequency_noise = random.uniform(-self.frequency_variation, self.frequency_variation)
 
         self.voltage = self.nominal_voltage * (1 + voltage_noise)
         self.frequency = self.nominal_frequency + frequency_noise
@@ -590,16 +535,12 @@ class GridInterface:
         if "voltage_setpoint" in commands:
             # For grid interface, voltage setpoint affects monitoring/regulation
             target_voltage = commands["voltage_setpoint"]
-            logger.debug(
-                f"Grid interface voltage setpoint updated to {target_voltage:.1f}V"
-            )
+            logger.debug(f"Grid interface voltage setpoint updated to {target_voltage:.1f}V")
 
         if "frequency_setpoint" in commands:
             # For grid interface, frequency setpoint affects monitoring/regulation
             target_frequency = commands["frequency_setpoint"]
-            logger.debug(
-                f"Grid interface frequency setpoint updated to {target_frequency:.1f}Hz"
-            )
+            logger.debug(f"Grid interface frequency setpoint updated to {target_frequency:.1f}Hz")
 
         if "control_mode" in commands:
             control_mode = commands["control_mode"]

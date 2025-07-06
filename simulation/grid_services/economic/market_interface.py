@@ -9,10 +9,10 @@ various grid services including energy, ancillary services, and capacity markets
 """
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
@@ -122,9 +122,7 @@ class MarketInterface:
         self.settlement_history: List[SettlementData] = []
 
         # Market data
-        self.market_clearings: Dict[MarketType, List[MarketClearing]] = {
-            market_type: [] for market_type in MarketType
-        }
+        self.market_clearings: Dict[MarketType, List[MarketClearing]] = {market_type: [] for market_type in MarketType}
 
         # Performance tracking
         self.performance_metrics = {
@@ -135,9 +133,7 @@ class MarketInterface:
             "regulation_score": 0.0,
         }
 
-        self.logger.info(
-            f"Market interface initialized for operator {self.market_operator}"
-        )
+        self.logger.info(f"Market interface initialized for operator {self.market_operator}")
 
     def submit_bid(self, bid_data: Dict[str, Any]) -> str:
         """
@@ -211,18 +207,14 @@ class MarketInterface:
             # Update affected bids
             self._update_bid_status(clearing)
 
-            self.logger.info(
-                f"Market clearing processed for {clearing.market_type.value}"
-            )
+            self.logger.info(f"Market clearing processed for {clearing.market_type.value}")
             return True
 
         except Exception as e:
             self.logger.error(f"Error processing market clearing: {e}")
             return False
 
-    def calculate_settlement(
-        self, period_start: datetime, period_end: datetime
-    ) -> Optional[SettlementData]:
+    def calculate_settlement(self, period_start: datetime, period_end: datetime) -> Optional[SettlementData]:
         """
         Calculate settlement for a specific period
 
@@ -238,11 +230,7 @@ class MarketInterface:
             relevant_bids = [
                 bid
                 for bid in self.bid_history
-                if (
-                    bid.status == BidStatus.CLEARED
-                    and bid.start_time <= period_end
-                    and bid.end_time >= period_start
-                )
+                if (bid.status == BidStatus.CLEARED and bid.start_time <= period_end and bid.end_time >= period_start)
             ]
 
             if not relevant_bids:
@@ -250,32 +238,22 @@ class MarketInterface:
 
             # Calculate revenues
             energy_revenue = sum(
-                bid.cleared_capacity
-                * bid.cleared_price
-                * self._calculate_overlap_hours(bid, period_start, period_end)
+                bid.cleared_capacity * bid.cleared_price * self._calculate_overlap_hours(bid, period_start, period_end)
                 for bid in relevant_bids
-                if bid.market_type
-                in [MarketType.ENERGY_REAL_TIME, MarketType.ENERGY_DAY_AHEAD]
+                if bid.market_type in [MarketType.ENERGY_REAL_TIME, MarketType.ENERGY_DAY_AHEAD]
             )
 
             capacity_revenue = sum(
-                bid.cleared_capacity
-                * bid.cleared_price
-                * self._calculate_overlap_hours(bid, period_start, period_end)
+                bid.cleared_capacity * bid.cleared_price * self._calculate_overlap_hours(bid, period_start, period_end)
                 for bid in relevant_bids
-                if bid.market_type
-                in [MarketType.FREQUENCY_REGULATION, MarketType.SPINNING_RESERVE]
+                if bid.market_type in [MarketType.FREQUENCY_REGULATION, MarketType.SPINNING_RESERVE]
             )
 
             # Simulate performance metrics
-            energy_delivered = (
-                sum(bid.cleared_capacity for bid in relevant_bids) * 0.95
-            )  # 95% delivery
+            energy_delivered = sum(bid.cleared_capacity for bid in relevant_bids) * 0.95  # 95% delivery
             capacity_provided = sum(bid.cleared_capacity for bid in relevant_bids)
             regulation_performance = np.random.uniform(0.9, 1.0)  # Performance score
-            performance_payment = (
-                capacity_revenue * (regulation_performance - 0.9) * 0.1
-            )
+            performance_payment = capacity_revenue * (regulation_performance - 0.9) * 0.1
 
             total_revenue = energy_revenue + capacity_revenue + performance_payment
 
@@ -305,9 +283,7 @@ class MarketInterface:
             self.logger.error(f"Error calculating settlement: {e}")
             return None
 
-    def get_market_prices(
-        self, market_type: MarketType, lookback_hours: int = 24
-    ) -> List[float]:
+    def get_market_prices(self, market_type: MarketType, lookback_hours: int = 24) -> List[float]:
         """
         Get recent market prices for a specific market
 
@@ -342,10 +318,7 @@ class MarketInterface:
         return [
             bid
             for bid in self.active_bids.values()
-            if (
-                bid.status == BidStatus.CLEARED
-                and bid.start_time <= now <= bid.end_time
-            )
+            if (bid.status == BidStatus.CLEARED and bid.start_time <= now <= bid.end_time)
         ]
 
     def get_revenue_summary(self, days: int = 30) -> Dict[str, float]:
@@ -359,21 +332,16 @@ class MarketInterface:
             Revenue breakdown by category
         """
         cutoff_date = datetime.now() - timedelta(days=days)
-        recent_settlements = [
-            s for s in self.settlement_history if s.period_start >= cutoff_date
-        ]
+        recent_settlements = [s for s in self.settlement_history if s.period_start >= cutoff_date]
 
         return {
             "total_revenue": sum(s.total_revenue for s in recent_settlements),
             "energy_revenue": sum(s.energy_revenue for s in recent_settlements),
             "capacity_revenue": sum(s.capacity_revenue for s in recent_settlements),
-            "performance_payments": sum(
-                s.performance_payment for s in recent_settlements
-            ),
+            "performance_payments": sum(s.performance_payment for s in recent_settlements),
             "penalties": sum(s.penalties for s in recent_settlements),
             "net_payment": sum(s.net_payment for s in recent_settlements),
-            "average_daily_revenue": sum(s.total_revenue for s in recent_settlements)
-            / max(days, 1),
+            "average_daily_revenue": sum(s.total_revenue for s in recent_settlements) / max(days, 1),
         }
 
     def get_status(self) -> Dict[str, Any]:
@@ -383,11 +351,7 @@ class MarketInterface:
             "total_bids_submitted": len(self.bid_history) + len(self.active_bids),
             "current_commitments": len(self.get_active_commitments()),
             "performance_metrics": self.performance_metrics.copy(),
-            "last_settlement": (
-                self.settlement_history[-1].settlement_id
-                if self.settlement_history
-                else None
-            ),
+            "last_settlement": (self.settlement_history[-1].settlement_id if self.settlement_history else None),
         }
 
     def reset(self):
@@ -425,14 +389,10 @@ class MarketInterface:
                 raise ValueError(f"Missing required field: {field}")
 
         if bid_data["capacity_mw"] < self.min_bid_size:
-            raise ValueError(
-                f"Capacity below minimum: {bid_data['capacity_mw']} < {self.min_bid_size}"
-            )
+            raise ValueError(f"Capacity below minimum: {bid_data['capacity_mw']} < {self.min_bid_size}")
 
         if bid_data["capacity_mw"] > self.max_bid_size:
-            raise ValueError(
-                f"Capacity above maximum: {bid_data['capacity_mw']} > {self.max_bid_size}"
-            )
+            raise ValueError(f"Capacity above maximum: {bid_data['capacity_mw']} > {self.max_bid_size}")
 
         if bid_data["price_mwh"] <= 0:
             raise ValueError(f"Invalid price: {bid_data['price_mwh']}")
@@ -455,19 +415,14 @@ class MarketInterface:
     def _update_bid_status(self, clearing: MarketClearing):
         """Update bid status based on market clearing"""
         for bid in list(self.active_bids.values()):
-            if (
-                bid.market_type == clearing.market_type
-                and bid.status == BidStatus.SUBMITTED
-            ):
+            if bid.market_type == clearing.market_type and bid.status == BidStatus.SUBMITTED:
 
                 # Simulate clearing logic
                 if bid.price_mwh <= clearing.clearing_price:
                     bid.status = BidStatus.CLEARED
                     bid.cleared_capacity = bid.capacity_mw
                     bid.cleared_price = clearing.clearing_price
-                    bid.revenue = (
-                        bid.cleared_capacity * bid.cleared_price * bid.duration_hours
-                    )
+                    bid.revenue = bid.cleared_capacity * bid.cleared_price * bid.duration_hours
                     bid.cleared_at = clearing.clearing_time
                 else:
                     bid.status = BidStatus.REJECTED
@@ -476,9 +431,7 @@ class MarketInterface:
                 self.bid_history.append(bid)
                 del self.active_bids[bid.bid_id]
 
-    def _calculate_overlap_hours(
-        self, bid: MarketBid, period_start: datetime, period_end: datetime
-    ) -> float:
+    def _calculate_overlap_hours(self, bid: MarketBid, period_start: datetime, period_end: datetime) -> float:
         """Calculate overlap between bid period and settlement period"""
         overlap_start = max(bid.start_time, period_start)
         overlap_end = min(bid.end_time, period_end)
@@ -495,9 +448,7 @@ class MarketInterface:
 
         # Calculate acceptance rate
         accepted_bids = [b for b in self.bid_history if b.status == BidStatus.CLEARED]
-        self.performance_metrics["bid_acceptance_rate"] = len(accepted_bids) / len(
-            self.bid_history
-        )
+        self.performance_metrics["bid_acceptance_rate"] = len(accepted_bids) / len(self.bid_history)
 
         # Calculate average clearing price
         if accepted_bids:
@@ -506,21 +457,13 @@ class MarketInterface:
             )
 
         # Calculate total revenue
-        self.performance_metrics["total_revenue"] = sum(
-            s.total_revenue for s in self.settlement_history
-        )
+        self.performance_metrics["total_revenue"] = sum(s.total_revenue for s in self.settlement_history)
 
         # Calculate capacity factor (simplified)
         if accepted_bids:
-            total_committed = sum(
-                b.cleared_capacity * b.duration_hours for b in accepted_bids
-            )
-            total_possible = sum(
-                b.capacity_mw * b.duration_hours for b in self.bid_history
-            )
-            self.performance_metrics["capacity_factor"] = total_committed / max(
-                total_possible, 1
-            )
+            total_committed = sum(b.cleared_capacity * b.duration_hours for b in accepted_bids)
+            total_possible = sum(b.capacity_mw * b.duration_hours for b in self.bid_history)
+            self.performance_metrics["capacity_factor"] = total_committed / max(total_possible, 1)
 
         # Calculate regulation score (simplified)
         if self.settlement_history:

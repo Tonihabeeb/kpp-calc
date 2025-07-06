@@ -3,13 +3,10 @@ Real-time Data Streaming and Monitoring System for KPP Simulation
 Stage 4: Enhanced data streaming, monitoring, and error recovery
 """
 
-import json
 import logging
-import threading
 import time
 import uuid
 from collections import deque
-from queue import Empty, Queue
 from typing import Any, Callable, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -50,9 +47,7 @@ class DataStreamManager:
             "error_count": 0,
         }
 
-        logger.info(
-            f"Added subscriber {subscriber_id} with sample rate {sample_rate or 'default'}"
-        )
+        logger.info(f"Added subscriber {subscriber_id} with sample rate {sample_rate or 'default'}")
         return subscriber_id
 
     def remove_subscriber(self, subscriber_id: str):
@@ -94,9 +89,7 @@ class DataStreamManager:
                 continue
 
             # Check subscriber sample rate
-            if current_time - subscriber["last_update"] < (
-                1.0 / subscriber["sample_rate"]
-            ):
+            if current_time - subscriber["last_update"] < (1.0 / subscriber["sample_rate"]):
                 continue
 
             try:
@@ -110,9 +103,7 @@ class DataStreamManager:
                 # Disable problematic subscribers
                 if subscriber["error_count"] > 5:
                     subscriber["enabled"] = False
-                    logger.warning(
-                        f"Disabled subscriber {sub_id} due to repeated errors"
-                    )
+                    logger.warning(f"Disabled subscriber {sub_id} due to repeated errors")
 
         self.samples_streamed += 1
 
@@ -120,17 +111,13 @@ class DataStreamManager:
         """Get recent data samples"""
         return list(self.data_buffer)[-count:]
 
-    def configure_streaming(
-        self, enabled: bool = True, sample_rate: float = 10.0, compression: bool = False
-    ):
+    def configure_streaming(self, enabled: bool = True, sample_rate: float = 10.0, compression: bool = False):
         """Configure streaming parameters"""
         self.stream_enabled = enabled
         self.sample_interval = 1.0 / sample_rate
         self.compression_enabled = compression
 
-        logger.info(
-            f"Streaming configured: enabled={enabled}, rate={sample_rate}Hz, compression={compression}"
-        )
+        logger.info(f"Streaming configured: enabled={enabled}, rate={sample_rate}Hz, compression={compression}")
 
 
 class RealTimeMonitor:
@@ -199,9 +186,7 @@ class RealTimeMonitor:
         except (KeyError, TypeError, ValueError):
             return None
 
-    def _trigger_alert(
-        self, monitor_id: str, monitor: Dict[str, Any], value: float, timestamp: float
-    ):
+    def _trigger_alert(self, monitor_id: str, monitor: Dict[str, Any], value: float, timestamp: float):
         """Trigger an alert"""
         monitor["last_triggered"] = timestamp
         monitor["trigger_count"] += 1
@@ -233,9 +218,7 @@ class RealTimeMonitor:
         """Add callback for alert notifications"""
         self.alert_callbacks[callback_id] = callback
 
-    def get_recent_alerts(
-        self, level: Optional[str] = None, count: int = 10
-    ) -> List[Dict[str, Any]]:
+    def get_recent_alerts(self, level: Optional[str] = None, count: int = 10) -> List[Dict[str, Any]]:
         """Get recent alerts"""
         alerts = list(self.alerts)
 
@@ -279,9 +262,7 @@ class ErrorRecoverySystem:
         self.recovery_strategies[error_type] = strategy
         logger.info(f"Registered recovery strategy for {error_type}")
 
-    def handle_error(
-        self, error_type: str, error_data: Dict[str, Any], context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def handle_error(self, error_type: str, error_data: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         """Handle an error with appropriate recovery strategy"""
 
         error_record = {
@@ -313,9 +294,7 @@ class ErrorRecoverySystem:
                 self.recovery_attempts[attempt_key] = attempts + 1
                 error_record["recovery_attempted"] = True
 
-                recovery_result = self.recovery_strategies[error_type](
-                    error_data, context
-                )
+                recovery_result = self.recovery_strategies[error_type](error_data, context)
 
                 if recovery_result.get("success", False):
                     error_record["recovery_successful"] = True
@@ -323,9 +302,7 @@ class ErrorRecoverySystem:
                     return {
                         "recovered": True,
                         "action": recovery_result.get("action", "continue"),
-                        "message": recovery_result.get(
-                            "message", "Recovery successful"
-                        ),
+                        "message": recovery_result.get("message", "Recovery successful"),
                     }
                 else:
                     logger.warning(
@@ -345,12 +322,8 @@ class ErrorRecoverySystem:
         """Get summary of recent errors and recovery attempts"""
 
         total_errors = len(self.error_history)
-        recovery_attempted = sum(
-            1 for e in self.error_history if e["recovery_attempted"]
-        )
-        recovery_successful = sum(
-            1 for e in self.error_history if e["recovery_successful"]
-        )
+        recovery_attempted = sum(1 for e in self.error_history if e["recovery_attempted"])
+        recovery_successful = sum(1 for e in self.error_history if e["recovery_successful"])
 
         error_types = {}
         for error in self.error_history:
@@ -372,11 +345,7 @@ class ErrorRecoverySystem:
             "total_errors": total_errors,
             "recovery_attempted": recovery_attempted,
             "recovery_successful": recovery_successful,
-            "overall_recovery_rate": (
-                recovery_successful / recovery_attempted
-                if recovery_attempted > 0
-                else 0.0
-            ),
+            "overall_recovery_rate": (recovery_successful / recovery_attempted if recovery_attempted > 0 else 0.0),
             "error_types": error_types,
             "recent_errors": list(self.error_history)[-10:],
         }
@@ -406,9 +375,7 @@ class RealTimeController:
 
         # Physics monitors
         self.monitor.add_monitor("high_velocity", "v_chain", 8.0, "greater", "warning")
-        self.monitor.add_monitor(
-            "high_acceleration", "a_chain", 40.0, "greater", "warning"
-        )
+        self.monitor.add_monitor("high_acceleration", "a_chain", 40.0, "greater", "warning")
         self.monitor.add_monitor("low_efficiency", "efficiency", 0.3, "less", "warning")
 
         # Performance monitors
@@ -422,12 +389,8 @@ class RealTimeController:
         )
 
         # Stability monitors
-        self.monitor.add_monitor(
-            "stability_critical", "metadata.stability_score", 0.5, "less", "critical"
-        )
-        self.monitor.add_monitor(
-            "validation_failures", "metadata.validation_failures", 5, "greater", "error"
-        )
+        self.monitor.add_monitor("stability_critical", "metadata.stability_score", 0.5, "less", "critical")
+        self.monitor.add_monitor("validation_failures", "metadata.validation_failures", 5, "greater", "error")
 
     def _setup_default_recovery_strategies(self):
         """Setup default error recovery strategies"""
@@ -463,12 +426,8 @@ class RealTimeController:
                 "suggestions": suggestions,
             }
 
-        self.error_recovery.register_recovery_strategy(
-            "numerical_instability", numerical_instability_recovery
-        )
-        self.error_recovery.register_recovery_strategy(
-            "performance_degradation", performance_degradation_recovery
-        )
+        self.error_recovery.register_recovery_strategy("numerical_instability", numerical_instability_recovery)
+        self.error_recovery.register_recovery_strategy("performance_degradation", performance_degradation_recovery)
 
     def process_realtime_data(
         self, simulation_data: Dict[str, Any], performance_data: Dict[str, Any]
@@ -529,9 +488,7 @@ class RealTimeController:
         # Check performance
         fps = data.get("metadata", {}).get("fps", 10.0)
         if fps < 5.0:
-            recovery = self.error_recovery.handle_error(
-                "performance_degradation", {"fps": fps}, {"data": data}
-            )
+            recovery = self.error_recovery.handle_error("performance_degradation", {"fps": fps}, {"data": data})
             recovery_actions.append(recovery)
 
         return recovery_actions

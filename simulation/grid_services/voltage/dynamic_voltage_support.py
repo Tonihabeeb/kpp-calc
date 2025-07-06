@@ -35,9 +35,7 @@ class DynamicVoltageSupportConfig:
 
     def validate(self):
         """Validate configuration parameters"""
-        assert (
-            0.30 <= self.reactive_capacity <= 0.50
-        ), "Reactive capacity must be 30-50%"
+        assert 0.30 <= self.reactive_capacity <= 0.50, "Reactive capacity must be 30-50%"
         assert 0.01 <= self.voltage_threshold <= 0.05, "Voltage threshold must be 1-5%"
         assert 50.0 <= self.response_time_ms <= 500.0, "Response time must be 50-500ms"
         assert 1.0 <= self.hold_time_s <= 60.0, "Hold time must be 1-60 seconds"
@@ -96,9 +94,7 @@ class DynamicVoltageSupport:
         self.successful_supports = 0
         self.last_update_time = time.time()
 
-    def update(
-        self, voltage_pu: float, dt: float, rated_power: float
-    ) -> Dict[str, Any]:
+    def update(self, voltage_pu: float, dt: float, rated_power: float) -> Dict[str, Any]:
         """
         Update dynamic voltage support with current voltage measurement.
 
@@ -113,15 +109,11 @@ class DynamicVoltageSupport:
         current_time = time.time()
 
         if not self.config.enable_support:
-            return self._create_response_dict(
-                0.0, "Dynamic voltage support disabled", rated_power
-            )
+            return self._create_response_dict(0.0, "Dynamic voltage support disabled", rated_power)
 
         # Input validation
         if voltage_pu < 0.5 or voltage_pu > 1.5:
-            return self._create_response_dict(
-                0.0, "Invalid voltage measurement", rated_power
-            )
+            return self._create_response_dict(0.0, "Invalid voltage measurement", rated_power)
 
         # Store voltage measurement
         self.measured_voltage = voltage_pu
@@ -141,9 +133,7 @@ class DynamicVoltageSupport:
         )
 
         # Event detection and classification
-        event_detected, event_type, event_magnitude = self._detect_voltage_event(
-            voltage_pu, dt
-        )
+        event_detected, event_type, event_magnitude = self._detect_voltage_event(voltage_pu, dt)
 
         # State machine for dynamic voltage support
         if not self.event_detected and event_detected:
@@ -155,14 +145,10 @@ class DynamicVoltageSupport:
             self._update_voltage_event(voltage_pu, current_time, dt)
 
         # Calculate reactive power response
-        reactive_power_cmd = self._calculate_reactive_power_response(
-            voltage_pu, current_time
-        )
+        reactive_power_cmd = self._calculate_reactive_power_response(voltage_pu, current_time)
 
         # Apply rate limiting based on response time
-        max_rate = self.config.reactive_capacity / (
-            self.config.response_time_ms / 1000.0
-        )
+        max_rate = self.config.reactive_capacity / (self.config.response_time_ms / 1000.0)
         rate_change = reactive_power_cmd - self.reactive_power_output
 
         if abs(rate_change) > max_rate * dt:
@@ -180,13 +166,9 @@ class DynamicVoltageSupport:
         self.last_voltage = voltage_pu
         self.last_update_time = current_time
 
-        return self._create_response_dict(
-            self.reactive_power_output, status, rated_power
-        )
+        return self._create_response_dict(self.reactive_power_output, status, rated_power)
 
-    def _detect_voltage_event(
-        self, voltage_pu: float, dt: float
-    ) -> Tuple[bool, str, float]:
+    def _detect_voltage_event(self, voltage_pu: float, dt: float) -> Tuple[bool, str, float]:
         """Detect voltage events based on magnitude and rate thresholds"""
         if len(self.voltage_history) < 3:  # Need some history for rate calculation
             return False, "", 0.0
@@ -223,9 +205,7 @@ class DynamicVoltageSupport:
         self.event_detected = True
         self.support_active = True
         self.event_start_time = timestamp
-        self.baseline_voltage = (
-            self.measured_voltage if not self.active_events else self.baseline_voltage
-        )
+        self.baseline_voltage = self.measured_voltage if not self.active_events else self.baseline_voltage
 
         # Create new event
         event = VoltageEvent(event_type, magnitude, timestamp)
@@ -244,16 +224,9 @@ class DynamicVoltageSupport:
         # Check if voltage has returned to normal
         voltage_deviation = abs(voltage_pu - self.baseline_voltage)
         voltage_stable = voltage_deviation < (self.config.voltage_threshold / 2.0)
-        rate_stable = abs(self.voltage_rate) < (
-            self.config.voltage_rate_threshold / 2.0
-        )
+        rate_stable = abs(self.voltage_rate) < (self.config.voltage_rate_threshold / 2.0)
 
-        if (
-            voltage_stable
-            and rate_stable
-            and not self.in_hold_phase
-            and not self.in_recovery_phase
-        ):
+        if voltage_stable and rate_stable and not self.in_hold_phase and not self.in_recovery_phase:
             # Voltage has stabilized, enter hold phase
             self.in_hold_phase = True
             self.hold_start_time = current_time
@@ -291,18 +264,14 @@ class DynamicVoltageSupport:
         # Update baseline voltage
         self.baseline_voltage = self.measured_voltage
 
-    def _calculate_reactive_power_response(
-        self, voltage_pu: float, current_time: float
-    ) -> float:
+    def _calculate_reactive_power_response(self, voltage_pu: float, current_time: float) -> float:
         """Calculate required reactive power response"""
         if not self.support_active:
             return 0.0
 
         if self.in_recovery_phase:
             # Gradual recovery to zero
-            recovery_progress = (
-                current_time - self.hold_start_time
-            ) / self.config.recovery_time_s
+            recovery_progress = (current_time - self.hold_start_time) / self.config.recovery_time_s
             return self.reactive_power_output * (1.0 - recovery_progress)
 
         # Calculate response magnitude based on voltage deviation
@@ -310,9 +279,7 @@ class DynamicVoltageSupport:
 
         # Proportional response with full capacity at threshold
         response_gain = self.config.reactive_capacity / self.config.voltage_threshold
-        reactive_power_cmd = (
-            -voltage_deviation * response_gain
-        )  # Negative sign for voltage support
+        reactive_power_cmd = -voltage_deviation * response_gain  # Negative sign for voltage support
 
         # Limit to capacity
         reactive_power_cmd = max(
@@ -337,9 +304,7 @@ class DynamicVoltageSupport:
         else:
             return "Dynamic voltage support active"
 
-    def _create_response_dict(
-        self, reactive_power_pu: float, status: str, rated_power: float
-    ) -> Dict[str, Any]:
+    def _create_response_dict(self, reactive_power_pu: float, status: str, rated_power: float) -> Dict[str, Any]:
         """Create standardized response dictionary"""
         return {
             "reactive_power_pu": reactive_power_pu,
@@ -360,9 +325,7 @@ class DynamicVoltageSupport:
         """Get performance metrics for monitoring and optimization"""
         # Calculate average event duration
         if len(self.event_history) > 0:
-            avg_event_duration = sum(
-                event.duration for event in self.event_history
-            ) / len(self.event_history)
+            avg_event_duration = sum(event.duration for event in self.event_history) / len(self.event_history)
             max_event_magnitude = max(event.magnitude for event in self.event_history)
         else:
             avg_event_duration = 0.0
@@ -372,9 +335,7 @@ class DynamicVoltageSupport:
         success_rate = (self.successful_supports / max(1, self.events_detected)) * 100.0
 
         # Calculate reactive power utilization
-        max_reactive_utilization = (
-            abs(self.reactive_power_output) / self.config.reactive_capacity
-        )
+        max_reactive_utilization = abs(self.reactive_power_output) / self.config.reactive_capacity
 
         return {
             "events_detected": self.events_detected,

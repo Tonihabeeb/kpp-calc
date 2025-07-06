@@ -1,0 +1,369 @@
+{
+  "timestamp": "2025-07-06T11:04:05.136080",
+  "project": "H:\\My Drive\\kpp force calc",
+  "summary": {
+    "total_files": 12821,
+    "total_lines": 5245821,
+    "total_issues": 133838,
+    "error_count": 1,
+    "warning_count": 133837,
+    "info_count": 0
+  },
+  "issues": [
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage1_physics.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (125 chars)",
+      "line": 198
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_full_integration.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (124 chars)",
+      "line": 133
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage4_integration.py",
+      "type": "long_function",
+      "severity": "warning",
+      "message": "Function test_stage4_simulation_integration is long (57 lines)",
+      "line": 17
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    },
+    {
+      "file": "H:\\My Drive\\kpp force calc\\test_stage5_documentation.py",
+      "type": "long_line",
+      "severity": "warning",
+      "message": "Line too long (132 chars)",
+      "line": 582
+    }
+  ],
+  "recommendations": [
+    "Fix syntax errors first",
+    "Consider breaking down long functions",
+    "Consider breaking long lines for readability"
+  ]
+}

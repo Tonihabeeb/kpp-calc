@@ -21,9 +21,9 @@ def setup_backend_logger(log_file="simulation.log", level=logging.DEBUG):
     ch.setLevel(level)
     ch.setFormatter(formatter)
     # Try to set encoding for console handler if possible
-    if hasattr(ch, 'setStream') and hasattr(ch.stream, 'reconfigure'):
+    if hasattr(ch, "setStream") and hasattr(ch.stream, "reconfigure"):
         try:
-            ch.stream.reconfigure(encoding='utf-8')
+            ch.stream.reconfigure(encoding="utf-8")
         except Exception:
             pass
     logger.addHandler(ch)

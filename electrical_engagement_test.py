@@ -114,7 +114,7 @@ def test_electrical_engagement():
             print("✅ All systems operational!")
             print("\n🔋 Electrical System Status:")
             print(f"   - Generator: {components.get('generator', 'unknown')}")
-            print(f"   - Drivetrain: {components.get('drivetrain', 'unknown')}")
+            print(f"   - IntegratedDrivetrain: {components.get('integrated_drivetrain', 'unknown')}")
             print("   - Load management should be controlling speed via electrical braking")
             return True
         else:

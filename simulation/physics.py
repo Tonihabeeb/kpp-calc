@@ -14,9 +14,9 @@ Key Features:
 
 import logging
 import math
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
-from config.config import RHO_AIR, RHO_WATER, G
+from config.config import RHO_WATER, G
 from simulation.pneumatics.heat_exchange import IntegratedHeatExchange
 from simulation.pneumatics.pressure_expansion import PressureExpansionPhysics
 
@@ -81,9 +81,7 @@ class KPPPhysicsCalculator:
         pressure_force = 0.0
         if air_pressure > self.standard_pressure + RHO_WATER * G * depth:
             # Overpressure contributes to additional force
-            pressure_diff = air_pressure - (
-                self.standard_pressure + RHO_WATER * G * depth
-            )
+            pressure_diff = air_pressure - (self.standard_pressure + RHO_WATER * G * depth)
             # Approximate effective area (bottom of floater)
             effective_area = (3 * floater_volume / (4 * math.pi)) ** (2 / 3) * math.pi
             pressure_force = pressure_diff * effective_area
@@ -157,24 +155,18 @@ class KPPPhysicsCalculator:
         """
         if process_type == "isothermal":
             # Isothermal expansion: W = nRT * ln(Vf/Vi) = P1*V1 * ln(P1/P2)
-            work_done = (
-                initial_pressure * volume * math.log(initial_pressure / final_pressure)
-            )
+            work_done = initial_pressure * volume * math.log(initial_pressure / final_pressure)
 
         elif process_type == "adiabatic":
             # Adiabatic expansion: W = (P1*V1 - P2*V2) / (γ-1)
             gamma = 1.4  # Heat capacity ratio for air
             final_volume = volume * (initial_pressure / final_pressure) ** (1 / gamma)
-            work_done = (initial_pressure * volume - final_pressure * final_volume) / (
-                gamma - 1
-            )
+            work_done = (initial_pressure * volume - final_pressure * final_volume) / (gamma - 1)
 
         else:  # polytropic with n = 1.2 (typical for real processes)
             n = 1.2
             final_volume = volume * (initial_pressure / final_pressure) ** (1 / n)
-            work_done = (initial_pressure * volume - final_pressure * final_volume) / (
-                n - 1
-            )
+            work_done = (initial_pressure * volume - final_pressure * final_volume) / (n - 1)
 
         # Efficiency factor for real-world losses
         efficiency = 0.85 if process_type == "isothermal" else 0.90
@@ -217,7 +209,7 @@ class KPPPhysicsCalculator:
         heat_transferred = heat_transfer_rate * time_duration
 
         # Direction of heat transfer
-        heat_direction = "air_to_water" if temp_difference > 0 else "water_to_air"
+        "air_to_water" if temp_difference > 0 else "water_to_air"
 
         return {
             "heat_transfer_rate": abs(heat_transfer_rate),

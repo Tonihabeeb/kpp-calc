@@ -15,7 +15,7 @@ import math
 import time
 from collections import deque
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 @dataclass
@@ -32,18 +32,10 @@ class SyntheticInertiaConfig:
 
     def validate(self):
         """Validate configuration parameters"""
-        assert (
-            2.0 <= self.inertia_constant <= 8.0
-        ), "Inertia constant must be 2-8 seconds"
-        assert (
-            0.1 <= self.rocof_threshold <= 1.0
-        ), "ROCOF threshold must be 0.1-1.0 Hz/s"
-        assert (
-            0.1 <= self.response_time_max <= 1.0
-        ), "Response time must be 0.1-1.0 seconds"
-        assert (
-            5.0 <= self.response_duration <= 30.0
-        ), "Response duration must be 5-30 seconds"
+        assert 2.0 <= self.inertia_constant <= 8.0, "Inertia constant must be 2-8 seconds"
+        assert 0.1 <= self.rocof_threshold <= 1.0, "ROCOF threshold must be 0.1-1.0 Hz/s"
+        assert 0.1 <= self.response_time_max <= 1.0, "Response time must be 0.1-1.0 seconds"
+        assert 5.0 <= self.response_duration <= 30.0, "Response duration must be 5-30 seconds"
 
 
 class FrequencyMeasurement:
@@ -87,9 +79,7 @@ class SyntheticInertiaController:
         # Response decay parameters
         self.decay_time_constant = 2.0  # Time constant for response decay
 
-    def update(
-        self, grid_frequency: float, dt: float, rated_power: float
-    ) -> Dict[str, Any]:
+    def update(self, grid_frequency: float, dt: float, rated_power: float) -> Dict[str, Any]:
         """
         Update synthetic inertia response based on frequency measurements.
 
@@ -126,9 +116,7 @@ class SyntheticInertiaController:
 
                 # Calculate initial response magnitude
                 # P_inertia = 2H * S_base * df/dt
-                response_magnitude = (
-                    2 * self.config.inertia_constant * abs(rocof) / 60.0
-                )
+                response_magnitude = 2 * self.config.inertia_constant * abs(rocof) / 60.0
                 response_magnitude = min(response_magnitude, self.config.max_response)
 
                 # Response opposes frequency change
@@ -157,8 +145,7 @@ class SyntheticInertiaController:
 
             # Check if response should be terminated
             if (
-                response_duration > self.config.response_duration
-                or abs(rocof) < self.config.rocof_threshold * 0.5
+                response_duration > self.config.response_duration or abs(rocof) < self.config.rocof_threshold * 0.5
             ):  # Hysteresis
 
                 # Decay response exponentially
@@ -175,16 +162,12 @@ class SyntheticInertiaController:
                     status = f"Inertia decaying: {response_duration:.1f}s"
             else:
                 # Maintain response based on current ROCOF
-                response_magnitude = (
-                    2 * self.config.inertia_constant * abs(rocof) / 60.0
-                )
+                response_magnitude = 2 * self.config.inertia_constant * abs(rocof) / 60.0
                 response_magnitude = min(response_magnitude, self.config.max_response)
 
                 # Smooth response adjustment
                 target_response = -math.copysign(response_magnitude, rocof)
-                response_change = (
-                    (target_response - self.current_response) * dt * 5.0
-                )  # 5 Hz bandwidth
+                response_change = (target_response - self.current_response) * dt * 5.0  # 5 Hz bandwidth
                 self.current_response += response_change
 
                 status = f"Inertia active: {response_duration:.1f}s"
@@ -193,9 +176,7 @@ class SyntheticInertiaController:
 
         # Update energy tracking
         if abs(self.current_response) > 0.001:
-            self.total_response_energy += (
-                abs(self.current_response) * rated_power * dt / 3600.0
-            )  # MWh
+            self.total_response_energy += abs(self.current_response) * rated_power * dt / 3600.0  # MWh
 
         self.last_update_time = current_time
 
@@ -216,9 +197,7 @@ class SyntheticInertiaController:
         window_start = current_time - self.config.measurement_window
 
         # Filter measurements to window
-        window_measurements = [
-            m for m in self.frequency_buffer if m.timestamp >= window_start
-        ]
+        window_measurements = [m for m in self.frequency_buffer if m.timestamp >= window_start]
 
         if len(window_measurements) < 2:
             return 0.0
@@ -241,9 +220,7 @@ class SyntheticInertiaController:
         # Sanity check: limit ROCOF to reasonable values
         return max(-10.0, min(10.0, rocof))
 
-    def _create_response_dict(
-        self, power_command: float, status: str
-    ) -> Dict[str, Any]:
+    def _create_response_dict(self, power_command: float, status: str) -> Dict[str, Any]:
         """Create standardized response dictionary"""
         return {
             "power_command_mw": power_command,
@@ -252,11 +229,7 @@ class SyntheticInertiaController:
             "status": status,
             "service_type": "synthetic_inertia",
             "inertia_active": self.inertia_active,
-            "response_duration": (
-                time.time() - self.response_start_time
-                if self.response_start_time
-                else 0.0
-            ),
+            "response_duration": (time.time() - self.response_start_time if self.response_start_time else 0.0),
             "timestamp": self.last_update_time,
         }
 
@@ -296,9 +269,7 @@ class SyntheticInertiaController:
         # Get recent measurements (last 5 seconds)
         current_time = time.time()
         recent_window = current_time - 5.0
-        recent_measurements = [
-            m for m in self.frequency_buffer if m.timestamp >= recent_window
-        ]
+        recent_measurements = [m for m in self.frequency_buffer if m.timestamp >= recent_window]
 
         if len(recent_measurements) < 5:
             return {"insufficient_data": True}
@@ -307,17 +278,13 @@ class SyntheticInertiaController:
 
         # Calculate statistics
         freq_mean = sum(frequencies) / len(frequencies)
-        freq_std = math.sqrt(
-            sum((f - freq_mean) ** 2 for f in frequencies) / len(frequencies)
-        )
+        freq_std = math.sqrt(sum((f - freq_mean) ** 2 for f in frequencies) / len(frequencies))
         freq_min = min(frequencies)
         freq_max = max(frequencies)
         freq_range = freq_max - freq_min
 
         # Calculate frequency stability
-        freq_changes = [
-            abs(frequencies[i] - frequencies[i - 1]) for i in range(1, len(frequencies))
-        ]
+        freq_changes = [abs(frequencies[i] - frequencies[i - 1]) for i in range(1, len(frequencies))]
         avg_freq_change = sum(freq_changes) / len(freq_changes) if freq_changes else 0.0
 
         return {

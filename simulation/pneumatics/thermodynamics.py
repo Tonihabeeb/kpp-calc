@@ -42,9 +42,7 @@ class ThermodynamicProperties:
         self.P_standard = 101325.0  # Pa
 
         # Air density at standard conditions (kg/m³)
-        self.rho_air_standard = self.P_standard / (
-            self.R_specific_air * self.T_standard
-        )
+        self.rho_air_standard = self.P_standard / (self.R_specific_air * self.T_standard)
 
         logger.info("ThermodynamicProperties initialized")
 
@@ -61,9 +59,7 @@ class ThermodynamicProperties:
         """
         return pressure / (self.R_specific_air * temperature)
 
-    def air_mass_from_volume(
-        self, volume: float, pressure: float, temperature: float
-    ) -> float:
+    def air_mass_from_volume(self, volume: float, pressure: float, temperature: float) -> float:
         """
         Calculate air mass from volume at given conditions.
 
@@ -78,9 +74,7 @@ class ThermodynamicProperties:
         density = self.air_density(pressure, temperature)
         return density * volume
 
-    def air_volume_from_mass(
-        self, mass: float, pressure: float, temperature: float
-    ) -> float:
+    def air_volume_from_mass(self, mass: float, pressure: float, temperature: float) -> float:
         """
         Calculate air volume from mass at given conditions.
 
@@ -116,9 +110,7 @@ class CompressionThermodynamics:
 
         logger.info("CompressionThermodynamics initialized")
 
-    def adiabatic_compression_temperature(
-        self, T_initial: float, P_initial: float, P_final: float
-    ) -> float:
+    def adiabatic_compression_temperature(self, T_initial: float, P_initial: float, P_final: float) -> float:
         """
         Calculate final temperature for adiabatic compression.
 
@@ -147,9 +139,7 @@ class CompressionThermodynamics:
 
         return T_final
 
-    def isothermal_compression_work(
-        self, volume_initial: float, P_initial: float, P_final: float
-    ) -> float:
+    def isothermal_compression_work(self, volume_initial: float, P_initial: float, P_final: float) -> float:
         """
         Calculate work required for isothermal compression.
 
@@ -196,17 +186,13 @@ class CompressionThermodynamics:
         T_final = self.adiabatic_compression_temperature(T_initial, P_initial, P_final)
         volume_final = volume_initial * (P_initial / P_final) * (T_final / T_initial)
 
-        work = (P_final * volume_final - P_initial * volume_initial) / (
-            self.props.gamma_air - 1
-        )
+        work = (P_final * volume_final - P_initial * volume_initial) / (self.props.gamma_air - 1)
 
         logger.debug(f"Adiabatic compression work: {work/1000:.1f} kJ")
 
         return work
 
-    def compression_heat_generation(
-        self, compression_work: float, efficiency: Optional[float] = None
-    ) -> float:
+    def compression_heat_generation(self, compression_work: float, efficiency: Optional[float] = None) -> float:
         """
         Calculate heat generated during compression.
 
@@ -225,16 +211,11 @@ class CompressionThermodynamics:
         input_energy = compression_work / efficiency
         heat_generated = input_energy - compression_work
 
-        logger.debug(
-            f"Compression heat: {heat_generated/1000:.1f} kJ "
-            f"(efficiency: {efficiency:.1%})"
-        )
+        logger.debug(f"Compression heat: {heat_generated/1000:.1f} kJ " f"(efficiency: {efficiency:.1%})")
 
         return heat_generated
 
-    def intercooling_temperature_drop(
-        self, T_hot: float, heat_removed: float, air_mass: float
-    ) -> float:
+    def intercooling_temperature_drop(self, T_hot: float, heat_removed: float, air_mass: float) -> float:
         """
         Calculate temperature drop due to intercooling.
 
@@ -253,10 +234,7 @@ class CompressionThermodynamics:
         temperature_drop = heat_removed / (air_mass * self.props.cp_air)
         T_final = max(self.ambient_temperature, T_hot - temperature_drop)
 
-        logger.debug(
-            f"Intercooling: {T_hot:.1f}K → {T_final:.1f}K "
-            f"(heat removed: {heat_removed/1000:.1f} kJ)"
-        )
+        logger.debug(f"Intercooling: {T_hot:.1f}K → {T_final:.1f}K " f"(heat removed: {heat_removed/1000:.1f} kJ)")
 
         return T_final
 
@@ -287,9 +265,7 @@ class ExpansionThermodynamics:
             "mixed": self._mixed_expansion,
         }
 
-        logger.info(
-            f"ExpansionThermodynamics initialized (water temp: {water_temperature:.1f}K)"
-        )
+        logger.info(f"ExpansionThermodynamics initialized (water temp: {water_temperature:.1f}K)")
 
     def _adiabatic_expansion(
         self, volume_initial: float, P_initial: float, P_final: float, T_initial: float
@@ -351,12 +327,8 @@ class ExpansionThermodynamics:
             Tuple of (final_volume, final_temperature)
         """
         # Calculate both extremes
-        V_adiabatic, T_adiabatic = self._adiabatic_expansion(
-            volume_initial, P_initial, P_final, T_initial
-        )
-        V_isothermal, T_isothermal = self._isothermal_expansion(
-            volume_initial, P_initial, P_final, T_initial
-        )
+        V_adiabatic, T_adiabatic = self._adiabatic_expansion(volume_initial, P_initial, P_final, T_initial)
+        V_isothermal, T_isothermal = self._isothermal_expansion(volume_initial, P_initial, P_final, T_initial)
 
         # Interpolate based on heat transfer rate
         V_final = V_adiabatic + heat_transfer_rate * (V_isothermal - V_adiabatic)
@@ -394,26 +366,17 @@ class ExpansionThermodynamics:
         # Calculate expansion
         if expansion_mode == "mixed":
             # Calculate heat transfer rate based on time and surface area
-            heat_transfer_rate = min(
-                1.0, expansion_time / 20.0
-            )  # Full heat transfer in 20s
+            heat_transfer_rate = min(1.0, expansion_time / 20.0)  # Full heat transfer in 20s
             volume_final, T_final = self._mixed_expansion(
                 volume_initial, P_initial, P_final, T_initial, heat_transfer_rate
             )
         else:
-            volume_final, T_final = self.expansion_modes[expansion_mode](
-                volume_initial, P_initial, P_final, T_initial
-            )
+            volume_final, T_final = self.expansion_modes[expansion_mode](volume_initial, P_initial, P_final, T_initial)
 
         # Calculate heat transfer from water
         temperature_difference = self.water_temperature - T_final
         heat_transfer_area = self.floater_surface_area
-        heat_transfer = (
-            self.heat_transfer_coefficient
-            * heat_transfer_area
-            * temperature_difference
-            * expansion_time
-        )
+        heat_transfer = self.heat_transfer_coefficient * heat_transfer_area * temperature_difference * expansion_time
 
         # Adjust final temperature based on heat transfer
         air_mass = self.props.air_mass_from_volume(volume_initial, P_initial, T_initial)
@@ -422,9 +385,7 @@ class ExpansionThermodynamics:
             T_final = min(self.water_temperature, T_final + temperature_rise)
 
             # Recalculate volume with adjusted temperature
-            volume_final = (
-                volume_initial * (P_initial / P_final) * (T_final / T_initial)
-            )
+            volume_final = volume_initial * (P_initial / P_final) * (T_final / T_initial)
 
         # Calculate thermal energy boost
         thermal_energy_boost = heat_transfer if heat_transfer > 0 else 0.0
@@ -436,9 +397,7 @@ class ExpansionThermodynamics:
             "final_temperature": T_final,
             "initial_pressure": P_initial,
             "final_pressure": P_final,
-            "expansion_ratio": (
-                volume_final / volume_initial if volume_initial > 0 else 1.0
-            ),
+            "expansion_ratio": (volume_final / volume_initial if volume_initial > 0 else 1.0),
             "heat_transfer": heat_transfer,
             "thermal_energy_boost": thermal_energy_boost,
             "air_mass": air_mass,
@@ -466,9 +425,7 @@ class ThermalBuoyancyCalculator:
 
         logger.info("ThermalBuoyancyCalculator initialized")
 
-    def thermal_buoyancy_boost(
-        self, base_buoyant_force: float, thermal_expansion_results: Dict
-    ) -> Dict:
+    def thermal_buoyancy_boost(self, base_buoyant_force: float, thermal_expansion_results: Dict) -> Dict:
         """
         Calculate additional buoyant force from thermal expansion.
 
@@ -495,9 +452,7 @@ class ThermalBuoyancyCalculator:
 
         # Thermal boost percentage
         if base_buoyant_force > 0:
-            thermal_boost_percentage = (
-                thermal_buoyant_force / base_buoyant_force
-            ) * 100
+            thermal_boost_percentage = (thermal_buoyant_force / base_buoyant_force) * 100
         else:
             thermal_boost_percentage = 0.0
 
@@ -511,15 +466,12 @@ class ThermalBuoyancyCalculator:
         }
 
         logger.debug(
-            f"Thermal buoyancy boost: {thermal_buoyant_force:.1f}N "
-            f"({thermal_boost_percentage:.1f}% increase)"
+            f"Thermal buoyancy boost: {thermal_buoyant_force:.1f}N " f"({thermal_boost_percentage:.1f}% increase)"
         )
 
         return results
 
-    def thermal_efficiency_factor(
-        self, thermal_energy_input: float, mechanical_work_output: float
-    ) -> float:
+    def thermal_efficiency_factor(self, thermal_energy_input: float, mechanical_work_output: float) -> float:
         """
         Calculate thermal efficiency factor for energy conversion.
 
@@ -548,9 +500,7 @@ class AdvancedThermodynamics:
     Main class coordinating all thermodynamic calculations.
     """
 
-    def __init__(
-        self, water_temperature: float = 293.15, expansion_mode: str = "mixed"
-    ):
+    def __init__(self, water_temperature: float = 293.15, expansion_mode: str = "mixed"):
         """
         Initialize advanced thermodynamics system.
 
@@ -566,10 +516,7 @@ class AdvancedThermodynamics:
         self.water_temperature = water_temperature
         self.expansion_mode = expansion_mode
 
-        logger.info(
-            f"AdvancedThermodynamics initialized "
-            f"(water: {water_temperature:.1f}K, mode: {expansion_mode})"
-        )
+        logger.info(f"AdvancedThermodynamics initialized " f"(water: {water_temperature:.1f}K, mode: {expansion_mode})")
 
     def complete_thermodynamic_cycle(
         self,
@@ -604,9 +551,7 @@ class AdvancedThermodynamics:
             injection_pressure,
             self.compression.ambient_temperature,
         )
-        compression_heat = self.compression.compression_heat_generation(
-            compression_work_adiabatic
-        )
+        compression_heat = self.compression.compression_heat_generation(compression_work_adiabatic)
 
         # 2. Expansion analysis during ascent
         expansion_results = self.expansion.expansion_with_heat_transfer(
@@ -619,18 +564,12 @@ class AdvancedThermodynamics:
         )
 
         # 3. Thermal buoyancy boost
-        thermal_results = self.thermal_buoyancy.thermal_buoyancy_boost(
-            base_buoyant_force, expansion_results
-        )
+        thermal_results = self.thermal_buoyancy.thermal_buoyancy_boost(base_buoyant_force, expansion_results)
 
         # 4. Energy balance
         total_thermal_energy = expansion_results["thermal_energy_boost"]
-        thermal_work_output = (
-            thermal_results["thermal_buoyant_force"] * 10.0
-        )  # Assume 10m ascent
-        thermal_efficiency = self.thermal_buoyancy.thermal_efficiency_factor(
-            total_thermal_energy, thermal_work_output
-        )
+        thermal_work_output = thermal_results["thermal_buoyant_force"] * 10.0  # Assume 10m ascent
+        thermal_efficiency = self.thermal_buoyancy.thermal_efficiency_factor(total_thermal_energy, thermal_work_output)
 
         # 5. Complete results
         complete_results = {

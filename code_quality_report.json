@@ -1,0 +1,2233 @@
+{
+  "summary": {
+    "files_analyzed": 276,
+    "total_lines_of_code": 76547,
+    "total_issues": 1673,
+    "critical_issues": 0,
+    "analysis_time": 9.025550365447998,
+    "average_issues_per_file": 6.061594202898551
+  },
+  "file_analyses": [
+    {
+      "file_path": "launch_ai_tools.py",
+      "lines_of_code": 204,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 13,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_unused_ports.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stage4_realtime_integration.py",
+      "lines_of_code": 445,
+      "issues_count": 20,
+      "has_syntax_errors": false,
+      "complexity_score": 29,
+      "import_issues": []
+    },
+    {
+      "file_path": "realtime_sync_master.py",
+      "lines_of_code": 351,
+      "issues_count": 10,
+      "has_syntax_errors": false,
+      "complexity_score": 18,
+      "import_issues": []
+    },
+    {
+      "file_path": "realtime_sync_master_fixed.py",
+      "lines_of_code": 365,
+      "issues_count": 10,
+      "has_syntax_errors": false,
+      "complexity_score": 21,
+      "import_issues": []
+    },
+    {
+      "file_path": "final_validation_simplified.py",
+      "lines_of_code": 322,
+      "issues_count": 8,
+      "has_syntax_errors": false,
+      "complexity_score": 24,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stability.py",
+      "lines_of_code": 19,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "scan_dash_missing_ids.py",
+      "lines_of_code": 61,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 11,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\floater\\__init__.py",
+      "lines_of_code": 23,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\managers\\system_manager.py",
+      "lines_of_code": 493,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 6,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_phase3_managers.py",
+      "lines_of_code": 489,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "simple_integration_test.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\hypotheses\\h3_pulse_mode.py",
+      "lines_of_code": 19,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_engine_config_migration.py",
+      "lines_of_code": 258,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 3,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\managers\\state_manager.py",
+      "lines_of_code": 377,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 9,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\thermal.py",
+      "lines_of_code": 424,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 16,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_engine_config_integration.py",
+      "lines_of_code": 249,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 8,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\core\\__init__.py",
+      "lines_of_code": 9,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "minimal_dash_test.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_config_integration.py",
+      "lines_of_code": 151,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 7,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\control_config.py",
+      "lines_of_code": 175,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 8,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\frequency\\synthetic_inertia_controller.py",
+      "lines_of_code": 366,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 16,
+      "import_issues": []
+    },
+    {
+      "file_path": "simple_server.py",
+      "lines_of_code": 147,
+      "issues_count": 20,
+      "has_syntax_errors": false,
+      "complexity_score": 8,
+      "import_issues": []
+    },
+    {
+      "file_path": "quick_test.py",
+      "lines_of_code": 104,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 11,
+      "import_issues": []
+    },
+    {
+      "file_path": "check_quotes.py",
+      "lines_of_code": 39,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 7,
+      "import_issues": []
+    },
+    {
+      "file_path": "app.py",
+      "lines_of_code": 1173,
+      "issues_count": 70,
+      "has_syntax_errors": false,
+      "complexity_score": 70,
+      "import_issues": []
+    },
+    {
+      "file_path": "start_synchronized_system.py",
+      "lines_of_code": 275,
+      "issues_count": 17,
+      "has_syntax_errors": false,
+      "complexity_score": 30,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_floater_config_migration.py",
+      "lines_of_code": 186,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 5,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_static_files.py",
+      "lines_of_code": 26,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 2,
+      "import_issues": []
+    },
+    {
+      "file_path": "code_quality_analysis.py",
+      "lines_of_code": 465,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 58,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\flywheel.py",
+      "lines_of_code": 553,
+      "issues_count": 7,
+      "has_syntax_errors": false,
+      "complexity_score": 16,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_electrical_config_migration.py",
+      "lines_of_code": 113,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\demand_response\\load_curtailment_controller.py",
+      "lines_of_code": 604,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 34,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\control\\fault_detector.py",
+      "lines_of_code": 853,
+      "issues_count": 12,
+      "has_syntax_errors": false,
+      "complexity_score": 46,
+      "import_issues": []
+    },
+    {
+      "file_path": "dash_app_backup.py",
+      "lines_of_code": 740,
+      "issues_count": 52,
+      "has_syntax_errors": false,
+      "complexity_score": 23,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\sprocket.py",
+      "lines_of_code": 195,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 3,
+      "import_issues": []
+    },
+    {
+      "file_path": "start_flask.py",
+      "lines_of_code": 60,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 5,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\__init__.py",
+      "lines_of_code": 14,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_websocket_health.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_ui_data_flow.py",
+      "lines_of_code": 105,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 14,
+      "import_issues": []
+    },
+    {
+      "file_path": "run_observability_tests.py",
+      "lines_of_code": 83,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 9,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\floater\\state_machine.py",
+      "lines_of_code": 118,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\components\\floater_config.py",
+      "lines_of_code": 107,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 6,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\advanced_generator.py",
+      "lines_of_code": 718,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 24,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\components\\control_config.py",
+      "lines_of_code": 60,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\power_electronics.py",
+      "lines_of_code": 655,
+      "issues_count": 10,
+      "has_syntax_errors": false,
+      "complexity_score": 43,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\clutch.py",
+      "lines_of_code": 36,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 7,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\managers\\physics_manager.py",
+      "lines_of_code": 510,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 20,
+      "import_issues": []
+    },
+    {
+      "file_path": "quick_verify.py",
+      "lines_of_code": 45,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 5,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\storage\\battery_storage_system.py",
+      "lines_of_code": 475,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 26,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stage2_physics.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "final_integration_test.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\managers\\component_manager.py",
+      "lines_of_code": 332,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 24,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\voltage\\dynamic_voltage_support.py",
+      "lines_of_code": 435,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 28,
+      "import_issues": []
+    },
+    {
+      "file_path": "fix_electrical_engagement.py",
+      "lines_of_code": 245,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 17,
+      "import_issues": []
+    },
+    {
+      "file_path": "local_ci_pipeline.py",
+      "lines_of_code": 258,
+      "issues_count": 19,
+      "has_syntax_errors": false,
+      "complexity_score": 12,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\frequency\\secondary_frequency_controller.py",
+      "lines_of_code": 352,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 15,
+      "import_issues": []
+    },
+    {
+      "file_path": "routes\\export_routes.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\losses.py",
+      "lines_of_code": 427,
+      "issues_count": 9,
+      "has_syntax_errors": false,
+      "complexity_score": 9,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\pneumatic_coordinator.py",
+      "lines_of_code": 842,
+      "issues_count": 11,
+      "has_syntax_errors": false,
+      "complexity_score": 68,
+      "import_issues": []
+    },
+    {
+      "file_path": "utils\\logger.py",
+      "lines_of_code": 22,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\integration\\integration_manager.py",
+      "lines_of_code": 518,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 29,
+      "import_issues": []
+    },
+    {
+      "file_path": "minimal_dash.py",
+      "lines_of_code": 8,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 2,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\storage\\__init__.py",
+      "lines_of_code": 23,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\components\\electrical_config.py",
+      "lines_of_code": 63,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 7,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_enhanced_websocket.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\future\\hypothesis_framework.py",
+      "lines_of_code": 427,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 18,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\environment.py",
+      "lines_of_code": 166,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 2,
+      "import_issues": []
+    },
+    {
+      "file_path": "analyze_docstrings.py",
+      "lines_of_code": 47,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 8,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\thermodynamics.py",
+      "lines_of_code": 699,
+      "issues_count": 12,
+      "has_syntax_errors": false,
+      "complexity_score": 14,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\optimization\\parameter_optimizer.py",
+      "lines_of_code": 635,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 45,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stage5_simplified.py",
+      "lines_of_code": 257,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 21,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\air_compression_fixed.py",
+      "lines_of_code": 455,
+      "issues_count": 8,
+      "has_syntax_errors": false,
+      "complexity_score": 8,
+      "import_issues": []
+    },
+    {
+      "file_path": "final_stage5_validation.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\pneumatics.py",
+      "lines_of_code": 511,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 20,
+      "import_issues": []
+    },
+    {
+      "file_path": "deepsource_analysis_runner.py",
+      "lines_of_code": 286,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 28,
+      "import_issues": []
+    },
+    {
+      "file_path": "integrate_orphaned_callbacks.py",
+      "lines_of_code": 322,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 37,
+      "import_issues": []
+    },
+    {
+      "file_path": "analyze_baseline.py",
+      "lines_of_code": 432,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 38,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\floater\\pneumatic.py",
+      "lines_of_code": 131,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 7,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_drivetrain_fix_corrected.py",
+      "lines_of_code": 191,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 11,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\position_sensor.py",
+      "lines_of_code": 34,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 3,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\frequency\\__init__.py",
+      "lines_of_code": 16,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\pressure_control.py",
+      "lines_of_code": 475,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 30,
+      "import_issues": []
+    },
+    {
+      "file_path": "simple_verification.py",
+      "lines_of_code": 81,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 9,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\__init__.py",
+      "lines_of_code": 79,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_phase4_engine.py",
+      "lines_of_code": 178,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 6,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\economic\\price_forecaster.py",
+      "lines_of_code": 710,
+      "issues_count": 47,
+      "has_syntax_errors": false,
+      "complexity_score": 53,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\integrated_electrical_system.py",
+      "lines_of_code": 641,
+      "issues_count": 20,
+      "has_syntax_errors": false,
+      "complexity_score": 29,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\integration\\__init__.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\floater\\thermal.py",
+      "lines_of_code": 99,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\economic\\market_interface.py",
+      "lines_of_code": 534,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 25,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\managers\\base_manager.py",
+      "lines_of_code": 494,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 33,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_simulation_start.py",
+      "lines_of_code": 71,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 3,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\__init__.py",
+      "lines_of_code": 18,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\control\\load_manager.py",
+      "lines_of_code": 573,
+      "issues_count": 8,
+      "has_syntax_errors": false,
+      "complexity_score": 18,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\economic\\bidding_strategy.py",
+      "lines_of_code": 809,
+      "issues_count": 10,
+      "has_syntax_errors": false,
+      "complexity_score": 34,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_server.py",
+      "lines_of_code": 65,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 6,
+      "import_issues": []
+    },
+    {
+      "file_path": "implement_phase1.py",
+      "lines_of_code": 1081,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 13,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_h1_fluid_coupling_time.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_kpp_enhancements.py",
+      "lines_of_code": 365,
+      "issues_count": 37,
+      "has_syntax_errors": false,
+      "complexity_score": 20,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\chain.py",
+      "lines_of_code": 302,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 11,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_systematic.py",
+      "lines_of_code": 188,
+      "issues_count": 7,
+      "has_syntax_errors": false,
+      "complexity_score": 13,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_crash_fix.py",
+      "lines_of_code": 227,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 28,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\control\\timing_controller.py",
+      "lines_of_code": 621,
+      "issues_count": 12,
+      "has_syntax_errors": false,
+      "complexity_score": 25,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\energy_analysis.py",
+      "lines_of_code": 641,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 14,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\optimization\\real_time_optimizer.py",
+      "lines_of_code": 433,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 43,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\config.py",
+      "lines_of_code": 16,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "fix_simulation_crashes.py",
+      "lines_of_code": 339,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 5,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\hypotheses\\h2_isothermal.py",
+      "lines_of_code": 21,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 2,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\voltage\\voltage_regulator.py",
+      "lines_of_code": 299,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 12,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\components\\generator_config.py",
+      "lines_of_code": 8,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\components\\__init__.py",
+      "lines_of_code": 17,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stage3_integration.py",
+      "lines_of_code": 368,
+      "issues_count": 9,
+      "has_syntax_errors": false,
+      "complexity_score": 25,
+      "import_issues": []
+    },
+    {
+      "file_path": "fix_simulation_params.py",
+      "lines_of_code": 47,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\event_handler.py",
+      "lines_of_code": 256,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 20,
+      "import_issues": []
+    },
+    {
+      "file_path": "validate_phase4.py",
+      "lines_of_code": 133,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 12,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\monitoring\\__init__.py",
+      "lines_of_code": 17,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "debug_websocket.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_simulator_comprehensive.py",
+      "lines_of_code": 544,
+      "issues_count": 24,
+      "has_syntax_errors": false,
+      "complexity_score": 47,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_drivetrain_fix.py",
+      "lines_of_code": 179,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 9,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\floater\\buoyancy.py",
+      "lines_of_code": 101,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 3,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\control\\__init__.py",
+      "lines_of_code": 20,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "deep_callback_analysis.py",
+      "lines_of_code": 334,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 49,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_flask_simple.py",
+      "lines_of_code": 62,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatic_physics.py",
+      "lines_of_code": 354,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 5,
+      "import_issues": []
+    },
+    {
+      "file_path": "automated_comprehensive_validation.py",
+      "lines_of_code": 611,
+      "issues_count": 21,
+      "has_syntax_errors": false,
+      "complexity_score": 33,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_refactored_engine.py",
+      "lines_of_code": 115,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 10,
+      "import_issues": []
+    },
+    {
+      "file_path": "implement_phase4.py",
+      "lines_of_code": 581,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "routes\\simulation_api.py",
+      "lines_of_code": 16,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stage1_physics.py",
+      "lines_of_code": 224,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 15,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\economic\\__init__.py",
+      "lines_of_code": 29,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\presets\\__init__.py",
+      "lines_of_code": 5,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "routes\\stream.py",
+      "lines_of_code": 5,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "analyze_callback_references.py",
+      "lines_of_code": 263,
+      "issues_count": 9,
+      "has_syntax_errors": false,
+      "complexity_score": 34,
+      "import_issues": []
+    },
+    {
+      "file_path": "start_server.py",
+      "lines_of_code": 74,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 7,
+      "import_issues": []
+    },
+    {
+      "file_path": "smoke_test.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\air_compression.py",
+      "lines_of_code": 598,
+      "issues_count": 16,
+      "has_syntax_errors": false,
+      "complexity_score": 11,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\schemas.py",
+      "lines_of_code": 362,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 5,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\control\\grid_stability_controller.py",
+      "lines_of_code": 688,
+      "issues_count": 7,
+      "has_syntax_errors": false,
+      "complexity_score": 32,
+      "import_issues": []
+    },
+    {
+      "file_path": "find_optimal_load.py",
+      "lines_of_code": 79,
+      "issues_count": 22,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "fix_docstrings.py",
+      "lines_of_code": 47,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 6,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\voltage\\power_factor_controller.py",
+      "lines_of_code": 340,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 16,
+      "import_issues": []
+    },
+    {
+      "file_path": "restart_servers.py",
+      "lines_of_code": 227,
+      "issues_count": 7,
+      "has_syntax_errors": false,
+      "complexity_score": 19,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\control\\startup_controller.py",
+      "lines_of_code": 512,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 26,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\heat_exchange.py",
+      "lines_of_code": 707,
+      "issues_count": 7,
+      "has_syntax_errors": false,
+      "complexity_score": 11,
+      "import_issues": []
+    },
+    {
+      "file_path": "final_verification.py",
+      "lines_of_code": 160,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 12,
+      "import_issues": []
+    },
+    {
+      "file_path": "simple_ui.py",
+      "lines_of_code": 85,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 8,
+      "import_issues": []
+    },
+    {
+      "file_path": "setup_phase3.py",
+      "lines_of_code": 189,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 8,
+      "import_issues": []
+    },
+    {
+      "file_path": "comprehensive_callback_testing.py",
+      "lines_of_code": 711,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 25,
+      "import_issues": []
+    },
+    {
+      "file_path": "utils\\backend_logger.py",
+      "lines_of_code": 33,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_phase4_comprehensive.py",
+      "lines_of_code": 297,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 11,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_physics_fix.py",
+      "lines_of_code": 138,
+      "issues_count": 10,
+      "has_syntax_errors": false,
+      "complexity_score": 13,
+      "import_issues": []
+    },
+    {
+      "file_path": "comprehensive_endpoint_test.py",
+      "lines_of_code": 442,
+      "issues_count": 26,
+      "has_syntax_errors": false,
+      "complexity_score": 31,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pulse_physics.py",
+      "lines_of_code": 401,
+      "issues_count": 9,
+      "has_syntax_errors": false,
+      "complexity_score": 11,
+      "import_issues": []
+    },
+    {
+      "file_path": "validate_phase2.py",
+      "lines_of_code": 265,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 28,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_simulation_manager_migration.py",
+      "lines_of_code": 362,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 6,
+      "import_issues": []
+    },
+    {
+      "file_path": "startup_diagnostic.py",
+      "lines_of_code": 161,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 18,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_drivetrain_config_migration.py",
+      "lines_of_code": 110,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\plotting.py",
+      "lines_of_code": 73,
+      "issues_count": 8,
+      "has_syntax_errors": false,
+      "complexity_score": 5,
+      "import_issues": []
+    },
+    {
+      "file_path": "start_dashboard.py",
+      "lines_of_code": 42,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 5,
+      "import_issues": []
+    },
+    {
+      "file_path": "debug_flask_startup.py",
+      "lines_of_code": 186,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 17,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\control.py",
+      "lines_of_code": 176,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 17,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stage5_documentation.py",
+      "lines_of_code": 644,
+      "issues_count": 7,
+      "has_syntax_errors": false,
+      "complexity_score": 34,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_backend_integration.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\physics_engine.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "utils\\__init__.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics.py",
+      "lines_of_code": 352,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 5,
+      "import_issues": []
+    },
+    {
+      "file_path": "dash_app.py",
+      "lines_of_code": 1940,
+      "issues_count": 123,
+      "has_syntax_errors": false,
+      "complexity_score": 126,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\venting_system.py",
+      "lines_of_code": 568,
+      "issues_count": 14,
+      "has_syntax_errors": false,
+      "complexity_score": 20,
+      "import_issues": []
+    },
+    {
+      "file_path": "app_crash_fixed.py",
+      "lines_of_code": 217,
+      "issues_count": 10,
+      "has_syntax_errors": false,
+      "complexity_score": 18,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\demand_response\\__init__.py",
+      "lines_of_code": 26,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "demo_stage5_features.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\fluid.py",
+      "lines_of_code": 439,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 12,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\pulse_controller.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "utils\\logging_setup.py",
+      "lines_of_code": 76,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 6,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\components\\drivetrain_config.py",
+      "lines_of_code": 47,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simple_browser_monitor.py",
+      "lines_of_code": 439,
+      "issues_count": 16,
+      "has_syntax_errors": false,
+      "complexity_score": 13,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\generator.py",
+      "lines_of_code": 13,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "utils\\errors.py",
+      "lines_of_code": 30,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_phase9_4_integration.py",
+      "lines_of_code": 337,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 15,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\future\\__init__.py",
+      "lines_of_code": 43,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\pressure_expansion.py",
+      "lines_of_code": 336,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 7,
+      "import_issues": []
+    },
+    {
+      "file_path": "electrical_engagement_test.py",
+      "lines_of_code": 196,
+      "issues_count": 9,
+      "has_syntax_errors": false,
+      "complexity_score": 17,
+      "import_issues": []
+    },
+    {
+      "file_path": "system_health_check.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\storage\\grid_stabilization_controller.py",
+      "lines_of_code": 644,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 37,
+      "import_issues": []
+    },
+    {
+      "file_path": "realtime_performance_monitor.py",
+      "lines_of_code": 374,
+      "issues_count": 16,
+      "has_syntax_errors": false,
+      "complexity_score": 30,
+      "import_issues": []
+    },
+    {
+      "file_path": "quick_health_check.py",
+      "lines_of_code": 49,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 6,
+      "import_issues": []
+    },
+    {
+      "file_path": "dash_app_enhanced.py",
+      "lines_of_code": 864,
+      "issues_count": 60,
+      "has_syntax_errors": false,
+      "complexity_score": 33,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\hypotheses\\h1_nanobubbles.py",
+      "lines_of_code": 23,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\thermal.py",
+      "lines_of_code": 414,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 18,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\economic\\economic_optimizer.py",
+      "lines_of_code": 796,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 46,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_config_system.py",
+      "lines_of_code": 142,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\__init__.py",
+      "lines_of_code": 111,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "validate_phase5.py",
+      "lines_of_code": 201,
+      "issues_count": 7,
+      "has_syntax_errors": false,
+      "complexity_score": 19,
+      "import_issues": []
+    },
+    {
+      "file_path": "fix_code_quality.py",
+      "lines_of_code": 110,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 13,
+      "import_issues": []
+    },
+    {
+      "file_path": "minimal_flask_test.py",
+      "lines_of_code": 23,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 2,
+      "import_issues": []
+    },
+    {
+      "file_path": "debug_electrical_engagement.py",
+      "lines_of_code": 134,
+      "issues_count": 22,
+      "has_syntax_errors": false,
+      "complexity_score": 9,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\performance_metrics.py",
+      "lines_of_code": 757,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 23,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stage4_real_time.py",
+      "lines_of_code": 477,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 12,
+      "import_issues": []
+    },
+    {
+      "file_path": "routes\\__init__.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "restart_simulation.py",
+      "lines_of_code": 151,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 15,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_full_integration.py",
+      "lines_of_code": 204,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 16,
+      "import_issues": []
+    },
+    {
+      "file_path": "minimal_backend.py",
+      "lines_of_code": 9,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 2,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_automation.py",
+      "lines_of_code": 349,
+      "issues_count": 13,
+      "has_syntax_errors": false,
+      "complexity_score": 46,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_flask_startup.py",
+      "lines_of_code": 146,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 10,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\integrated_drivetrain.py",
+      "lines_of_code": 381,
+      "issues_count": 10,
+      "has_syntax_errors": false,
+      "complexity_score": 8,
+      "import_issues": []
+    },
+    {
+      "file_path": "validate_phase0.py",
+      "lines_of_code": 151,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 15,
+      "import_issues": []
+    },
+    {
+      "file_path": "websocket_test.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "save_electrical_results.py",
+      "lines_of_code": 62,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 2,
+      "import_issues": []
+    },
+    {
+      "file_path": "endpoint_analysis.py",
+      "lines_of_code": 167,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 25,
+      "import_issues": []
+    },
+    {
+      "file_path": "app_legacy_flask.py",
+      "lines_of_code": 1027,
+      "issues_count": 63,
+      "has_syntax_errors": false,
+      "complexity_score": 74,
+      "import_issues": []
+    },
+    {
+      "file_path": "crash_monitor_final.py",
+      "lines_of_code": 113,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 10,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\__init__.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\grid_services_coordinator.py",
+      "lines_of_code": 953,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 55,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\frequency\\primary_frequency_controller.py",
+      "lines_of_code": 221,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 9,
+      "import_issues": []
+    },
+    {
+      "file_path": "setup_dev_env.py",
+      "lines_of_code": 200,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 15,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stage4_integration.py",
+      "lines_of_code": 314,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 15,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\voltage\\__init__.py",
+      "lines_of_code": 26,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "targeted_value_analysis.py",
+      "lines_of_code": 320,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 33,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\components\\simulation_config.py",
+      "lines_of_code": 45,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\floater\\validation.py",
+      "lines_of_code": 166,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 14,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\sensors.py",
+      "lines_of_code": 54,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 3,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\managers\\callback_integration_manager.py",
+      "lines_of_code": 478,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 51,
+      "import_issues": []
+    },
+    {
+      "file_path": "improved_service_manager.py",
+      "lines_of_code": 344,
+      "issues_count": 12,
+      "has_syntax_errors": false,
+      "complexity_score": 36,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\core\\validation.py",
+      "lines_of_code": 125,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 18,
+      "import_issues": []
+    },
+    {
+      "file_path": "validate_simulator.py",
+      "lines_of_code": 86,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 10,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\__init__.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stage2_implementation.py",
+      "lines_of_code": 319,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 13,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\gearbox.py",
+      "lines_of_code": 208,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\control\\transient_event_controller.py",
+      "lines_of_code": 475,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 24,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\advanced_event_handler.py",
+      "lines_of_code": 508,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 32,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\thermal_physics.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\future\\enhancement_hooks.py",
+      "lines_of_code": 259,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 14,
+      "import_issues": []
+    },
+    {
+      "file_path": "start_system.py",
+      "lines_of_code": 87,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 11,
+      "import_issues": []
+    },
+    {
+      "file_path": "endpoint_mapping_verification.py",
+      "lines_of_code": 592,
+      "issues_count": 8,
+      "has_syntax_errors": false,
+      "complexity_score": 70,
+      "import_issues": []
+    },
+    {
+      "file_path": "realtime_master_clock.py",
+      "lines_of_code": 351,
+      "issues_count": 10,
+      "has_syntax_errors": false,
+      "complexity_score": 18,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_no_legacy_components.py",
+      "lines_of_code": 203,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 10,
+      "import_issues": []
+    },
+    {
+      "file_path": "physics_analysis_and_tuning.py",
+      "lines_of_code": 478,
+      "issues_count": 32,
+      "has_syntax_errors": false,
+      "complexity_score": 12,
+      "import_issues": []
+    },
+    {
+      "file_path": "simple_master_clock.py",
+      "lines_of_code": 322,
+      "issues_count": 14,
+      "has_syntax_errors": false,
+      "complexity_score": 19,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\demand_response\\peak_shaving_controller.py",
+      "lines_of_code": 624,
+      "issues_count": 18,
+      "has_syntax_errors": false,
+      "complexity_score": 41,
+      "import_issues": []
+    },
+    {
+      "file_path": "run_reverse_integration_tests.py",
+      "lines_of_code": 513,
+      "issues_count": 11,
+      "has_syntax_errors": false,
+      "complexity_score": 40,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\nanobubble_physics.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_master_clock.py",
+      "lines_of_code": 34,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 2,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\monitoring\\performance_monitor.py",
+      "lines_of_code": 362,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 26,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\integrated_loss_model.py",
+      "lines_of_code": 525,
+      "issues_count": 4,
+      "has_syntax_errors": false,
+      "complexity_score": 20,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_electrical_engagement.py",
+      "lines_of_code": 217,
+      "issues_count": 32,
+      "has_syntax_errors": false,
+      "complexity_score": 12,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_control_config_migration.py",
+      "lines_of_code": 175,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\grid_services\\demand_response\\load_forecaster.py",
+      "lines_of_code": 669,
+      "issues_count": 31,
+      "has_syntax_errors": false,
+      "complexity_score": 46,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\control\\grid_disturbance_handler.py",
+      "lines_of_code": 594,
+      "issues_count": 1,
+      "has_syntax_errors": false,
+      "complexity_score": 46,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\monitoring\\real_time_monitor.py",
+      "lines_of_code": 577,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 40,
+      "import_issues": []
+    },
+    {
+      "file_path": "debugging_workflow.py",
+      "lines_of_code": 380,
+      "issues_count": 14,
+      "has_syntax_errors": false,
+      "complexity_score": 27,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\floater\\core.py",
+      "lines_of_code": 476,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 25,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\core\\base_config.py",
+      "lines_of_code": 61,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 4,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\physics\\state_synchronizer.py",
+      "lines_of_code": 357,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 41,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\parameter_schema.py",
+      "lines_of_code": 186,
+      "issues_count": 8,
+      "has_syntax_errors": false,
+      "complexity_score": 11,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\managers\\thread_safe_engine.py",
+      "lines_of_code": 232,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 27,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\core\\schema.py",
+      "lines_of_code": 147,
+      "issues_count": 19,
+      "has_syntax_errors": false,
+      "complexity_score": 5,
+      "import_issues": []
+    },
+    {
+      "file_path": "endpoint_analysis_simple.py",
+      "lines_of_code": 102,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 8,
+      "import_issues": []
+    },
+    {
+      "file_path": "app_original_backup.py",
+      "lines_of_code": 1144,
+      "issues_count": 74,
+      "has_syntax_errors": false,
+      "complexity_score": 104,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\controller.py",
+      "lines_of_code": 192,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 7,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\engine.py",
+      "lines_of_code": 1372,
+      "issues_count": 7,
+      "has_syntax_errors": false,
+      "complexity_score": 105,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_stage5_integration.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "final_system_validation.py",
+      "lines_of_code": 446,
+      "issues_count": 6,
+      "has_syntax_errors": false,
+      "complexity_score": 25,
+      "import_issues": []
+    },
+    {
+      "file_path": "observability.py",
+      "lines_of_code": 392,
+      "issues_count": 12,
+      "has_syntax_errors": false,
+      "complexity_score": 28,
+      "import_issues": []
+    },
+    {
+      "file_path": "validate_phase1.py",
+      "lines_of_code": 230,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 18,
+      "import_issues": []
+    },
+    {
+      "file_path": "main.py",
+      "lines_of_code": 415,
+      "issues_count": 14,
+      "has_syntax_errors": false,
+      "complexity_score": 29,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\optimization\\__init__.py",
+      "lines_of_code": 1,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "validate_phase3.py",
+      "lines_of_code": 256,
+      "issues_count": 5,
+      "has_syntax_errors": false,
+      "complexity_score": 36,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\one_way_clutch.py",
+      "lines_of_code": 316,
+      "issues_count": 2,
+      "has_syntax_errors": false,
+      "complexity_score": 16,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\pneumatics\\injection_control.py",
+      "lines_of_code": 494,
+      "issues_count": 8,
+      "has_syntax_errors": false,
+      "complexity_score": 15,
+      "import_issues": []
+    },
+    {
+      "file_path": "test_h1_fluid_coupling.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\logging\\data_logger.py",
+      "lines_of_code": 0,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\components\\drivetrain.py",
+      "lines_of_code": 13,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 1,
+      "import_issues": []
+    },
+    {
+      "file_path": "config\\manager.py",
+      "lines_of_code": 285,
+      "issues_count": 0,
+      "has_syntax_errors": false,
+      "complexity_score": 33,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\control\\emergency_response.py",
+      "lines_of_code": 644,
+      "issues_count": 3,
+      "has_syntax_errors": false,
+      "complexity_score": 48,
+      "import_issues": []
+    },
+    {
+      "file_path": "simulation\\control\\integrated_control_system.py",
+      "lines_of_code": 881,
+      "issues_count": 9,
+      "has_syntax_errors": false,
+      "complexity_score": 47,
+      "import_issues": []
+    }
+  ],
+  "issues_by_severity": {
+    "critical": 0,
+    "warning": 17,
+    "info": 1656
+  },
+  "issues_by_type": {
+    "magic_number": 1656,
+    "broad_except": 17
+  },
+  "recommendations": [
+    "Consider refactoring 142 files with high complexity (>10)",
+    "Focus on 82 files with many issues (>5)"
+  ]
+}

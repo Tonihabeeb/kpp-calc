@@ -5,7 +5,6 @@ Enhanced state management, energy tracking, and event handling.
 
 import logging
 import math
-from typing import Dict, List, Optional, Tuple
 
 from config.config import RHO_WATER, G
 
@@ -53,9 +52,7 @@ class AdvancedEventHandler:
         opt_params = optimization_params or {}
         self.adaptive_pressure = opt_params.get("adaptive_pressure", True)
         self.pressure_safety_factor = opt_params.get("pressure_safety_factor", 1.2)
-        self.min_injection_pressure = opt_params.get(
-            "min_injection_pressure", 150000
-        )  # Pa
+        self.min_injection_pressure = opt_params.get("min_injection_pressure", 150000)  # Pa
         self.energy_efficiency_target = opt_params.get("efficiency_target", 0.4)  # 40%
 
         # Performance metrics
@@ -64,8 +61,7 @@ class AdvancedEventHandler:
         self.energy_optimization_active = False
 
         logger.info(
-            f"AdvancedEventHandler initialized: depth={tank_depth}m, "
-            f"adaptive_pressure={self.adaptive_pressure}"
+            f"AdvancedEventHandler initialized: depth={tank_depth}m, " f"adaptive_pressure={self.adaptive_pressure}"
         )
 
     def handle_injection(self, floater, floater_id=None, current_time=0.0):
@@ -149,9 +145,7 @@ class AdvancedEventHandler:
             "cycle_completed": self._check_cycle_completion(floater_id),
         }
 
-        logger.info(
-            f"Advanced venting: floater_id={floater_id}, time={current_time:.1f}s"
-        )
+        logger.info(f"Advanced venting: floater_id={floater_id}, time={current_time:.1f}s")
 
         return result
 
@@ -175,16 +169,12 @@ class AdvancedEventHandler:
         # Process each floater
         for i, floater in enumerate(floaters):
             # Handle injection
-            inj_result = self.handle_injection(
-                floater, floater_id=i, current_time=current_time
-            )
+            inj_result = self.handle_injection(floater, floater_id=i, current_time=current_time)
             if inj_result["success"]:
                 injection_results.append(inj_result)
 
             # Handle venting
-            vent_result = self.handle_venting(
-                floater, floater_id=i, current_time=current_time
-            )
+            vent_result = self.handle_venting(floater, floater_id=i, current_time=current_time)
             if vent_result["success"]:
                 venting_results.append(vent_result)
 
@@ -209,7 +199,7 @@ class AdvancedEventHandler:
         Returns:
             dict: Detailed energy analysis
         """
-        total_cycles = len(self.injection_history)
+        len(self.injection_history)
 
         return {
             "total_energy_input": self.energy_input,
@@ -226,19 +216,11 @@ class AdvancedEventHandler:
 
     def _can_inject(self, floater, floater_id):
         """Check if injection is possible."""
-        return (
-            self._is_at_bottom(floater)
-            and self._is_heavy(floater)
-            and floater_id not in self.processed_injection
-        )
+        return self._is_at_bottom(floater) and self._is_heavy(floater) and floater_id not in self.processed_injection
 
     def _can_vent(self, floater, floater_id):
         """Check if venting is possible."""
-        return (
-            self._is_at_top(floater)
-            and self._is_light(floater)
-            and floater_id not in self.processed_venting
-        )
+        return self._is_at_top(floater) and self._is_light(floater) and floater_id not in self.processed_venting
 
     def _calculate_optimal_pressure(self, floater, current_time):
         """
@@ -262,9 +244,7 @@ class AdvancedEventHandler:
                 # Maintain or slightly increase pressure
                 pressure_reduction = 1.0
 
-            optimal_pressure = (
-                P_depth * pressure_reduction * self.pressure_safety_factor
-            )
+            optimal_pressure = P_depth * pressure_reduction * self.pressure_safety_factor
         else:
             # Standard pressure calculation
             optimal_pressure = P_depth * self.pressure_safety_factor
@@ -329,9 +309,7 @@ class AdvancedEventHandler:
         self.cumulative_injections += 1
 
         # Update running average
-        self.average_injection_energy = sum(self.energy_per_injection) / len(
-            self.energy_per_injection
-        )
+        self.average_injection_energy = sum(self.energy_per_injection) / len(self.energy_per_injection)
 
     def _update_venting_tracking(self, floater_id, time):
         """Update venting tracking data."""
@@ -351,18 +329,16 @@ class AdvancedEventHandler:
             recent_energies = self.energy_per_injection[-recent_injections:]
 
             # Simple success metric: consistent energy consumption
-            energy_variance = sum(
-                (e - self.average_injection_energy) ** 2 for e in recent_energies
-            ) / len(recent_energies)
+            energy_variance = sum((e - self.average_injection_energy) ** 2 for e in recent_energies) / len(
+                recent_energies
+            )
             energy_std = math.sqrt(energy_variance)
 
             # High consistency = high success rate
             if energy_std < self.average_injection_energy * 0.2:
                 self.injection_success_rate = 0.95
             else:
-                self.injection_success_rate = max(
-                    0.7, 1.0 - energy_std / self.average_injection_energy
-                )
+                self.injection_success_rate = max(0.7, 1.0 - energy_std / self.average_injection_energy)
 
     def _get_recent_efficiency(self):
         """Get recent injection efficiency estimate."""
@@ -385,10 +361,7 @@ class AdvancedEventHandler:
         # Simple efficiency metric based on energy consistency
         if len(self.energy_per_injection) > 1:
             energy_std = math.sqrt(
-                sum(
-                    (e - self.average_injection_energy) ** 2
-                    for e in self.energy_per_injection
-                )
+                sum((e - self.average_injection_energy) ** 2 for e in self.energy_per_injection)
                 / len(self.energy_per_injection)
             )
             consistency = max(0.0, 1.0 - energy_std / self.average_injection_energy)
@@ -429,8 +402,7 @@ class AdvancedEventHandler:
         return (
             floater_id in self.injection_history
             and floater_id in self.venting_history
-            and len(self.injection_history[floater_id])
-            == len(self.venting_history[floater_id])
+            and len(self.injection_history[floater_id]) == len(self.venting_history[floater_id])
         )
 
     def _check_cycle_reset(self, current_time):

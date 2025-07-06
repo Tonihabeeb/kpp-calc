@@ -172,7 +172,7 @@ class ComprehensiveValidator:
                 "Thermal & Heat Transfer": 8,
                 "Pneumatic Systems": 5,
                 "Chain & Mechanical": 2,
-                "Gearbox & Drivetrain": 2,
+                "Gearbox & IntegratedDrivetrain": 2,
                 "Clutch & Engagement": 3,
                 "Flywheel & Energy": 5,
                 "Electrical Systems": 15,

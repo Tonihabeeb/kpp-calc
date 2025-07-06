@@ -4,7 +4,6 @@ Handles emergency conditions and rapid shutdown procedures.
 """
 
 import logging
-import time
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional, Set
@@ -136,9 +135,7 @@ class EmergencyResponseSystem:
 
         logger.info("EmergencyResponseSystem initialized")
 
-    def monitor_emergency_conditions(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def monitor_emergency_conditions(self, system_state: Dict, current_time: float) -> Dict:
         """
         Monitor system for emergency conditions.
 
@@ -164,9 +161,7 @@ class EmergencyResponseSystem:
 
         return response_commands
 
-    def _detect_emergency_conditions(
-        self, system_state: Dict, current_time: float
-    ) -> List[EmergencyCondition]:
+    def _detect_emergency_conditions(self, system_state: Dict, current_time: float) -> List[EmergencyCondition]:
         """Detect emergency conditions in system state"""
         new_emergencies = []
 
@@ -225,9 +220,7 @@ class EmergencyResponseSystem:
                     new_emergencies.append(
                         EmergencyCondition(
                             emergency_type=EmergencyType.OVERTEMPERATURE,
-                            priority=self.emergency_priorities[
-                                EmergencyType.OVERTEMPERATURE
-                            ],
+                            priority=self.emergency_priorities[EmergencyType.OVERTEMPERATURE],
                             description=f"Component overtemperature: {component} at {temp:.1f}°C > {self.limits.max_component_temperature}°C",
                             detected_time=current_time,
                             threshold_value=self.limits.max_component_temperature,
@@ -238,17 +231,12 @@ class EmergencyResponseSystem:
 
         # Check electrical faults
         grid_voltage = system_state.get("grid_voltage", 480.0)
-        if (
-            grid_voltage < self.limits.min_grid_voltage
-            or grid_voltage > self.limits.max_grid_voltage
-        ):
+        if grid_voltage < self.limits.min_grid_voltage or grid_voltage > self.limits.max_grid_voltage:
             if EmergencyType.ELECTRICAL_FAULT not in self.active_emergencies:
                 new_emergencies.append(
                     EmergencyCondition(
                         emergency_type=EmergencyType.ELECTRICAL_FAULT,
-                        priority=self.emergency_priorities[
-                            EmergencyType.ELECTRICAL_FAULT
-                        ],
+                        priority=self.emergency_priorities[EmergencyType.ELECTRICAL_FAULT],
                         description=f"Grid voltage fault: {grid_voltage:.1f}V outside [{self.limits.min_grid_voltage}-{self.limits.max_grid_voltage}]V",
                         detected_time=current_time,
                         threshold_value=(
@@ -262,17 +250,12 @@ class EmergencyResponseSystem:
 
         # Check grid frequency
         grid_frequency = system_state.get("grid_frequency", 50.0)
-        if (
-            grid_frequency < self.limits.min_grid_frequency
-            or grid_frequency > self.limits.max_grid_frequency
-        ):
+        if grid_frequency < self.limits.min_grid_frequency or grid_frequency > self.limits.max_grid_frequency:
             if EmergencyType.GRID_DISTURBANCE not in self.active_emergencies:
                 new_emergencies.append(
                     EmergencyCondition(
                         emergency_type=EmergencyType.GRID_DISTURBANCE,
-                        priority=self.emergency_priorities[
-                            EmergencyType.GRID_DISTURBANCE
-                        ],
+                        priority=self.emergency_priorities[EmergencyType.GRID_DISTURBANCE],
                         description=f"Grid frequency disturbance: {grid_frequency:.1f}Hz outside [{self.limits.min_grid_frequency}-{self.limits.max_grid_frequency}]Hz",
                         detected_time=current_time,
                         threshold_value=(
@@ -291,9 +274,7 @@ class EmergencyResponseSystem:
                 new_emergencies.append(
                     EmergencyCondition(
                         emergency_type=EmergencyType.MECHANICAL_FAILURE,
-                        priority=self.emergency_priorities[
-                            EmergencyType.MECHANICAL_FAILURE
-                        ],
+                        priority=self.emergency_priorities[EmergencyType.MECHANICAL_FAILURE],
                         description=f"Excessive torque: {abs(torque):.1f} N·m > {self.limits.max_torque} N·m",
                         detected_time=current_time,
                         threshold_value=self.limits.max_torque,
@@ -321,10 +302,7 @@ class EmergencyResponseSystem:
             logger.critical("EMERGENCY RESPONSE ACTIVATED")
 
         # Initiate shutdown for critical emergencies
-        if (
-            emergency.priority == EmergencyPriority.CRITICAL
-            and not self.shutdown_initiated
-        ):
+        if emergency.priority == EmergencyPriority.CRITICAL and not self.shutdown_initiated:
             self._initiate_emergency_shutdown(current_time)
 
     def _initiate_emergency_shutdown(self, current_time: float):
@@ -336,9 +314,7 @@ class EmergencyResponseSystem:
         self.shutdown_phase = self.shutdown_phases[0]
         self.shutdown_complete = False
 
-    def _update_emergency_response(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _update_emergency_response(self, system_state: Dict, current_time: float) -> Dict:
         """Update emergency response and generate commands"""
 
         if not self.emergency_active:
@@ -363,9 +339,7 @@ class EmergencyResponseSystem:
 
         # Handle shutdown sequence
         if self.shutdown_initiated and not self.shutdown_complete:
-            shutdown_commands = self._process_shutdown_sequence(
-                system_state, current_time
-            )
+            shutdown_commands = self._process_shutdown_sequence(system_state, current_time)
             commands.update(shutdown_commands)
 
         # Generate priority-based response commands
@@ -379,14 +353,10 @@ class EmergencyResponseSystem:
 
         return commands
 
-    def _process_shutdown_sequence(
-        self, system_state: Dict, current_time: float
-    ) -> Dict:
+    def _process_shutdown_sequence(self, system_state: Dict, current_time: float) -> Dict:
         """Process emergency shutdown sequence"""
         shutdown_duration = current_time - self.shutdown_start_time
-        phase_index = min(
-            len(self.shutdown_phases) - 1, int(shutdown_duration / 2.0)
-        )  # 2 seconds per phase
+        phase_index = min(len(self.shutdown_phases) - 1, int(shutdown_duration / 2.0))  # 2 seconds per phase
         self.shutdown_phase = self.shutdown_phases[phase_index]
 
         shutdown_commands = {
@@ -449,18 +419,14 @@ class EmergencyResponseSystem:
         elif self.shutdown_phase == "complete":
             self.shutdown_complete = True
             self.shutdown_time = shutdown_duration
-            shutdown_commands.update(
-                {"shutdown_complete": True, "system_secured": True}
-            )
+            shutdown_commands.update({"shutdown_complete": True, "system_secured": True})
             logger.critical(f"Emergency shutdown complete in {shutdown_duration:.1f}s")
 
         return shutdown_commands
 
     def _get_highest_priority_emergency(self) -> Optional[EmergencyCondition]:
         """Get the highest priority active emergency"""
-        active_conditions = [
-            cond for cond in self.emergency_conditions if not cond.resolved
-        ]
+        active_conditions = [cond for cond in self.emergency_conditions if not cond.resolved]
         if not active_conditions:
             return None
 
@@ -523,16 +489,12 @@ class EmergencyResponseSystem:
             self.emergency_active = False
             logger.info("All emergencies resolved - emergency response deactivated")
 
-    def _is_emergency_resolved(
-        self, emergency: EmergencyCondition, system_state: Dict
-    ) -> bool:
+    def _is_emergency_resolved(self, emergency: EmergencyCondition, system_state: Dict) -> bool:
         """Check if a specific emergency condition is resolved"""
 
         if emergency.emergency_type == EmergencyType.OVERSPEED:
             flywheel_speed = system_state.get("flywheel_speed_rpm", 0.0)
-            return (
-                flywheel_speed < self.limits.max_flywheel_speed * 0.9
-            )  # 10% hysteresis
+            return flywheel_speed < self.limits.max_flywheel_speed * 0.9  # 10% hysteresis
 
         elif emergency.emergency_type == EmergencyType.OVERPRESSURE:
             tank_pressure = system_state.get("pneumatics", {}).get("tank_pressure", 0.0)
@@ -545,19 +507,11 @@ class EmergencyResponseSystem:
 
         elif emergency.emergency_type == EmergencyType.ELECTRICAL_FAULT:
             grid_voltage = system_state.get("grid_voltage", 480.0)
-            return (
-                self.limits.min_grid_voltage * 1.05
-                <= grid_voltage
-                <= self.limits.max_grid_voltage * 0.95
-            )
+            return self.limits.min_grid_voltage * 1.05 <= grid_voltage <= self.limits.max_grid_voltage * 0.95
 
         elif emergency.emergency_type == EmergencyType.GRID_DISTURBANCE:
             grid_frequency = system_state.get("grid_frequency", 50.0)
-            return (
-                self.limits.min_grid_frequency * 1.01
-                <= grid_frequency
-                <= self.limits.max_grid_frequency * 0.99
-            )
+            return self.limits.min_grid_frequency * 1.01 <= grid_frequency <= self.limits.max_grid_frequency * 0.99
 
         elif emergency.emergency_type == EmergencyType.MECHANICAL_FAILURE:
             torque = system_state.get("torque", 0.0)
@@ -588,10 +542,7 @@ class EmergencyResponseSystem:
     def acknowledge_emergency(self, emergency_type: str) -> bool:
         """Acknowledge an emergency condition"""
         for emergency in self.emergency_conditions:
-            if (
-                emergency.emergency_type.value == emergency_type
-                and not emergency.acknowledged
-            ):
+            if emergency.emergency_type.value == emergency_type and not emergency.acknowledged:
                 emergency.acknowledged = True
                 logger.info(f"Emergency acknowledged: {emergency.description}")
                 return True
@@ -605,14 +556,9 @@ class EmergencyResponseSystem:
             # Update average response time
             total = self.response_metrics["total_emergencies"]
             avg_response = self.response_metrics["average_response_time"]
-            self.response_metrics["average_response_time"] = (
-                avg_response * (total - 1) + self.response_time
-            ) / total
+            self.response_metrics["average_response_time"] = (avg_response * (total - 1) + self.response_time) / total
 
-        if (
-            self.shutdown_complete
-            and self.shutdown_time < self.response_metrics["fastest_shutdown"]
-        ):
+        if self.shutdown_complete and self.shutdown_time < self.response_metrics["fastest_shutdown"]:
             self.response_metrics["fastest_shutdown"] = self.shutdown_time
 
     def get_emergency_status(self) -> Dict:
@@ -624,9 +570,7 @@ class EmergencyResponseSystem:
             "shutdown_phase": self.shutdown_phase,
             "shutdown_complete": self.shutdown_complete,
             "emergency_count": len(self.emergency_conditions),
-            "unresolved_count": len(
-                [e for e in self.emergency_conditions if not e.resolved]
-            ),
+            "unresolved_count": len([e for e in self.emergency_conditions if not e.resolved]),
             "metrics": self.response_metrics,
         }
 

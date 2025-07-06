@@ -2,4 +2,4 @@
 Configuration presets for different operating modes.
 """
 
-__all__ = [] 
+__all__ = []

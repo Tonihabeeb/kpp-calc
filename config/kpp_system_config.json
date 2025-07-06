@@ -8,7 +8,7 @@
     "flask_backend": {
       "name": "Flask Backend",
       "script": "app.py",
-      "port": 9100,
+      "port": 5000,
       "health_endpoint": "/status",
       "startup_timeout": 10,
       "retry_attempts": 3,
@@ -17,7 +17,7 @@
     "master_clock": {
       "name": "Master Clock Server",
       "script": "realtime_sync_master.py",
-      "port": 9200,
+      "port": 9100,
       "health_endpoint": "/health",
       "startup_timeout": 5,
       "retry_attempts": 3,
@@ -26,7 +26,7 @@
     "websocket_server": {
       "name": "WebSocket Server",
       "script": "main.py",
-      "port": 9101,
+      "port": 8765,
       "health_endpoint": "/",
       "startup_timeout": 5,
       "retry_attempts": 3,
@@ -35,7 +35,7 @@
     "dash_frontend": {
       "name": "Dash Frontend",
       "script": "dash_app.py",
-      "port": 9103,
+      "port": 8050,
       "health_endpoint": "/",
       "startup_timeout": 10,
       "retry_attempts": 3,
@@ -107,9 +107,46 @@
     ]
   },
   "urls": {
-    "dashboard": "http://localhost:9103",
-    "master_clock_metrics": "http://localhost:9200/metrics",
-    "backend_api": "http://localhost:9100/status",
-    "websocket": "http://localhost:9101"
+    "dashboard": "http://localhost:8050",
+    "master_clock_metrics": "http://localhost:9100/metrics",
+    "backend_api": "http://localhost:5000/status",
+    "websocket": "http://localhost:8765"
+  },
+  "automation": {
+    "workflows": {},
+    "scheduled_tasks": {},
+    "workflow_timeout": 300,
+    "task_execution_timeout": 60,
+    "max_workflow_history": 10,
+    "max_task_history": 20
+  },
+  "integration": {
+    "api_endpoints": {},
+    "webhooks": {},
+    "api_timeout": 30,
+    "webhook_retry_count": 3,
+    "webhook_timeout": 10,
+    "max_webhook_history": 50
+  },
+  "testing": {
+    "test_timeout": 120,
+    "performance_thresholds": {
+      "response_time_ms": 1000,
+      "memory_usage_percent": 95,
+      "cpu_usage_percent": 90,
+      "disk_usage_percent": 85
+    },
+    "security_checks": {
+      "url_validation": true,
+      "input_sanitization": true,
+      "process_validation": true,
+      "configuration_validation": true
+    },
+    "test_suites": {
+      "unit": true,
+      "integration": true,
+      "performance": true,
+      "security": true
+    }
   }
 } 

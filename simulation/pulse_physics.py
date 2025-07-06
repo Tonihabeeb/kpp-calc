@@ -69,12 +69,8 @@ class PulsePhysics:
         self.gear_ratio = gear_ratio
 
         # Realistic mechanical limits (engineering constraints)
-        self.max_chain_omega = max_chain_speed_rpm * (
-            2 * math.pi / 60
-        )  # Convert RPM to rad/s
-        self.max_generator_omega = max_generator_rpm * (
-            2 * math.pi / 60
-        )  # Convert RPM to rad/s
+        self.max_chain_omega = max_chain_speed_rpm * (2 * math.pi / 60)  # Convert RPM to rad/s
+        self.max_generator_omega = max_generator_rpm * (2 * math.pi / 60)  # Convert RPM to rad/s
         self.bearing_friction = bearing_friction_coeff
         self.chain_friction = chain_friction_coeff
         self.max_torque = max_torque_capacity
@@ -96,9 +92,7 @@ class PulsePhysics:
 
     def drag_force(self, velocity: float) -> float:
         """Calculate drag force for given velocity"""
-        return (
-            0.5 * self.Cd * self.rho_water * self.A_floater * velocity * abs(velocity)
-        )
+        return 0.5 * self.Cd * self.rho_water * self.A_floater * velocity * abs(velocity)
 
     def air_injection_pulse_force(self, fill_progress: float) -> Tuple[float, float]:
         """
@@ -194,14 +188,10 @@ class PulsePhysics:
         # Realistic physics-based friction forces
         # Bearing friction: proportional to speed
         T_bearing_chain = self.bearing_friction * self.I_chain * 9.81 * self.omega_chain
-        T_bearing_flywheel = (
-            self.bearing_friction * self.I_flywheel * 9.81 * self.omega_flywheel
-        )
+        T_bearing_flywheel = self.bearing_friction * self.I_flywheel * 9.81 * self.omega_flywheel
 
         # Chain friction: increases with speed (realistic mechanical friction)
-        T_chain_friction = (
-            self.chain_friction * abs(self.omega_chain) * self.omega_chain
-        )
+        T_chain_friction = self.chain_friction * abs(self.omega_chain) * self.omega_chain
 
         # Total drag forces (realistic engineering model)
         T_drag_chain = T_bearing_chain + T_chain_friction
@@ -243,14 +233,14 @@ class PulsePhysics:
         # Chain speed limit: based on centrifugal force limits and chain strength
         if self.omega_chain > self.max_chain_omega:
             # Mechanical failure protection - chain breaks or slips
-            excess_speed = self.omega_chain - self.max_chain_omega
+            self.omega_chain - self.max_chain_omega
             self.omega_chain = self.max_chain_omega
             # Energy dissipation due to mechanical limiting (realistic)
 
         # Generator speed limit: based on bearing limits and electrical constraints
         if self.omega_flywheel > self.max_generator_omega:
             # Generator protection - electrical braking or mechanical governor
-            excess_speed = self.omega_flywheel - self.max_generator_omega
+            self.omega_flywheel - self.max_generator_omega
             self.omega_flywheel = self.max_generator_omega
             # Additional braking torque applied (realistic governor action)
 
@@ -258,9 +248,7 @@ class PulsePhysics:
         self.omega_chain = max(0.0, self.omega_chain)
         self.omega_flywheel = max(0.0, self.omega_flywheel)
 
-    def get_power_output(
-        self, target_power: float = 530000.0, target_rpm: float = 375.0
-    ) -> float:
+    def get_power_output(self, target_power: float = 530000.0, target_rpm: float = 375.0) -> float:
         """
         Calculate power output with proper generator load simulation
         Models a 530kW generator connected to a heat resistor load
@@ -289,18 +277,12 @@ class PulsePhysics:
             # Rated operation zone - FULL LOAD RESISTANCE
             speed_ratio = self.omega_flywheel / target_omega
             # Generator acts as constant power load (like heat resistor)
-            load_torque_resistance = target_load_torque * min(
-                1.0, 1.0 / max(0.1, speed_ratio)
-            )
-            power_consumed = (
-                min(target_power, target_load_torque * self.omega_flywheel) * 0.92
-            )
+            load_torque_resistance = target_load_torque * min(1.0, 1.0 / max(0.1, speed_ratio))
+            power_consumed = min(target_power, target_load_torque * self.omega_flywheel) * 0.92
         else:
             # Over-speed - increased load resistance to prevent runaway
             speed_ratio = self.omega_flywheel / target_omega
-            load_torque_resistance = target_load_torque * (
-                1.5 + 0.5 * (speed_ratio - 1.1)
-            )
+            load_torque_resistance = target_load_torque * (1.5 + 0.5 * (speed_ratio - 1.1))
             power_consumed = load_torque_resistance * self.omega_flywheel * 0.88
 
         # Store load torque for clutch dynamics
@@ -353,9 +335,7 @@ class PulsePhysics:
             self.omega_flywheel += alpha_flywheel * dt
 
         # Log the updated speeds
-        logging.debug(
-            f"Updated omega_chain: {self.omega_chain}, omega_flywheel: {self.omega_flywheel}"
-        )
+        logging.debug(f"Updated omega_chain: {self.omega_chain}, omega_flywheel: {self.omega_flywheel}")
 
     def should_engage_clutch(self):
         """

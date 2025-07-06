@@ -11,9 +11,9 @@ while managing market risks and operational constraints.
 import logging
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
@@ -100,9 +100,7 @@ class BiddingStrategyController:
         self.logger = logging.getLogger(__name__)
 
         # Strategy parameters
-        self.default_strategy = BiddingStrategy(
-            config.get("default_strategy", "balanced")
-        )
+        self.default_strategy = BiddingStrategy(config.get("default_strategy", "balanced"))
         self.risk_tolerance = RiskLevel(config.get("risk_tolerance", "medium"))
         self.profit_margin_target = config.get("profit_margin_target", 0.15)
         self.max_exposure_ratio = config.get("max_exposure_ratio", 0.7)
@@ -142,9 +140,7 @@ class BiddingStrategyController:
             "max_drawdown": 0.0,
         }
 
-        self.logger.info(
-            f"Bidding strategy initialized with {self.default_strategy.value} strategy"
-        )
+        self.logger.info(f"Bidding strategy initialized with {self.default_strategy.value} strategy")
 
     def generate_bid_recommendations(
         self,
@@ -167,22 +163,16 @@ class BiddingStrategyController:
             recommendations = []
 
             # Get market opportunities
-            opportunities = self._identify_market_opportunities(
-                market_conditions, forecast_horizon
-            )
+            opportunities = self._identify_market_opportunities(market_conditions, forecast_horizon)
 
             # Apply bidding strategy for each opportunity
             for opportunity in opportunities:
                 # Calculate optimal bid parameters
-                bid_params = self._calculate_optimal_bid(
-                    opportunity, market_conditions, operational_constraints
-                )
+                bid_params = self._calculate_optimal_bid(opportunity, market_conditions, operational_constraints)
 
                 if bid_params:
                     # Assess risk and confidence
-                    risk_assessment = self._assess_bid_risk(
-                        bid_params, market_conditions
-                    )
+                    risk_assessment = self._assess_bid_risk(bid_params, market_conditions)
 
                     # Create recommendation
                     recommendation = BidRecommendation(
@@ -203,9 +193,7 @@ class BiddingStrategyController:
             # Portfolio optimization
             optimized_recommendations = self._optimize_portfolio(recommendations)
 
-            self.logger.info(
-                f"Generated {len(optimized_recommendations)} bid recommendations"
-            )
+            self.logger.info(f"Generated {len(optimized_recommendations)} bid recommendations")
             return optimized_recommendations
 
         except Exception as e:
@@ -241,9 +229,7 @@ class BiddingStrategyController:
             if self.default_strategy == BiddingStrategy.ADAPTIVE:
                 self._adapt_strategy()
 
-            self.logger.info(
-                f"Updated strategy performance with {len(bid_results)} results"
-            )
+            self.logger.info(f"Updated strategy performance with {len(bid_results)} results")
 
         except Exception as e:
             self.logger.error(f"Error updating strategy performance: {e}")
@@ -267,9 +253,7 @@ class BiddingStrategyController:
 
             # Generate recommendations
             recommendations = {
-                "suggested_strategy": self._suggest_optimal_strategy(
-                    market_type, patterns
-                ),
+                "suggested_strategy": self._suggest_optimal_strategy(market_type, patterns),
                 "risk_adjustment": self._calculate_risk_adjustment(market_type),
                 "markup_range": self._calculate_markup_range(market_type),
                 "volume_guidance": self._calculate_volume_guidance(market_type),
@@ -309,9 +293,7 @@ class BiddingStrategyController:
             markup = self._calculate_base_markup(strategy, service_type)
 
             # Apply market condition adjustments
-            market_adjustment = self._calculate_market_adjustment(
-                market_conditions, service_type
-            )
+            market_adjustment = self._calculate_market_adjustment(market_conditions, service_type)
 
             # Apply risk premium
             risk_premium = self._calculate_risk_premium(service_type, market_conditions)
@@ -351,13 +333,7 @@ class BiddingStrategyController:
 
             # Overall risk score
             overall_risk = (
-                np.sqrt(
-                    concentration_risk**2
-                    + market_risk**2
-                    + operational_risk**2
-                    + liquidity_risk**2
-                )
-                / 2.0
+                np.sqrt(concentration_risk**2 + market_risk**2 + operational_risk**2 + liquidity_risk**2) / 2.0
             )
 
             return {
@@ -401,9 +377,7 @@ class BiddingStrategyController:
 
         self.logger.info("Bidding strategy reset")
 
-    def _identify_market_opportunities(
-        self, conditions: MarketConditions, horizon: int
-    ) -> List[Dict[str, Any]]:
+    def _identify_market_opportunities(self, conditions: MarketConditions, horizon: int) -> List[Dict[str, Any]]:
         """Identify profitable market opportunities"""
         opportunities = []
 
@@ -472,20 +446,11 @@ class BiddingStrategyController:
             price *= market_factor
 
             # Calculate expected revenue
-            clearing_probability = self._estimate_clearing_probability(
-                price, conditions
-            )
-            expected_revenue = (
-                allocated_capacity
-                * price
-                * opportunity["time_horizon"]
-                * clearing_probability
-            )
+            clearing_probability = self._estimate_clearing_probability(price, conditions)
+            expected_revenue = allocated_capacity * price * opportunity["time_horizon"] * clearing_probability
 
             # Calculate confidence
-            confidence = min(
-                clearing_probability * opportunity["opportunity_score"], 1.0
-            )
+            confidence = min(clearing_probability * opportunity["opportunity_score"], 1.0)
 
             return {
                 "capacity": allocated_capacity,
@@ -500,9 +465,7 @@ class BiddingStrategyController:
             self.logger.error(f"Error calculating optimal bid: {e}")
             return None
 
-    def _assess_bid_risk(
-        self, bid_params: Dict[str, Any], conditions: MarketConditions
-    ) -> Dict[str, float]:
+    def _assess_bid_risk(self, bid_params: Dict[str, Any], conditions: MarketConditions) -> Dict[str, float]:
         """Assess risk of a specific bid"""
         # Price risk
         price_risk = conditions.price_volatility
@@ -514,9 +477,7 @@ class BiddingStrategyController:
         market_risk = abs(conditions.demand_forecast - 1.0) * 0.5
 
         # Overall risk score
-        risk_score = np.sqrt(
-            price_risk**2 + volume_risk**2 + market_risk**2
-        ) / math.sqrt(3)
+        risk_score = np.sqrt(price_risk**2 + volume_risk**2 + market_risk**2) / math.sqrt(3)
 
         return {
             "risk_score": risk_score,
@@ -525,9 +486,7 @@ class BiddingStrategyController:
             "market_risk": market_risk,
         }
 
-    def _optimize_portfolio(
-        self, recommendations: List[BidRecommendation]
-    ) -> List[BidRecommendation]:
+    def _optimize_portfolio(self, recommendations: List[BidRecommendation]) -> List[BidRecommendation]:
         """Optimize portfolio of bid recommendations"""
         if not recommendations:
             return recommendations
@@ -547,10 +506,7 @@ class BiddingStrategyController:
 
         for score, rec in scored_recs:
             # Check capacity limits
-            if (
-                total_capacity + rec.capacity_mw
-                > self.position_limits["max_daily_exposure"]
-            ):
+            if total_capacity + rec.capacity_mw > self.position_limits["max_daily_exposure"]:
                 continue
 
             # Check risk limits
@@ -564,9 +520,7 @@ class BiddingStrategyController:
 
         return optimized
 
-    def _calculate_base_markup(
-        self, strategy: BiddingStrategy, service_type: str
-    ) -> float:
+    def _calculate_base_markup(self, strategy: BiddingStrategy, service_type: str) -> float:
         """Calculate base markup for strategy and service type"""
         base_markups = {
             BiddingStrategy.CONSERVATIVE: 0.25,
@@ -587,9 +541,7 @@ class BiddingStrategyController:
 
         return base_markup * service_multiplier
 
-    def _calculate_market_adjustment(
-        self, conditions: MarketConditions, service_type: str
-    ) -> float:
+    def _calculate_market_adjustment(self, conditions: MarketConditions, service_type: str) -> float:
         """Calculate market condition adjustment factor"""
         # Supply/demand balance
         supply_adjustment = (1.0 - conditions.supply_margin) * 0.2
@@ -602,9 +554,7 @@ class BiddingStrategyController:
 
         return supply_adjustment + volatility_adjustment + tod_adjustment
 
-    def _calculate_risk_premium(
-        self, service_type: str, conditions: MarketConditions
-    ) -> float:
+    def _calculate_risk_premium(self, service_type: str, conditions: MarketConditions) -> float:
         """Calculate risk premium for service and conditions"""
         base_risk_premium = {
             "energy": 0.02,
@@ -625,9 +575,7 @@ class BiddingStrategyController:
 
         return (base_risk_premium + volatility_adjustment) * risk_multiplier
 
-    def _apply_price_bounds(
-        self, price: float, service_type: str, conditions: MarketConditions
-    ) -> float:
+    def _apply_price_bounds(self, price: float, service_type: str, conditions: MarketConditions) -> float:
         """Apply price bounds and sanity checks"""
         # Market-specific bounds
         min_prices = {
@@ -653,9 +601,7 @@ class BiddingStrategyController:
 
         return np.clip(price, max(min_price, market_min), min(max_price, market_max))
 
-    def _estimate_clearing_probability(
-        self, price: float, conditions: MarketConditions
-    ) -> float:
+    def _estimate_clearing_probability(self, price: float, conditions: MarketConditions) -> float:
         """Estimate probability of bid clearing at given price"""
         # Simple model based on price vs market price
         price_ratio = price / max(conditions.current_price, 1.0)
@@ -682,17 +628,12 @@ class BiddingStrategyController:
             return 0.0
 
         # Simplified concentration calculation
-        total_exposure = sum(
-            pos.get("exposure", 0) for pos in self.current_portfolio.values()
-        )
+        total_exposure = sum(pos.get("exposure", 0) for pos in self.current_portfolio.values())
         if total_exposure == 0:
             return 0.0
 
         # Calculate Herfindahl index
-        hhi = sum(
-            (pos.get("exposure", 0) / total_exposure) ** 2
-            for pos in self.current_portfolio.values()
-        )
+        hhi = sum((pos.get("exposure", 0) / total_exposure) ** 2 for pos in self.current_portfolio.values())
         return min(hhi, 1.0)
 
     def _calculate_market_risk(self) -> float:
@@ -724,16 +665,11 @@ class BiddingStrategyController:
         # Average margin
         successful_bids = [p for p in recent_performance if p["success"]]
         if successful_bids:
-            margins = [
-                (p["revenue"] - p["expected_revenue"]) / max(p["expected_revenue"], 1)
-                for p in successful_bids
-            ]
+            margins = [(p["revenue"] - p["expected_revenue"]) / max(p["expected_revenue"], 1) for p in successful_bids]
             self.strategy_performance["average_margin"] = float(np.mean(margins))
 
         # Total revenue
-        self.strategy_performance["total_revenue"] = sum(
-            p["revenue"] for p in self.performance_history
-        )
+        self.strategy_performance["total_revenue"] = sum(p["revenue"] for p in self.performance_history)
 
     def _adapt_strategy(self):
         """Adapt strategy based on performance"""
@@ -757,23 +693,18 @@ class BiddingStrategyController:
 
     def _get_market_performance(self, market_type: str) -> Dict[str, float]:
         """Get performance metrics for specific market"""
-        market_history = [
-            p for p in self.performance_history if p["market_type"] == market_type
-        ]
+        market_history = [p for p in self.performance_history if p["market_type"] == market_type]
 
         if not market_history:
             return {}
 
         return {
-            "win_rate": sum(1 for p in market_history if p["success"])
-            / len(market_history),
+            "win_rate": sum(1 for p in market_history if p["success"]) / len(market_history),
             "total_revenue": sum(p["revenue"] for p in market_history),
             "bid_count": len(market_history),
         }
 
-    def _suggest_optimal_strategy(
-        self, market_type: str, patterns: Dict[str, Any]
-    ) -> str:
+    def _suggest_optimal_strategy(self, market_type: str, patterns: Dict[str, Any]) -> str:
         """Suggest optimal strategy for market type"""
         # Simplified strategy suggestion
         if patterns.get("volatility", 0) > 0.2:

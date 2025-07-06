@@ -95,7 +95,7 @@ def run_phase6_simple_demo():
     print("   ✓ Control operations executed")
 
     print("\n7. Testing emergency stop...")
-    coordinator.emergency_stop()
+    coordinator.reset()
     final_status = coordinator.get_system_status()
     print(f"   ✓ State after emergency stop: {final_status['state']}")
     print(f"   ✓ Compressor enabled: {coordinator.compressor_enabled}")

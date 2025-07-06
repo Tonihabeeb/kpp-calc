@@ -15,7 +15,7 @@ import math
 import time
 from collections import deque
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 @dataclass
@@ -31,12 +31,8 @@ class SecondaryFrequencyConfig:
 
     def validate(self):
         """Validate configuration parameters"""
-        assert (
-            0.02 <= self.regulation_capacity <= 0.10
-        ), "Regulation capacity must be 2-10%"
-        assert (
-            60.0 <= self.response_time_max <= 600.0
-        ), "Response time must be 1-10 minutes"
+        assert 0.02 <= self.regulation_capacity <= 0.10, "Regulation capacity must be 2-10%"
+        assert 60.0 <= self.response_time_max <= 600.0, "Response time must be 1-10 minutes"
         assert 0.10 <= self.ramp_rate <= 0.50, "Ramp rate must be 10-50% per minute"
 
 
@@ -109,21 +105,15 @@ class SecondaryFrequencyController:
         self.target_response = self.agc_signal * self.config.regulation_capacity
         # Apply ramp rate limiting
         time_since_last_target = current_time - self.last_target_time
-        max_ramp = (
-            self.config.ramp_rate / 60.0
-        ) * time_since_last_target  # Convert per-minute to per-second
+        max_ramp = (self.config.ramp_rate / 60.0) * time_since_last_target  # Convert per-minute to per-second
 
         response_change = self.target_response - self.current_response
 
         # Allow some immediate response for small signals to start regulation quickly
-        if (
-            abs(self.current_response) < 0.001
-        ):  # If starting from zero, allow immediate small response
+        if abs(self.current_response) < 0.001:  # If starting from zero, allow immediate small response
             immediate_response = min(abs(response_change), 0.01)  # Up to 1% immediate
             if response_change != 0:
-                self.current_response += math.copysign(
-                    immediate_response, response_change
-                )
+                self.current_response += math.copysign(immediate_response, response_change)
                 response_change = self.target_response - self.current_response
         # Apply ramp rate limiting to remaining change, but ensure minimum progress for testing
         min_ramp = 0.0001  # Minimum 0.01% change per step for reasonable test behavior
@@ -135,9 +125,7 @@ class SecondaryFrequencyController:
         self.current_response += response_change
 
         # Ensure we don't overshoot the target due to ramp limiting
-        if (
-            self.target_response >= 0 and self.current_response > self.target_response
-        ) or (
+        if (self.target_response >= 0 and self.current_response > self.target_response) or (
             self.target_response < 0 and self.current_response < self.target_response
         ):
             self.current_response = self.target_response
@@ -176,15 +164,9 @@ class SecondaryFrequencyController:
 
         if not is_settled and self.regulation_active:
             self.accuracy_violations += 1
-            status = (
-                f"Accuracy violation: {response_error:.3f} > {accuracy_threshold:.3f}"
-            )
+            status = f"Accuracy violation: {response_error:.3f} > {accuracy_threshold:.3f}"
         else:
-            status = (
-                "Regulation active"
-                if self.regulation_active
-                else "No regulation signal"
-            )
+            status = "Regulation active" if self.regulation_active else "No regulation signal"
 
         # Update performance metrics
         if self.regulation_active:
@@ -196,9 +178,7 @@ class SecondaryFrequencyController:
 
         return self._create_response_dict(self.current_response, status)
 
-    def update(
-        self, agc_signal_value: float, dt: float, rated_power: float
-    ) -> Dict[str, Any]:
+    def update(self, agc_signal_value: float, dt: float, rated_power: float) -> Dict[str, Any]:
         """
         Simplified update method with just AGC signal value.
 
@@ -233,11 +213,7 @@ class SecondaryFrequencyController:
     def get_performance_metrics(self) -> Dict[str, float]:
         """Get performance metrics for monitoring and optimization"""
         # Calculate average regulation time
-        avg_regulation_time = (
-            self.total_regulation_time / self.regulation_count
-            if self.regulation_count > 0
-            else 0.0
-        )
+        avg_regulation_time = self.total_regulation_time / self.regulation_count if self.regulation_count > 0 else 0.0
         # Calculate accuracy performance (only count accuracy violations when actively regulating)
         total_regulation_updates = max(1, self.regulation_count)
         if self.regulation_count > 0:
@@ -251,10 +227,7 @@ class SecondaryFrequencyController:
         # Calculate response time performance
         response_times = []
         for i in range(1, len(self.response_history)):
-            if (
-                abs(self.response_history[i]["target"]) > 0.001
-                and abs(self.response_history[i - 1]["target"]) <= 0.001
-            ):
+            if abs(self.response_history[i]["target"]) > 0.001 and abs(self.response_history[i - 1]["target"]) <= 0.001:
                 # Found start of new regulation
                 start_time = self.response_history[i]["timestamp"]
                 target = self.response_history[i]["target"]
@@ -263,15 +236,11 @@ class SecondaryFrequencyController:
                 for j in range(i, len(self.response_history)):
                     response = self.response_history[j]["response"]
                     if abs(response) >= 0.9 * abs(target):
-                        response_time = (
-                            self.response_history[j]["timestamp"] - start_time
-                        )
+                        response_time = self.response_history[j]["timestamp"] - start_time
                         response_times.append(response_time)
                         break
 
-        avg_response_time = (
-            sum(response_times) / len(response_times) if response_times else 0.0
-        )
+        avg_response_time = sum(response_times) / len(response_times) if response_times else 0.0
 
         return {
             "average_regulation_time": avg_regulation_time,
@@ -294,18 +263,12 @@ class SecondaryFrequencyController:
         # Calculate signal statistics
         signals = [entry["agc_signal"] for entry in recent_signals]
         signal_mean = sum(signals) / len(signals)
-        signal_std = math.sqrt(
-            sum((s - signal_mean) ** 2 for s in signals) / len(signals)
-        )
+        signal_std = math.sqrt(sum((s - signal_mean) ** 2 for s in signals) / len(signals))
         signal_range = max(signals) - min(signals)
 
         # Calculate signal change rate
-        signal_changes = [
-            abs(signals[i] - signals[i - 1]) for i in range(1, len(signals))
-        ]
-        avg_change_rate = (
-            sum(signal_changes) / len(signal_changes) if signal_changes else 0.0
-        )
+        signal_changes = [abs(signals[i] - signals[i - 1]) for i in range(1, len(signals))]
+        avg_change_rate = sum(signal_changes) / len(signal_changes) if signal_changes else 0.0
 
         return {
             "signal_mean": signal_mean,

@@ -15,7 +15,7 @@ import logging
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 from utils.logging_setup import setup_logging
 
@@ -167,16 +167,12 @@ class AirInjectionController:
         hydrostatic_pressure = self.water_density * self.gravity * depth
 
         # Add atmospheric pressure and safety margin
-        required_pressure = (
-            101325.0 + hydrostatic_pressure + self.settings.pressure_margin
-        )
+        required_pressure = 101325.0 + hydrostatic_pressure + self.settings.pressure_margin
 
         # Limit to maximum injection pressure
         return min(required_pressure, self.settings.max_injection_pressure)
 
-    def calculate_injection_flow_rate(
-        self, supply_pressure: float, injection_pressure: float
-    ) -> float:
+    def calculate_injection_flow_rate(self, supply_pressure: float, injection_pressure: float) -> float:
         """
         Calculate injection flow rate based on pressure difference.
 
@@ -213,15 +209,11 @@ class AirInjectionController:
             True if request was added successfully
         """
         if len(self.injection_queue) >= self.settings.max_queue_size:
-            logger.warning(
-                f"Injection queue full, rejecting request for floater {request.floater_id}"
-            )
+            logger.warning(f"Injection queue full, rejecting request for floater {request.floater_id}")
             return False
 
         # Calculate required injection pressure
-        request.injection_pressure = self.calculate_required_injection_pressure(
-            request.depth
-        )
+        request.injection_pressure = self.calculate_required_injection_pressure(request.depth)
 
         # Add to queue
         self.injection_queue.append(request)
@@ -234,9 +226,7 @@ class AirInjectionController:
 
         return True
 
-    def can_supply_injection_pressure(
-        self, supply_pressure: float, required_pressure: float
-    ) -> bool:
+    def can_supply_injection_pressure(self, supply_pressure: float, required_pressure: float) -> bool:
         """
         Check if supply pressure is sufficient for injection.
 
@@ -249,9 +239,7 @@ class AirInjectionController:
         """
         return supply_pressure >= (required_pressure + self.settings.pressure_margin)
 
-    def start_injection(
-        self, request: FloaterInjectionRequest, current_time: float
-    ) -> bool:
+    def start_injection(self, request: FloaterInjectionRequest, current_time: float) -> bool:
         """
         Start air injection for given request.
 
@@ -263,9 +251,7 @@ class AirInjectionController:
             True if injection started successfully
         """
         if self.current_injection is not None:
-            logger.warning(
-                f"Cannot start injection for {request.floater_id}: injection already in progress"
-            )
+            logger.warning(f"Cannot start injection for {request.floater_id}: injection already in progress")
             return False
 
         # Start injection
@@ -308,9 +294,7 @@ class AirInjectionController:
                 self.valve_position = 0.0
                 self.valve_state = ValveState.CLOSED
 
-    def injection_step(
-        self, dt: float, current_time: float, supply_pressure: float
-    ) -> Dict[str, Any]:
+    def injection_step(self, dt: float, current_time: float, supply_pressure: float) -> Dict[str, Any]:
         """
         Execute one injection control step.
 
@@ -330,9 +314,7 @@ class AirInjectionController:
             request = self.current_injection
 
             # Calculate flow rate
-            self.current_flow_rate = self.calculate_injection_flow_rate(
-                supply_pressure, request.injection_pressure
-            )
+            self.current_flow_rate = self.calculate_injection_flow_rate(supply_pressure, request.injection_pressure)
 
             # Inject air
             if self.valve_state == ValveState.OPEN and self.current_flow_rate > 0:
@@ -368,17 +350,11 @@ class AirInjectionController:
                     self.current_injection = None
 
         # Check for new injections
-        if (
-            self.current_injection is None
-            and self.valve_state == ValveState.CLOSED
-            and len(self.injection_queue) > 0
-        ):
+        if self.current_injection is None and self.valve_state == ValveState.CLOSED and len(self.injection_queue) > 0:
 
             # Find next suitable injection
             for i, request in enumerate(self.injection_queue):
-                if self.can_supply_injection_pressure(
-                    supply_pressure, request.injection_pressure
-                ):
+                if self.can_supply_injection_pressure(supply_pressure, request.injection_pressure):
                     # Start this injection
                     self.injection_queue.pop(i)
                     self.start_injection(request, current_time)
@@ -391,31 +367,17 @@ class AirInjectionController:
             "injection_pressure": self.injection_pressure,
             "pressure_drop": self.pressure_drop,
             "queue_length": len(self.injection_queue),
-            "active_injection": (
-                self.current_injection.floater_id if self.current_injection else None
-            ),
-            "injected_volume": (
-                self.current_injection.injected_volume
-                if self.current_injection
-                else 0.0
-            ),
-            "air_consumed": (
-                self.current_flow_rate * dt if self.current_injection else 0.0
-            ),
+            "active_injection": (self.current_injection.floater_id if self.current_injection else None),
+            "injected_volume": (self.current_injection.injected_volume if self.current_injection else 0.0),
+            "air_consumed": (self.current_flow_rate * dt if self.current_injection else 0.0),
         }
 
     def get_injection_status(self) -> Dict[str, Any]:
         """Get comprehensive injection system status."""
-        efficiency = (
-            self.successful_injections / self.total_injections
-            if self.total_injections > 0
-            else 0.0
-        )
+        efficiency = self.successful_injections / self.total_injections if self.total_injections > 0 else 0.0
 
         avg_injection_time = (
-            self.total_injection_time / self.successful_injections
-            if self.successful_injections > 0
-            else 0.0
+            self.total_injection_time / self.successful_injections if self.successful_injections > 0 else 0.0
         )
 
         return {
@@ -431,14 +393,10 @@ class AirInjectionController:
             "injection_efficiency": efficiency,
             "total_air_injected_m3": self.total_air_injected,
             "avg_injection_time_s": avg_injection_time,
-            "active_injection_id": (
-                self.current_injection.floater_id if self.current_injection else None
-            ),
+            "active_injection_id": (self.current_injection.floater_id if self.current_injection else None),
         }
 
-    def calculate_water_displacement_work(
-        self, injected_volume: float, depth: float
-    ) -> float:
+    def calculate_water_displacement_work(self, injected_volume: float, depth: float) -> float:
         """
         Calculate mechanical work done by water displacement.
 

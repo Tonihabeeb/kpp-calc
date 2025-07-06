@@ -109,9 +109,7 @@ class AirReleasePhysics:
         self.water_inflow_coefficient = 0.8  # Flow coefficient for water entering
         self.floater_opening_area = 0.002  # m² (20 cm²) total opening area
 
-    def calculate_air_release_rate(
-        self, internal_pressure: float, external_pressure: float
-    ) -> float:
+    def calculate_air_release_rate(self, internal_pressure: float, external_pressure: float) -> float:
         """
         Calculate the volumetric flow rate of air being released.
 
@@ -147,9 +145,7 @@ class AirReleasePhysics:
 
             # Simplified orifice flow equation
             flow_rate = (
-                self.discharge_coefficient
-                * self.vent_valve_area
-                * math.sqrt(2 * pressure_diff / 1.225)
+                self.discharge_coefficient * self.vent_valve_area * math.sqrt(2 * pressure_diff / 1.225)
             )  # Air density ≈ 1.225 kg/m³
 
         logger.debug(
@@ -185,9 +181,7 @@ class AirReleasePhysics:
 
         # Flow rate based on hydrostatic head and opening area
         inflow_velocity = math.sqrt(2 * hydrostatic_pressure / RHO_WATER)
-        inflow_rate = (
-            self.water_inflow_coefficient * self.floater_opening_area * inflow_velocity
-        )
+        inflow_rate = self.water_inflow_coefficient * self.floater_opening_area * inflow_velocity
 
         # Limit by available volume (can't exceed what fits)
         max_inflow_rate = available_volume / 0.1  # Assume minimum 0.1s to fill
@@ -217,12 +211,9 @@ class AirReleasePhysics:
 
         # Account for bubble dissolution during rise
         dissolution_factor = math.exp(-self.air_dissolution_rate * escape_time)
-        effective_bubble_volume = bubble_volume * dissolution_factor
+        bubble_volume * dissolution_factor
 
-        logger.debug(
-            f"Bubble escape: {escape_time:.1f}s, "
-            f"volume loss: {(1-dissolution_factor)*100:.1f}%"
-        )
+        logger.debug(f"Bubble escape: {escape_time:.1f}s, " f"volume loss: {(1-dissolution_factor)*100:.1f}%")
 
         return escape_time
 
@@ -235,9 +226,7 @@ class AutomaticVentingSystem:
     complete air release and water refill.
     """
 
-    def __init__(
-        self, trigger_config: Optional[Dict] = None, tank_height: float = 10.0
-    ):
+    def __init__(self, trigger_config: Optional[Dict] = None, tank_height: float = 10.0):
         """
         Initialize the automatic venting system.
 
@@ -263,9 +252,7 @@ class AutomaticVentingSystem:
 
         logger.info(f"AutomaticVentingSystem initialized for {tank_height}m tank")
 
-    def check_venting_trigger(
-        self, floater_id: str, floater_position: float, floater_tilt: float = 0.0
-    ) -> bool:
+    def check_venting_trigger(self, floater_id: str, floater_position: float, floater_tilt: float = 0.0) -> bool:
         """
         Check if venting should be triggered for a specific floater.
 
@@ -281,14 +268,10 @@ class AutomaticVentingSystem:
         if floater_id in self.active_venting_floaters:
             return False
 
-        should_vent = self.trigger.should_trigger_venting(
-            floater_position, floater_tilt, self.tank_height
-        )
+        should_vent = self.trigger.should_trigger_venting(floater_position, floater_tilt, self.tank_height)
 
         if should_vent:
-            logger.info(
-                f"Venting triggered for floater {floater_id} at position {floater_position:.2f}m"
-            )
+            logger.info(f"Venting triggered for floater {floater_id} at position {floater_position:.2f}m")
 
         return should_vent
 
@@ -336,9 +319,7 @@ class AutomaticVentingSystem:
 
         return venting_state
 
-    def update_venting_process(
-        self, floater_id: str, current_position: float, dt: float
-    ) -> Dict:
+    def update_venting_process(self, floater_id: str, current_position: float, dt: float) -> Dict:
         """
         Update the venting process for a floater over a time step.
 
@@ -363,9 +344,7 @@ class AutomaticVentingSystem:
         external_pressure = self.air_physics.P_atm + RHO_WATER * G * current_depth
 
         # Calculate air release rate
-        air_release_rate = self.air_physics.calculate_air_release_rate(
-            state["current_air_pressure"], external_pressure
-        )
+        air_release_rate = self.air_physics.calculate_air_release_rate(state["current_air_pressure"], external_pressure)
 
         # Calculate water inflow rate
         water_inflow_rate = self.air_physics.calculate_water_inflow_rate(
@@ -374,16 +353,12 @@ class AutomaticVentingSystem:
 
         # Update air volume (air leaves)
         air_released_this_step = air_release_rate * dt
-        state["current_air_volume"] = max(
-            0.0, state["current_air_volume"] - air_released_this_step
-        )
+        state["current_air_volume"] = max(0.0, state["current_air_volume"] - air_released_this_step)
         state["total_air_released"] += air_released_this_step
 
         # Update water volume (water enters)
         water_added_this_step = water_inflow_rate * dt
-        state["water_volume"] = min(
-            state["floater_total_volume"], state["water_volume"] + water_added_this_step
-        )
+        state["water_volume"] = min(state["floater_total_volume"], state["water_volume"] + water_added_this_step)
 
         # Update air pressure (approaches external pressure)
         if state["current_air_volume"] > 0:
@@ -391,9 +366,7 @@ class AutomaticVentingSystem:
             pressure_equalization_rate = 2.0  # 1/s
             pressure_diff = state["current_air_pressure"] - external_pressure
             pressure_change = -pressure_diff * pressure_equalization_rate * dt
-            state["current_air_pressure"] = max(
-                external_pressure, state["current_air_pressure"] + pressure_change
-            )
+            state["current_air_pressure"] = max(external_pressure, state["current_air_pressure"] + pressure_change)
         else:
             state["current_air_pressure"] = external_pressure
 
@@ -427,15 +400,13 @@ class AutomaticVentingSystem:
         state = self.active_venting_floaters[floater_id]
 
         # Calculate energy that could be recovered from vented air
-        total_vented_volume = state['total_air_released']
-        average_vented_pressure = (state['initial_air_pressure'] + self.air_physics.P_atm) / 2
-        
+        total_vented_volume = state["total_air_released"]
+        average_vented_pressure = (state["initial_air_pressure"] + self.air_physics.P_atm) / 2
+
         # Store venting results for pressure recovery system integration
-        state['vented_air_volume'] = total_vented_volume
-        state['average_vented_pressure'] = average_vented_pressure
-        state['recoverable_energy'] = self._calculate_recoverable_energy(
-            total_vented_volume, average_vented_pressure
-        )
+        state["vented_air_volume"] = total_vented_volume
+        state["average_vented_pressure"] = average_vented_pressure
+        state["recoverable_energy"] = self._calculate_recoverable_energy(total_vented_volume, average_vented_pressure)
 
         # Finalize state
         state["current_air_volume"] = 0.0
@@ -453,56 +424,56 @@ class AutomaticVentingSystem:
         )
 
         return state
-    
+
     def _calculate_recoverable_energy(self, vented_volume: float, vented_pressure: float) -> float:
         """
         Calculate the energy that could be recovered from vented air.
-        
+
         Args:
             vented_volume: Volume of vented air (m³)
             vented_pressure: Average pressure of vented air (Pa)
-            
+
         Returns:
             float: Recoverable energy (J)
         """
         if vented_pressure <= self.air_physics.P_atm * 1.5:  # Must be >1.5 atm to be worthwhile
             return 0.0
-            
+
         # Energy recoverable from pressure difference
         pressure_ratio = vented_pressure / self.air_physics.P_atm
         recoverable_energy = (
-            self.air_physics.P_atm * vented_volume * 
-            math.log(pressure_ratio) * 0.25  # 25% recovery efficiency
+            self.air_physics.P_atm * vented_volume * math.log(pressure_ratio) * 0.25  # 25% recovery efficiency
         )
-        
+
         return max(0.0, recoverable_energy)
-    
+
     def get_total_vented_air_for_recovery(self) -> Tuple[float, float]:
         """
         Get total vented air available for pressure recovery.
-        
+
         Returns:
             Tuple[float, float]: (total_volume_m3, average_pressure_pa)
         """
         completed_states = [
-            state for state in self.active_venting_floaters.values() 
-            if state.get('venting_complete', False) and 'vented_air_volume' in state
+            state
+            for state in self.active_venting_floaters.values()
+            if state.get("venting_complete", False) and "vented_air_volume" in state
         ]
-        
+
         if not completed_states:
             return 0.0, 0.0
-            
-        total_volume = sum(state['vented_air_volume'] for state in completed_states)
-        
+
+        total_volume = sum(state["vented_air_volume"] for state in completed_states)
+
         # Weighted average pressure
         if total_volume > 0:
-            weighted_pressure = sum(
-                state['vented_air_volume'] * state['average_vented_pressure'] 
-                for state in completed_states
-            ) / total_volume
+            weighted_pressure = (
+                sum(state["vented_air_volume"] * state["average_vented_pressure"] for state in completed_states)
+                / total_volume
+            )
         else:
             weighted_pressure = 0.0
-            
+
         return total_volume, weighted_pressure
 
     def get_venting_status(self, floater_id: str) -> Optional[Dict]:
@@ -552,11 +523,7 @@ class AutomaticVentingSystem:
             System status dictionary
         """
         active_count = len(self.active_venting_floaters)
-        completed_count = sum(
-            1
-            for state in self.active_venting_floaters.values()
-            if state["venting_complete"]
-        )
+        completed_count = sum(1 for state in self.active_venting_floaters.values() if state["venting_complete"])
 
         return {
             "active_venting_count": active_count,

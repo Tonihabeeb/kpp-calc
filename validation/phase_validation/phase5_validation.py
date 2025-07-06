@@ -57,7 +57,7 @@ print(
 print()
 
 print("ACHIEVEMENT SUMMARY:")
-print("   ✅ Phase 1-2: Mechanical Drivetrain — COMPLETE")
+print("   ✅ Phase 1-2: Mechanical IntegratedDrivetrain — COMPLETE")
 print("   ✅ Phase 3: Electrical Systems — COMPLETE")
 print("   ✅ Phase 4: Advanced Control — COMPLETE")
 print("   ✅ Phase 5: Enhanced Loss Modeling — COMPLETE")

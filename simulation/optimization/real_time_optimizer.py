@@ -68,9 +68,7 @@ class PerformanceProfiler:
             total_stats = summary["timings"]["total"]
             summary["fps"] = 1.0 / total_stats["avg"] if total_stats["avg"] > 0 else 0.0
             summary["efficiency"] = (
-                1.0 - (summary["timings"]["validation"]["avg"] / total_stats["avg"])
-                if total_stats["avg"] > 0
-                else 0.0
+                1.0 - (summary["timings"]["validation"]["avg"] / total_stats["avg"]) if total_stats["avg"] > 0 else 0.0
             )
 
         return summary
@@ -79,9 +77,7 @@ class PerformanceProfiler:
 class AdaptiveTimestepper:
     """Adaptive time stepping for numerical stability and performance"""
 
-    def __init__(
-        self, initial_dt: float = 0.1, min_dt: float = 0.01, max_dt: float = 0.5
-    ):
+    def __init__(self, initial_dt: float = 0.1, min_dt: float = 0.01, max_dt: float = 0.5):
         self.dt = initial_dt
         self.min_dt = min_dt
         self.max_dt = max_dt
@@ -181,9 +177,7 @@ class NumericalStabilityMonitor:
             return 1.0
 
         total_violations = sum(self.stability_violations)
-        max_possible = (
-            len(self.stability_violations) * 5
-        )  # Assume max 5 violations per step
+        max_possible = len(self.stability_violations) * 5  # Assume max 5 violations per step
         return max(0.0, 1.0 - (total_violations / max_possible))
 
 
@@ -202,13 +196,9 @@ class RealTimeOptimizer:
         self.vectorization_enabled = True
         self.adaptive_timestep_enabled = True
 
-        logger.info(
-            f"RealTimeOptimizer initialized: target_fps={target_fps}, frame_time={self.target_frame_time:.3f}s"
-        )
+        logger.info(f"RealTimeOptimizer initialized: target_fps={target_fps}, frame_time={self.target_frame_time:.3f}s")
 
-    def optimize_step(
-        self, simulation_state: Dict[str, Any], step_start_time: float
-    ) -> Dict[str, Any]:
+    def optimize_step(self, simulation_state: Dict[str, Any], step_start_time: float) -> Dict[str, Any]:
         """Optimize a single simulation step"""
 
         recommendations = {
@@ -224,9 +214,7 @@ class RealTimeOptimizer:
 
         # Check numerical stability
         is_stable, violations = self.stability_monitor.check_stability(simulation_state)
-        recommendations["stability_score"] = (
-            self.stability_monitor.get_stability_score()
-        )
+        recommendations["stability_score"] = self.stability_monitor.get_stability_score()
 
         if not is_stable:
             recommendations["warnings"].extend(violations)
@@ -242,9 +230,7 @@ class RealTimeOptimizer:
         # Adaptive timestep adjustment
         if self.adaptive_timestep_enabled:
             error_estimate = self._estimate_integration_error(simulation_state)
-            new_dt = self.timestepper.adapt_timestep(
-                step_duration, self.target_frame_time, error_estimate
-            )
+            new_dt = self.timestepper.adapt_timestep(step_duration, self.target_frame_time, error_estimate)
 
             if abs(new_dt - self.timestepper.dt) > 1e-6:
                 recommendations["adjust_timestep"] = True
@@ -263,9 +249,7 @@ class RealTimeOptimizer:
         v_chain = abs(state.get("v_chain", 0.0))
 
         # Higher acceleration or velocity suggests need for smaller timestep
-        error_estimate = (
-            a_chain * self.timestepper.dt**2 + v_chain * self.timestepper.dt
-        ) / 100.0
+        error_estimate = (a_chain * self.timestepper.dt**2 + v_chain * self.timestepper.dt) / 100.0
 
         return error_estimate
 
@@ -319,36 +303,23 @@ class RealTimeOptimizer:
         # Performance recommendations
         recommendations = []
         if summary.get("fps", 0.0) < self.target_fps * 0.8:
-            recommendations.append(
-                "Consider increasing timestep or reducing validation frequency"
-            )
+            recommendations.append("Consider increasing timestep or reducing validation frequency")
         if summary["optimization"]["stability_score"] < 0.9:
-            recommendations.append(
-                "Numerical stability issues detected - consider parameter tuning"
-            )
-        if (
-            summary["counters"]["validation_failures"]
-            > summary["counters"]["steps"] * 0.1
-        ):
-            recommendations.append(
-                "High validation failure rate - review physics consistency"
-            )
+            recommendations.append("Numerical stability issues detected - consider parameter tuning")
+        if summary["counters"]["validation_failures"] > summary["counters"]["steps"] * 0.1:
+            recommendations.append("High validation failure rate - review physics consistency")
 
         summary["recommendations"] = recommendations
 
         return summary
 
-    def enable_optimization(
-        self, vectorization: bool = True, adaptive_timestep: bool = True
-    ):
+    def enable_optimization(self, vectorization: bool = True, adaptive_timestep: bool = True):
         """Enable/disable optimization features"""
         self.optimization_enabled = True
         self.vectorization_enabled = vectorization
         self.adaptive_timestep_enabled = adaptive_timestep
 
-        logger.info(
-            f"Optimization enabled: vectorization={vectorization}, adaptive_timestep={adaptive_timestep}"
-        )
+        logger.info(f"Optimization enabled: vectorization={vectorization}, adaptive_timestep={adaptive_timestep}")
 
     def disable_optimization(self):
         """Disable all optimization features"""
@@ -366,9 +337,7 @@ class DataStreamOptimizer:
         self.priority_data = ["v_chain", "power_output", "efficiency"]
         self.output_buffer = deque(maxlen=1000)
 
-    def optimize_data_output(
-        self, full_data: Dict[str, Any], performance_metrics: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def optimize_data_output(self, full_data: Dict[str, Any], performance_metrics: Dict[str, Any]) -> Dict[str, Any]:
         """Optimize data output based on performance and priorities"""
 
         if not self.adaptive_sampling:
@@ -428,6 +397,4 @@ class DataStreamOptimizer:
         if priority_data:
             self.priority_data = priority_data
 
-        logger.info(
-            f"Data streaming configured: rate={sample_rate}Hz, adaptive={adaptive}"
-        )
+        logger.info(f"Data streaming configured: rate={sample_rate}Hz, adaptive={adaptive}")

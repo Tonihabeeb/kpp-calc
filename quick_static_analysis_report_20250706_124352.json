@@ -1,0 +1,218 @@
+{
+  "timestamp": "2025-07-06T12:43:19.562519",
+  "summary": {
+    "total_issues": 25,
+    "formatting_issues": 0,
+    "line_length_issues": 9,
+    "complexity_issues": 3,
+    "import_issues": 13,
+    "quality_score": 35.0
+  },
+  "issues": [
+    {
+      "type": "line_length",
+      "file": "dash_app.py",
+      "line": 135,
+      "severity": "low",
+      "message": "Line 135 exceeds 120 characters (130 chars)",
+      "tool": "manual"
+    },
+    {
+      "type": "line_length",
+      "file": "dash_app.py",
+      "line": 456,
+      "severity": "low",
+      "message": "Line 456 exceeds 120 characters (140 chars)",
+      "tool": "manual"
+    },
+    {
+      "type": "line_length",
+      "file": "dash_app.py",
+      "line": 493,
+      "severity": "low",
+      "message": "Line 493 exceeds 120 characters (123 chars)",
+      "tool": "manual"
+    },
+    {
+      "type": "line_length",
+      "file": "main.py",
+      "line": 311,
+      "severity": "low",
+      "message": "Line 311 exceeds 120 characters (121 chars)",
+      "tool": "manual"
+    },
+    {
+      "type": "line_length",
+      "file": "simulation/engine.py",
+      "line": 244,
+      "severity": "low",
+      "message": "Line 244 exceeds 120 characters (222 chars)",
+      "tool": "manual"
+    },
+    {
+      "type": "line_length",
+      "file": "simulation/engine.py",
+      "line": 253,
+      "severity": "low",
+      "message": "Line 253 exceeds 120 characters (151 chars)",
+      "tool": "manual"
+    },
+    {
+      "type": "line_length",
+      "file": "simulation/engine.py",
+      "line": 654,
+      "severity": "low",
+      "message": "Line 654 exceeds 120 characters (204 chars)",
+      "tool": "manual"
+    },
+    {
+      "type": "line_length",
+      "file": "simulation/engine.py",
+      "line": 829,
+      "severity": "low",
+      "message": "Line 829 exceeds 120 characters (245 chars)",
+      "tool": "manual"
+    },
+    {
+      "type": "line_length",
+      "file": "simulation/engine.py",
+      "line": 909,
+      "severity": "low",
+      "message": "Line 909 exceeds 120 characters (213 chars)",
+      "tool": "manual"
+    },
+    {
+      "type": "complexity",
+      "file": "dash_app.py",
+      "line": 1982,
+      "severity": "medium",
+      "message": "Function 'handle_simulation_controls' has high complexity (15)",
+      "tool": "manual"
+    },
+    {
+      "type": "complexity",
+      "file": "dash_app.py",
+      "line": 2457,
+      "severity": "medium",
+      "message": "Function 'update_status_indicators' has high complexity (11)",
+      "tool": "manual"
+    },
+    {
+      "type": "complexity",
+      "file": "simulation/engine.py",
+      "line": 146,
+      "severity": "medium",
+      "message": "Function '_update_new_config' has high complexity (11)",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "app.py",
+      "line": 7,
+      "severity": "low",
+      "message": "Potentially unused import: Flask,",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "app.py",
+      "line": 969,
+      "severity": "low",
+      "message": "Potentially unused import: matplotlib.pyplot",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "app.py",
+      "line": 970,
+      "severity": "low",
+      "message": "Potentially unused import: numpy",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "dash_app.py",
+      "line": 16,
+      "severity": "low",
+      "message": "Potentially unused import: dash_bootstrap_components",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "dash_app.py",
+      "line": 17,
+      "severity": "low",
+      "message": "Potentially unused import: plotly.graph_objs",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "dash_app.py",
+      "line": 20,
+      "severity": "low",
+      "message": "Potentially unused import: Input,",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "dash_app.py",
+      "line": 125,
+      "severity": "low",
+      "message": "Potentially unused import: get_trace_logger,",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "main.py",
+      "line": 20,
+      "severity": "low",
+      "message": "Potentially unused import: FastAPI,",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "simulation/engine.py",
+      "line": 12,
+      "severity": "low",
+      "message": "Potentially unused import: Any,",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "simulation/engine.py",
+      "line": 15,
+      "severity": "low",
+      "message": "Potentially unused import: RHO_WATER,",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "simulation/engine.py",
+      "line": 16,
+      "severity": "low",
+      "message": "Potentially unused import: get_default_parameters,",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "simulation/engine.py",
+      "line": 22,
+      "severity": "low",
+      "message": "Potentially unused import: Floater,",
+      "tool": "manual"
+    },
+    {
+      "type": "unused_import",
+      "file": "simulation/engine.py",
+      "line": 30,
+      "severity": "low",
+      "message": "Potentially unused import: GridConditions,",
+      "tool": "manual"
+    }
+  ],
+  "recommendations": [
+    "Fix 9 long lines (max 120 chars)",
+    "Refactor 3 complex functions",
+    "Review 13 potentially unused imports"
+  ]
+}

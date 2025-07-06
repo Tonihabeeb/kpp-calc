@@ -1,0 +1,1161 @@
+{
+  "timestamp": "2025-07-06T12:34:50.435446",
+  "tools": {
+    "pylint": {
+      "status": "error",
+      "error": "pylint: Command line or configuration file:1: UserWarning: 'Exception' is not a proper value for the 'overgeneral-exceptions' option. Use fully qualified name (maybe 'builtins.Exception' ?) instead. This will cease to be checked at runtime when the configuration upgrader is released.\n",
+      "issues": [],
+      "total_issues": 0,
+      "score": 0.0
+    },
+    "flake8": {
+      "status": "success",
+      "issues": [],
+      "total_issues": 0
+    },
+    "black_check": {
+      "status": "success",
+      "needs_formatting": true,
+      "diff": "--- H:\\My Drive\\kpp force calc\\config\\core\\schema.py\t2025-07-06 09:09:47.622000+00:00\n+++ H:\\My Drive\\kpp force calc\\config\\core\\schema.py\t2025-07-06 09:42:06.302683+00:00\n@@ -4,11 +4,10 @@\n \"\"\"\n \n from typing import Any, Dict, List, Optional\n \n from pydantic import BaseModel, Field\n-\n \n \n class ConfigSchema(BaseModel):\n     \"\"\"Base schema for configuration validation\"\"\"\n \n--- H:\\My Drive\\kpp force calc\\simulation\\grid_services\\demand_response\\peak_shaving_controller.py\t2025-07-06 09:09:50.277000+00:00\n+++ H:\\My Drive\\kpp force calc\\simulation\\grid_services\\demand_response\\peak_shaving_controller.py\t2025-07-06 09:42:08.574278+00:00\n@@ -16,11 +16,10 @@\n import time\n from collections import deque\n from dataclasses import dataclass\n from datetime import datetime\n from typing import Any, Dict, List, Optional, Tuple\n-\n \n \n @dataclass\n class PeakShavingConfig:\n     \"\"\"Configuration for Peak Shaving Controller\"\"\"\n--- H:\\My Drive\\kpp force calc\\simulation\\grid_services\\demand_response\\load_forecaster.py\t2025-07-06 09:09:50.543000+00:00\n+++ H:\\My Drive\\kpp force calc\\simulation\\grid_services\\demand_response\\load_forecaster.py\t2025-07-06 09:42:08.672444+00:00\n@@ -16,11 +16,10 @@\n import time\n from collections import deque\n from dataclasses import dataclass\n from datetime import datetime\n from typing import Any, Dict, List, Optional\n-\n \n \n @dataclass\n class LoadForecastConfig:\n     \"\"\"Configuration for Load Forecaster\"\"\"\n--- H:\\My Drive\\kpp force calc\\simulation\\grid_services\\economic\\economic_optimizer.py\t2025-07-06 09:09:50.667000+00:00\n+++ H:\\My Drive\\kpp force calc\\simulation\\grid_services\\economic\\economic_optimizer.py\t2025-07-06 09:42:09.103068+00:00\n@@ -18,11 +18,10 @@\n \n import time\n from dataclasses import dataclass\n from enum import Enum\n from typing import Any, Dict, Optional\n-\n \n \n class OptimizationObjective(Enum):\n     \"\"\"Optimization objective types\"\"\"\n \n@@ -392,11 +391,10 @@\n     def _optimize_risk_adjusted(\n         self, service_values: Dict[ServiceType, float], total_capacity: float\n     ) -> Dict[ServiceType, float]:\n         \"\"\"Optimize for risk-adjusted returns\"\"\"\n \n-\n         # Calculate risk-adjusted values\n         risk_adjusted_values = {}\n         for service_type, value in service_values.items():\n             reliability = self.service_parameters[service_type].reliability_factor\n             risk_discount = 1.0 - (1.0 - reliability) * self.constraints.risk_tolerance\n--- H:\\My Drive\\kpp force calc\\utils\\errors.py\t2025-07-06 09:09:47.274000+00:00\n+++ H:\\My Drive\\kpp force calc\\utils\\errors.py\t2025-07-06 09:42:09.990022+00:00\n@@ -24,6 +24,5 @@\n         super().__init__(f\"Floater {floater_id}: {message}\")\n \n \n class EnvironmentError(SimulationError):\n     \"\"\"Exception for errors in Environment or invalid parameters.\"\"\"\n-\n",
+      "files_need_formatting": 0
+    },
+    "autopep8_check": {
+      "status": "success",
+      "needs_formatting": true,
+      "diff": "--- original/dash_app.py\n+++ fixed/dash_app.py\n@@ -4,6 +4,13 @@\n Main entry point for the Plotly Dash frontend\n \"\"\"\n \n+from simple_browser_monitor import init_simple_browser_monitor\n+from observability import get_trace_logger, init_observability\n+import gc\n+from threading import Lock\n+import time as time_module\n+from requests.packages.urllib3.util.retry import Retry\n+from requests.adapters import HTTPAdapter\n import asyncio\n import json\n import logging\n@@ -32,9 +39,6 @@\n setup_logging()\n \n # ADDED: Connection pooling and request management to fix ERR_INSUFFICIENT_RESOURCES\n-import requests\n-from requests.adapters import HTTPAdapter\n-from requests.packages.urllib3.util.retry import Retry\n \n \n # Create a session with connection pooling and limits\n@@ -67,8 +71,6 @@\n http_session = create_http_session()\n \n # ADDED: Rate limiting and caching to prevent resource exhaustion\n-import time as time_module\n-from threading import Lock\n \n # Rate limiting variables\n _last_request_time = 0\n@@ -98,7 +100,6 @@\n \n \n # ADDED: Memory management to prevent memory leaks\n-import gc\n \n \n def cleanup_memory():\n@@ -122,7 +123,6 @@\n \n \n # Import observability system\n-from observability import get_trace_logger, init_observability\n \n # Configuration\n DASH_PORT = 9103\n@@ -2617,8 +2617,6 @@\n         }\n \n \n-from simple_browser_monitor import init_simple_browser_monitor\n-\n # Initialize browser monitoring (runs on port 9104 by default)\n browser_monitor = init_simple_browser_monitor(port=9104)\n \n--- original/app.py\n+++ fixed/app.py\n@@ -1,4 +1,7 @@\n # CRASH-FIXED Flask app - Removes blocking operations that cause timeouts\n+from simulation.managers.thread_safe_engine import ThreadSafeEngine\n+from simulation.managers.state_manager import StateManager\n+from simulation.engine import SimulationEngine\n import logging\n import queue\n import time\n@@ -30,11 +33,8 @@\n logging.basicConfig(level=logging.INFO, format=\"[%(asctime)s] %(levelname)s: %(message)s\")\n logger = logging.getLogger(__name__)\n \n-from simulation.engine import SimulationEngine\n \n # Thread-safe global state using new managers\n-from simulation.managers.state_manager import StateManager\n-from simulation.managers.thread_safe_engine import ThreadSafeEngine\n \n # Initialize state manager and thread-safe engine wrapper\n # Provide robust default parameters for SimulationEngine initialization\n--- original/config\\core\\schema.py\n+++ fixed/config\\core\\schema.py\n@@ -6,7 +6,6 @@\n from typing import Any, Dict, List, Optional\n \n from pydantic import BaseModel, Field\n-\n \n \n class ConfigSchema(BaseModel):\n--- original/simulation\\physics\\integrated_loss_model.py\n+++ fixed/simulation\\physics\\integrated_loss_model.py\n@@ -3,6 +3,7 @@\n Combines mechanical, electrical, and thermal loss models for comprehensive system analysis.\n \"\"\"\n \n+from typing import Any, Dict, Union\n import logging\n from dataclasses import dataclass\n from typing import Dict\n@@ -412,9 +413,6 @@\n         logger.info(\"IntegratedLossModel reset\")\n \n \n-from typing import Any, Dict, Union\n-\n-\n def create_standard_kpp_enhanced_loss_model(\n     config_or_temp: Union[float, Dict[str, Any]] = 20.0,\n ) -> IntegratedLossModel:\n--- original/simulation\\grid_services\\demand_response\\peak_shaving_controller.py\n+++ fixed/simulation\\grid_services\\demand_response\\peak_shaving_controller.py\n@@ -18,7 +18,6 @@\n from dataclasses import dataclass\n from datetime import datetime\n from typing import Any, Dict, List, Optional, Tuple\n-\n \n \n @dataclass\n--- original/simulation\\grid_services\\demand_response\\load_forecaster.py\n+++ fixed/simulation\\grid_services\\demand_response\\load_forecaster.py\n@@ -18,7 +18,6 @@\n from dataclasses import dataclass\n from datetime import datetime\n from typing import Any, Dict, List, Optional\n-\n \n \n @dataclass\n--- original/simulation\\grid_services\\economic\\economic_optimizer.py\n+++ fixed/simulation\\grid_services\\economic\\economic_optimizer.py\n@@ -20,7 +20,6 @@\n from dataclasses import dataclass\n from enum import Enum\n from typing import Any, Dict, Optional\n-\n \n \n class OptimizationObjective(Enum):\n@@ -394,7 +393,6 @@\n     ) -> Dict[ServiceType, float]:\n         \"\"\"Optimize for risk-adjusted returns\"\"\"\n \n-\n         # Calculate risk-adjusted values\n         risk_adjusted_values = {}\n         for service_type, value in service_values.items():\n--- original/simulation\\integration\\integration_manager.py\n+++ fixed/simulation\\integration\\integration_manager.py\n@@ -3,6 +3,8 @@\n Coordinates validation, optimization, and component integration.\n \"\"\"\n \n+from validation.physics_validation import ValidationFramework\n+from simulation.optimization.parameter_optimizer import ParameterOptimizer\n import logging\n import os\n import sys\n@@ -12,10 +14,8 @@\n # Add project path\n sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))\n \n-from simulation.optimization.parameter_optimizer import ParameterOptimizer\n \n # from simulation.physics.physics_engine import PhysicsEngine  # TODO: Implement PhysicsEngine\n-from validation.physics_validation import ValidationFramework\n \n \n class IntegrationManager:\n--- original/utils\\errors.py\n+++ fixed/utils\\errors.py\n@@ -26,4 +26,3 @@\n \n class EnvironmentError(SimulationError):\n     \"\"\"Exception for errors in Environment or invalid parameters.\"\"\"\n-\n",
+      "files_need_formatting": 0
+    },
+    "complexity_analysis": {
+      "status": "success",
+      "complex_functions": [
+        {
+          "file": "simulation\\engine.py",
+          "line": 146,
+          "function": "_update_new_config",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\engine.py",
+          "line": 348,
+          "function": "_execute_physics_step",
+          "complexity": 14
+        },
+        {
+          "file": "simulation\\engine.py",
+          "line": 673,
+          "function": "safe_get_nested",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\components\\control.py",
+          "line": 69,
+          "function": "update",
+          "complexity": 15
+        },
+        {
+          "file": "simulation\\components\\power_electronics.py",
+          "line": 141,
+          "function": "_check_protection_systems",
+          "complexity": 13
+        },
+        {
+          "file": "simulation\\control\\timing_controller.py",
+          "line": 202,
+          "function": "_optimize_injection_timing",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\control\\startup_controller.py",
+          "line": 370,
+          "function": "_perform_system_checks",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\control\\grid_disturbance_handler.py",
+          "line": 168,
+          "function": "_detect_grid_disturbances",
+          "complexity": 13
+        },
+        {
+          "file": "simulation\\control\\grid_disturbance_handler.py",
+          "line": 263,
+          "function": "_determine_response_mode",
+          "complexity": 17
+        },
+        {
+          "file": "simulation\\control\\transient_event_controller.py",
+          "line": 241,
+          "function": "_update_system_state",
+          "complexity": 14
+        },
+        {
+          "file": "simulation\\physics\\state_synchronizer.py",
+          "line": 42,
+          "function": "synchronize_floater_state",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\physics\\state_synchronizer.py",
+          "line": 196,
+          "function": "_apply_immediate_sync",
+          "complexity": 14
+        },
+        {
+          "file": "simulation\\grid_services\\grid_services_coordinator.py",
+          "line": 331,
+          "function": "_update_demand_response_services",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\grid_services\\grid_services_coordinator.py",
+          "line": 650,
+          "function": "_coordinate_multiple_services",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\grid_services\\voltage\\voltage_regulator.py",
+          "line": 197,
+          "function": "get_performance_metrics",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\grid_services\\voltage\\power_factor_controller.py",
+          "line": 235,
+          "function": "get_performance_metrics",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\grid_services\\voltage\\dynamic_voltage_support.py",
+          "line": 219,
+          "function": "_update_voltage_event",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\grid_services\\demand_response\\load_curtailment_controller.py",
+          "line": 344,
+          "function": "_check_for_curtailment_needs",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\grid_services\\demand_response\\peak_shaving_controller.py",
+          "line": 213,
+          "function": "_update_load_forecast",
+          "complexity": 13
+        },
+        {
+          "file": "simulation\\grid_services\\demand_response\\peak_shaving_controller.py",
+          "line": 283,
+          "function": "_evaluate_peak_shaving_need",
+          "complexity": 14
+        },
+        {
+          "file": "simulation\\grid_services\\demand_response\\peak_shaving_controller.py",
+          "line": 470,
+          "function": "get_performance_metrics",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\grid_services\\storage\\battery_storage_system.py",
+          "line": 145,
+          "function": "_determine_operating_mode",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\grid_services\\storage\\battery_storage_system.py",
+          "line": 195,
+          "function": "_execute_power_control",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\grid_services\\economic\\price_forecaster.py",
+          "line": 249,
+          "function": "_update_patterns",
+          "complexity": 14
+        },
+        {
+          "file": "simulation\\grid_services\\economic\\price_forecaster.py",
+          "line": 415,
+          "function": "_update_accuracy_metrics",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\grid_services\\economic\\price_forecaster.py",
+          "line": 573,
+          "function": "analyze_patterns",
+          "complexity": 13
+        },
+        {
+          "file": "simulation\\grid_services\\economic\\market_interface.py",
+          "line": 217,
+          "function": "calculate_settlement",
+          "complexity": 13
+        },
+        {
+          "file": "simulation\\grid_services\\economic\\market_interface.py",
+          "line": 444,
+          "function": "_update_performance_metrics",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\pneumatics\\pneumatic_coordinator.py",
+          "line": 690,
+          "function": "update_sensor_data",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\pneumatics\\performance_metrics.py",
+          "line": 326,
+          "function": "calculate_capacity_analysis",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\optimization\\parameter_optimizer.py",
+          "line": 409,
+          "function": "_apply_parameters",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\optimization\\real_time_optimizer.py",
+          "line": 88,
+          "function": "adapt_timestep",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\optimization\\real_time_optimizer.py",
+          "line": 143,
+          "function": "check_stability",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\optimization\\real_time_optimizer.py",
+          "line": 340,
+          "function": "optimize_data_output",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\monitoring\\real_time_monitor.py",
+          "line": 265,
+          "function": "handle_error",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\monitoring\\real_time_monitor.py",
+          "line": 321,
+          "function": "get_error_summary",
+          "complexity": 12
+        },
+        {
+          "file": "simulation\\monitoring\\performance_monitor.py",
+          "line": 209,
+          "function": "get_summary",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\future\\hypothesis_framework.py",
+          "line": 149,
+          "function": "validate_enhancement",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\managers\\system_manager.py",
+          "line": 318,
+          "function": "update_pneumatic_performance_tracking",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\managers\\component_manager.py",
+          "line": 77,
+          "function": "check_and_trigger_pulse",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\managers\\component_manager.py",
+          "line": 289,
+          "function": "_update_pneumatic_performance_tracking",
+          "complexity": 18
+        },
+        {
+          "file": "simulation\\managers\\base_manager.py",
+          "line": 289,
+          "function": "get_config_param",
+          "complexity": 13
+        },
+        {
+          "file": "simulation\\managers\\base_manager.py",
+          "line": 351,
+          "function": "validate_config_param",
+          "complexity": 11
+        },
+        {
+          "file": "simulation\\managers\\callback_integration_manager.py",
+          "line": 393,
+          "function": "register_callback",
+          "complexity": 19
+        },
+        {
+          "file": "config\\manager.py",
+          "line": 82,
+          "function": "load_config_from_file",
+          "complexity": 11
+        },
+        {
+          "file": "app.py",
+          "line": 260,
+          "function": "start_simulation",
+          "complexity": 13
+        },
+        {
+          "file": "dash_app.py",
+          "line": 1982,
+          "function": "handle_simulation_controls",
+          "complexity": 26
+        },
+        {
+          "file": "dash_app.py",
+          "line": 2070,
+          "function": "handle_action_outputs",
+          "complexity": 11
+        },
+        {
+          "file": "dash_app.py",
+          "line": 2457,
+          "function": "update_status_indicators",
+          "complexity": 16
+        },
+        {
+          "file": "dash_app.py",
+          "line": 2509,
+          "function": "fetch_synchronized_data",
+          "complexity": 15
+        },
+        {
+          "file": "main.py",
+          "line": 26,
+          "function": "__init__",
+          "complexity": 11
+        }
+      ],
+      "total_functions": 1506,
+      "complexity_ratio": 0.03386454183266932
+    },
+    "import_analysis": {
+      "status": "success",
+      "unused_imports": [
+        {
+          "line": 12,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict"
+        },
+        {
+          "line": 14,
+          "module": "config",
+          "name": "ConfigManager,",
+          "full_import": "from config import ConfigManager, FloaterConfig"
+        },
+        {
+          "line": 15,
+          "module": "config.config",
+          "name": "RHO_WATER,",
+          "full_import": "from config.config import RHO_WATER, G  # Add physics constants"
+        },
+        {
+          "line": 16,
+          "module": "config.parameter_schema",
+          "name": "get_default_parameters,",
+          "full_import": "from config.parameter_schema import get_default_parameters, validate_kpp_system_parameters"
+        },
+        {
+          "line": 22,
+          "module": "simulation.components.floater",
+          "name": "Floater,",
+          "full_import": "from simulation.components.floater import Floater, FloaterConfig"
+        },
+        {
+          "line": 30,
+          "module": "simulation.grid_services.grid_services_coordinator",
+          "name": "GridConditions,",
+          "full_import": "from simulation.grid_services.grid_services_coordinator import GridConditions, create_standard_grid_services_coordinator"
+        },
+        {
+          "line": 34,
+          "module": "config",
+          "name": "ConfigManager,",
+          "full_import": "from config import ConfigManager, FloaterConfig"
+        },
+        {
+          "line": 4,
+          "module": "matplotlib.pyplot",
+          "name": "matplotlib.pyplot",
+          "full_import": "import matplotlib.pyplot as plt"
+        },
+        {
+          "line": 11,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Tuple"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional"
+        },
+        {
+          "line": 10,
+          "module": "pydantic",
+          "name": "BaseModel,",
+          "full_import": "from pydantic import BaseModel, Field, root_validator, validator"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional"
+        },
+        {
+          "line": 8,
+          "module": "dataclasses",
+          "name": "dataclass",
+          "full_import": "from dataclasses import dataclass"
+        },
+        {
+          "line": 9,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional"
+        },
+        {
+          "line": 8,
+          "module": "dataclasses",
+          "name": "dataclass",
+          "full_import": "from dataclasses import dataclass"
+        },
+        {
+          "line": 9,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional"
+        },
+        {
+          "line": 1,
+          "module": "dataclasses",
+          "name": "dataclass",
+          "full_import": "from dataclasses import dataclass"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional, Union"
+        },
+        {
+          "line": 10,
+          "module": ".flywheel",
+          "name": "Flywheel,",
+          "full_import": "from .flywheel import Flywheel, FlywheelController"
+        },
+        {
+          "line": 12,
+          "module": ".one_way_clutch",
+          "name": "OneWayClutch,",
+          "full_import": "from .one_way_clutch import OneWayClutch, PulseCoastController"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional, Tuple"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional, Union"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Union"
+        },
+        {
+          "line": 10,
+          "module": ".buoyancy",
+          "name": "BuoyancyCalculator,",
+          "full_import": "from .buoyancy import BuoyancyCalculator, BuoyancyResult"
+        },
+        {
+          "line": 13,
+          "module": ".thermal",
+          "name": "ThermalModel,",
+          "full_import": "from .thermal import ThermalModel, ThermalState"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 12,
+          "module": "numpy",
+          "name": "numpy",
+          "full_import": "import numpy as np"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 11,
+          "module": "numpy",
+          "name": "numpy",
+          "full_import": "import numpy as np"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 9,
+          "module": "enum",
+          "name": "Enum",
+          "full_import": "from enum import Enum"
+        },
+        {
+          "line": 12,
+          "module": "numpy",
+          "name": "numpy",
+          "full_import": "import numpy as np"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 8,
+          "module": "dataclasses",
+          "name": "dataclass",
+          "full_import": "from dataclasses import dataclass"
+        },
+        {
+          "line": 9,
+          "module": "enum",
+          "name": "Enum",
+          "full_import": "from enum import Enum"
+        },
+        {
+          "line": 12,
+          "module": "numpy",
+          "name": "numpy",
+          "full_import": "import numpy as np"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 8,
+          "module": "dataclasses",
+          "name": "dataclass",
+          "full_import": "from dataclasses import dataclass"
+        },
+        {
+          "line": 9,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional, Union"
+        },
+        {
+          "line": 11,
+          "module": "numpy",
+          "name": "numpy",
+          "full_import": "import numpy as np"
+        },
+        {
+          "line": 15,
+          "module": ".load_manager",
+          "name": "LoadManager,",
+          "full_import": "from .load_manager import LoadManager, LoadProfile"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 7,
+          "module": "dataclasses",
+          "name": "dataclass,",
+          "full_import": "from dataclasses import dataclass, field"
+        },
+        {
+          "line": 8,
+          "module": "enum",
+          "name": "Enum",
+          "full_import": "from enum import Enum"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 11,
+          "module": "numpy",
+          "name": "numpy",
+          "full_import": "import numpy as np"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Dict,",
+          "full_import": "from typing import Dict, Optional"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 10,
+          "module": "numpy",
+          "name": "numpy",
+          "full_import": "import numpy as np"
+        },
+        {
+          "line": 18,
+          "module": "simulation.physics.thermal",
+          "name": "ThermalModel,",
+          "full_import": "from simulation.physics.thermal import ThermalModel, ThermalState"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 9,
+          "module": "config.config",
+          "name": "RHO_WATER,",
+          "full_import": "from config.config import RHO_WATER, G"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 9,
+          "module": "config.config",
+          "name": "RHO_WATER,",
+          "full_import": "from config.config import RHO_WATER, G"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 12,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional"
+        },
+        {
+          "line": 19,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional"
+        },
+        {
+          "line": 18,
+          "module": "dataclasses",
+          "name": "dataclass",
+          "full_import": "from dataclasses import dataclass"
+        },
+        {
+          "line": 20,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional"
+        },
+        {
+          "line": 22,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional"
+        },
+        {
+          "line": 15,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional"
+        },
+        {
+          "line": 13,
+          "module": "dataclasses",
+          "name": "dataclass,",
+          "full_import": "from dataclasses import dataclass, field"
+        },
+        {
+          "line": 16,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional"
+        },
+        {
+          "line": 18,
+          "module": "numpy",
+          "name": "numpy",
+          "full_import": "import numpy as np"
+        },
+        {
+          "line": 17,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional, Tuple"
+        },
+        {
+          "line": 14,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 16,
+          "module": "typing",
+          "name": "Dict,",
+          "full_import": "from typing import Dict, Optional, Tuple"
+        },
+        {
+          "line": 18,
+          "module": "config.config",
+          "name": "RHO_WATER,",
+          "full_import": "from config.config import RHO_WATER, G"
+        },
+        {
+          "line": 13,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 14,
+          "module": "typing",
+          "name": "Dict,",
+          "full_import": "from typing import Dict, Optional, Tuple"
+        },
+        {
+          "line": 19,
+          "module": "dataclasses",
+          "name": "dataclass,",
+          "full_import": "from dataclasses import dataclass, field"
+        },
+        {
+          "line": 21,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional"
+        },
+        {
+          "line": 17,
+          "module": "dataclasses",
+          "name": "dataclass,",
+          "full_import": "from dataclasses import dataclass, field"
+        },
+        {
+          "line": 19,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List"
+        },
+        {
+          "line": 15,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 18,
+          "module": "dataclasses",
+          "name": "dataclass,",
+          "full_import": "from dataclasses import dataclass, field"
+        },
+        {
+          "line": 20,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List"
+        },
+        {
+          "line": 22,
+          "module": "numpy",
+          "name": "numpy",
+          "full_import": "import numpy as np"
+        },
+        {
+          "line": 24,
+          "module": "utils.logging_setup",
+          "name": "setup_logging",
+          "full_import": "from utils.logging_setup import setup_logging"
+        },
+        {
+          "line": 9,
+          "module": "dataclasses",
+          "name": "dataclass",
+          "full_import": "from dataclasses import dataclass"
+        },
+        {
+          "line": 10,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Callable, Dict, Tuple"
+        },
+        {
+          "line": 12,
+          "module": "numpy",
+          "name": "numpy",
+          "full_import": "import numpy as np"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 11,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional, Tuple"
+        },
+        {
+          "line": 7,
+          "module": "os",
+          "name": "os",
+          "full_import": "import os"
+        },
+        {
+          "line": 10,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional"
+        },
+        {
+          "line": 10,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Callable, Dict, List, Optional"
+        },
+        {
+          "line": 16,
+          "module": "dataclasses",
+          "name": "dataclass,",
+          "full_import": "from dataclasses import dataclass, field"
+        },
+        {
+          "line": 17,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Callable, Dict, List, Optional"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Callable, Dict, List"
+        },
+        {
+          "line": 9,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Tuple"
+        },
+        {
+          "line": 11,
+          "module": "simulation.managers.base_manager",
+          "name": "BaseManager,",
+          "full_import": "from simulation.managers.base_manager import BaseManager, ManagerType"
+        },
+        {
+          "line": 12,
+          "module": "simulation.schemas",
+          "name": "EnhancedPhysicsData,",
+          "full_import": "from simulation.schemas import EnhancedPhysicsData, FloaterPhysicsData, FloaterState, PhysicsResults"
+        },
+        {
+          "line": 7,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict"
+        },
+        {
+          "line": 15,
+          "module": ".base_manager",
+          "name": "BaseManager,",
+          "full_import": "from .base_manager import BaseManager, ManagerType"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 7,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, Optional"
+        },
+        {
+          "line": 9,
+          "module": "..schemas",
+          "name": "EnergyLossData,",
+          "full_import": "from ..schemas import EnergyLossData, PerformanceMetrics, PhysicsResults, SimulationState, SystemResults, SystemState"
+        },
+        {
+          "line": 10,
+          "module": ".base_manager",
+          "name": "BaseManager,",
+          "full_import": "from .base_manager import BaseManager, ManagerType"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 7,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List"
+        },
+        {
+          "line": 9,
+          "module": ".base_manager",
+          "name": "BaseManager,",
+          "full_import": "from .base_manager import BaseManager, ManagerType"
+        },
+        {
+          "line": 6,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 8,
+          "module": "abc",
+          "name": "ABC,",
+          "full_import": "from abc import ABC, abstractmethod"
+        },
+        {
+          "line": 9,
+          "module": "enum",
+          "name": "Enum",
+          "full_import": "from enum import Enum"
+        },
+        {
+          "line": 12,
+          "module": "simulation.schemas",
+          "name": "ComponentStatus,",
+          "full_import": "from simulation.schemas import ComponentStatus, ManagerInterface, SimulationError"
+        },
+        {
+          "line": 8,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 12,
+          "module": "enum",
+          "name": "Enum",
+          "full_import": "from enum import Enum"
+        },
+        {
+          "line": 13,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Callable, Dict, List, Optional"
+        },
+        {
+          "line": 8,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional"
+        },
+        {
+          "line": 6,
+          "module": "dataclasses",
+          "name": "dataclass,",
+          "full_import": "from dataclasses import dataclass, field"
+        },
+        {
+          "line": 6,
+          "module": "typing",
+          "name": "Any,",
+          "full_import": "from typing import Any, Dict, List, Optional"
+        },
+        {
+          "line": 6,
+          "module": "dataclasses",
+          "name": "dataclass,",
+          "full_import": "from dataclasses import dataclass, field"
+        },
+        {
+          "line": 2,
+          "module": "logging",
+          "name": "logging",
+          "full_import": "import logging"
+        },
+        {
+          "line": 7,
+          "module": "flask",
+          "name": "Flask,",
+          "full_import": "from flask import Flask, Response, jsonify, request"
+        },
+        {
+          "line": 8,
+          "module": "flask_cors",
+          "name": "CORS",
+          "full_import": "from flask_cors import CORS"
+        },
+        {
+          "line": 16,
+          "module": "dash_bootstrap_components",
+          "name": "dash_bootstrap_components",
+          "full_import": "import dash_bootstrap_components as dbc"
+        },
+        {
+          "line": 17,
+          "module": "plotly.graph_objs",
+          "name": "plotly.graph_objs",
+          "full_import": "import plotly.graph_objs as go"
+        },
+        {
+          "line": 20,
+          "module": "dash",
+          "name": "Input,",
+          "full_import": "from dash import Input, Output, State, dcc, html"
+        },
+        {
+          "line": 26,
+          "module": "utils.logging_setup",
+          "name": "setup_logging",
+          "full_import": "from utils.logging_setup import setup_logging"
+        },
+        {
+          "line": 36,
+          "module": "requests.adapters",
+          "name": "HTTPAdapter",
+          "full_import": "from requests.adapters import HTTPAdapter"
+        },
+        {
+          "line": 37,
+          "module": "requests.packages.urllib3.util.retry",
+          "name": "Retry",
+          "full_import": "from requests.packages.urllib3.util.retry import Retry"
+        },
+        {
+          "line": 71,
+          "module": "threading",
+          "name": "Lock",
+          "full_import": "from threading import Lock"
+        },
+        {
+          "line": 20,
+          "module": "fastapi",
+          "name": "FastAPI,",
+          "full_import": "from fastapi import FastAPI, WebSocket, WebSocketDisconnect"
+        }
+      ],
+      "total_imports": 613,
+      "unused_ratio": 0.2169657422512235
+    }
+  },
+  "summary": {
+    "total_issues": 0,
+    "critical_issues": 51,
+    "formatting_issues": 2,
+    "quality_score": 0.0,
+    "analysis_timestamp": "2025-07-06T12:43:17.076240"
+  },
+  "issues": [],
+  "recommendations": [
+    "Run 'black' to format code consistently",
+    "Run 'autopep8' to fix PEP 8 violations",
+    "Refactor 51 complex functions",
+    "Remove 133 unused imports"
+  ]
+}
