@@ -12,6 +12,57 @@ logger = logging.getLogger(__name__)
 
 class ConfigValidator:
     """Configuration validation utilities"""
+    
+    def __init__(self):
+        """Initialize validator with error tracking"""
+        self.errors = []
+        self.warnings = []
+    
+    def check_positive_int(self, value: int, name: str) -> bool:
+        """Check if value is a positive integer"""
+        if not isinstance(value, int) or value <= 0:
+            self.add_error(f"{name} must be a positive integer, got {value}")
+            return False
+        return True
+    
+    def check_positive_float(self, value: float, name: str) -> bool:
+        """Check if value is a positive float"""
+        if not isinstance(value, (int, float)) or value <= 0:
+            self.add_error(f"{name} must be a positive number, got {value}")
+            return False
+        return True
+    
+    def check_range(self, value: float, min_val: float, max_val: float, name: str) -> bool:
+        """Check if value is within specified range"""
+        if not isinstance(value, (int, float)) or value < min_val or value > max_val:
+            self.add_error(f"{name} must be between {min_val} and {max_val}, got {value}")
+            return False
+        return True
+    
+    def add_error(self, error: str) -> None:
+        """Add an error to the validation results"""
+        self.errors.append(error)
+    
+    def add_warning(self, warning: str) -> None:
+        """Add a warning to the validation results"""
+        self.warnings.append(warning)
+    
+    def is_valid(self) -> bool:
+        """Check if validation passed (no errors)"""
+        return len(self.errors) == 0
+    
+    def get_errors(self) -> List[str]:
+        """Get list of validation errors"""
+        return self.errors.copy()
+    
+    def get_validation_warnings(self) -> List[str]:
+        """Get list of validation warnings"""
+        return self.warnings.copy()
+    
+    def reset(self) -> None:
+        """Reset validator state"""
+        self.errors.clear()
+        self.warnings.clear()
 
     @staticmethod
     def validate_physics_constraints(config: Dict[str, Any]) -> List[str]:

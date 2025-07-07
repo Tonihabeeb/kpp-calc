@@ -41,7 +41,10 @@ class LegacyFloaterConfig:
 
 
 # Type alias for backward compatibility
-FloaterConfig = Union[NewFloaterConfig, LegacyFloaterConfig] if NEW_CONFIG_AVAILABLE else LegacyFloaterConfig
+if NEW_CONFIG_AVAILABLE:
+    FloaterConfig = Union[NewFloaterConfig, LegacyFloaterConfig]
+else:
+    FloaterConfig = LegacyFloaterConfig
 
 
 class Floater:
@@ -50,9 +53,9 @@ class Floater:
     Coordinates pneumatic, buoyancy, thermal, and state machine components.
     """
 
-    def __init__(self, config: FloaterConfig):
+    def __init__(self, config: Any):
         # PHASE 2: Handle both new and legacy configuration formats
-        self.using_new_config = NEW_CONFIG_AVAILABLE and isinstance(config, NewFloaterConfig)
+        self.using_new_config = NEW_CONFIG_AVAILABLE and NewFloaterConfig is not None and isinstance(config, NewFloaterConfig)
 
         if self.using_new_config:
             logger.info("Using new configuration system for floater")
@@ -276,10 +279,11 @@ class Floater:
 
         # Thermal expansion effects on buoyancy
         if hasattr(self, "thermal_model") and self.thermal_model:
-            thermal_enhancement = self.thermal_model.calculate_thermal_buoyancy_enhancement(
-                base_buoyancy, self.position
-            )
-            enhanced_buoyancy = thermal_enhancement
+            thermal_method = getattr(self.thermal_model, "calculate_thermal_buoyancy_enhancement", None)
+            if thermal_method:
+                enhanced_buoyancy = thermal_method(base_buoyancy, self.position)
+            else:
+                enhanced_buoyancy = base_buoyancy
         else:
             enhanced_buoyancy = base_buoyancy
 
@@ -373,8 +377,9 @@ class Floater:
 
     def start_filling(self) -> None:
         """Start filling the floater with air (backward compatibility)"""
-        if hasattr(self.pneumatic, "start_filling"):
-            self.pneumatic.start_filling()
+        start_method = getattr(self.pneumatic, "start_filling", None)
+        if start_method:
+            start_method()
         else:
             # Legacy compatibility - set fill state
             self.pneumatic.state.fill_state = "filling"
@@ -477,3 +482,38 @@ class Floater:
             elif value.upper() in ["FILLING"]:
                 self.pneumatic.state.fill_state = "filling"
             logger.debug(f"Floater state set to {value}")
+
+    def pivot(self) -> None:
+        """Handle floater pivot at sprocket crossing"""
+        # Reset pneumatic state for new cycle
+        reset_method = getattr(self.pneumatic, "reset_cycle", None)
+        if reset_method:
+            reset_method()
+        # Update state machine
+        set_state_method = getattr(self.state_machine, "set_state", None)
+        if set_state_method:
+            set_state_method("pivoting")
+        logger.debug("Floater pivot executed")
+
+    def drain_water(self) -> None:
+        """Drain water from floater"""
+        # Reset fill state
+        if hasattr(self.pneumatic, "state"):
+            self.pneumatic.state.fill_state = "empty"
+            self.pneumatic.state.air_fill_level = 0.0
+            # fill_progress is handled by air_fill_level in the pneumatic state
+        # Update state machine
+        set_state_method = getattr(self.state_machine, "set_state", None)
+        if set_state_method:
+            set_state_method("draining")
+        logger.debug("Floater water drainage completed")
+
+    def emergency_vent(self) -> None:
+        """Emergency vent all air from floater"""
+        emergency_method = getattr(self.pneumatic, "emergency_vent", None)
+        if emergency_method:
+            emergency_method()
+        set_state_method = getattr(self.state_machine, "set_state", None)
+        if set_state_method:
+            set_state_method("emergency")
+        logger.warning("Floater emergency vent activated")

@@ -38,7 +38,7 @@ from simulation.managers.state_manager import StateManager
 from simulation.managers.thread_safe_engine import ThreadSafeEngine
 
 # Enhanced parameter validation
-from config.parameter_schema import validate_parameters_batch, get_parameter_constraints, get_default_parameters
+from config.parameter_schema import validate_parameters_batch, get_parameter_constraints, get_default_parameters  # type: ignore
 
 # Initialize state manager and thread-safe engine wrapper
 # Provide robust default parameters for SimulationEngine initialization

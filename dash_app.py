@@ -34,7 +34,7 @@ setup_logging()
 # ADDED: Connection pooling and request management to fix ERR_INSUFFICIENT_RESOURCES
 import requests
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from urllib3.util.retry import Retry
 
 
 # Create a session with connection pooling and limits
@@ -186,6 +186,10 @@ class SynchronizedDataManager:
     async def listen_for_frames(self):
         """Listen for synchronized frames from master clock"""
         try:
+            if self.connection is None:
+                logging.error("No connection available")
+                return
+                
             async for message in self.connection:
                 frame_data = json.loads(message)
 
@@ -260,7 +264,7 @@ def initialize_simulation():
     try:
         # Create a data queue for the simulation engine
         data_queue = queue.Queue()
-        sim_engine = SimulationEngine(default_params, data_queue)
+        sim_engine = SimulationEngine(data_queue, default_params)
         sim_engine.reset()
         logging.info("Simulation engine initialized successfully")
         return True

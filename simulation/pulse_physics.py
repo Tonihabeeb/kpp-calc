@@ -233,14 +233,12 @@ class PulsePhysics:
         # Chain speed limit: based on centrifugal force limits and chain strength
         if self.omega_chain > self.max_chain_omega:
             # Mechanical failure protection - chain breaks or slips
-            self.omega_chain - self.max_chain_omega
             self.omega_chain = self.max_chain_omega
             # Energy dissipation due to mechanical limiting (realistic)
 
         # Generator speed limit: based on bearing limits and electrical constraints
         if self.omega_flywheel > self.max_generator_omega:
             # Generator protection - electrical braking or mechanical governor
-            self.omega_flywheel - self.max_generator_omega
             self.omega_flywheel = self.max_generator_omega
             # Additional braking torque applied (realistic governor action)
 

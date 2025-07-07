@@ -7,7 +7,7 @@ import logging
 import math
 from typing import Any, Dict, List, Optional, Tuple
 
-from ..schemas import PhysicsResults, FloaterPhysicsData, EnhancedPhysicsData
+from ..schemas import PhysicsResults, FloaterPhysicsData, EnhancedPhysicsData, FloaterState
 from ..managers.physics_manager import PhysicsManager
 
 logger = logging.getLogger(__name__)
@@ -345,7 +345,7 @@ class PhysicsEngine:
                             drag_force=abs(floater.compute_drag_force()) if hasattr(floater, 'compute_drag_force') else 0.0,
                             pulse_force=floater.compute_pulse_jet_force() if hasattr(floater, 'compute_pulse_jet_force') else 0.0,
                             net_force=getattr(floater, 'force', 0.0),
-                            state="unknown",
+                            state=FloaterState.EMPTY,
                             fill_progress=getattr(floater, 'fill_progress', 0.0),
                             is_filled=getattr(floater, 'is_filled', False),
                         )

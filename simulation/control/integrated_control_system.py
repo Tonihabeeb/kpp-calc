@@ -17,11 +17,12 @@ from .timing_controller import TimingController
 
 # Import new config system with backward compatibility
 try:
-    from config import ControlSystemConfig
+    from config.components.control_config import ControlConfig as ControlSystemConfig
 
     NEW_CONFIG_AVAILABLE = True
 except ImportError:
     NEW_CONFIG_AVAILABLE = False
+    ControlSystemConfig = None
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,16 @@ class LegacyControlSystemConfig:
     emergency_response_enabled: bool = True
     adaptive_control_enabled: bool = True
 
+    @property
+    def load_manager(self):
+        """Compatibility property for accessing load manager config"""
+        class LoadManagerConfig:
+            def __init__(self, parent):
+                self.target_power = parent.target_power
+                self.power_tolerance = parent.power_tolerance
+                self.max_ramp_rate = parent.max_ramp_rate
+        return LoadManagerConfig(self)
+
 
 class IntegratedControlSystem:
     """
@@ -71,7 +82,7 @@ class IntegratedControlSystem:
     coordinated response to system conditions.
     """
 
-    def __init__(self, config: Union[ControlSystemConfig, "LegacyControlSystemConfig"]):
+    def __init__(self, config: Any):
         """
         Initialize integrated control system.
 
@@ -81,14 +92,14 @@ class IntegratedControlSystem:
         self.config = config
 
         # Handle both new and legacy config formats
-        if NEW_CONFIG_AVAILABLE and isinstance(config, ControlSystemConfig):
+        if NEW_CONFIG_AVAILABLE and ControlSystemConfig is not None and isinstance(config, ControlSystemConfig):
             # New config format
             self._init_with_new_config(config)
         else:
             # Legacy config format
             self._init_with_legacy_config(config)
 
-    def _init_with_new_config(self, config: ControlSystemConfig):
+    def _init_with_new_config(self, config: Any):
         """Initialize with new config format"""
         # Initialize control components
         self.timing_controller = TimingController(
@@ -760,7 +771,7 @@ def create_standard_kpp_control_system(
         Configured IntegratedControlSystem
     """
 
-    if NEW_CONFIG_AVAILABLE and use_new_config:
+    if NEW_CONFIG_AVAILABLE and use_new_config and ControlSystemConfig is not None:
         # Use new config system
         config = ControlSystemConfig()
 

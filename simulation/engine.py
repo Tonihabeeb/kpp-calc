@@ -97,7 +97,7 @@ class SimulationEngine:
         self.pneumatic_performance_analyzer: Optional[Any] = None
         
         # Initialize configs with defaults
-        self.floater_config: Optional[FloaterConfig] = None
+        self.floater_config: Optional[Any] = None
         self.electrical_config: Optional[Any] = None  # ElectricalConfig
         self.drivetrain_config: Optional[Any] = None  # DrivetrainConfig
         self.control_config: Optional[Any] = None  # ControlConfig
@@ -590,12 +590,12 @@ class SimulationEngine:
 
             # Detect top sprocket crossing (180° pivot)
             if prev_theta % (2 * math.pi) < math.pi and new_theta % (2 * math.pi) >= math.pi:
-                floater.pivot()
+                floater.pivot()  # type: ignore
 
             # Detect bottom sprocket crossing (360° pivot + water drainage)
             if prev_theta < 2 * math.pi and new_theta >= 2 * math.pi:
-                floater.pivot()
-                floater.drain_water()
+                floater.pivot()  # type: ignore
+                floater.drain_water()  # type: ignore
                 floater.is_filled = False
                 floater.fill_progress = 0.0
                 # Trigger air injection after drainage
@@ -1208,8 +1208,8 @@ class SimulationEngine:
             "total_physics_enhancement": total_enhancement,
             "base_buoyant_force": base_buoy,
             "h1_enhanced_force": thermal_buoy,
-            "fluid_properties": self.fluid_system.get_fluid_properties(),
-            "thermal_properties": self.thermal_model.get_thermal_properties(),
+            "fluid_properties": self.fluid_system.get_fluid_properties() if self.fluid_system else {},
+            "thermal_properties": self.thermal_model.get_thermal_properties() if self.thermal_model else {},
         }
 
     def get_latest_state(self):
@@ -1236,13 +1236,21 @@ class SimulationEngine:
 
         # Add component-specific parameters
         if self.floater_config is not None:
-            params["floater"] = getattr(self.floater_config, "to_dict", None)()
+            to_dict_method = getattr(self.floater_config, "to_dict", None)
+            if to_dict_method:
+                params["floater"] = to_dict_method()
         if self.electrical_config is not None:
-            params["electrical"] = getattr(self.electrical_config, "to_dict", None)()
+            to_dict_method = getattr(self.electrical_config, "to_dict", None)
+            if to_dict_method:
+                params["electrical"] = to_dict_method()
         if self.drivetrain_config is not None:
-            params["integrated_drivetrain"] = getattr(self.drivetrain_config, "to_dict", None)()
+            to_dict_method = getattr(self.drivetrain_config, "to_dict", None)
+            if to_dict_method:
+                params["integrated_drivetrain"] = to_dict_method()
         if self.control_config is not None:
-            params["control"] = getattr(self.control_config, "to_dict", None)()
+            to_dict_method = getattr(self.control_config, "to_dict", None)
+            if to_dict_method:
+                params["control"] = to_dict_method()
 
         return params
 
@@ -1325,12 +1333,16 @@ class SimulationEngine:
 
         # Initialize integrated systems with new configs
         if self.drivetrain_config is not None:
-            self.integrated_drivetrain = create_standard_kpp_drivetrain(getattr(self.drivetrain_config, "to_dict", None)())
+            to_dict_method = getattr(self.drivetrain_config, "to_dict", None)
+            config_dict = to_dict_method() if to_dict_method else {}
+            self.integrated_drivetrain = create_standard_kpp_drivetrain(config_dict)
         else:
             self.integrated_drivetrain = create_standard_kpp_drivetrain({})
 
         if self.electrical_config is not None:
-            self.integrated_electrical_system = create_standard_kmp_electrical_system(getattr(self.electrical_config, "to_dict", None)())
+            to_dict_method = getattr(self.electrical_config, "to_dict", None)
+            config_dict = to_dict_method() if to_dict_method else {}
+            self.integrated_electrical_system = create_standard_kmp_electrical_system(config_dict)
         else:
             self.integrated_electrical_system = create_standard_kmp_electrical_system({})
 
@@ -1467,10 +1479,10 @@ class SimulationEngine:
             simulation=self,
             floaters=self.floaters,
             pneumatic=self.pneumatics,
-            target_rpm=getattr(self.control_config, "target_rpm", None) if hasattr(self.control_config, "target_rpm") else 375.0,
-            Kp=getattr(self.control_config, "kp", None) if hasattr(self.control_config, "kp") else 1.0,
-            Ki=getattr(self.control_config, "ki", None) if hasattr(self.control_config, "ki") else 0.0,
-            Kd=getattr(self.control_config, "kd", None) if hasattr(self.control_config, "kd") else 0.0,
+            target_rpm=getattr(self.control_config, "target_rpm", 375.0) if self.control_config else 375.0,
+            Kp=getattr(self.control_config, "kp", 1.0) if self.control_config else 1.0,
+            Ki=getattr(self.control_config, "ki", 0.0) if self.control_config else 0.0,
+            Kd=getattr(self.control_config, "kd", 0.0) if self.control_config else 0.0,
         )
 
         # Initialize enhanced loss model (Phase 5)

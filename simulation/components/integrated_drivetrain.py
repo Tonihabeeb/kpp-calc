@@ -24,7 +24,10 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 # Type alias for backward compatibility
-DrivetrainConfigType = Union[NewDrivetrainConfig, Dict[str, Any]] if NEW_CONFIG_AVAILABLE else Dict[str, Any]
+if NEW_CONFIG_AVAILABLE and NewDrivetrainConfig is not None:
+    DrivetrainConfigType = Union[NewDrivetrainConfig, Dict[str, Any]]
+else:
+    DrivetrainConfigType = Dict[str, Any]
 
 
 class IntegratedDrivetrain:
@@ -33,22 +36,22 @@ class IntegratedDrivetrain:
     from chain tension input to generator output.
     """
 
-    def __init__(self, config: Optional[DrivetrainConfigType] = None):
+    def __init__(self, config: Optional[Any] = None):
         """
         Initialize the integrated integrated_drivetrain system.
 
         Args:
             config (dict or DrivetrainConfig): Configuration parameters for all components
         """
-        self.using_new_config = NEW_CONFIG_AVAILABLE and hasattr(config, "to_dict")
+        self.using_new_config = NEW_CONFIG_AVAILABLE and config is not None and hasattr(config, "to_dict")
         if config is None:
             config = {}
-        if self.using_new_config:
+        if self.using_new_config and hasattr(config, "to_dict"):
             logger.info("Using new configuration system for integrated_drivetrain")
             config_dict = config.to_dict()
         else:
             logger.info("Using legacy configuration system for integrated_drivetrain")
-            config_dict = dict(config)
+            config_dict = config if isinstance(config, dict) else {}
 
         # Initialize all integrated_drivetrain components
         self.top_sprocket = Sprocket(
@@ -338,7 +341,7 @@ class IntegratedDrivetrain:
 
 
 def create_standard_kpp_drivetrain(
-    config: Optional[DrivetrainConfigType] = None,
+    config: Optional[Any] = None,
 ) -> IntegratedDrivetrain:
     """
     Create a standard KPP integrated_drivetrain configuration based on the technical specifications.

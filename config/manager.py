@@ -9,14 +9,60 @@ from typing import Any, Dict, List, Optional
 
 # Optional watchdog import for hot-reload functionality
 try:
-    from watchdog.events import FileSystemEventHandler
-    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler  # type: ignore
+    from watchdog.observers import Observer  # type: ignore
 
     WATCHDOG_AVAILABLE = True
+    FileSystemEventHandlerBase = FileSystemEventHandler
+    ObserverClass = Observer
+                
 except ImportError:
     WATCHDOG_AVAILABLE = False
-    Observer = None
-    FileSystemEventHandler = None
+    # Create dummy base classes when watchdog is not available
+    class FileSystemEventHandlerBase:
+        """Dummy base class when watchdog is not available"""
+        def __init__(self):
+            pass
+    
+    class ObserverClass:
+        """Dummy observer class when watchdog is not available"""
+        def __init__(self):
+            pass
+        
+        def schedule(self, *args, **kwargs):
+            pass
+        
+        def start(self):
+            pass
+        
+        def stop(self):
+            pass
+        
+        def join(self):
+            pass
+
+
+# Ensure FileSystemEventHandlerBase is always available
+if not WATCHDOG_AVAILABLE:
+    # FileSystemEventHandlerBase is already defined in the except block
+    pass
+else:
+    # When watchdog is available, FileSystemEventHandlerBase is already set to FileSystemEventHandler
+    pass
+
+
+class ConfigFileHandler(FileSystemEventHandlerBase):  # type: ignore
+    """File system event handler for configuration hot-reload"""
+
+    def __init__(self, config_manager: "ConfigManager"):
+        super().__init__()
+        self.config_manager = config_manager
+
+    def on_modified(self, event):
+        """Handle file modification events"""
+        if WATCHDOG_AVAILABLE and not event.is_directory and event.src_path.endswith(".json"):
+            logger.info(f"Configuration file modified: {event.src_path}")
+            self.config_manager.reload_config()
 
 from .components.control_config import ControlConfig
 from .components.drivetrain_config import DrivetrainConfig
@@ -26,28 +72,6 @@ from .components.simulation_config import SimulationConfig
 from .core.validation import ConfigValidator
 
 logger = logging.getLogger(__name__)
-
-if WATCHDOG_AVAILABLE:
-
-    class ConfigFileHandler(FileSystemEventHandler):
-        """File system event handler for configuration hot-reload"""
-
-        def __init__(self, config_manager: "ConfigManager"):
-            self.config_manager = config_manager
-
-        def on_modified(self, event):
-            """Handle file modification events"""
-            if not event.is_directory and event.src_path.endswith(".json"):
-                logger.info(f"Configuration file modified: {event.src_path}")
-                self.config_manager.reload_config()
-
-else:
-
-    class ConfigFileHandler:
-        """Dummy file handler when watchdog is not available"""
-
-        def __init__(self, config_manager: "ConfigManager"):
-            self.config_manager = config_manager
 
 
 class ConfigManager:
@@ -65,6 +89,10 @@ class ConfigManager:
         self.electrical_config = None
         self.drivetrain_config = None
         self.control_config = None
+        
+        # Initialize hot-reload attributes
+        self.observer = None
+        self.file_handler = None
 
         # Load configuration
         self.load_default_config()
@@ -128,13 +156,28 @@ class ConfigManager:
         config_file = self.config_dir / f"{config_name}.json"
 
         try:
-            config_data = {
-                "simulation": getattr(self.simulation_config, "to_dict", None)() if self.simulation_config else {},
-                "floater": getattr(self.floater_config, "to_dict", None)() if self.floater_config else {},
-                "electrical": getattr(self.electrical_config, "to_dict", None)() if self.electrical_config else {},
-                "integrated_drivetrain": getattr(self.drivetrain_config, "to_dict", None)() if self.drivetrain_config else {},
-                "control": getattr(self.control_config, "to_dict", None)() if self.control_config else {},
-            }
+            config_data = {}
+            
+            # Safely get config data with null checks
+            if self.simulation_config:
+                to_dict_method = getattr(self.simulation_config, "to_dict", None)
+                config_data["simulation"] = to_dict_method() if to_dict_method else {}
+            
+            if self.floater_config:
+                to_dict_method = getattr(self.floater_config, "to_dict", None)
+                config_data["floater"] = to_dict_method() if to_dict_method else {}
+            
+            if self.electrical_config:
+                to_dict_method = getattr(self.electrical_config, "to_dict", None)
+                config_data["electrical"] = to_dict_method() if to_dict_method else {}
+            
+            if self.drivetrain_config:
+                to_dict_method = getattr(self.drivetrain_config, "to_dict", None)
+                config_data["integrated_drivetrain"] = to_dict_method() if to_dict_method else {}
+            
+            if self.control_config:
+                to_dict_method = getattr(self.control_config, "to_dict", None)
+                config_data["control"] = to_dict_method() if to_dict_method else {}
 
             with open(config_file, "w") as f:
                 json.dump(config_data, f, indent=2)
@@ -182,19 +225,29 @@ class ConfigManager:
         combined = {}
 
         if self.simulation_config:
-            combined.update(getattr(self.simulation_config, "to_dict", None)())
+            to_dict_method = getattr(self.simulation_config, "to_dict", None)
+            if to_dict_method:
+                combined.update(to_dict_method())
 
         if self.floater_config:
-            combined.update(getattr(self.floater_config, "to_dict", None)())
+            to_dict_method = getattr(self.floater_config, "to_dict", None)
+            if to_dict_method:
+                combined.update(to_dict_method())
 
         if self.electrical_config:
-            combined.update(getattr(self.electrical_config, "to_dict", None)())
+            to_dict_method = getattr(self.electrical_config, "to_dict", None)
+            if to_dict_method:
+                combined.update(to_dict_method())
 
         if self.drivetrain_config:
-            combined.update(getattr(self.drivetrain_config, "to_dict", None)())
+            to_dict_method = getattr(self.drivetrain_config, "to_dict", None)
+            if to_dict_method:
+                combined.update(to_dict_method())
 
         if self.control_config:
-            combined.update(getattr(self.control_config, "to_dict", None)())
+            to_dict_method = getattr(self.control_config, "to_dict", None)
+            if to_dict_method:
+                combined.update(to_dict_method())
 
         return combined
 
@@ -210,7 +263,7 @@ class ConfigManager:
             return
 
         if self.observer is None:
-            self.observer = Observer()
+            self.observer = ObserverClass()
             self.file_handler = ConfigFileHandler(self)
             self.observer.schedule(self.file_handler, str(self.config_dir), recursive=False)
             self.observer.start()
@@ -257,7 +310,13 @@ class ConfigManager:
             return False
 
         try:
-            config.update(**kwargs)
+            if hasattr(config, 'update'):
+                config.update(**kwargs)
+            else:
+                # Fallback for configs without update method
+                for key, value in kwargs.items():
+                    if hasattr(config, key):
+                        setattr(config, key, value)
             return self.validate_all_configs()
         except Exception as e:
             logger.error(f"Error updating {component} configuration: {e}")
@@ -282,10 +341,26 @@ class ConfigManager:
 
     def get_all_parameters(self) -> dict:
         """Return all configuration parameters as a dictionary."""
-        return {
-            "simulation": getattr(self.simulation_config, "to_dict", None)() if self.simulation_config else {},
-            "floater": getattr(self.floater_config, "to_dict", None)() if self.floater_config else {},
-            "electrical": getattr(self.electrical_config, "to_dict", None)() if self.electrical_config else {},
-            "integrated_drivetrain": getattr(self.drivetrain_config, "to_dict", None)() if self.drivetrain_config else {},
-            "control": getattr(self.control_config, "to_dict", None)() if self.control_config else {},
-        }
+        result = {}
+        
+        if self.simulation_config:
+            to_dict_method = getattr(self.simulation_config, "to_dict", None)
+            result["simulation"] = to_dict_method() if to_dict_method else {}
+        
+        if self.floater_config:
+            to_dict_method = getattr(self.floater_config, "to_dict", None)
+            result["floater"] = to_dict_method() if to_dict_method else {}
+        
+        if self.electrical_config:
+            to_dict_method = getattr(self.electrical_config, "to_dict", None)
+            result["electrical"] = to_dict_method() if to_dict_method else {}
+        
+        if self.drivetrain_config:
+            to_dict_method = getattr(self.drivetrain_config, "to_dict", None)
+            result["integrated_drivetrain"] = to_dict_method() if to_dict_method else {}
+        
+        if self.control_config:
+            to_dict_method = getattr(self.control_config, "to_dict", None)
+            result["control"] = to_dict_method() if to_dict_method else {}
+        
+        return result

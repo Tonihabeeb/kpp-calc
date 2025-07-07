@@ -211,7 +211,7 @@ class AirReleasePhysics:
 
         # Account for bubble dissolution during rise
         dissolution_factor = math.exp(-self.air_dissolution_rate * escape_time)
-        bubble_volume * dissolution_factor
+        remaining_bubble_volume = bubble_volume * dissolution_factor
 
         logger.debug(f"Bubble escape: {escape_time:.1f}s, " f"volume loss: {(1-dissolution_factor)*100:.1f}%")
 

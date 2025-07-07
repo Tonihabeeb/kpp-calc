@@ -166,12 +166,24 @@ class ControlSystemConfig(BaseConfig):
         grid_stability_data = data.get("grid_stability", {})
         fault_detector_data = data.get("fault_detector", {})
 
+        # Handle control_priority_weights with default fallback
+        control_priority_weights = data.get("control_priority_weights")
+        if control_priority_weights is None:
+            control_priority_weights = {
+                "safety": 1.0,
+                "fault_response": 0.9,
+                "grid_stability": 0.8,
+                "load_management": 0.7,
+                "timing_optimization": 0.6,
+                "efficiency_optimization": 0.5,
+            }
+        
         return cls(
             timing=TimingControllerConfig.from_dict(timing_data),
             load_manager=LoadManagerConfig.from_dict(load_manager_data),
             grid_stability=GridStabilityConfig.from_dict(grid_stability_data),
             fault_detector=FaultDetectorConfig.from_dict(fault_detector_data),
-            control_priority_weights=data.get("control_priority_weights"),
+            control_priority_weights=control_priority_weights,
             emergency_response_enabled=data.get("emergency_response_enabled", True),
             adaptive_control_enabled=data.get("adaptive_control_enabled", True),
         )

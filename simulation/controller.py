@@ -9,6 +9,7 @@ from simulation.components.control import Control
 from simulation.components.integrated_drivetrain import create_standard_kpp_drivetrain
 from simulation.components.environment import Environment
 from simulation.components.floater import Floater
+from simulation.components.floater.core import LegacyFloaterConfig
 from simulation.components.pneumatics import PneumaticSystem
 from simulation.components.position_sensor import PositionSensor
 from simulation.components.sensors import Sensors
@@ -40,12 +41,13 @@ class SimulatorController:
         )
         self.floaters = [
             Floater(
-                volume=params.get("floater_volume", 0.3),
-                mass=params.get("floater_mass_empty", 18.0),
-                area=params.get("floater_area", 0.035),
-                drag_coefficient=params.get("drag_coefficient", 0.8),
-                position=(i * params.get("water_depth", 10.0) / params.get("num_floaters", 8))
-                % params.get("water_depth", 10.0),
+                config=LegacyFloaterConfig(
+                    volume=params.get("floater_volume", 0.3),
+                    mass=params.get("floater_mass_empty", 18.0),
+                    area=params.get("floater_area", 0.035),
+                    drag_coefficient=params.get("drag_coefficient", 0.8),
+                    tank_height=params.get("water_depth", 10.0),
+                )
             )
             for i in range(params.get("num_floaters", 8))
         ]

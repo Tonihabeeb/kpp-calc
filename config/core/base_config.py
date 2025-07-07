@@ -18,6 +18,18 @@ class BaseConfig:
         """Convert configuration to dictionary"""
         return asdict(self)
 
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        """Create configuration from dictionary"""
+        # Filter data to only include fields that exist in the dataclass
+        if hasattr(cls, '__dataclass_fields__'):
+            field_names = set(cls.__dataclass_fields__.keys())
+            filtered_data = {k: v for k, v in data.items() if k in field_names}
+            return cls(**filtered_data)
+        else:
+            # Fallback for non-dataclass cases
+            return cls(**data)
+
     def update(self, **kwargs) -> None:
         """Update configuration with new values"""
         for key, value in kwargs.items():

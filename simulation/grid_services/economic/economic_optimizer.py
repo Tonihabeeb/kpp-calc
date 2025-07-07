@@ -423,7 +423,7 @@ class EconomicOptimizer:
         ]
 
         # Reserve minimum capacity for grid support
-        total_capacity * self.constraints.min_grid_support
+        grid_support_reserve = total_capacity * self.constraints.min_grid_support
 
         for service_type in priority_services:
             if service_type not in service_values:

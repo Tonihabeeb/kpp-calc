@@ -313,7 +313,7 @@ class EnergyAnalyzer:
             EnergyBalance object
         """
         # Calculate efficiencies
-        mechanical_output + heat_losses + venting_losses
+        total_energy_output = mechanical_output + heat_losses + venting_losses
 
         compression_efficiency = pneumatic_storage / electrical_input if electrical_input > 0 else 0.0
         expansion_efficiency = mechanical_output / pneumatic_storage if pneumatic_storage > 0 else 0.0

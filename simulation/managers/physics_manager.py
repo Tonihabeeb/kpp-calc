@@ -75,13 +75,11 @@ class PhysicsManager(BaseManager):
                 self.engine, "generator", getattr(self.engine, "integrated_electrical_system", None)
             ),
             "rpm": (
-                getattr(self.engine, "integrated_drivetrain", getattr(self.engine, "integrated_drivetrain", None)).omega_flywheel
+                getattr(drivetrain_obj, "omega_flywheel", 0.0)
                 * 60
                 / (2 * math.pi)
-                if hasattr(
-                    getattr(self.engine, "integrated_drivetrain", getattr(self.engine, "integrated_drivetrain", None)),
-                    "omega_flywheel",
-                )
+                if (drivetrain_obj := getattr(self.engine, "integrated_drivetrain", None)) is not None
+                and hasattr(drivetrain_obj, "omega_flywheel")
                 else 0.0
             ),
             "efficiency": getattr(self.engine, "generator", getattr(self.engine, "integrated_electrical_system", None)),
@@ -230,6 +228,12 @@ class PhysicsManager(BaseManager):
         Returns:
             Tuple of (enhanced_buoyancy, nanobubble_state)
         """
+        # Define nanobubble state class
+        class NanobubbleState:
+            def __init__(self, active, drag_reduction):
+                self.active = active
+                self.drag_reduction = drag_reduction
+
         # Get H1 configuration parameters
         h1_active = self.get_config_param("h1_nanobubbles_active", False)
         h1_enhancement_factor = self.get_config_param("h1_enhancement_factor", 1.2)
@@ -237,22 +241,12 @@ class PhysicsManager(BaseManager):
 
         if not h1_active:
             # Return base buoyancy with no enhancement
-            class NanobubbleState:
-                def __init__(self, active, drag_reduction):
-                    self.active = active
-                    self.drag_reduction = drag_reduction
-
             return base_buoyancy, NanobubbleState(active=False, drag_reduction=0.0)
 
         # Apply nanobubble enhancement
         enhanced_buoyancy = base_buoyancy * h1_enhancement_factor
 
         # Create nanobubble state for drag calculations
-        class NanobubbleState:
-            def __init__(self, active, drag_reduction):
-                self.active = active
-                self.drag_reduction = drag_reduction
-
         return enhanced_buoyancy, NanobubbleState(active=True, drag_reduction=h1_drag_reduction)
 
     def _apply_h2_thermal_physics(self, base_buoyancy: float, is_ascending: bool, y: float, dt: float) -> float:

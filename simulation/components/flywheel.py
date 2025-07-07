@@ -316,7 +316,7 @@ class Flywheel:
             # Track release efficiency
             # Real flywheels have some losses during energy extraction
             release_efficiency = 0.95  # 95% efficiency during extraction
-            abs(energy_change) * release_efficiency
+            effective_energy_released = abs(energy_change) * release_efficiency
 
             logger.debug(f"Energy released: {abs(energy_change):.1f}J, efficiency: {release_efficiency:.1%}")
 

@@ -64,6 +64,10 @@ class SynchronizedKPPFetcher:
     async def listen_for_frames(self):
         """Listen for synchronized frames from master clock"""
         try:
+            if self.master_clock_connection is None:
+                logging.error("No master clock connection available")
+                return
+                
             async for message in self.master_clock_connection:
                 frame_data = json.loads(message)
 

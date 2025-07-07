@@ -190,7 +190,7 @@ class PneumaticSystem:
             temp_ratio = air_temperature / water_temperature
 
             # Pressure at depth
-            101325.0 + 1000 * 9.81 * depth
+            pressure_at_depth = 101325.0 + 1000 * 9.81 * depth
 
             # Thermal expansion effect on buoyancy
             thermal_expansion_factor = (temp_ratio - 1.0) * 0.1  # Simplified model

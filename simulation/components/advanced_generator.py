@@ -615,7 +615,7 @@ class AdvancedGenerator:
         return foc_torque
 
     def set_foc_parameters(
-        self, torque_kp: float = None, torque_ki: float = None, flux_kp: float = None, flux_ki: float = None
+        self, torque_kp: Optional[float] = None, torque_ki: Optional[float] = None, flux_kp: Optional[float] = None, flux_ki: Optional[float] = None
     ):
         """
         Set FOC controller parameters for tuning.

@@ -29,7 +29,7 @@ class ThreadSafeEngine:
             state_manager: Optional state manager for logging
         """
         self.engine_factory = engine_factory
-        self.state_manager = state_manager or StateManager()
+        self.state_manager = state_manager or StateManager(None)  # Pass None as engine placeholder
         self.performance_monitor = PerformanceMonitor()
         self.engine_lock = threading.RLock()
         self._engine = None
@@ -111,7 +111,9 @@ class ThreadSafeEngine:
 
                 # Log state if state manager is available
                 if self.state_manager and isinstance(result, dict):
-                    self.state_manager.add_state(result)
+                    add_state_method = getattr(self.state_manager, 'add_state', None)
+                    if add_state_method:
+                        add_state_method(result)
 
                 # Add performance metrics
                 if isinstance(result, dict):
@@ -204,7 +206,9 @@ class ThreadSafeEngine:
             try:
                 self._engine.reset()
                 self._step_count = 0
-                self.state_manager.clear()
+                clear_method = getattr(self.state_manager, 'clear', None)
+                if clear_method:
+                    clear_method()
                 logger.info("Engine reset successfully")
                 return True
             except Exception as e:
