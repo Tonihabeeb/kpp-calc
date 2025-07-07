@@ -14,7 +14,8 @@ class PositionSensor:
         """
         Args:
             position_threshold (float): The position threshold to trigger the sensor.
-            trigger_when (str): Condition for triggering, "above" or "below" the threshold.
+            trigger_when (
+    str): Condition for triggering, "above" or "below" the threshold.
         """
         self.position_threshold = position_threshold
         self.trigger_when = trigger_when
