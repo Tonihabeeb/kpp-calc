@@ -35,7 +35,7 @@ def find_unmatched_docstring():
                     )
                     docstring_start_line = None
 
-    print(f"\nFinal state:")
+    print("\nFinal state:")
     print(f"Total quotes: {quote_count}")
     print(f"In docstring: {in_docstring}")
     if in_docstring:
