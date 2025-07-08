@@ -3,6 +3,10 @@
 flask>=2.3.0
 Flask-SocketIO
 
+# FastAPI for WebSocket server
+fastapi>=0.100.0
+uvicorn>=0.20.0
+
 # Updated to latest versions for React 18 compatibility and to fix deprecation warnings
 dash>=3.1.0
 plotly>=6.2.0

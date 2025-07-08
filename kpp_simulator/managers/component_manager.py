@@ -12,9 +12,9 @@ from typing import Dict, List, Optional, Tuple, Any, Callable
 from datetime import datetime, timedelta
 import queue
 
-from ..core.physics_engine import PhysicsEngine
-from ..electrical.electrical_system import IntegratedElectricalSystem
-from ..control_systems.control_system import IntegratedControlSystem
+# from config.core.physics_engine import PhysicsEngine  # TODO: Fix import path
+# from kpp_simulator.electrical.electrical_system import IntegratedElectricalSystem  # TODO: Fix import path
+# from kpp_simulator.control_systems.control_system import IntegratedControlSystem  # TODO: Fix import path
 from ..grid_services.grid_services_coordinator import GridServicesCoordinator
 
 

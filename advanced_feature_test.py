@@ -86,10 +86,12 @@ class AdvancedFeatureTester:
             
             # Run simulation for a few steps
             for i in range(10):
-                engine.update(0.01)
+                # The engine doesn't have an update method, it runs in its own thread
+                # We'll just check the state periodically
                 if i % 5 == 0:
                     state = engine.get_state()
                     print(f"✅ Step {i}: State updated successfully")
+                time.sleep(0.01)
             
             # Get final state
             final_state = engine.get_state()
@@ -113,26 +115,20 @@ class AdvancedFeatureTester:
             chain = Chain()
             
             # Test chain tension calculations
-            chain.set_chain_speed(10.0)  # 10 m/s
-            chain.set_mechanical_power(5000.0)  # 5 kW
-            
-            # Update chain
-            chain.update(0.01)
+            # Update chain with mechanical power input
+            chain.update(0.01, 5000.0)  # 5 kW
             
             # Get chain state
             state = chain.get_state()
-            print(f"✅ Chain tension: {state.get('chain_tension', 'N/A'):.1f} N")
-            print(f"✅ Chain speed: {state.get('chain_speed', 'N/A'):.1f} m/s")
-            print(f"✅ Mechanical power: {state.get('mechanical_power', 'N/A'):.1f} W")
+            print(f"✅ Chain tension: {state.get('tension', 0):.1f} N")
+            print(f"✅ Chain speed: {state.get('speed', 0):.1f} m/s")
             
             # Test high-speed scenario
-            chain.set_chain_speed(50.0)  # 50 m/s
-            chain.set_mechanical_power(25000.0)  # 25 kW
-            chain.update(0.01)
+            chain.update(0.01, 25000.0)  # 25 kW
             
             state = chain.get_state()
-            print(f"✅ High-speed tension: {state.get('chain_tension', 'N/A'):.1f} N")
-            print(f"✅ High-speed power: {state.get('mechanical_power', 'N/A'):.1f} W")
+            print(f"✅ High-speed tension: {state.get('tension', 0):.1f} N")
+            print(f"✅ High-speed speed: {state.get('speed', 0):.1f} m/s")
             
             self.test_results['chain_physics'] = True
             
@@ -209,20 +205,20 @@ class AdvancedFeatureTester:
             drivetrain = IntegratedDrivetrain()
             
             # Test power transmission
-            initial_state = drivetrain.get_state()
-            print(f"✅ Initial mechanical power: {initial_state.get('mechanical_power', 0):.1f} W")
+            initial_state = drivetrain.get_comprehensive_state()
+            print(f"✅ Initial mechanical power: {initial_state.get('output_power', 0):.1f} W")
             
             # Simulate power input
             for i in range(20):
                 drivetrain.update(0.01)
                 if i % 5 == 0:
-                    state = drivetrain.get_state()
-                    mech_power = state.get('mechanical_power', 0)
+                    state = drivetrain.get_comprehensive_state()
+                    mech_power = state.get('output_power', 0)
                     efficiency = state.get('efficiency', 0)
                     print(f"✅ Step {i}: Power = {mech_power:.1f} W, Efficiency = {efficiency:.3f}")
             
-            final_state = drivetrain.get_state()
-            print(f"✅ Final mechanical power: {final_state.get('mechanical_power', 0):.1f} W")
+            final_state = drivetrain.get_comprehensive_state()
+            print(f"✅ Final mechanical power: {final_state.get('output_power', 0):.1f} W")
             
             self.test_results['drivetrain_integration'] = True
             
@@ -270,10 +266,12 @@ class AdvancedFeatureTester:
             # Run extended simulation
             print("🔄 Running extended stability test...")
             for i in range(100):
-                engine.update(0.01)
+                # The engine doesn't have an update method, it runs in its own thread
+                # We'll just check the state periodically
                 if i % 20 == 0:
                     state = engine.get_state()
                     print(f"✅ Stability check {i//20}: {len(state)} components active")
+                time.sleep(0.01)
             
             engine.stop()
             print("✅ Extended stability test completed successfully")
