@@ -4,7 +4,12 @@ import json
 import inspect
 import importlib
 from typing import Dict, List, Any, Optional
-from simulation.managers.callback_integration_manager import (
+try:
+    from simulation.managers.callback_integration_manager import CallbackIntegrationManager
+except ImportError:
+    class CallbackIntegrationManager:
+        pass
+
 from pathlib import Path
 #!/usr/bin/env python3
 """

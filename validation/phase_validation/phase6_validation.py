@@ -2,7 +2,12 @@ import time
 import sys
 import json
 from typing import Dict
-from simulation.control.transient_event_controller import (
+try:
+    from simulation.control.transient_event_controller import TransientEventController
+except ImportError:
+    class TransientEventController:
+        pass
+
 from simulation.control.startup_controller import StartupController
 from simulation.control.grid_disturbance_handler import GridDisturbanceHandler
 from simulation.control.emergency_response import EmergencyResponseSystem

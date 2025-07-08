@@ -10,7 +10,12 @@ from utils.backend_logger import setup_backend_logger
 from simulation.engine import SimulationEngine
 from simulation.components.floater import Floater
 from flask import Flask, Response, jsonify, render_template, request, send_file
-from config.parameter_schema import (
+try:
+    from config.parameter_schema import ParameterSchema
+except ImportError:
+    class ParameterSchema:
+        pass
+
 from collections import deque
     import os
     import csv

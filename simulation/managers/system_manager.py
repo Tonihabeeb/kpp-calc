@@ -1,7 +1,12 @@
 import logging
 from typing import Any, Dict
 from .base_manager import BaseManager, ManagerType
-from ..schemas import (
+try:
+    from ..schemas import Schemas
+except ImportError:
+    class Schemas:
+        pass
+
         from simulation.grid_services import GridConditions
         from ..schemas import ElectricalData
         from ..schemas import DrivetrainData

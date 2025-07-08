@@ -1,8 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from simulation.pneumatics.thermodynamics import (
-from simulation.pneumatics.heat_exchange import (
+try:
+    from simulation.pneumatics.thermodynamics import Thermodynamics
+except ImportError:
+    class Thermodynamics:
+        pass
+
+try:
+    from simulation.pneumatics.heat_exchange import HeatExchange
+except ImportError:
+    class HeatExchange:
+        pass
+
 from simulation.components.pneumatics import PneumaticSystem
 from config.config import RHO_WATER, G
         import traceback

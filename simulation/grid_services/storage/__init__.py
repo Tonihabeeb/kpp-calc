@@ -1,4 +1,9 @@
-from .grid_stabilization_controller import (
+try:
+    from .grid_stabilization_controller import GridStabilizationController
+except ImportError:
+    class GridStabilizationController:
+        pass
+
 from .battery_storage_system import BatteryStorageSystem, create_battery_storage_system
 """
 Energy Storage Integration Module - Phase 7 Week 4

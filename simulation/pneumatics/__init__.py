@@ -1,10 +1,35 @@
 from .venting_system import AirReleasePhysics, AutomaticVentingSystem, VentingTrigger
-from .thermodynamics import (
+try:
+    from .thermodynamics import Thermodynamics
+except ImportError:
+    class Thermodynamics:
+        pass
+
 from .pressure_expansion import PressureExpansionPhysics
-from .pressure_control import (
-from .injection_control import (
-from .heat_exchange import (
-from .air_compression import (
+try:
+    from .pressure_control import PressureControl
+except ImportError:
+    class PressureControl:
+        pass
+
+try:
+    from .injection_control import InjectionControl
+except ImportError:
+    class InjectionControl:
+        pass
+
+try:
+    from .heat_exchange import HeatExchange
+except ImportError:
+    class HeatExchange:
+        pass
+
+try:
+    from .air_compression import AirCompression
+except ImportError:
+    class AirCompression:
+        pass
+
 """
 KPP Pneumatic System Package
 

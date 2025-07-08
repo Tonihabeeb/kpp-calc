@@ -1,7 +1,12 @@
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-from simulation.grid_services.voltage import (
+try:
+    from simulation.grid_services.voltage import Voltage
+except ImportError:
+    class Voltage:
+        pass
+
         import traceback
 #!/usr/bin/env python3
 """

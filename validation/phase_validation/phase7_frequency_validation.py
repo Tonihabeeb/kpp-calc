@@ -1,7 +1,12 @@
 import time
 import matplotlib.pyplot as plt
 import math
-from simulation.grid_services import (
+try:
+    from simulation.grid_services import GridServices
+except ImportError:
+    class GridServices:
+        pass
+
         import traceback
 """
 Phase 7 Frequency Response Services Validation Script

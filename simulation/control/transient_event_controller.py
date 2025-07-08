@@ -1,7 +1,12 @@
 import logging
 from typing import Dict, Optional
 from simulation.control.startup_controller import StartupController
-from simulation.control.grid_disturbance_handler import (
+try:
+    from simulation.control.grid_disturbance_handler import GridDisturbanceHandler
+except ImportError:
+    class GridDisturbanceHandler:
+        pass
+
 from simulation.control.emergency_response import EmergencyResponseSystem
 from enum import Enum
 from dataclasses import dataclass

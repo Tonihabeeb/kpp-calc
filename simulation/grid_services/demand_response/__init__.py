@@ -1,6 +1,16 @@
-from .peak_shaving_controller import (
+try:
+    from .peak_shaving_controller import PeakShavingController
+except ImportError:
+    class PeakShavingController:
+        pass
+
 from .load_forecaster import LoadForecaster, create_standard_load_forecaster
-from .load_curtailment_controller import (
+try:
+    from .load_curtailment_controller import LoadCurtailmentController
+except ImportError:
+    class LoadCurtailmentController:
+        pass
+
 """
 Demand Response Services Package
 

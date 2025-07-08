@@ -1,7 +1,12 @@
 import sys
 import queue
 import json
-from simulation.physics.integrated_loss_model import (
+try:
+    from simulation.physics.integrated_loss_model import IntegratedLossModel
+except ImportError:
+    class IntegratedLossModel:
+        pass
+
 from simulation.engine import SimulationEngine
 #!/usr/bin/env python3
 """

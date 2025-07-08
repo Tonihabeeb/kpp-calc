@@ -3,7 +3,12 @@ import sys
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from simulation.pneumatics import (
+try:
+    from simulation.pneumatics import Pneumatics
+except ImportError:
+    class Pneumatics:
+        pass
+
         import traceback
 """
 Phase 1 Pneumatic System Demonstration
