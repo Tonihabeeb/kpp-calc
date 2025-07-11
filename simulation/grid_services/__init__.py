@@ -1,4 +1,3 @@
-# Grid Services Module
 """
 Grid Services Module
 
@@ -9,24 +8,83 @@ and economic optimization services.
 Phase 7: Advanced Grid Services Implementation
 """
 
-# Import grid services coordinator (only what's needed for engine)
-try:
-    from .grid_services_coordinator import GridConditions, create_standard_grid_services_coordinator
-except ImportError:
-    # Create stub classes if modules don't exist yet
-    class GridConditions:
-        pass
-    
-    def create_standard_grid_services_coordinator():
-        return None
-"""
-Grid Services Module
+from .grid_services_coordinator import (
+    GridServicesCoordinator,
+    GridServicesConfig,
+    GridServicesState,
+    GridConditions
+)
 
-This module provides advanced grid services for the KPP simulation system,
-including frequency response, voltage support, demand response, energy storage,
-and economic optimization services.
+from .frequency import (
+    PrimaryFrequencyController,
+    PrimaryFrequencyConfig,
+    SecondaryFrequencyController,
+    SecondaryFrequencyConfig,
+    SyntheticInertiaController,
+    SyntheticInertiaConfig
+)
 
-Phase 7: Advanced Grid Services Implementation
-"""
+from .voltage import (
+    VoltageRegulator,
+    VoltageRegulatorConfig,
+    PowerFactorController,
+    PowerFactorConfig
+)
 
-# Import frequency services
+from .storage import (
+    BatteryStorageSystem,
+    BatteryStorageConfig,
+    GridStabilizationController,
+    GridStabilizationConfig
+)
+
+from .demand_response import (
+    LoadForecaster,
+    LoadForecastConfig,
+    LoadCurtailmentController,
+    LoadCurtailmentConfig
+)
+
+from .economic import (
+    EconomicOptimizer,
+    EconomicOptimizerConfig,
+    MarketInterface,
+    MarketInterfaceConfig,
+    PriceForecaster,
+    PriceForecasterConfig,
+    BiddingStrategy,
+    BiddingStrategyConfig
+)
+
+__all__ = [
+    'GridServicesCoordinator',
+    'GridServicesConfig',
+    'GridServicesState',
+    'GridConditions',
+    'PrimaryFrequencyController',
+    'PrimaryFrequencyConfig',
+    'SecondaryFrequencyController',
+    'SecondaryFrequencyConfig',
+    'SyntheticInertiaController',
+    'SyntheticInertiaConfig',
+    'VoltageRegulator',
+    'VoltageRegulatorConfig',
+    'PowerFactorController',
+    'PowerFactorConfig',
+    'BatteryStorageSystem',
+    'BatteryStorageConfig',
+    'GridStabilizationController',
+    'GridStabilizationConfig',
+    'LoadForecaster',
+    'LoadForecastConfig',
+    'LoadCurtailmentController',
+    'LoadCurtailmentConfig',
+    'EconomicOptimizer',
+    'EconomicOptimizerConfig',
+    'MarketInterface',
+    'MarketInterfaceConfig',
+    'PriceForecaster',
+    'PriceForecasterConfig',
+    'BiddingStrategy',
+    'BiddingStrategyConfig'
+]

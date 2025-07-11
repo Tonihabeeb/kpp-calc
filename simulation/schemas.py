@@ -1,120 +1,167 @@
-import math
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field, root_validator, validator
-from enum import Enum
+"""
+Data structures and schemas for the KPP simulator.
+"""
+
 from dataclasses import dataclass
+from typing import List, Dict, Any, Optional, Protocol
+from enum import Enum
 
-"""
-Pydantic schemas for the KPP Simulator.
-Provides type safety and validation for all data structures used in the simulation.
-"""
+class ComponentStatus(Enum):
+    """Status of a simulation component"""
+    INITIALIZING = "initializing"
+    READY = "ready"
+    RUNNING = "running"
+    ERROR = "error"
+    STOPPED = "stopped"
 
-class FloaterState(str, Enum):
-    """Floater state enumeration"""
-    EMPTY = "empty"
-    FILLING = "filling"
-    FULL = "full"
-    VENTING = "venting"
+class ManagerType(Enum):
+    """Types of simulation managers"""
+    PHYSICS = "physics"
+    CONTROL = "control"
+    GRID = "grid"
+    COMPONENT = "component"
+
+class ManagerInterface(Protocol):
+    """Protocol defining the interface for simulation managers"""
+    def initialize(self) -> bool:
+        """Initialize the manager"""
+        ...
+    
+    def update(self, state: Any, time_step: float) -> Any:
+        """Update the manager state"""
+        ...
+    
+    def get_state(self) -> Any:
+        """Get current manager state"""
+        ...
+    
+    def cleanup(self) -> None:
+        """Clean up resources"""
+        ...
+    
+    @property
+    def type(self) -> ManagerType:
+        """Get manager type"""
+        ...
+    
+    @property
+    def status(self) -> ComponentStatus:
+        """Get current status"""
+        ...
+
+@dataclass
+class SimulationError:
+    """Error information for simulation issues"""
+    message: str
+    error_code: str = "SIMULATION_ERROR"
+    component: Optional[str] = None
+    severity: str = "error"
+    timestamp: Optional[float] = None
+
+@dataclass
+class FloaterState:
+    """State of a single floater"""
+    position: float
+    velocity: float
+    is_buoyant: bool
+    buoyant_force: float
+    drag_force: float
+    net_force: float
+    mass: float = 0.0
+    volume: float = 0.0
+    h1_effect: Optional[dict] = None
+    h2_effect: Optional[dict] = None
+
+@dataclass
+class DrivetrainState:
+    """State of the drivetrain system"""
+    angular_velocity: float  # rad/s
+    angular_position: float  # rad
+    torque: float  # N·m
+    power: float  # W
+    is_clutch_engaged: bool
+    flywheel_energy: float  # J
+
+@dataclass
+class PneumaticState:
+    """State of the pneumatic system"""
+    pressure: float  # Pa
+    temperature: float  # K
+    flow_rate: float  # m³/s
+    energy_input: float  # J
+    is_injecting: bool
+    is_venting: bool
+
+@dataclass
+class EnvironmentState:
+    """State of the environment"""
+    water_density: float  # kg/m³
+    water_temperature: float  # K
+    nanobubble_density: Optional[float] = None  # kg/m³
+    thermal_expansion: Optional[float] = None
 
 @dataclass
 class PhysicsResults:
-    """Physics calculation results"""
-    time: float = 0.0
-    total_torque: float = 0.0
-    total_power: float = 0.0
-    efficiency: float = 0.0
-    active_floaters: int = 0
-    total_floaters: int = 0
-    step_time: float = 0.0
-    error: Optional[str] = None
+    """Results from physics calculations"""
+    total_power: float  # W
+    total_energy: float  # J
+    efficiency: float
+    mechanical_power: float  # W
+    electrical_power: float  # W
+    losses: Dict[str, float]  # Different types of losses
+    h3_state: Optional[dict] = None
 
 @dataclass
 class FloaterPhysicsData:
-    """Floater physics data"""
-    position: float = 0.0
-    velocity: float = 0.0
-    acceleration: float = 0.0
-    mass: float = 16.0
-    volume: float = 0.4
-    area: float = 0.1
-    drag_coefficient: float = 0.6
-    air_fill_level: float = 0.0
-    state: FloaterState = FloaterState.EMPTY
+    """Detailed physics data for a floater"""
+    forces: Dict[str, float]
+    energy: Dict[str, float]
+    position_data: Dict[str, float]
 
 @dataclass
 class EnhancedPhysicsData:
-    """Enhanced physics data with additional metrics"""
-    basic_data: FloaterPhysicsData
-    buoyant_force: float = 0.0
-    gravitational_force: float = 0.0
-    drag_force: float = 0.0
-    net_force: float = 0.0
-    torque: float = 0.0
-    power: float = 0.0
-    energy: float = 0.0
+    """Data specific to physics enhancements"""
+    h1_effect: Optional[Dict[str, float]] = None
+    h2_effect: Optional[Dict[str, float]] = None
+    h3_effect: Optional[Dict[str, float]] = None
 
-class SystemState(BaseModel):
-    """System state model"""
-    time: float = Field(default=0.0, description="Current simulation time")
-    total_energy: float = Field(default=0.0, description="Total system energy")
-    total_power: float = Field(default=0.0, description="Total system power")
-    efficiency: float = Field(default=0.0, description="System efficiency")
-    active_floaters: int = Field(default=0, description="Number of active floaters")
-    total_floaters: int = Field(default=0, description="Total number of floaters")
-    
-    class Config:
-        validate_assignment = True
+@dataclass
+class GridConditions:
+    """Grid conditions and parameters"""
+    frequency: float  # Hz
+    voltage: float  # pu
+    power: float  # W
+    power_factor: float
 
-class PerformanceMetrics(BaseModel):
-    """Performance metrics model"""
-    step_count: int = Field(default=0, description="Number of simulation steps")
-    error_count: int = Field(default=0, description="Number of errors")
-    average_step_time: float = Field(default=0.0, description="Average step time")
-    total_energy: float = Field(default=0.0, description="Total energy")
-    total_power: float = Field(default=0.0, description="Total power")
-    efficiency: float = Field(default=0.0, description="System efficiency")
-    
-    class Config:
-        validate_assignment = True
+@dataclass
+class BatteryState:
+    """State of energy storage system"""
+    state_of_charge: float
+    power: float
+    energy: float
+    temperature: float
 
-class EnergyLossData(BaseModel):
-    """Energy loss data model"""
-    mechanical_losses: float = Field(default=0.0, description="Mechanical losses")
-    electrical_losses: float = Field(default=0.0, description="Electrical losses")
-    thermal_losses: float = Field(default=0.0, description="Thermal losses")
-    friction_losses: float = Field(default=0.0, description="Friction losses")
-    total_losses: float = Field(default=0.0, description="Total losses")
-    
-    @root_validator
-    def calculate_total_losses(cls, values):
-        """Calculate total losses"""
-        values['total_losses'] = (
-            values.get('mechanical_losses', 0.0) +
-            values.get('electrical_losses', 0.0) +
-            values.get('thermal_losses', 0.0) +
-            values.get('friction_losses', 0.0)
-        )
-        return values
+@dataclass
+class SystemState:
+    """State of a system component"""
+    status: ComponentStatus
+    error: Optional[SimulationError] = None
+    data: Optional[Dict[str, Any]] = None
 
-class SimulationState(BaseModel):
-    """Simulation state model"""
-    time: float = Field(default=0.0, description="Current simulation time")
-    is_running: bool = Field(default=False, description="Simulation running status")
-    step_count: int = Field(default=0, description="Current step count")
-    error_count: int = Field(default=0, description="Error count")
-    
-    class Config:
-        validate_assignment = True
-
-class SystemResults(BaseModel):
-    """System results model"""
-    time: float = Field(default=0.0, description="Result time")
-    total_torque: float = Field(default=0.0, description="Total torque")
-    total_power: float = Field(default=0.0, description="Total power")
-    efficiency: float = Field(default=0.0, description="System efficiency")
-    active_floaters: int = Field(default=0, description="Active floaters")
-    total_floaters: int = Field(default=0, description="Total floaters")
-    
-    class Config:
-        validate_assignment = True
+@dataclass
+class SimulationState:
+    """Complete state of the simulation"""
+    time: float
+    step_count: int
+    total_power: float
+    total_energy: float
+    efficiency: float
+    environment: Optional[EnvironmentState]
+    pneumatics: Optional[PneumaticState]
+    drivetrain: Optional[DrivetrainState]
+    floaters: List[FloaterState]
+    control: Optional[Any]
+    grid_services: Optional[Any]
+    errors: List[SimulationError]
+    component_status: Dict[str, ComponentStatus]
 

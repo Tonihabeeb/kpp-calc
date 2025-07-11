@@ -1,0 +1,33 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="kpp_simulator",
+    version="0.1.0",
+    packages=find_packages(),
+    install_requires=[
+        "flask>=2.3.0",
+        "Flask-SocketIO",
+        "fastapi>=0.100.0",
+        "uvicorn>=0.20.0",
+        "dash>=3.1.0",
+        "plotly>=6.2.0",
+        "dash-core-components>=2.0.0",
+        "dash-bootstrap-components>=1.5.0",
+        "dash-extensions>=2.0.4",
+        "flask_cors",
+        "numpy>=1.24.0",
+        "pandas>=2.0.0",
+        "scipy>=1.10.0",
+        "matplotlib>=3.7.0",
+        "requests>=2.31.0",
+        "pydantic>=2.0.0",
+        "sseclient-py>=1.8.0",
+        "python-dateutil>=2.8.0",
+        "eventlet",
+        "numba>=0.57.0",
+        "psutil>=5.9.0",
+        "pytest>=7.0.0",
+        "pytest-cov>=4.0.0",
+    ],
+    python_requires=">=3.8",
+) 

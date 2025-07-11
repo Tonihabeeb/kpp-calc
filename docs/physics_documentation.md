@@ -139,6 +139,80 @@ F_buoyant_effective = F_buoyant                    for descending floaters
 
 Where `η_thermal` is the thermal buoyancy enhancement factor (typically 0.05-0.15).
 
+### H3 Pulse-and-Coast Enhancement
+
+The H3 enhancement introduces a flywheel and clutch mechanism to optimize power generation through pulse-and-coast operation.
+
+#### Flywheel Dynamics
+
+The flywheel adds rotational inertia to the system:
+
+```
+I_total = I_base + I_flywheel when H3 enabled
+I_total = I_base           when H3 disabled
+```
+
+Where:
+- `I_base` = base system inertia (chain + sprockets) (kg·m²)
+- `I_flywheel` = additional flywheel inertia (typically 10.0 kg·m²)
+
+#### Clutch Mechanism
+
+The clutch controls generator engagement based on torque:
+
+```
+clutch_engagement = {
+    1.0  if |τ_net| > τ_threshold
+    0.0  if |τ_net| ≤ τ_threshold
+}
+```
+
+Where:
+- `τ_net` = net torque from floaters
+- `τ_threshold` = engagement threshold (typically 0.7 × I_total)
+
+The clutch engagement transitions smoothly:
+
+```
+engagement_rate = dt / response_time
+engagement(t+dt) = min(1.0, engagement(t) + engagement_rate)  // engaging
+engagement(t+dt) = max(0.0, engagement(t) - engagement_rate)  // disengaging
+```
+
+#### Power Generation
+
+The effective generator torque depends on clutch engagement:
+
+```
+τ_generator = base_torque × clutch_engagement
+```
+
+Where:
+- `base_torque` = -k × ω (proportional to angular velocity)
+- `k` = generator torque constant
+
+#### Energy Storage
+
+The flywheel stores kinetic energy during coast phase:
+
+```
+E_kinetic = 0.5 × I_total × ω²
+```
+
+This energy is released during power generation when the clutch engages.
+
+#### Operating Limits
+
+The system enforces speed limits for safety:
+
+```
+ω_min ≤ ω ≤ ω_max
+```
+
+Where:
+- `ω_min` = minimum operating speed (typically 1.0 rad/s)
+- `ω_max` = maximum safe speed (typically 10.0 rad/s)
+
 ## Chain Dynamics
 
 ### Chain Constraint Model
@@ -489,45 +563,101 @@ def test_memory_usage(simulation, max_growth_mb=10.0):
 
 ## Component Integration
 
-### Physics Engine Integration
+### H3 Pulse-and-Coast Enhancement
 
-The physics engine integrates with all major simulation components:
+The H3 enhancement introduces a pulse-and-coast mechanism using a flywheel and clutch system to optimize power generation.
 
-#### With Floater Components
+#### Flywheel Dynamics
 
-```python
-# Physics engine calculates forces
-forces = physics_engine.calculate_forces(floaters)
+The flywheel adds rotational inertia to the system:
 
-# Floaters update their internal state
-for floater, force in zip(floaters, forces):
-    floater.update_physics_state(force, dt)
+```
+I_total = I_base + I_flywheel (when H3 enabled)
+I_total = I_base           (when H3 disabled)
 ```
 
-#### With Drivetrain System
+Where:
+- `I_base` = base system inertia (chain + sprockets)
+- `I_flywheel` = additional flywheel inertia
 
-```python
-# Convert chain motion to rotational motion
-omega_sprocket = v_chain / sprocket_radius
-omega_shaft = omega_sprocket * gear_ratio
+#### Clutch Mechanism
 
-# Update drivetrain with rotational motion
-drivetrain.update(omega_shaft, dt)
+The clutch engagement is controlled based on torque thresholds:
 
-# Get generator torque
-torque = drivetrain.get_generator_torque()
+```
+engagement = {
+    1.0  if |τ_net| > τ_threshold
+    0.0  if |τ_net| ≤ τ_threshold
+}
 ```
 
-#### With Control System
+Engagement transitions are smoothed using a response time parameter:
 
-```python
-# Control system provides target parameters
-target_power = control_system.get_target_power()
-target_torque = control_system.calculate_torque(target_power, omega)
-
-# Physics engine uses controlled torque
-physics_state = physics_engine.step(floaters, target_torque, sprocket_radius)
 ```
+engagement_rate = dt / response_time
+engagement(t+dt) = min(1.0, engagement(t) + engagement_rate)  // when engaging
+engagement(t+dt) = max(0.0, engagement(t) - engagement_rate)  // when disengaging
+```
+
+#### Generator Coupling
+
+The effective generator torque is modulated by clutch engagement:
+
+```
+τ_generator_effective = τ_generator_base × clutch_engagement
+```
+
+#### Energy Storage
+
+The flywheel stores kinetic energy during coast phases:
+
+```
+E_kinetic = 0.5 × I_total × ω²
+```
+
+This energy is released during power generation phases when the clutch engages.
+
+### Component Integration
+
+The physics components are integrated through a comprehensive testing framework:
+
+#### Integration Tests
+
+1. Basic Physics Integration
+   - Validates force calculations (buoyancy, drag, weight)
+   - Ensures proper time-stepping and state updates
+   - Verifies energy conservation
+
+2. Enhancement Integration
+   - Tests H1 nanobubble effects on drag reduction
+   - Validates H2 thermal expansion impact on buoyancy
+   - Verifies H3 pulse-and-coast behavior
+   - Ensures enhancements work together correctly
+
+3. State Management
+   - Tests floater state transitions (injection/venting)
+   - Validates clutch engagement/disengagement
+   - Verifies proper energy tracking
+
+#### Performance Validation
+
+The system undergoes rigorous performance testing:
+
+1. Real-time Operation
+   - Validates update rates meet timing requirements
+   - Ensures stable operation under various loads
+   - Monitors resource usage (CPU, memory)
+
+2. Scalability Tests
+   - Tests with different floater counts (10-1000)
+   - Validates performance with all enhancements active
+   - Measures throughput and response times
+
+3. System Benchmarks
+   - Physics engine update performance
+   - Component manager efficiency
+   - Control system response times
+   - Data throughput capabilities
 
 ### Event Handler Integration
 

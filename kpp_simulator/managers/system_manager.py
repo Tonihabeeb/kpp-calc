@@ -332,13 +332,19 @@ class SystemManager:
         """Initialize core system components"""
         try:
             # Initialize physics engine
-            self.physics_engine = PhysicsEngine({})
+            from ..core.physics_engine import PhysicsConfig
+            physics_config = PhysicsConfig()
+            self.physics_engine = PhysicsEngine(physics_config)
             
             # Initialize electrical system
-            self.electrical_system = IntegratedElectricalSystem({})
+            from ..electrical.electrical_system import ElectricalConfig
+            electrical_config = ElectricalConfig()
+            self.electrical_system = IntegratedElectricalSystem(electrical_config)
             
             # Initialize control system
-            self.control_system = IntegratedControlSystem({})
+            from ..control_systems.control_system import ControlConfig
+            control_config = ControlConfig()
+            self.control_system = IntegratedControlSystem(control_config)
             
             # Initialize grid services
             self.grid_services = GridServicesCoordinator(

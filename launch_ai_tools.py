@@ -3,8 +3,8 @@ import sys
 import subprocess
 import os
 from tkinter import ttk, messagebox
-    import webbrowser
-    from pathlib import Path
+import webbrowser
+from pathlib import Path
 #!/usr/bin/env python3
 """
 KPP Simulator AI Tools Launcher

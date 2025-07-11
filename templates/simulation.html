@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>KPP Simulator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js"></script>
+    <style>
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .chart-container.full-width {
+            grid-column: span 3;
+        }
+        
+        .chart-container.half-width {
+            grid-column: span 1;
+        }
+        
+        .chart-container.two-thirds {
+            grid-column: span 2;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .metrics-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .metric-label {
+            color: #666;
+            font-size: 14px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .controls-container {
+            grid-column: span 2;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .control-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .control-value {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        .intensity-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .intensity-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .intensity-value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .telemetry-container {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .telemetry-group {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .telemetry-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .telemetry-item {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        
+        .telemetry-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .telemetry-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-active {
+            background-color: #4CAF50;
+        }
+        
+        .status-inactive {
+            background-color: #f44336;
+        }
+        
+        .status-warning {
+            background-color: #ff9800;
+        }
+        
+        .compressor-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .compressor-button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background: #2196F3;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .compressor-button:hover {
+            background: #1976D2;
+        }
+        
+        .compressor-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .diagnostics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .diagnostic-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .diagnostic-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+        
+        .diagnostic-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .diagnostic-value.healthy {
+            color: #28a745;
+        }
+        
+        .diagnostic-value.warning {
+            color: #ffc107;
+        }
+        
+        .diagnostic-value.error {
+            color: #dc3545;
+        }
+        
+        .diagnostic-messages {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .diagnostic-message {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        .diagnostic-message.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .diagnostic-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .valve-indicator {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .valve-label {
+            margin-left: 8px;
+        }
+        
+        .simulation-controls {
+            grid-column: span 2;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .control-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .control-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .control-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .start-button {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .pause-button {
+            background: #FF9800;
+            color: white;
+        }
+        
+        .reset-button {
+            background: #f44336;
+            color: white;
+        }
+        
+        .duration-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .duration-input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        
+        .simulation-status {
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .status-running {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        .status-paused {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+        
+        .status-stopped {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+        
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #2196F3;
+            color: white;
+            font-size: 12px;
+            cursor: help;
+            margin-left: 8px;
+        }
+        
+        .simulation-info {
+            grid-column: span 2;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .info-item {
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        
+        .info-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* Enhancement Toggle Controls */
+        .enhancement-toggles {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .toggle-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .toggle-label {
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #2196F3;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Disabled state for intensity sliders */
+        input[type="range"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Navigation Header */
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .nav-header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 2em;
+            font-weight: 300;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-link {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Navigation Header -->
+        <div class="nav-header">
+            <h1>KPP Simulator Dashboard</h1>
+            <div class="nav-links">
+                <a href="/performance" class="nav-link">Performance Monitoring</a>
+                <a href="/dashboard" class="nav-link">Loss Monitoring</a>
+            </div>
+        </div>
+        
+        <!-- Power vs Time Chart -->
+        <div class="chart-container two-thirds">
+            <h3>Power Output vs Time</h3>
+            <canvas id="powerChart"></canvas>
+        </div>
+        
+        <!-- Torque vs Time Chart -->
+        <div class="chart-container half-width">
+            <h3>Torque vs Time</h3>
+            <canvas id="torqueChart"></canvas>
+        </div>
+        
+        <!-- Efficiency Chart -->
+        <div class="chart-container half-width">
+            <h3>System Efficiency</h3>
+            <canvas id="efficiencyChart"></canvas>
+        </div>
+        
+        <!-- Chain Speed Chart -->
+        <div class="chart-container half-width">
+            <h3>Chain Speed vs Time</h3>
+            <canvas id="chainSpeedChart"></canvas>
+        </div>
+        
+        <!-- Enhancement Effects Chart -->
+        <div class="chart-container two-thirds">
+            <h3>Enhancement Effects Comparison</h3>
+            <canvas id="enhancementChart"></canvas>
+        </div>
+        
+        <!-- Floater Position Chart -->
+        <div class="chart-container full-width">
+            <h3>Floater Positions & States</h3>
+            <canvas id="floaterPositionChart"></canvas>
+        </div>
+        
+        <!-- Parameter Controls -->
+        <div class="controls-container">
+            <h2>Simulation Parameters</h2>
+            
+            <!-- Basic Parameters -->
+            <div class="control-group">
+                <div class="control-item">
+                    <label class="control-label" for="floaterCount">Floater Count</label>
+                    <input type="range" id="floaterCount" min="10" max="50" value="30" step="1">
+                    <span class="control-value" id="floaterCountValue">30</span>
+                </div>
+                
+                <div class="control-item">
+                    <label class="control-label" for="floaterMass">Floater Mass (kg)</label>
+                    <input type="range" id="floaterMass" min="1" max="10" value="5" step="0.1">
+                    <span class="control-value" id="floaterMassValue">5.0 kg</span>
+                </div>
+                
+                <div class="control-item">
+                    <label class="control-label" for="chainTension">Chain Tension (N)</label>
+                    <input type="range" id="chainTension" min="100" max="1000" value="500" step="10">
+                    <span class="control-value" id="chainTensionValue">500 N</span>
+                </div>
+                
+                <div class="control-item">
+                    <label class="control-label" for="waterLevel">Water Level (m)</label>
+                    <input type="range" id="waterLevel" min="0" max="10" value="5" step="0.1">
+                    <span class="control-value" id="waterLevelValue">5.0 m</span>
+                </div>
+            </div>
+            
+            <!-- H1-H3 Enhancement Toggles -->
+            <h3>Enhancement Controls</h3>
+            <div class="enhancement-toggles">
+                <div class="toggle-control">
+                    <label class="toggle-label" for="h1Toggle">H1: Nanobubble Enhancement</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="h1Toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-control">
+                    <label class="toggle-label" for="h2Toggle">H2: Thermal Enhancement</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="h2Toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-control">
+                    <label class="toggle-label" for="h3Toggle">H3: Flywheel Enhancement</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="h3Toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- H1-H3 Intensity Controls -->
+            <h3>System Intensities</h3>
+            <div class="intensity-controls">
+                <div class="intensity-control">
+                    <label class="control-label" for="h1Intensity">H1: Nanobubble %</label>
+                    <input type="range" id="h1Intensity" min="0" max="100" value="50" step="1">
+                    <span class="intensity-value" id="h1IntensityValue">50%</span>
+                </div>
+                
+                <div class="intensity-control">
+                    <label class="control-label" for="h2Intensity">H2: Thermal Boost</label>
+                    <input type="range" id="h2Intensity" min="0" max="100" value="50" step="1">
+                    <span class="intensity-value" id="h2IntensityValue">50%</span>
+                </div>
+                
+                <div class="intensity-control">
+                    <label class="control-label" for="h3Intensity">H3: Flywheel Inertia</label>
+                    <input type="range" id="h3Intensity" min="0" max="100" value="50" step="1">
+                    <span class="intensity-value" id="h3IntensityValue">50%</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Real-time Metrics -->
+        <div class="metrics-container">
+            <div class="metric-card">
+                <div class="metric-label">Current Power</div>
+                <div class="metric-value" id="currentPower">0 kW</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Current Torque</div>
+                <div class="metric-value" id="currentTorque">0 Nm</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Current RPM</div>
+                <div class="metric-value" id="currentRPM">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Efficiency</div>
+                <div class="metric-value" id="currentEfficiency">0%</div>
+            </div>
+        </div>
+        
+        <!-- System Diagnostics -->
+        <div class="chart-container full-width">
+            <h3>System Diagnostics</h3>
+            <div class="diagnostics-grid">
+                <div class="diagnostic-item">
+                    <div class="diagnostic-label">System Health</div>
+                    <div class="diagnostic-value" id="systemHealth">Healthy</div>
+                </div>
+                <div class="diagnostic-item">
+                    <div class="diagnostic-label">CPU Usage</div>
+                    <div class="diagnostic-value" id="cpuUsage">0%</div>
+                </div>
+                <div class="diagnostic-item">
+                    <div class="diagnostic-label">Memory Usage</div>
+                    <div class="diagnostic-value" id="memoryUsage">0%</div>
+                </div>
+                <div class="diagnostic-item">
+                    <div class="diagnostic-label">Process Memory</div>
+                    <div class="diagnostic-value" id="processMemory">0 MB</div>
+                </div>
+                <div class="diagnostic-item">
+                    <div class="diagnostic-label">Warnings</div>
+                    <div class="diagnostic-value" id="warningCount">0</div>
+                </div>
+                <div class="diagnostic-item">
+                    <div class="diagnostic-label">Errors</div>
+                    <div class="diagnostic-value" id="errorCount">0</div>
+                </div>
+            </div>
+            <div class="diagnostic-messages" id="diagnosticMessages"></div>
+        </div>
+        
+        <!-- Enhanced Telemetry Display -->
+        <div class="telemetry-container">
+            <!-- Mechanical Telemetry -->
+            <div class="telemetry-group">
+                <div class="telemetry-title">Mechanical Systems</div>
+                <div class="telemetry-grid">
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">RPM</div>
+                        <div class="telemetry-value" id="rpmDisplay">0</div>
+                    </div>
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">Torque</div>
+                        <div class="telemetry-value" id="torqueDisplay">0 Nm</div>
+                    </div>
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">Chain Speed</div>
+                        <div class="telemetry-value" id="chainSpeedDisplay">0 m/s</div>
+                    </div>
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">Mechanical Efficiency</div>
+                        <div class="telemetry-value" id="mechEfficiencyDisplay">0%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Electrical Telemetry -->
+            <div class="telemetry-group">
+                <div class="telemetry-title">Electrical Systems</div>
+                <div class="telemetry-grid">
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">Power Output</div>
+                        <div class="telemetry-value" id="powerDisplay">0 kW</div>
+                    </div>
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">Voltage</div>
+                        <div class="telemetry-value" id="voltageDisplay">0 V</div>
+                    </div>
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">Current</div>
+                        <div class="telemetry-value" id="currentDisplay">0 A</div>
+                    </div>
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">Electrical Efficiency</div>
+                        <div class="telemetry-value" id="elecEfficiencyDisplay">0%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Controls -->
+            <div class="telemetry-group">
+                <div class="telemetry-title">System Controls</div>
+                
+                <!-- Valve States -->
+                <div class="valve-indicator">
+                    <span class="status-indicator" id="mainValveStatus"></span>
+                    <span class="valve-label">Main Valve</span>
+                </div>
+                <div class="valve-indicator">
+                    <span class="status-indicator" id="bypassValveStatus"></span>
+                    <span class="valve-label">Bypass Valve</span>
+                </div>
+                <div class="valve-indicator">
+                    <span class="status-indicator" id="clutchStatus"></span>
+                    <span class="valve-label">Clutch Engagement</span>
+                </div>
+                
+                <!-- Compressor Controls -->
+                <div class="compressor-controls">
+                    <button class="compressor-button" id="startCompressor">Start Compressor</button>
+                    <button class="compressor-button" id="stopCompressor">Stop Compressor</button>
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">Compressor Status</div>
+                        <div class="telemetry-value" id="compressorStatus">Inactive</div>
+                    </div>
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">Pressure</div>
+                        <div class="telemetry-value" id="pressureDisplay">0 bar</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Simulation Controls -->
+        <div class="simulation-controls">
+            <!-- Basic Controls -->
+            <div class="control-group">
+                <div class="control-title">Simulation Control</div>
+                <button id="startButton" class="control-button start-button">
+                    <span class="material-icons">play_arrow</span>
+                    Start
+                </button>
+                <button id="pauseButton" class="control-button pause-button" disabled>
+                    <span class="material-icons">pause</span>
+                    Pause
+                </button>
+                <button id="resetButton" class="control-button reset-button">
+                    <span class="material-icons">restart_alt</span>
+                    Reset
+                </button>
+                <div id="simulationStatus" class="simulation-status status-stopped">
+                    Simulation Stopped
+                </div>
+            </div>
+            
+            <!-- Duration Control -->
+            <div class="control-group">
+                <div class="control-title">
+                    Simulation Duration
+                    <span class="help-icon" data-tippy-content="Set how long the simulation should run. Use 0 for continuous operation.">?</span>
+                </div>
+                <div class="duration-control">
+                    <input type="number" id="durationInput" class="duration-input" value="0" min="0" step="1">
+                    <span>seconds</span>
+                </div>
+                <div id="timeRemaining" class="info-value">--:--</div>
+            </div>
+            
+            <!-- Speed Control -->
+            <div class="control-group">
+                <div class="control-title">
+                    Simulation Speed
+                    <span class="help-icon" data-tippy-content="Adjust simulation speed. 1x is real-time, 2x is double speed, etc.">?</span>
+                </div>
+                <input type="range" id="speedControl" min="0.1" max="5" step="0.1" value="1">
+                <div id="speedValue" class="info-value">1x</div>
+            </div>
+        </div>
+        
+        <!-- Simulation Info -->
+        <div class="simulation-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Simulation Time</div>
+                    <div id="simulationTime" class="info-value">00:00:00</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Steps Completed</div>
+                    <div id="stepCount" class="info-value">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Average Step Time</div>
+                    <div id="avgStepTime" class="info-value">0 ms</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize tooltips
+        tippy('[data-tippy-content]', {
+            placement: 'top',
+            arrow: true,
+            theme: 'light'
+        });
+        
+        // Initialize charts
+        const powerChart = new Chart(document.getElementById('powerChart'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Power (kW)',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'second'
+                        }
+                    }
+                }
+            }
+        });
+
+        const torqueChart = new Chart(document.getElementById('torqueChart'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Torque (Nm)',
+                    data: [],
+                    borderColor: 'rgb(153, 102, 255)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'second'
+                        }
+                    }
+                }
+            }
+        });
+
+        const efficiencyChart = new Chart(document.getElementById('efficiencyChart'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Efficiency (%)',
+                    data: [],
+                    borderColor: 'rgb(255, 159, 64)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'second'
+                        }
+                    },
+                    y: {
+                        min: 0,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Parameter Control Event Handlers
+        document.getElementById('floaterCount').addEventListener('input', function(e) {
+            document.getElementById('floaterCountValue').textContent = e.target.value;
+            updateParameter('floater_count', parseInt(e.target.value));
+        });
+
+        document.getElementById('floaterMass').addEventListener('input', function(e) {
+            document.getElementById('floaterMassValue').textContent = e.target.value + ' kg';
+            updateParameter('floater_mass', parseFloat(e.target.value));
+        });
+
+        document.getElementById('chainTension').addEventListener('input', function(e) {
+            document.getElementById('chainTensionValue').textContent = e.target.value + ' N';
+            updateParameter('chain_tension', parseFloat(e.target.value));
+        });
+
+        document.getElementById('waterLevel').addEventListener('input', function(e) {
+            document.getElementById('waterLevelValue').textContent = e.target.value + ' m';
+            updateParameter('water_level', parseFloat(e.target.value));
+        });
+
+        document.getElementById('h1Intensity').addEventListener('input', function(e) {
+            document.getElementById('h1IntensityValue').textContent = e.target.value + '%';
+            updateParameter('h1_intensity', parseInt(e.target.value));
+        });
+
+        document.getElementById('h2Intensity').addEventListener('input', function(e) {
+            document.getElementById('h2IntensityValue').textContent = e.target.value + '%';
+            updateParameter('h2_intensity', parseInt(e.target.value));
+        });
+
+        document.getElementById('h3Intensity').addEventListener('input', function(e) {
+            document.getElementById('h3IntensityValue').textContent = e.target.value + '%';
+            updateParameter('h3_intensity', parseInt(e.target.value));
+        });
+
+        // Enhancement toggle controls
+        document.getElementById('h1Toggle').addEventListener('change', function(e) {
+            const enabled = e.target.checked;
+            updateParameter('enable_h1', enabled);
+            // Update intensity slider state
+            document.getElementById('h1Intensity').disabled = !enabled;
+        });
+
+        document.getElementById('h2Toggle').addEventListener('change', function(e) {
+            const enabled = e.target.checked;
+            updateParameter('enable_h2', enabled);
+            // Update intensity slider state
+            document.getElementById('h2Intensity').disabled = !enabled;
+        });
+
+        document.getElementById('h3Toggle').addEventListener('change', function(e) {
+            const enabled = e.target.checked;
+            updateParameter('enable_h3', enabled);
+            // Update intensity slider state
+            document.getElementById('h3Intensity').disabled = !enabled;
+        });
+
+        // Update Parameter Function with enhanced error handling
+        function updateParameter(name, value) {
+            fetch('/api/simulation/parameters', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    parameter: name,
+                    value: value
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error('Parameter update error:', data.error);
+                    showNotification('error', `Failed to update ${name}: ${data.error}`);
+                } else {
+                    console.log('Parameter updated successfully:', data.message);
+                    showNotification('success', `Updated ${name} to ${data.validated_value}`);
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                showNotification('error', `Network error updating ${name}: ${error.message}`);
+            });
+        }
+
+        // Notification system
+        function showNotification(type, message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            // Add styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: bold;
+                z-index: 1000;
+                max-width: 300px;
+                word-wrap: break-word;
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            // Set background color based on type
+            if (type === 'success') {
+                notification.style.backgroundColor = '#28a745';
+            } else if (type === 'error') {
+                notification.style.backgroundColor = '#dc3545';
+            } else if (type === 'warning') {
+                notification.style.backgroundColor = '#ffc107';
+                notification.style.color = '#333';
+            }
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // Add CSS animations for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Handle compressor controls
+        document.getElementById('startCompressor').addEventListener('click', function() {
+            updateCompressorState('start');
+        });
+
+        document.getElementById('stopCompressor').addEventListener('click', function() {
+            updateCompressorState('stop');
+        });
+
+        function updateCompressorState(action) {
+            fetch('/api/simulation/compressor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: action })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Update telemetry displays
+        function updateTelemetry(data) {
+            // Mechanical systems
+            document.getElementById('rpmDisplay').textContent = data.rpm.toFixed(0);
+            document.getElementById('torqueDisplay').textContent = data.torque.toFixed(2) + ' Nm';
+            document.getElementById('chainSpeedDisplay').textContent = data.chain_speed.toFixed(2) + ' m/s';
+            document.getElementById('mechEfficiencyDisplay').textContent = (data.mechanical_efficiency * 100).toFixed(1) + '%';
+            
+            // Electrical systems
+            document.getElementById('powerDisplay').textContent = data.power.toFixed(2) + ' kW';
+            document.getElementById('voltageDisplay').textContent = data.voltage.toFixed(1) + ' V';
+            document.getElementById('currentDisplay').textContent = data.current.toFixed(1) + ' A';
+            document.getElementById('elecEfficiencyDisplay').textContent = (data.electrical_efficiency * 100).toFixed(1) + '%';
+            
+            // System states
+            updateStatusIndicator('mainValveStatus', data.main_valve_open);
+            updateStatusIndicator('bypassValveStatus', data.bypass_valve_open);
+            updateStatusIndicator('clutchStatus', data.clutch_engaged);
+            
+            // Compressor status
+            document.getElementById('compressorStatus').textContent = data.compressor_active ? 'Active' : 'Inactive';
+            document.getElementById('pressureDisplay').textContent = data.pressure.toFixed(1) + ' bar';
+            
+            // Update button states
+            document.getElementById('startCompressor').disabled = data.compressor_active;
+            document.getElementById('stopCompressor').disabled = !data.compressor_active;
+        }
+
+        function updateStatusIndicator(elementId, isActive) {
+            const indicator = document.getElementById(elementId);
+            indicator.className = 'status-indicator ' + (isActive ? 'status-active' : 'status-inactive');
+        }
+
+        // Connect to SSE stream
+        const eventSource = new EventSource('/stream');
+        
+        // Maximum number of data points to show
+        const MAX_DATA_POINTS = 100;
+
+        // Initialize additional charts
+        const chainSpeedChart = new Chart(document.getElementById('chainSpeedChart'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Chain Speed (m/s)',
+                    data: [],
+                    borderColor: '#FF6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: { unit: 'second' }
+                    },
+                    y: {
+                        min: 0,
+                        max: 10
+                    }
+                }
+            }
+        });
+
+        const enhancementChart = new Chart(document.getElementById('enhancementChart'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'H1 Effect (Nanobubbles)',
+                        data: [],
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'H2 Effect (Thermal)',
+                        data: [],
+                        borderColor: '#FFCE56',
+                        backgroundColor: 'rgba(255, 206, 86, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'H3 Effect (Flywheel)',
+                        data: [],
+                        borderColor: '#4BC0C0',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: { unit: 'second' }
+                    },
+                    y: {
+                        min: -50,
+                        max: 50
+                    }
+                }
+            }
+        });
+
+        const floaterPositionChart = new Chart(document.getElementById('floaterPositionChart'), {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Buoyant Floaters',
+                        data: [],
+                        backgroundColor: '#4CAF50',
+                        pointRadius: 6
+                    },
+                    {
+                        label: 'Heavy Floaters',
+                        data: [],
+                        backgroundColor: '#F44336',
+                        pointRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (s)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Position (m)'
+                        },
+                        min: 0,
+                        max: 10
+                    }
+                }
+            }
+        });
+
+        // Update charts function
+        function updateCharts(data) {
+            const timestamp = new Date(data.timestamp);
+
+            // Update power chart
+            powerChart.data.labels.push(timestamp);
+            powerChart.data.datasets[0].data.push(data.power);
+            if (powerChart.data.labels.length > MAX_DATA_POINTS) {
+                powerChart.data.labels.shift();
+                powerChart.data.datasets[0].data.shift();
+            }
+            powerChart.update();
+
+            // Update torque chart
+            torqueChart.data.labels.push(timestamp);
+            torqueChart.data.datasets[0].data.push(data.torque);
+            if (torqueChart.data.labels.length > MAX_DATA_POINTS) {
+                torqueChart.data.labels.shift();
+                torqueChart.data.datasets[0].data.shift();
+            }
+            torqueChart.update();
+
+            // Update efficiency chart
+            efficiencyChart.data.labels.push(timestamp);
+            efficiencyChart.data.datasets[0].data.push(data.efficiency * 100);
+            if (efficiencyChart.data.labels.length > MAX_DATA_POINTS) {
+                efficiencyChart.data.labels.shift();
+                efficiencyChart.data.datasets[0].data.shift();
+            }
+            efficiencyChart.update();
+
+            // Update chain speed chart
+            chainSpeedChart.data.labels.push(timestamp);
+            chainSpeedChart.data.datasets[0].data.push(data.chain_speed);
+            if (chainSpeedChart.data.labels.length > MAX_DATA_POINTS) {
+                chainSpeedChart.data.labels.shift();
+                chainSpeedChart.data.datasets[0].data.shift();
+            }
+            chainSpeedChart.update();
+
+            // Update enhancement effects chart
+            enhancementChart.data.labels.push(timestamp);
+            if (data.enhancements) {
+                enhancementChart.data.datasets[0].data.push(data.enhancements.h1_enabled ? data.enhancements.h1_intensity : 0);
+                enhancementChart.data.datasets[1].data.push(data.enhancements.h2_enabled ? data.enhancements.h2_intensity : 0);
+                enhancementChart.data.datasets[2].data.push(data.enhancements.h3_enabled ? data.enhancements.h3_intensity : 0);
+            } else {
+                enhancementChart.data.datasets[0].data.push(0);
+                enhancementChart.data.datasets[1].data.push(0);
+                enhancementChart.data.datasets[2].data.push(0);
+            }
+            if (enhancementChart.data.labels.length > MAX_DATA_POINTS) {
+                enhancementChart.data.labels.shift();
+                enhancementChart.data.datasets.forEach(dataset => dataset.data.shift());
+            }
+            enhancementChart.update();
+
+            // Update floater position chart (sample every 10th data point for performance)
+            if (data.floaters && data.step_count % 10 === 0) {
+                const buoyantData = [];
+                const heavyData = [];
+                
+                data.floaters.forEach((floater, index) => {
+                    const point = {
+                        x: data.step_count * 0.1, // Time in seconds
+                        y: floater.position
+                    };
+                    
+                    if (floater.is_buoyant) {
+                        buoyantData.push(point);
+                    } else {
+                        heavyData.push(point);
+                    }
+                });
+                
+                floaterPositionChart.data.datasets[0].data = buoyantData;
+                floaterPositionChart.data.datasets[1].data = heavyData;
+                floaterPositionChart.update();
+            }
+        }
+
+        // Update metrics function
+        function updateMetrics(data) {
+            document.getElementById('currentPower').textContent = `${data.power.toFixed(2)} kW`;
+            document.getElementById('currentTorque').textContent = `${data.torque.toFixed(2)} Nm`;
+            document.getElementById('currentRPM').textContent = data.rpm.toFixed(0);
+            document.getElementById('currentEfficiency').textContent = `${(data.efficiency * 100).toFixed(1)}%`;
+        }
+
+        // Update diagnostics function
+        function updateDiagnostics() {
+            fetch('/api/simulation/diagnostics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Diagnostic error:', data.error);
+                        return;
+                    }
+                    
+                    // Update diagnostic values
+                    const systemHealth = document.getElementById('systemHealth');
+                    systemHealth.textContent = data.system_health.charAt(0).toUpperCase() + data.system_health.slice(1);
+                    systemHealth.className = 'diagnostic-value ' + data.system_health;
+                    
+                    document.getElementById('cpuUsage').textContent = data.system_metrics.cpu_usage_percent.toFixed(1) + '%';
+                    document.getElementById('memoryUsage').textContent = data.system_metrics.memory_usage_percent.toFixed(1) + '%';
+                    document.getElementById('processMemory').textContent = data.process_metrics.process_memory_mb.toFixed(1) + ' MB';
+                    document.getElementById('warningCount').textContent = data.warnings.length;
+                    document.getElementById('errorCount').textContent = data.errors.length;
+                    
+                    // Update diagnostic messages
+                    const messagesContainer = document.getElementById('diagnosticMessages');
+                    messagesContainer.innerHTML = '';
+                    
+                    // Add warnings
+                    data.warnings.forEach(warning => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'diagnostic-message warning';
+                        messageDiv.textContent = `⚠️ ${warning}`;
+                        messagesContainer.appendChild(messageDiv);
+                    });
+                    
+                    // Add errors
+                    data.errors.forEach(error => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'diagnostic-message error';
+                        messageDiv.textContent = `❌ ${error}`;
+                        messagesContainer.appendChild(messageDiv);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error updating diagnostics:', error);
+                });
+        }
+
+        // Update diagnostics every 5 seconds
+        setInterval(updateDiagnostics, 5000);
+        updateDiagnostics(); // Initial update
+
+        // Update simulation control state
+        function updateSimulationInfo(data) {
+            // Update step count and timing
+            simulationState.stepCount = data.step_count;
+            document.getElementById('stepCount').textContent = data.step_count;
+            
+            if (data.step_time) {
+                simulationState.totalStepTime += data.step_time;
+                const avgStepTime = simulationState.totalStepTime / simulationState.stepCount;
+                document.getElementById('avgStepTime').textContent = avgStepTime.toFixed(2) + ' ms';
+            }
+            
+            // Update simulation time
+            if (simulationState.startTime) {
+                const elapsed = new Date() - simulationState.startTime;
+                const hours = Math.floor(elapsed / 3600000);
+                const minutes = Math.floor((elapsed % 3600000) / 60000);
+                const seconds = Math.floor((elapsed % 60000) / 1000);
+                document.getElementById('simulationTime').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Update time remaining
+            updateTimeRemaining();
+        }
+        
+        // Update EventSource handler
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            // Update charts (existing code)
+            updateCharts(data);
+            
+            // Update metrics (existing code)
+            updateMetrics(data);
+            
+            // Update telemetry
+            updateTelemetry(data);
+            
+            // Update simulation info
+            updateSimulationInfo(data);
+        };
+
+        // Handle errors
+        eventSource.onerror = function(error) {
+            console.error('EventSource failed:', error);
+            eventSource.close();
+        };
+
+        // Simulation control state
+        let simulationState = {
+            status: 'stopped',
+            startTime: null,
+            duration: 0,
+            speed: 1,
+            stepCount: 0,
+            totalStepTime: 0
+        };
+        
+        // Control button handlers
+        document.getElementById('startButton').addEventListener('click', function() {
+            if (simulationState.status === 'stopped' || simulationState.status === 'paused') {
+                startSimulation();
+            }
+        });
+        
+        document.getElementById('pauseButton').addEventListener('click', function() {
+            if (simulationState.status === 'running') {
+                pauseSimulation();
+            }
+        });
+        
+        document.getElementById('resetButton').addEventListener('click', function() {
+            resetSimulation();
+        });
+        
+        // Duration input handler
+        document.getElementById('durationInput').addEventListener('change', function() {
+            simulationState.duration = parseInt(this.value) || 0;
+            updateTimeRemaining();
+        });
+        
+        // Speed control handler
+        document.getElementById('speedControl').addEventListener('input', function() {
+            simulationState.speed = parseFloat(this.value);
+            document.getElementById('speedValue').textContent = simulationState.speed.toFixed(1) + 'x';
+            updateSimulationSpeed();
+        });
+        
+        function startSimulation() {
+            fetch('/api/simulation/control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'start',
+                    duration: simulationState.duration,
+                    speed: simulationState.speed
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    simulationState.status = 'running';
+                    simulationState.startTime = new Date();
+                    updateControlStates();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        function pauseSimulation() {
+            fetch('/api/simulation/control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'pause'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    simulationState.status = 'paused';
+                    updateControlStates();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        function resetSimulation() {
+            fetch('/api/simulation/control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'reset'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    simulationState.status = 'stopped';
+                    simulationState.startTime = null;
+                    simulationState.stepCount = 0;
+                    simulationState.totalStepTime = 0;
+                    updateControlStates();
+                    resetCharts();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        function updateSimulationSpeed() {
+            if (simulationState.status === 'running') {
+                fetch('/api/simulation/control', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'speed',
+                        speed: simulationState.speed
+                    })
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+        
+        function updateControlStates() {
+            const startButton = document.getElementById('startButton');
+            const pauseButton = document.getElementById('pauseButton');
+            const resetButton = document.getElementById('resetButton');
+            const statusDiv = document.getElementById('simulationStatus');
+            const durationInput = document.getElementById('durationInput');
+            const speedControl = document.getElementById('speedControl');
+            
+            // Update button states
+            startButton.disabled = simulationState.status === 'running';
+            pauseButton.disabled = simulationState.status !== 'running';
+            resetButton.disabled = simulationState.status === 'stopped';
+            
+            // Update status display
+            statusDiv.className = 'simulation-status status-' + simulationState.status;
+            statusDiv.textContent = 'Simulation ' + 
+                simulationState.status.charAt(0).toUpperCase() + 
+                simulationState.status.slice(1);
+            
+            // Update input states
+            durationInput.disabled = simulationState.status === 'running';
+            speedControl.disabled = simulationState.status === 'stopped';
+        }
+        
+        function updateTimeRemaining() {
+            if (simulationState.status === 'running' && simulationState.duration > 0) {
+                const elapsed = (new Date() - simulationState.startTime) / 1000;
+                const remaining = Math.max(0, simulationState.duration - elapsed);
+                const minutes = Math.floor(remaining / 60);
+                const seconds = Math.floor(remaining % 60);
+                document.getElementById('timeRemaining').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (remaining <= 0) {
+                    pauseSimulation();
+                }
+            } else {
+                document.getElementById('timeRemaining').textContent = '--:--';
+            }
+        }
+        
+        // Initialize control states
+        updateControlStates();
+    </script>
+</body>
+</html> 

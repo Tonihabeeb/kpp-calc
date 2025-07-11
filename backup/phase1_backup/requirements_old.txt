@@ -1,0 +1,74 @@
+# KPP Simulator - Runtime Dependencies
+# Core web framework
+flask>=2.3.0
+Flask-SocketIO
+
+# FastAPI for WebSocket server
+fastapi>=0.100.0
+uvicorn>=0.20.0
+
+# Updated to latest versions for React 18 compatibility and to fix deprecation warnings
+dash>=3.1.0
+plotly>=6.2.0
+dash-core-components>=2.0.0
+dash-bootstrap-components>=1.5.0
+dash-extensions>=2.0.4
+flask_cors
+# Scientific computing
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+
+# HTTP requests and data validation
+requests>=2.31.0
+pydantic>=2.0.0
+
+# Real-time streaming
+sseclient-py>=1.8.0
+
+# Date/time utilities
+python-dateutil>=2.8.0
+
+# For production async support
+# (eventlet is recommended by Flask-SocketIO)
+eventlet
+
+# Optional: for advanced features
+numba>=0.57.0
+
+# System monitoring
+psutil>=5.9.0
+
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Physics Layer Dependencies
+# Thermodynamic properties
+CoolProp>=6.4.0
+# Discrete event simulation
+simpy>=3.0.0
+# Power system analysis
+pypsa>=0.21.0
+# Fluid dynamics framework
+fluiddyn>=0.8.0
+# Performance testing
+pytest-benchmark>=4.0.0
+memory-profiler>=0.60.0
+# High-performance computing (optional)
+# jax>=0.4.0
+# jaxlib>=0.4.0
+# Thermodynamic properties
+CoolProp>=6.4.0
+# Discrete event simulation
+simpy>=3.0.0
+# Power system analysis
+pypsa>=0.21.0
+# Fluid dynamics framework
+fluiddyn>=0.9.0
+# High-performance computing (optional)
+jax>=0.4.0
+jaxlib>=0.4.0
+# Performance testing
+pytest-benchmark>=4.0.0
+memory-profiler>=0.60.0
